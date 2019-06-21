@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Views\Shared\Components\DbNetGrid\Default.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Views\Shared\Components\DbNetGrid\Default.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="2.2.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.6.0-preview6.19303.8" />
+    <PackageReference Include="System.Data.Odbc" Version="4.6.0-preview6.19303.8" />
+    <PackageReference Include="System.Data.OleDb" Version="4.6.0-preview6.19303.8" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.7.0-preview6.19303.8" />
+  </ItemGroup>
+
+</Project>

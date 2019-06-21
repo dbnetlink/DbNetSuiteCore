@@ -1,0 +1,9 @@
+C:\Users\rcoode\source\repos\DbNetSuiteCore\Test\bin\Debug\netstandard2.0\Test.deps.json
+C:\Users\rcoode\source\repos\DbNetSuiteCore\Test\bin\Debug\netstandard2.0\Test.dll
+C:\Users\rcoode\source\repos\DbNetSuiteCore\Test\bin\Debug\netstandard2.0\Test.pdb
+C:\Users\rcoode\source\repos\DbNetSuiteCore\Test\obj\Debug\netstandard2.0\Test.csprojAssemblyReference.cache
+C:\Users\rcoode\source\repos\DbNetSuiteCore\Test\obj\Debug\netstandard2.0\Test.csproj.CoreCompileInputs.cache
+C:\Users\rcoode\source\repos\DbNetSuiteCore\Test\obj\Debug\netstandard2.0\Test.AssemblyInfoInputs.cache
+C:\Users\rcoode\source\repos\DbNetSuiteCore\Test\obj\Debug\netstandard2.0\Test.AssemblyInfo.cs
+C:\Users\rcoode\source\repos\DbNetSuiteCore\Test\obj\Debug\netstandard2.0\Test.dll
+C:\Users\rcoode\source\repos\DbNetSuiteCore\Test\obj\Debug\netstandard2.0\Test.pdb

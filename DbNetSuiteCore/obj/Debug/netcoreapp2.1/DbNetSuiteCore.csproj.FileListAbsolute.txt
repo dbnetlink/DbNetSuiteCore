@@ -1,0 +1,6 @@
+C:\Users\rcoode\source\repos\DbNetSuiteCore\DbNetSuiteCore\bin\Debug\netcoreapp2.1\DbNetSuiteCore.deps.json
+C:\Users\rcoode\source\repos\DbNetSuiteCore\DbNetSuiteCore\bin\Debug\netcoreapp2.1\DbNetSuiteCore.dll
+C:\Users\rcoode\source\repos\DbNetSuiteCore\DbNetSuiteCore\obj\Debug\netcoreapp2.1\DbNetSuiteCore.csprojAssemblyReference.cache
+C:\Users\rcoode\source\repos\DbNetSuiteCore\DbNetSuiteCore\obj\Debug\netcoreapp2.1\DbNetSuiteCore.csproj.CoreCompileInputs.cache
+C:\Users\rcoode\source\repos\DbNetSuiteCore\DbNetSuiteCore\obj\Debug\netcoreapp2.1\DbNetSuiteCore.AssemblyInfoInputs.cache
+C:\Users\rcoode\source\repos\DbNetSuiteCore\DbNetSuiteCore\obj\Debug\netcoreapp2.1\DbNetSuiteCore.AssemblyInfo.cs
