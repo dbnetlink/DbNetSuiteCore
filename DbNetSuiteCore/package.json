@@ -1,0 +1,25 @@
+{
+  "name": "dbnetsuitecore",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/bootbox": "^4.4.36",
+    "@types/bootstrap": "^4.2.0",
+    "@types/jquery": "^3.3.29",
+    "@types/sizzle": "^2.3.2",
+    "jquery": "^3.3.1"
+  },
+  "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.6.3",
+    "@types/notify": "0.0.29",
+    "bootstrap": "^4.2.1",
+    "bootstrap4-notify": "^4.0.3",
+    "typescript": "^3.2.2"
+  }
+}

@@ -18,6 +18,12 @@ namespace DbNetSuiteCore.Extensions
                    appBranch.UseDbNetGridHandler();
                });
 
+            app.MapWhen(
+               context => context.Request.Path.ToString().EndsWith(DbNetSuiteJsHandler.Extension),
+               appBranch => {
+                   appBranch.UseDbNetSuiteJsHandler();
+               });
+
             return app;
         }
 
@@ -35,6 +41,10 @@ namespace DbNetSuiteCore.Extensions
         public static IApplicationBuilder UseDbNetGridHandler(this IApplicationBuilder builder)
         {
             return builder.UseMiddleware<DbNetGridHandler>();
+        }
+        public static IApplicationBuilder UseDbNetSuiteJsHandler(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<DbNetSuiteJsHandler>();
         }
     }
 }

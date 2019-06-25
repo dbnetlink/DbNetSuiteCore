@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "module": "none",
+    "target": "es5",
+    "outFile": "../JavaScript/DbNetSuite.js",
+    "outDir": "../JavaScript",
+    "moduleResolution": "node"
+  },
+  "files": [
+    "Ajax.ts",
+    "DbNetGrid.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "compileOnSave": true
+}

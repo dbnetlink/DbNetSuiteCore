@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v2.2",
-    "signature": "8922802cac571401ed084a66188082a21c65a995"
+    "signature": "5ac6bb3e29324652571a056011b25741c4bb06d5"
   },
   "compilationOptions": {},
   "targets": {
@@ -11,6 +11,7 @@
           "Microsoft.AspNetCore": "2.2.0",
           "Microsoft.AspNetCore.Mvc": "2.2.0",
           "Microsoft.Extensions.FileProviders.Embedded": "2.2.0",
+          "Microsoft.TypeScript.MSBuild": "3.5.2",
           "System.Configuration.ConfigurationManager": "4.6.0-preview6.19303.8",
           "System.Data.Odbc": "4.6.0-preview6.19303.8",
           "System.Data.OleDb": "4.6.0-preview6.19303.8",
@@ -1241,6 +1242,7 @@
         }
       },
       "Microsoft.NETCore.Platforms/3.0.0-preview6.19303.8": {},
+      "Microsoft.TypeScript.MSBuild/3.5.2": {},
       "Microsoft.Win32.Registry/4.6.0-preview6.19303.8": {
         "dependencies": {
           "System.Security.AccessControl": "4.6.0-preview6.19303.8",
@@ -3019,6 +3021,13 @@
       "sha512": "sha512-XMWiBApT2BFB+1/8YCFW3+b2Sj1mrA2NK5HEewDurMvReiZqgIcKb9H27+1EphA9XDcPdOB6Yj5XEVGk+wJBqw==",
       "path": "microsoft.netcore.platforms/3.0.0-preview6.19303.8",
       "hashPath": "microsoft.netcore.platforms.3.0.0-preview6.19303.8.nupkg.sha512"
+    },
+    "Microsoft.TypeScript.MSBuild/3.5.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-wdNjdU91u4+limyumGXYiF5rb2wWnsnjAwUJwwJBwsLPYYpYFYXDTSeFsacF9avHuRSZI6lgHgQ0o7eRsJ/+8A==",
+      "path": "microsoft.typescript.msbuild/3.5.2",
+      "hashPath": "microsoft.typescript.msbuild.3.5.2.nupkg.sha512"
     },
     "Microsoft.Win32.Registry/4.6.0-preview6.19303.8": {
       "type": "package",
