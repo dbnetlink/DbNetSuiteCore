@@ -1,9 +1,0 @@
-C:\Users\rcoode\source\repos\DbNetSuiteCore\DbNetSuiteCore\obj\Debug\netcoreapp2.2\DbNetSuiteCore.csprojAssemblyReference.cache
-C:\Users\rcoode\source\repos\DbNetSuiteCore\DbNetSuiteCore\obj\Debug\netcoreapp2.2\DbNetSuiteCore.csproj.CoreCompileInputs.cache
-C:\Users\rcoode\source\repos\DbNetSuiteCore\DbNetSuiteCore\obj\Debug\netcoreapp2.2\DbNetSuiteCore.AssemblyInfoInputs.cache
-C:\Users\rcoode\source\repos\DbNetSuiteCore\DbNetSuiteCore\obj\Debug\netcoreapp2.2\DbNetSuiteCore.AssemblyInfo.cs
-C:\Users\rcoode\source\repos\DbNetSuiteCore\DbNetSuiteCore\bin\Debug\netcoreapp2.2\DbNetSuiteCore.deps.json
-C:\Users\rcoode\source\repos\DbNetSuiteCore\DbNetSuiteCore\bin\Debug\netcoreapp2.2\DbNetSuiteCore.dll
-C:\Users\rcoode\source\repos\DbNetSuiteCore\DbNetSuiteCore\bin\Debug\netcoreapp2.2\DbNetSuiteCore.pdb
-C:\Users\rcoode\source\repos\DbNetSuiteCore\DbNetSuiteCore\obj\Debug\netcoreapp2.2\DbNetSuiteCore.dll
-C:\Users\rcoode\source\repos\DbNetSuiteCore\DbNetSuiteCore\obj\Debug\netcoreapp2.2\DbNetSuiteCore.pdb
