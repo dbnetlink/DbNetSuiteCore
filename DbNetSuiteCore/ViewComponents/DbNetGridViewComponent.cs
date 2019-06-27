@@ -2,25 +2,19 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using DbNetSuiteCore.Models.Configuration;
 
 namespace DbNetSuiteCore.ViewComponents
 {
     public class DbNetGridViewComponent : ViewComponent
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IHostingEnvironment _env;
-        public DbNetGridViewComponent(
-            IHttpContextAccessor httpContextAccessor,
-            IHostingEnvironment env
-        )
+        public DbNetGridViewComponent()
         {
-            _httpContextAccessor = httpContextAccessor;
-            _env = env;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync()
+        public async Task<IViewComponentResult> InvokeAsync(DbNetGridConfiguration configuration)
         {
-            return View();
+            return View(configuration);
         }
     }
 }

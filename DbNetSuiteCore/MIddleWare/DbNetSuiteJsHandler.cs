@@ -8,6 +8,8 @@ namespace DbNetSuiteCore.Middleware
     public class DbNetSuiteJsHandler
     {
         public const string Extension = "dbnetsuitejs";
+
+        private readonly string[] Scripts = { "jquery.3.4.1.min.js", "notify.min.js", "DbNetSuite.js" };
         public DbNetSuiteJsHandler(RequestDelegate next)
         {
         }
@@ -15,9 +17,10 @@ namespace DbNetSuiteCore.Middleware
         public async Task Invoke(HttpContext context)
         {
             context.Response.ContentType = "text/javascript";
-            await context.Response.WriteAsync(GetResource("jquery.3.4.1.min.js"));
-            await context.Response.WriteAsync(GetResource("bootstrap-notify.min.js"));
-            await context.Response.WriteAsync(GetResource("DbNetSuite.js"));
+            foreach (var script in Scripts)
+            {
+                await context.Response.WriteAsync(GetResource(script));
+            }
         }
 
         private string GetResource(string name)
@@ -32,7 +35,7 @@ namespace DbNetSuiteCore.Middleware
                     text = reader.ReadToEnd();
                 }
             }
-            return text;
+            return $"{text}{System.Environment.NewLine}";
         }
     }
 }

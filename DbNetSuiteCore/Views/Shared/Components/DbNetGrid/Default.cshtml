@@ -1,4 +1,5 @@
-﻿<script src="script.dbnetsuitejs"></script>
+﻿@using DbNetSuiteCore.Models.Configuration
+<script src="script.dbnetsuitejs"></script>
 <script>
-    var dbnetgrid = new DbNetGrid();
+    var dbnetgrid = new DbNetGrid(@Html.Raw(DbNetSuiteCore.Helpers.SerialisationHelper.SerialiseToJson(Model)));
 </script>

@@ -41,7 +41,7 @@ var Ajax = /** @class */ (function () {
         ajaxSettings.type = "POST";
         ajaxSettings.dataType = "json";
         ajaxSettings.url = "handler.dbnetgrid?handler=" + handler;
-        ajaxSettings.data = data;
+        ajaxSettings.data = JSON.stringify(data);
         ajaxSettings.success = function (response) { callback(response); };
         ajaxSettings.error = function (xhr) {
             _this.ajaxError(xhr);
@@ -53,20 +53,13 @@ var Ajax = /** @class */ (function () {
         window.location.reload();
     };
     Ajax.prototype.notifyInfo = function (message) {
-        this.notify(message, "info");
+        //     this.notify(message, "info");
     };
     Ajax.prototype.notifyError = function (message) {
-        this.notify(message, "danger");
+        //     this.notify(message, "danger");
     };
     Ajax.prototype.setAntiForgeryToken = function () {
         $("input[name='__RequestVerificationToken']").val($("body").attr("xsrf-token"));
-    };
-    Ajax.prototype.notify = function (message, className) {
-        var options = {};
-        options.globalPosition = "top right";
-        options.autoHide = true;
-        options.className = className;
-        $.notify(message, options);
     };
     return Ajax;
 }());
@@ -89,15 +82,15 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var DbNetGrid = /** @class */ (function (_super) {
     __extends(DbNetGrid, _super);
-    function DbNetGrid() {
+    function DbNetGrid(configuration) {
         var _this = _super.call(this) || this;
+        _this.configuration = configuration;
         _this.init();
         return _this;
     }
     DbNetGrid.prototype.init = function () {
         var _this = this;
-        var params = {};
-        this.callServer("Init", params, function (response) { _this.initCallback(response); });
+        this.callServer("Init", this.configuration, function (response) { _this.initCallback(response); });
     };
     DbNetGrid.prototype.initCallback = function (response) {
         alert(response);

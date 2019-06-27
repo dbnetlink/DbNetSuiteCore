@@ -41,7 +41,7 @@ var Ajax = /** @class */ (function () {
         ajaxSettings.type = "POST";
         ajaxSettings.dataType = "json";
         ajaxSettings.url = "handler.dbnetgrid?handler=" + handler;
-        ajaxSettings.data = data;
+        ajaxSettings.data = JSON.stringify(data);
         ajaxSettings.success = function (response) { callback(response); };
         ajaxSettings.error = function (xhr) {
             _this.ajaxError(xhr);
@@ -53,20 +53,13 @@ var Ajax = /** @class */ (function () {
         window.location.reload();
     };
     Ajax.prototype.notifyInfo = function (message) {
-        this.notify(message, "info");
+        //     this.notify(message, "info");
     };
     Ajax.prototype.notifyError = function (message) {
-        this.notify(message, "danger");
+        //     this.notify(message, "danger");
     };
     Ajax.prototype.setAntiForgeryToken = function () {
         $("input[name='__RequestVerificationToken']").val($("body").attr("xsrf-token"));
-    };
-    Ajax.prototype.notify = function (message, className) {
-        var options = {};
-        options.globalPosition = "top right";
-        options.autoHide = true;
-        options.className = className;
-        $.notify(message, options);
     };
     return Ajax;
 }());

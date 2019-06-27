@@ -17,15 +17,15 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var DbNetGrid = /** @class */ (function (_super) {
     __extends(DbNetGrid, _super);
-    function DbNetGrid() {
+    function DbNetGrid(configuration) {
         var _this = _super.call(this) || this;
+        _this.configuration = configuration;
         _this.init();
         return _this;
     }
     DbNetGrid.prototype.init = function () {
         var _this = this;
-        var params = {};
-        this.callServer("Init", params, function (response) { _this.initCallback(response); });
+        this.callServer("Init", this.configuration, function (response) { _this.initCallback(response); });
     };
     DbNetGrid.prototype.initCallback = function (response) {
         alert(response);
