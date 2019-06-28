@@ -22,6 +22,7 @@
 // using System.Data.OracleClient;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -681,6 +682,7 @@ namespace DbNetSuiteCore.Data
         #region Private Properties
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly IConfiguration _configuration;
 
         private Hashtable _ReservedWords = new Hashtable();
 
@@ -702,125 +704,28 @@ namespace DbNetSuiteCore.Data
 
         #region Constructors
 
-        /// <summary>
-        /// Creates an instance of DbNeData by deriving the connection string from the configuration file using the name DbNetData
-        /// </summary>
-        /// <remarks>
-        /// 	<para>The connection string is derived on the following basis:</para>
-        /// 	<list type="bullet">
-        /// 		<item>IAn entry in the web.config connection strings collection called DbNetData is looked for</item>
-        /// 	</list>
-        /// </remarks>
-        /// <example>
-        /// <code>
-        /// DbNetData Db = new DbNetData();
-        /// </code>
-        /// </example>
 
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////
-        public DbNetData()
-            : this(DeriveConnectionString())
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////
-        {
-        }
-        /// <summary>
-        /// Creates an instance of DbNeData without provider information
-        /// </summary>
-        /// <remarks>
-        /// 	<para>The provider is derived on the following basis:</para>
-        /// 	<list type="bullet">
-        /// 		<item>If the connection string matches the regular expression "Provider=.*oledb.*;" then the <see cref="DataProvider.OleDb">OleDb</see> data provider is used</item>
-        /// 		<item>If the connection string matches the regular expression "dsn=.*" then the <see cref="DataProvider.Odbc">Odbc</see> data provider is used</item>
-        /// 		<item>If the connection string matches the regular expression "Data Source=(.*)\.vdb3;" then the <see cref="DataProvider.VistaDB">VistaDB</see> data provider is used</item>
-        /// 		<item>If the connection string matches the regular expression "Data Source=(.*)\.fdb;" then the <see cref="DataProvider.Firebird">Firebird</see> data provider is used</item>
-        /// 		<item>If the connection string matches none of the above then the <see cref="DataProvider.SqlClient">SqlClient</see> data provider is used</item>
-        /// 	</list>
-        /// Provider information can also be supplied in the connection string as an additional property called DataProvider 
-        /// specifying one of the supported <see cref="DataProvider">Data providers</see>
-        /// </remarks>
-        /// <param name="ConnectionString">Connection string</param>
-        /// <example>
-        /// <code>
-        /// DbNetData Db = new DbNetData("Server=dbserver;Database=Northwind;Trusted_Connection=true;");
-        /// </code>
-        /// <code>
-        /// DbNetData Db = new DbNetData("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\data\hr.mdb");
-        /// </code>
-        /// <code>
-        /// // Speciying the data provider in the connection string
-        /// DbNetData Db = new DbNetData("Data Source=Employees;user id=scott;password=tiger;DataProvider=OracleClient;");
-        /// </code>
-        /// <code>
-        /// // You can also simply provide the key for a &lt;connectionStrings&gt; entry in the web.config entry
-        /// DbNetData Db = new DbNetData("nwind");
-        /// </code> 
-        /// </example>
-
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////
-        public DbNetData(string ConnectionString)
-            : this(ConnectionString, DeriveProvider(ConnectionString))
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////
-        {
-        }
-        /// <summary>
-        /// Creates an instance of DbNeData with the data provider specified
-        /// </summary>
-        /// <param name="ConnectionString">Connection string</param>
-        /// <param name="Provider"><see cref="DataProvider">Data provider</see></param>
-        /// <example>
-        /// <code>
-        /// DbNetData Db = new DbNetData("Data Source=HUMANRESOURCES;user id=hr;password=hr;", DataProvider.OracleClient);
-        /// </code>
-        /// </example>
-
-
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////
-        public DbNetData(string ConnectionString, DataProvider Provider)
-            : this(ConnectionString, Provider, DatabaseType.Unknown)
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////
+        public DbNetData(string ConnectionString, IHttpContextAccessor httpContextAccessor, IHostingEnvironment hostingEnvironment, IConfiguration configuration)
+    : this(ConnectionString, DataProvider.SqlClient, DatabaseType.Unknown, httpContextAccessor, hostingEnvironment, configuration)
         {
         }
 
-        /// <summary>
-        /// Creates an instance of DbNeData with an instance of <seealso href="http://msdn.microsoft.com/en-us/library/system.configuration.connectionstringsettings.aspx">ConnectionStringSettings</seealso> from the web.config file
-        /// </summary>
-        /// <param name="CSS">ConnectionStringSettings instance</param>
-        /// <example>
-        /// <code>
-        /// ConnectionStringSettings CSS = ConfigurationManager.ConnectionStrings["northwind"];
-        /// DbNetData Db = new DbNetData(CSS);
-        /// </code>
-        /// </example>
-
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////
-        public DbNetData(ConnectionStringSettings CSS)
-            : this(ProcessConnectionStringSettings(CSS))
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////
+        public DbNetData(string ConnectionString, DataProvider? Provider, IHttpContextAccessor httpContextAccessor, IHostingEnvironment hostingEnvironment, IConfiguration configuration)
+            : this(ConnectionString, Provider, DatabaseType.Unknown, httpContextAccessor, hostingEnvironment, configuration)
         {
         }
 
-        /// <summary>
-        /// Creates an instance of DbNeData with the data provider specified and the database
-        /// </summary>
-        /// <remarks>
-        /// 	<para>In most cases specifying the Database type is not necessary as DbNetData can get this information automatically</para>
-        /// </remarks>
-        /// <param name="ConnectionString">Connection string</param>
-        /// <param name="Provider"><see cref="DataProvider">Data provider</see></param>
-        /// <param name="Database"><see cref="DatabaseType">Database type</see></param>
-        /// <example>
-        /// <code>
-        /// DbNetData Db = new DbNetData("DSN=HumanResources;", DataProvider.Odbc, Database.DB2);
-        /// </code>
-        /// </example>
+      
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
-        public DbNetData(string ConnectionString, DataProvider Provider, DatabaseType Database)
+        public DbNetData(string ConnectionString, DataProvider? Provider, DatabaseType Database, IHttpContextAccessor httpContextAccessor, IHostingEnvironment hostingEnvironment, IConfiguration configuration)
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
         {
-            this._Provider = Provider;
+            this._httpContextAccessor = httpContextAccessor;
+            this._hostingEnvironment = hostingEnvironment;
+            this._configuration = configuration;
             this._ConnectionString = MapDatabasePath(ConnectionString);
+            this._Provider = Provider.HasValue ? Provider.Value : DeriveProvider(this._ConnectionString);
             this._Database = Database;
-
             try
             {
                 switch (Provider)
@@ -835,15 +740,6 @@ namespace DbNetSuiteCore.Data
                         Adapter = new OdbcDataAdapter();
                         ProviderAssembly = Assembly.GetAssembly(typeof(System.Data.Odbc.OdbcConnection));
                         break;
-                    /*
-                case DataProvider.OracleClient:
-                    Conn = new OracleConnection(this.ConnectionString);
-                    Adapter = new OracleDataAdapter();
-                    this.ParameterTemplate = ":{0}";
-                    this._Database = DatabaseType.Oracle;
-                    ProviderAssembly = Assembly.GetAssembly(typeof(System.Data.OracleClient.OracleConnection));
-                    break;
-                    */
                     case DataProvider.SqlClient:
                         Conn = new SqlConnection(this.ConnectionString);
                         Adapter = new SqlDataAdapter();
@@ -1482,7 +1378,10 @@ namespace DbNetSuiteCore.Data
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
         {
             CloseReader();
-            Conn.Close();
+            if (Conn.State != ConnectionState.Closed)
+            {
+                Conn.Close();
+            }
         }
 
         /// <summary>
@@ -4034,7 +3933,7 @@ namespace DbNetSuiteCore.Data
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
-        private static string LookupConfigConnectionStrings(string CS)
+        private string LookupConfigConnectionStrings(string CS)
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
         {
             if (!CS.Contains("="))
@@ -4042,6 +3941,8 @@ namespace DbNetSuiteCore.Data
                 ConnectionStringSettings CSS = ConfigurationManager.ConnectionStrings[CS];
                 if (CSS != null)
                     CS = ProcessConnectionStringSettings(CSS);
+                else
+                    CS = _configuration.GetConnectionString(CS);
             }
 
             return CS;
@@ -4504,7 +4405,7 @@ namespace DbNetSuiteCore.Data
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
-        private static DataProvider DeriveProvider(string CS)
+        private DataProvider DeriveProvider(string CS)
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
         {
             CS = LookupConfigConnectionStrings(CS);

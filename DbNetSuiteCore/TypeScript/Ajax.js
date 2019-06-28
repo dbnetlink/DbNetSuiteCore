@@ -32,6 +32,7 @@ var Ajax = /** @class */ (function () {
     };
     Ajax.prototype.ajaxError = function (xhr) {
         console.log(JSON.stringify(xhr));
+        $("body").replaceWith(xhr.responseText);
         var options = {};
         this.notifyError("Oops! Something went wrong.");
     };

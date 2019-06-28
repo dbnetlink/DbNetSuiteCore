@@ -1,4 +1,6 @@
 ﻿using DbNetSuiteCore.Middleware;
+using DbNetSuiteCore.Services;
+using DbNetSuiteCore.Services.Interfaces;
 using DbNetSuiteCore.ViewComponents;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -32,9 +34,14 @@ namespace DbNetSuiteCore.Extensions
             services.AddHttpContextAccessor();
             services.Configure<RazorViewEngineOptions>(options =>
                 {
-                    options.FileProviders.Add(new EmbeddedFileProvider(typeof(DbNetGridViewComponent).GetTypeInfo().Assembly));
+                    options.FileProviders.Add(
+                        new EmbeddedFileProvider(
+                            typeof(DbNetGridViewComponent).GetTypeInfo().Assembly
+                            )
+                    );
                 });
 
+            services.AddTransient<IViewRenderService, ViewRenderService>();
             return services;
         }
 

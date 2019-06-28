@@ -2,16 +2,13 @@
 /// <reference types="bootstrap" />
 /// <reference types="bootbox" />
 /// <reference path="Ajax.ts" />
+/// <reference path="Interfaces.ts" />
 
-interface IDbNetGridConfiguration {
-    ConnectionString: string;
-    TableName: string;
-}
 
 class DbNetGrid extends Ajax {
-    configuration: IDbNetGridConfiguration;
+    configuration: DbNetGridConfiguration;
 
-    constructor(configuration : IDbNetGridConfiguration) {
+    constructor(configuration : DbNetGridConfiguration) {
         super();
         this.configuration = configuration;
         this.init();
@@ -21,7 +18,7 @@ class DbNetGrid extends Ajax {
         this.callServer("Init", this.configuration, (response) => { this.initCallback(response) });
     }
 
-    private initCallback(response: any) {
-        alert(response)
+    private initCallback(response: DbNetGridConfiguration) {
+        alert(response.tableName);
     }
 }

@@ -4,11 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.Extensions.FileProviders;
-using System.Reflection;
 using DbNetSuiteCore.Extensions;
-using DbNetSuiteCore.ViewComponents;
 
 namespace DbNetSuiteCoreWebApp
 {

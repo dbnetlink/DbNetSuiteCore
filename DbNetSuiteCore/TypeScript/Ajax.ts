@@ -34,6 +34,7 @@ class Ajax {
 
     private ajaxError(xhr) {
         console.log(JSON.stringify(xhr));
+        $("body").replaceWith(xhr.responseText);
 
         let options: BootboxAlertOptions = {} as BootboxAlertOptions;
         this.notifyError("Oops! Something went wrong.");

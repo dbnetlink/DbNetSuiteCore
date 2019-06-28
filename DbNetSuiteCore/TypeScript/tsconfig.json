@@ -12,7 +12,8 @@
   },
   "files": [
     "Ajax.ts",
-    "DbNetGrid.ts"
+    "DbNetGrid.ts",
+    "Interfaces.ts"
   ],
   "exclude": [
     "node_modules"

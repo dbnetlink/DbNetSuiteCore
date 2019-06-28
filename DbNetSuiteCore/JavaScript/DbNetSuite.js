@@ -32,6 +32,7 @@ var Ajax = /** @class */ (function () {
     };
     Ajax.prototype.ajaxError = function (xhr) {
         console.log(JSON.stringify(xhr));
+        $("body").replaceWith(xhr.responseText);
         var options = {};
         this.notifyError("Oops! Something went wrong.");
     };
@@ -67,6 +68,7 @@ var Ajax = /** @class */ (function () {
 /// <reference types="bootstrap" />
 /// <reference types="bootbox" />
 /// <reference path="Ajax.ts" />
+/// <reference path="Interfaces.ts" />
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -93,7 +95,7 @@ var DbNetGrid = /** @class */ (function (_super) {
         this.callServer("Init", this.configuration, function (response) { _this.initCallback(response); });
     };
     DbNetGrid.prototype.initCallback = function (response) {
-        alert(response);
+        alert(response.tableName);
     };
     return DbNetGrid;
 }(Ajax));

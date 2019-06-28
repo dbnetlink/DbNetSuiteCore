@@ -2,6 +2,7 @@
 /// <reference types="bootstrap" />
 /// <reference types="bootbox" />
 /// <reference path="Ajax.ts" />
+/// <reference path="Interfaces.ts" />
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -28,7 +29,7 @@ var DbNetGrid = /** @class */ (function (_super) {
         this.callServer("Init", this.configuration, function (response) { _this.initCallback(response); });
     };
     DbNetGrid.prototype.initCallback = function (response) {
-        alert(response);
+        alert(response.tableName);
     };
     return DbNetGrid;
 }(Ajax));
