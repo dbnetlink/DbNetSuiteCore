@@ -4,9 +4,9 @@
 /// <reference path="Ajax.ts" />
 /// <reference path="Interfaces.ts" />
 
-
 class DbNetGrid extends Ajax {
     configuration: DbNetGridConfiguration;
+    $container: JQuery<HTMLElement>
 
     constructor(configuration : DbNetGridConfiguration) {
         super();
@@ -19,6 +19,8 @@ class DbNetGrid extends Ajax {
     }
 
     private initCallback(response: DbNetGridConfiguration) {
-        alert(response.tableName);
+        this.$container = $(`#${this.configuration.id}`)
+        this.$container.html(response.html.toolbar);
+        this.$container.find(".table-container").html(response.html.page);
     }
 }

@@ -1,13 +1,7 @@
 ﻿@page
-@using DbNetSuiteCore.Models.Configuration
-@model IndexModel
-@{
-    ViewData["Title"] = "Home page";
+@{ 
+    Layout = "/pages/shared/_Layout.cshtml";
 }
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
-@await Component.InvokeAsync("DbNetGrid", new DbNetGridConfiguration() { ConnectionString = "DealerPortal", TableName = "AspNetUsers" })
-
+@using DbNetSuiteCore.Models.Configuration
+@model DbNetSuiteCoreWebApp.Pages.IndexModel
+@await Component.InvokeAsync("DbNetGrid", new DbNetGridConfiguration() { Id = "myGrid",ConnectionString = "DealerPortal", TableName = "AspNetUsers" })

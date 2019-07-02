@@ -55,13 +55,37 @@ namespace DbNetSuiteCore.Middleware
             {
                 case "init":
                     ConfigureColumns();
-                    _DbNetGridConfiguration.ToolbarHtml = await _viewRenderService.RenderToStringAsync("DbNetGrid_Toolbar");
+                    _DbNetGridConfiguration.Html["toolbar"] = await _viewRenderService.RenderToStringAsync("DbNetGrid", _DbNetGridConfiguration);
+                    _DbNetGridConfiguration.Html["page"] = await _viewRenderService.RenderToStringAsync("DbNetGrid_Page", GetPage());
                     break;
             }
 
             Db.Close();
             context.Response.ContentType = "application/json";
             await context.Response.WriteAsync(SerialisationHelper.SerialiseToJson(_DbNetGridConfiguration));
+        }
+
+        private DataTable GetPage()
+        {
+            string Sql = $"select top 0 * from {_DbNetGridConfiguration.TableName} where 1=2";
+            DataTable dt = Db.GetDataTable(Sql);
+            Sql = $"select * from {_DbNetGridConfiguration.TableName}";
+
+            Db.ExecuteQuery(Sql);
+
+            while (Db.Reader.Read())
+            {
+                DataRow row = dt.NewRow();
+                
+                for (var i=0; i < Db.Reader.FieldCount; i++)
+                {
+                    row[i] = Db.ReaderValue(i);
+                }
+
+                dt.Rows.Add(row);
+            }
+
+            return dt;
         }
 
         private void ConfigureColumns()

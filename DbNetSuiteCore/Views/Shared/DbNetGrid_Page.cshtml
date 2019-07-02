@@ -1,0 +1,23 @@
+﻿@using System.Data
+@model DataTable
+<table class="table">
+    <thead>
+        <tr>
+            @foreach (DataColumn column in Model.Columns)
+            {
+                <th>@column.ColumnName</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (DataRow row in Model.Rows)
+        {
+            <tr>
+                @foreach (DataColumn column in Model.Columns)
+                {
+                    <td>@row[column.ColumnName]</td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>

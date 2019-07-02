@@ -11,7 +11,8 @@
     <None Remove="JavaScript\notify.min.js" />
     <None Remove="TypeScript\Interfaces.ts" />
     <None Remove="Views\Shared\Components\DbNetGrid\Default.cshtml" />
-    <None Remove="Views\Shared\DbNetGrid_Toolbar.cshtml" />
+    <None Remove="Views\Shared\DbNetGrid.cshtml" />
+    <None Remove="Views\Shared\DbNetGrid_Page.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,7 +20,8 @@
     <EmbeddedResource Include="JavaScript\jquery.3.4.1.min.js" />
     <EmbeddedResource Include="JavaScript\notify.min.js" />
     <EmbeddedResource Include="Views\Shared\Components\DbNetGrid\Default.cshtml" />
-    <EmbeddedResource Include="Views\Shared\DbNetGrid_Toolbar.cshtml" />
+    <EmbeddedResource Include="Views\Shared\DbNetGrid_Page.cshtml" />
+    <EmbeddedResource Include="Views\Shared\DbNetGrid.cshtml" />
   </ItemGroup>
 
   <ItemGroup>

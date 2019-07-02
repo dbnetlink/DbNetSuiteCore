@@ -1,10 +1,12 @@
 ﻿interface DbNetGridConfiguration {
+    id: string;
     connectionString: string;
     tableName: string;
     pageSize: number;
     pageNumber: number;
     totalPages: number;
     columns: DbColumn[];
+    html: any;
 }
 
 interface Column {

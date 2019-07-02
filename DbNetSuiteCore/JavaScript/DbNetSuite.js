@@ -95,7 +95,9 @@ var DbNetGrid = /** @class */ (function (_super) {
         this.callServer("Init", this.configuration, function (response) { _this.initCallback(response); });
     };
     DbNetGrid.prototype.initCallback = function (response) {
-        alert(response.tableName);
+        this.$container = $("#" + this.configuration.id);
+        this.$container.html(response.html.toolbar);
+        this.$container.find(".table-container").html(response.html.page);
     };
     return DbNetGrid;
 }(Ajax));
