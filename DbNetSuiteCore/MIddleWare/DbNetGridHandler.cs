@@ -5,6 +5,7 @@ using DbNetSuiteCore.Models;
 using DbNetSuiteCore.Models.Configuration;
 using DbNetSuiteCore.Services.Interfaces;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
@@ -29,7 +30,6 @@ namespace DbNetSuiteCore.Middleware
         public const string Extension = ".dbnetgrid";
         public IViewRenderService _viewRenderService;
 
-        // Must have constructor with this signature, otherwise exception at run time
         public DbNetGridHandler(RequestDelegate next,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
@@ -46,7 +46,7 @@ namespace DbNetSuiteCore.Middleware
         public async Task Invoke(HttpContext context)
         {
             _DbNetGridConfiguration = SerialisationHelper.DeserialiseJson<DbNetGridConfiguration>(context.Request.Body);
-            Db = new DbNetData(_DbNetGridConfiguration.ConnectionString, _httpContextAccessor, _hostingEnvironment, _configuration);
+            Db = new DbNetData(_DbNetGridConfiguration.ConnectionString, _DbNetGridConfiguration.DataProvider, _httpContextAccessor, _hostingEnvironment, _configuration);
             Db.Open();
 
             var handler = (string)context.Request.Query["handler"] ?? string.Empty;
@@ -58,6 +58,10 @@ namespace DbNetSuiteCore.Middleware
                     _DbNetGridConfiguration.Html["toolbar"] = await _viewRenderService.RenderToStringAsync("DbNetGrid", _DbNetGridConfiguration);
                     _DbNetGridConfiguration.Html["page"] = await _viewRenderService.RenderToStringAsync("DbNetGrid_Page", GetPage());
                     break;
+                case "page":
+                    GetPage();
+                    _DbNetGridConfiguration.Html["page"] = await _viewRenderService.RenderToStringAsync("DbNetGrid_Page", GetPage());
+                    break;
             }
 
             Db.Close();
@@ -67,45 +71,62 @@ namespace DbNetSuiteCore.Middleware
 
         private DataTable GetPage()
         {
-            string Sql = $"select top 0 * from {_DbNetGridConfiguration.TableName} where 1=2";
+            string Sql = $"select {ColumnList()} from {_DbNetGridConfiguration.TableName} where 1=2";
             DataTable dt = Db.GetDataTable(Sql);
-            Sql = $"select * from {_DbNetGridConfiguration.TableName}";
 
-            Db.ExecuteQuery(Sql);
+            QueryCommandConfig query = new QueryCommandConfig();
+            query.Sql = $"select {ColumnList()} from {_DbNetGridConfiguration.TableName}";
+            AddFilter(query);
+
+            int firstRecord = (_DbNetGridConfiguration.PageSize * (_DbNetGridConfiguration.CurrentPage - 1)) + 1;
+            int lastRecord = (firstRecord + (_DbNetGridConfiguration.PageSize - 1));
+            int recordCounter = 0;
+            Db.ExecuteQuery(query);
 
             while (Db.Reader.Read())
             {
-                DataRow row = dt.NewRow();
-                
-                for (var i=0; i < Db.Reader.FieldCount; i++)
+                recordCounter++;
+                if (recordCounter >= firstRecord && recordCounter <= lastRecord)
                 {
-                    row[i] = Db.ReaderValue(i);
-                }
+                    DataRow row = dt.NewRow();
 
-                dt.Rows.Add(row);
+                    for (var i = 0; i < Db.Reader.FieldCount; i++)
+                    {
+                        row[i] = Db.ReaderValue(i);
+                    }
+
+                    dt.Rows.Add(row);
+                }
             }
+
+            _DbNetGridConfiguration.TotalRows = recordCounter;
 
             return dt;
         }
 
         private void ConfigureColumns()
         {
-            if (_DbNetGridConfiguration.Columns.Any())
-                if (_DbNetGridConfiguration.Columns.First().ColumnName != "")
-                    return;
-
             Dictionary<string, bool> BaseTables = new Dictionary<string, bool>();
 
-            string Sql = $"select * from {_DbNetGridConfiguration.TableName} where 1=2";
+            List<DbColumn> userDefinedColumns = _DbNetGridConfiguration.Columns;
+            string Sql = $"select {ColumnList()} from {_DbNetGridConfiguration.TableName} where 1=2";
+            _DbNetGridConfiguration.Columns.Clear();
 
             DataTable DT = Db.GetSchemaTable(Sql);
 
-            foreach (DataRow row in DT.Rows)
+            for (var idx = 0; idx < DT.Rows.Count; idx++ )
             {
+                DataRow row = DT.Rows[idx];
+
                 if (row.Table.Columns.Contains("IsHidden"))
                     if (Convert.ToBoolean(row["IsHidden"]))
                         continue;
                 _DbNetGridConfiguration.Columns.Add(GenerateColumn(row));
+
+                if (userDefinedColumns.Any())
+                {
+                    _DbNetGridConfiguration.Columns[idx].ColumnExpression = userDefinedColumns[idx].ColumnExpression;
+                }
             }
 
             string EditableBaseTable = "";
@@ -279,9 +300,33 @@ namespace DbNetSuiteCore.Middleware
             }
         }
 
-        ///////////////////////////////////////////////
+        private void AddFilter(QueryCommandConfig query)
+        {
+            if (string.IsNullOrWhiteSpace(_DbNetGridConfiguration.SearchToken))
+            {
+                return;
+            }
+
+            var filter = new List<string>();
+
+            foreach(DbColumn column in _DbNetGridConfiguration.Columns)
+            {
+                if (column.SimpleSearch)
+                {
+                    filter.Add(StripColumnRename(column.ColumnExpression) + " like " + Db.ParameterName("simplesearchtoken"));
+                }
+            }
+
+            if (filter.Any() == false)
+            {
+                return;
+            }
+
+            query.Sql += $" where {string.Join(" or ", filter)}";
+            query.Params["simplesearchtoken"] = $"%{_DbNetGridConfiguration.SearchToken}%";
+        }
+
         private DbColumn GenerateColumn(DataRow row)
-        ///////////////////////////////////////////////
         {
             DbColumn C = new DbColumn();
 
@@ -299,14 +344,32 @@ namespace DbNetSuiteCore.Middleware
             return C;
         }
 
-        ///////////////////////////////////////////////
         private void GetBaseSchemaName(DbColumn C, DataRow Row)
-        ///////////////////////////////////////////////
         {
             if (C.BaseSchemaName == "")
                 if (Row.Table.Columns.Contains("BaseSchemaName"))
                     if (Row["BaseSchemaName"] != System.DBNull.Value)
                         C.BaseSchemaName = Convert.ToString(Row["BaseSchemaName"]);
+        }
+
+        private string ColumnList()
+        {
+            var columns = "*";
+
+            if (_DbNetGridConfiguration.Columns.Any())
+            {
+                columns = string.Join(",", _DbNetGridConfiguration.Columns.Select(c => c.ColumnExpression).ToArray());
+            }
+            return columns;
+        }
+
+        protected string StripColumnRename(string ColumnExpression)
+        {
+            string[] ColumnParts = ColumnExpression.Split(')');
+            ColumnParts[ColumnParts.Length - 1] = Regex.Replace(ColumnParts[ColumnParts.Length - 1], " as .*", "", RegexOptions.IgnoreCase);
+            ColumnParts[0] = Regex.Replace(ColumnParts[0], "unique |distinct ", "", RegexOptions.IgnoreCase);
+
+            return String.Join(")", ColumnParts);
         }
     }
 }

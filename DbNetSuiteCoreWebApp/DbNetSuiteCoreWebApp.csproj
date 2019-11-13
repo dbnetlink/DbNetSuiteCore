@@ -9,11 +9,18 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Data.SQLite" Version="2.2.4" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.111" />
   </ItemGroup>
 
 
   <ItemGroup>
     <ProjectReference Include="..\DbNetSuiteCore\DbNetSuiteCore.csproj" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Folder Include="App_Data\" />
   </ItemGroup>
 
 </Project>

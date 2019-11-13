@@ -4,11 +4,11 @@
 class Ajax {
     constructor() {
 
+        /*   
         $(document).on({
             ajaxStart: function () { $("body").addClass("loading"); },
             ajaxStop: function () { $("body").removeClass("loading"); }
         });
-
         $.ajaxSetup({
             complete: (xhr, status) => {
                 if (xhr.getResponseHeader("X-Responded-JSON") !== null && JSON.parse(xhr.getResponseHeader("X-Responded-JSON")).status === "401") {
@@ -23,6 +23,7 @@ class Ajax {
                 }
             }
         });
+        */
     }
 
     private timeout() {
@@ -34,24 +35,24 @@ class Ajax {
 
     private ajaxError(xhr) {
         console.log(JSON.stringify(xhr));
-        $("body").replaceWith(xhr.responseText);
-
-        let options: BootboxAlertOptions = {} as BootboxAlertOptions;
-        this.notifyError("Oops! Something went wrong.");
+        alert(xhr.responseText);
     }
 
     public callServer(handler: string, data: any, callback: any) {
-        let ajaxSettings: JQueryAjaxSettings = {} as JQueryAjaxSettings;
-        ajaxSettings.type = "POST";
-        ajaxSettings.dataType = "json";
-        ajaxSettings.url = "handler.dbnetgrid?handler=" + handler;
-        ajaxSettings.data = JSON.stringify(data);
-        ajaxSettings.success = (response) => { callback(response); };
-        ajaxSettings.error = (xhr) => {
-            this.ajaxError(xhr);
+        var xhr = new XMLHttpRequest();
+        var _this = this;
+        xhr.open('POST', `handler.dbnetgrid?handler=${handler}`);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader("RequestVerificationToken", document.querySelector("body").getAttribute("xsrf-token"));
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                callback(JSON.parse(xhr.responseText));
+            }
+            else if (xhr.status !== 200) {
+                _this.ajaxError(xhr);
+            }
         };
-        ajaxSettings.headers = { "RequestVerificationToken": $("body").attr("xsrf-token") };
-        $.ajax(ajaxSettings);
+        xhr.send(JSON.stringify(data));
     }
 
     public reload() {
@@ -59,11 +60,11 @@ class Ajax {
     }
 
     public notifyInfo(message: string) {
-   //     this.notify(message, "info");
+        alert(message);
     }
 
     public notifyError(message: string) {
-   //     this.notify(message, "danger");
+        alert(message);
     }
 
     public setAntiForgeryToken() {

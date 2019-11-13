@@ -3987,8 +3987,21 @@ namespace DbNetSuiteCore.Data
                     string DbPath = Re.Match(Parts[I]).Groups[1].Value;
                     this.DataSourcePath = DbPath;
 #if (!WINDOWS)
-                    if (_httpContextAccessor != null && DbPath.StartsWith("/") && !DbPath.StartsWith("//"))
-                        this.DataSourcePath = System.IO.Path.Combine(_hostingEnvironment.WebRootPath, DbPath);
+                    if (_hostingEnvironment != null && DbPath.StartsWith("/") && !DbPath.StartsWith("//"))
+                    {
+                        var roots = new List<string>() { _hostingEnvironment.ContentRootPath, _hostingEnvironment.WebRootPath };
+                        foreach (var root in roots)
+                        {
+                            var paths = new List<string>() { root };
+                            paths.AddRange(DbPath.Split('/'));
+                            var filePath = Path.Combine(paths.ToArray());
+                            if (File.Exists(filePath))
+                            {
+                                this.DataSourcePath = filePath;
+                                break;
+                            }
+                        }
+                    }
 #endif
                     Parts[I] = Parts[I].Replace(DbPath, this.DataSourcePath);
                 }

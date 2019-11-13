@@ -1,6 +1,6 @@
 ﻿@using System.Data
 @model DataTable
-<table class="table">
+<table class="grid-table">
     <thead>
         <tr>
             @foreach (DataColumn column in Model.Columns)
@@ -10,14 +10,32 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (DataRow row in Model.Rows)
+        @if (Model.Rows.Count == 0)
         {
             <tr>
-                @foreach (DataColumn column in Model.Columns)
-                {
-                    <td>@row[column.ColumnName]</td>
-                }
+                <td colspan="@Model.Columns.Count">No records found</td>
             </tr>
+        }
+        else
+        {
+            @foreach (DataRow row in Model.Rows)
+            {
+                <tr>
+                    @foreach (DataColumn column in Model.Columns)
+                    {
+                        <td>
+                            @if (column.DataType == typeof(System.Boolean))
+                            {
+                                <i class="material-icons md-24">(@((bool)row[column.ColumnName]) ? "check_box" : "check_box_outline_blank")</i>
+                            }
+                            else
+                            {
+                                @row[column.ColumnName]
+                            }
+                        </td>
+                    }
+                </tr>
+            }
         }
     </tbody>
 </table>

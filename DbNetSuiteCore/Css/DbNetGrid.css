@@ -1,0 +1,46 @@
+﻿.dbnetgrid .grid-table {
+    border-collapse: collapse;
+}
+
+.dbnetgrid *{
+    font-family:tahoma;
+    font-size:medium;
+}
+
+    .dbnetgrid .grid table td,
+    .dbnetgrid .grid table th {
+        border: 1pt solid #ccc;
+        padding: 5px;
+    }
+
+.dbnetgrid .grid table {
+    border-radius: 5px;
+}
+
+.dbnetgrid .toolbar table {
+    background-color: #ccc;
+    border: 1pt solid #bbb;
+    border-radius: 5px;
+    margin-bottom:5px;
+}
+
+    .dbnetgrid .toolbar .current-page,
+    .dbnetgrid .toolbar .total-pages {
+        background-color: #fff;
+        border: 1pt solid #bbb;
+        border-radius: 5px;
+        padding: 5px;
+    }
+
+    .dbnetgrid .toolbar input {
+        background-color: #fff;
+        border: 1pt solid #bbb;
+        border-radius: 5px;
+        padding: 5px;
+    }
+
+    .dbnetgrid .toolbar button {
+        border: 1px solid transparent;
+        border-radius: 5px;
+        padding: 5px;
+    }

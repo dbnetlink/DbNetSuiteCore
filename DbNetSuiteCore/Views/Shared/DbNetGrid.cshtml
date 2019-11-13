@@ -1,8 +1,22 @@
-﻿@model DbNetSuiteCore.Models.Configuration.DbNetGridConfiguration
+﻿@using Microsoft.AspNetCore.Html
+@using DbNetSuiteCore.Helpers
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model DbNetSuiteCore.Models.Configuration.DbNetGridConfiguration
+
+
 <div id="@Model.Id" class="dbnetgrid">
-    <nav class="navbar navbar-light bg-light">
-        <button class="btn btn-sm btn-outline-secondary" type="button">Search</button>
-    </nav>
-    <div class="table-container">
+    <div class="toolbar">
+        <table>
+            <tr>
+                <td>@Html.ToolbarIconButton("prev")</td>
+                <td><div class="current-page">@Model.CurrentPage</div></td>
+                <td><strong>&nbsp;of&nbsp;</strong></td>
+                <td><div class="total-pages">@Model.TotalPages</div></td>
+                <td>@Html.ToolbarIconButton("next")</td>
+                <td><input class="search-token" type="search" placeholder="Search" aria-label="Search" /></td>
+                <td>@Html.ToolbarIconButton("search")</td>
+            </tr>
+        </table>
     </div>
+    <div class="grid"></div>
 </div>

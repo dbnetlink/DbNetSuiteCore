@@ -1,7 +1,19 @@
 ﻿@page
-@{ 
+@using DbNetSuiteCore.Models
+@{
     Layout = "/pages/shared/_Layout.cshtml";
 }
 @using DbNetSuiteCore.Models.Configuration
 @model DbNetSuiteCoreWebApp.Pages.IndexModel
-@await Component.InvokeAsync("DbNetGrid", new DbNetGridConfiguration() { Id = "myGrid",ConnectionString = "DealerPortal", TableName = "AspNetUsers" })
+@await Component.InvokeAsync("DbNetGrid", new DbNetGridConfiguration() {
+    Id = "myGrid",
+    ConnectionString = "Chinook",
+    DataProvider = DbNetSuiteCore.Data.DataProvider.SQLite,
+    TableName = "Customers",
+    PageSize = 5,
+    Columns = new List<DbColumn>() {
+        new DbColumn {  ColumnExpression = "CustomerId"},
+        new DbColumn {  ColumnExpression = "FirstName" },
+        new DbColumn {  ColumnExpression = "LastName" }
+    }
+})

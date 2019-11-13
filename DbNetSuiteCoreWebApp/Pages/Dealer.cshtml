@@ -1,0 +1,14 @@
+﻿@page
+@using DbNetSuiteCore.Models
+@{
+    Layout = "/pages/shared/_Layout.cshtml";
+}
+@using DbNetSuiteCore.Models.Configuration
+@model DbNetSuiteCoreWebApp.Pages.IndexModel
+@await Component.InvokeAsync("DbNetGrid", new DbNetGridConfiguration()
+{
+    Id = "myGrid",
+    ConnectionString = "CustomerSupport",
+    DataProvider = DbNetSuiteCore.Data.DataProvider.SqlClient,
+    TableName = "Dealer"
+})

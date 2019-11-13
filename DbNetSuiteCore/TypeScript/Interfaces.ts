@@ -3,10 +3,11 @@
     connectionString: string;
     tableName: string;
     pageSize: number;
-    pageNumber: number;
+    currentPage: number;
     totalPages: number;
     columns: DbColumn[];
     html: any;
+    searchToken: string;
 }
 
 interface Column {

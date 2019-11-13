@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
@@ -6,9 +6,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Css\DbNetGrid.css" />
+    <None Remove="Css\DbNetSuite.css" />
+    <None Remove="Css\DbNetSuite.min.css" />
+    <None Remove="Images\next.png" />
+    <None Remove="Images\prev.png" />
+    <None Remove="Images\printer.png" />
+    <None Remove="Images\search.png" />
     <None Remove="JavaScript\DbNetSuite.js" />
     <None Remove="JavaScript\jquery.3.4.1.min.js" />
     <None Remove="JavaScript\notify.min.js" />
+    <None Remove="TypeScript\Ajax.js" />
+    <None Remove="TypeScript\Ajax.js.map" />
+    <None Remove="TypeScript\DbNetGrid.js" />
+    <None Remove="TypeScript\DbNetGrid.js.map" />
+    <None Remove="TypeScript\Interfaces.js" />
+    <None Remove="TypeScript\Interfaces.js.map" />
     <None Remove="TypeScript\Interfaces.ts" />
     <None Remove="Views\Shared\Components\DbNetGrid\Default.cshtml" />
     <None Remove="Views\Shared\DbNetGrid.cshtml" />
@@ -16,6 +29,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Css\DbNetGrid.css" />
+    <EmbeddedResource Include="Css\DbNetSuite.css" />
+    <EmbeddedResource Include="Css\DbNetSuite.min.css" />
+    <EmbeddedResource Include="Images\prev.png" />
+    <EmbeddedResource Include="Images\search.png" />
+    <EmbeddedResource Include="Images\printer.png" />
+    <EmbeddedResource Include="Images\next.png" />
     <EmbeddedResource Include="JavaScript\DbNetSuite.js" />
     <EmbeddedResource Include="JavaScript\jquery.3.4.1.min.js" />
     <EmbeddedResource Include="JavaScript\notify.min.js" />

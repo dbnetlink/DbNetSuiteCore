@@ -12,6 +12,7 @@
     "@types/bootbox": "^4.4.36",
     "@types/bootstrap": "^4.2.0",
     "@types/jquery": "^3.3.29",
+    "@types/material-design-lite": "^1.1.15",
     "@types/sizzle": "^2.3.2",
     "jquery": "^3.3.1"
   },
