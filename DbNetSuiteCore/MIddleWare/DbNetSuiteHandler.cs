@@ -20,7 +20,7 @@ namespace DbNetSuiteCore.Middleware
             switch (handler.ToLower())
             {
                 case "css":
-                    content = ResourceHelper.GetResource("Css.DbNetSuite.min.css");
+                    content = ResourceHelper.GetResource("Css.DbNetSuite.css");
                     context.Response.ContentType = "text/css";
                     break;
                 case "js":

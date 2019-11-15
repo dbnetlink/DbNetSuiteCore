@@ -2728,7 +2728,7 @@ namespace DbNetSuiteCore.Data
         public Hashtable GetHashtable()
         ////////////////////////////////////////////////////////////////////////////
         {
-            Hashtable Data = new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer());
+            Hashtable Data = new Hashtable(StringComparer.OrdinalIgnoreCase);
 
             if (this.Reader.IsClosed)
                 return Data;

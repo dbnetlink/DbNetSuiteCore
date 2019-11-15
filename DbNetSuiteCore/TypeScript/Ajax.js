@@ -24,10 +24,10 @@ var Ajax = /** @class */ (function () {
         */
     }
     Ajax.prototype.timeout = function () {
-        var _this = this;
+        var _this_1 = this;
         var options = {};
         options.message = "Login has timed out";
-        options.callback = function () { return _this.reload(); };
+        options.callback = function () { return _this_1.reload(); };
         bootbox.alert(options);
     };
     Ajax.prototype.ajaxError = function (xhr) {

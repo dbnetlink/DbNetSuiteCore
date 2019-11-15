@@ -36,10 +36,18 @@
             padding: 5px;
         }
 
+        input.search-token{
+            width:100px;
+        }
+
         button {
             border: 1px solid transparent;
             border-radius: 5px;
             padding: 5px;
+        }
+
+        button:disabled {
+            opacity: 0.5;
         }
     }
 }

@@ -51,15 +51,18 @@ var DbNetGrid = /** @class */ (function (_super) {
         this.$nextBtn.onclick = function () { return _this.nextPage(); };
         this.$searchBtn.onclick = function () { return _this.applySearch(); };
         this.quickSearchTimeout = null;
-        this.$searchToken.onkeydown = function (e) { return function (e) {
-            clearTimeout(this.quickSearchTimeout);
-            this.quickSearchTimeout = setTimeout(function () {
-                if (this.$searchToken.value.length > 3) {
-                    console.log('Input Value:', this.$searchToken.value);
-                }
-            }, 500);
-        }; };
+        this.$searchToken.onkeyup = function (e) { return _this.checkSearchBox(e); };
         this.pageCallback(response);
+    };
+    DbNetGrid.prototype.checkSearchBox = function (event) {
+        var _this = this;
+        var token = event.target;
+        clearTimeout(this.quickSearchTimeout);
+        this.quickSearchTimeout = setTimeout(function () {
+            if (token.value.length > 3) {
+                _this.applySearch();
+            }
+        }, 1000);
     };
     DbNetGrid.prototype.nextPage = function () {
         var _this = this;

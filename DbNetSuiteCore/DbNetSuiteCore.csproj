@@ -14,8 +14,6 @@
     <None Remove="Images\printer.png" />
     <None Remove="Images\search.png" />
     <None Remove="JavaScript\DbNetSuite.js" />
-    <None Remove="JavaScript\jquery.3.4.1.min.js" />
-    <None Remove="JavaScript\notify.min.js" />
     <None Remove="TypeScript\Ajax.js" />
     <None Remove="TypeScript\Ajax.js.map" />
     <None Remove="TypeScript\DbNetGrid.js" />
@@ -37,8 +35,6 @@
     <EmbeddedResource Include="Images\printer.png" />
     <EmbeddedResource Include="Images\next.png" />
     <EmbeddedResource Include="JavaScript\DbNetSuite.js" />
-    <EmbeddedResource Include="JavaScript\jquery.3.4.1.min.js" />
-    <EmbeddedResource Include="JavaScript\notify.min.js" />
     <EmbeddedResource Include="Views\Shared\Components\DbNetGrid\Default.cshtml" />
     <EmbeddedResource Include="Views\Shared\DbNetGrid_Page.cshtml" />
     <EmbeddedResource Include="Views\Shared\DbNetGrid.cshtml" />
@@ -48,10 +44,6 @@
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="2.2.0" />
-    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="3.5.2">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.6.0-preview6.19303.8" />
     <PackageReference Include="System.Data.Odbc" Version="4.6.0-preview6.19303.8" />
     <PackageReference Include="System.Data.OleDb" Version="4.6.0-preview6.19303.8" />

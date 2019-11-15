@@ -27,7 +27,13 @@
   border-radius: 5px;
   padding: 5px; }
 
+.dbnetgrid .toolbar input.search-token {
+  width: 100px; }
+
 .dbnetgrid .toolbar button {
   border: 1px solid transparent;
   border-radius: 5px;
   padding: 5px; }
+
+.dbnetgrid .toolbar button:disabled {
+  opacity: 0.5; }

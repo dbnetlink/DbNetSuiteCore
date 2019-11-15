@@ -115,17 +115,24 @@ var DbNetGrid = /** @class */ (function (_super) {
         this.$searchToken = this.$container.querySelector("input.search-token");
         this.$prevBtn.onclick = function () { return _this.prevPage(); };
         this.$nextBtn.onclick = function () { return _this.nextPage(); };
-        this.$searchBtn.onclick = function () { return _this.applySearch(); };
+        this.$searchBtn.onclick = function () { return _this.applySearch(_this.$searchToken.value); };
         this.quickSearchTimeout = null;
-        this.$searchToken.onkeydown = function (e) { return function (e) {
-            clearTimeout(this.quickSearchTimeout);
-            this.quickSearchTimeout = setTimeout(function () {
-                if (this.$searchToken.value.length > 3) {
-                    console.log('Input Value:', this.$searchToken.value);
-                }
-            }, 500);
-        }; };
+        this.$searchToken.onkeyup = function (e) { return _this.checkSearchBox(e); };
+        this.$searchToken.addEventListener("search", function (e) { return function (e) { this.applySearch(""); }; });
         this.pageCallback(response);
+    };
+    DbNetGrid.prototype.checkSearchBox = function (event) {
+        var _this = this;
+        var token = event.target;
+        clearTimeout(this.quickSearchTimeout);
+        this.quickSearchTimeout = setTimeout(function () {
+            if (token.value.length > 3) {
+                _this.applySearch(token.value);
+            }
+            else if (token.getAttribute("applied-search-token")) {
+                _this.applySearch("");
+            }
+        }, 1000);
     };
     DbNetGrid.prototype.nextPage = function () {
         var _this = this;
@@ -143,9 +150,10 @@ var DbNetGrid = /** @class */ (function (_super) {
         this.configuration.currentPage--;
         this.callServer("Page", this.configuration, function (response) { _this.pageCallback(response); });
     };
-    DbNetGrid.prototype.applySearch = function () {
+    DbNetGrid.prototype.applySearch = function (token) {
         var _this = this;
-        this.configuration.searchToken = this.$searchToken.value.toString();
+        this.$searchToken.setAttribute("applied-search-token", token);
+        this.configuration.searchToken = token.toString();
         this.configuration.currentPage = 1;
         this.callServer("Page", this.configuration, function (response) { _this.pageCallback(response); });
     };
@@ -154,8 +162,8 @@ var DbNetGrid = /** @class */ (function (_super) {
         this.$container.querySelector(".grid").innerHTML = response.html.page;
         this.$container.querySelector(".current-page").innerText = response.currentPage.toString();
         this.$container.querySelector(".total-pages").innerText = response.totalPages.toString();
-        this.$prevBtn.disabled = (response.currentPage == 1);
-        this.$nextBtn.disabled = (response.currentPage == response.totalPages);
+        this.$prevBtn.disabled = (response.currentPage === 1);
+        this.$nextBtn.disabled = (response.currentPage === response.totalPages);
     };
     return DbNetGrid;
 }(Ajax));

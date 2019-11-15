@@ -48,20 +48,27 @@ class DbNetGrid extends Ajax {
         this.$searchToken = this.$container.querySelector("input.search-token");
         this.$prevBtn.onclick = () => this.prevPage();
         this.$nextBtn.onclick = () => this.nextPage();
-        this.$searchBtn.onclick = () => this.applySearch();
-
+        this.$searchBtn.onclick = () => this.applySearch(this.$searchToken.value);
         this.quickSearchTimeout = null;
-
-        this.$searchToken.onkeydown = (e) => function (e) {
-            clearTimeout(this.quickSearchTimeout);
-            this.quickSearchTimeout = setTimeout(function () {
-                if (this.$searchToken.value.length > 3) {
-                    console.log('Input Value:', this.$searchToken.value);
-                }
-            }, 500);
-        };
+        this.$searchToken.onkeyup = (e) => this.checkSearchBox(e);
+        this.$searchToken.addEventListener("search", (e) => function (e) { this.applySearch("") });
         this.pageCallback(response);
-    }
+    } 
+
+    private checkSearchBox(event: KeyboardEvent) {
+        let _this = this;
+        let token = <HTMLInputElement>event.target;
+        clearTimeout(this.quickSearchTimeout);
+        this.quickSearchTimeout = setTimeout(function () {
+            if (token.value.length > 3) {
+                _this.applySearch(token.value);
+            }
+            else if (token.getAttribute("applied-search-token"))
+            {
+                _this.applySearch(""); 
+            }
+        }, 1000);
+    } 
 
     private nextPage() {
         if (this.configuration.currentPage >= this.configuration.totalPages) {
@@ -79,8 +86,9 @@ class DbNetGrid extends Ajax {
         this.callServer("Page", this.configuration, (response) => { this.pageCallback(response) });
     }
 
-    private applySearch() {
-        this.configuration.searchToken = this.$searchToken.value.toString();
+    private applySearch(token: string) {
+        this.$searchToken.setAttribute("applied-search-token", token);
+        this.configuration.searchToken = token.toString();
         this.configuration.currentPage = 1;
         this.callServer("Page", this.configuration, (response) => { this.pageCallback(response) });
     }
@@ -90,7 +98,7 @@ class DbNetGrid extends Ajax {
         this.$container.querySelector(".grid").innerHTML = response.html.page;
         (<HTMLElement>this.$container.querySelector(".current-page")).innerText = response.currentPage.toString();
         (<HTMLElement>this.$container.querySelector(".total-pages")).innerText = response.totalPages.toString();
-        this.$prevBtn.disabled = (response.currentPage == 1);
-        this.$nextBtn.disabled = (response.currentPage == response.totalPages);
+        this.$prevBtn.disabled = (response.currentPage === 1);
+        this.$nextBtn.disabled = (response.currentPage === response.totalPages);
     }
 }

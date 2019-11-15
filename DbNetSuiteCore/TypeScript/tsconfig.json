@@ -8,7 +8,8 @@
     "target": "es5",
     "outFile": "../JavaScript/DbNetSuite.js",
     "outDir": "../JavaScript",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "watch": true
   },
   "files": [
     "Ajax.ts",
