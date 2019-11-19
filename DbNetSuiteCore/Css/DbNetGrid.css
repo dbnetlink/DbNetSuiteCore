@@ -13,9 +13,13 @@
         padding: 5px;
     }
 
-.dbnetgrid .grid table {
-    border-radius: 5px;
-}
+    .dbnetgrid .grid table {
+        border-radius: 5px;
+        tr:nth-child(even)
+        {
+            background-color: #f2f2f2;
+        }
+    }
 
 .dbnetgrid .toolbar table {
     background-color: #ccc;

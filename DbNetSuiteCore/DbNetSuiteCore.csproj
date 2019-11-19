@@ -9,10 +9,14 @@
     <None Remove="Css\DbNetGrid.css" />
     <None Remove="Css\DbNetSuite.css" />
     <None Remove="Css\DbNetSuite.min.css" />
+    <None Remove="Images\chevron-down.png" />
+    <None Remove="Images\chevron-up.png" />
+    <None Remove="Images\down.png" />
     <None Remove="Images\next.png" />
     <None Remove="Images\prev.png" />
     <None Remove="Images\printer.png" />
     <None Remove="Images\search.png" />
+    <None Remove="Images\up.png" />
     <None Remove="JavaScript\DbNetSuite.js" />
     <None Remove="TypeScript\Ajax.js" />
     <None Remove="TypeScript\Ajax.js.map" />
@@ -30,10 +34,14 @@
     <EmbeddedResource Include="Css\DbNetGrid.css" />
     <EmbeddedResource Include="Css\DbNetSuite.css" />
     <EmbeddedResource Include="Css\DbNetSuite.min.css" />
+    <EmbeddedResource Include="Images\chevron-down.png" />
+    <EmbeddedResource Include="Images\chevron-up.png" />
+    <EmbeddedResource Include="Images\down.png" />
     <EmbeddedResource Include="Images\prev.png" />
     <EmbeddedResource Include="Images\search.png" />
     <EmbeddedResource Include="Images\printer.png" />
     <EmbeddedResource Include="Images\next.png" />
+    <EmbeddedResource Include="Images\up.png" />
     <EmbeddedResource Include="JavaScript\DbNetSuite.js" />
     <EmbeddedResource Include="Views\Shared\Components\DbNetGrid\Default.cshtml" />
     <EmbeddedResource Include="Views\Shared\DbNetGrid_Page.cshtml" />
@@ -68,6 +76,11 @@
     <TypeScriptSourceMap>True</TypeScriptSourceMap>
     <TypeScriptMapRoot />
     <TypeScriptSourceRoot />
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
 </Project>

@@ -118,7 +118,7 @@ var DbNetGrid = /** @class */ (function (_super) {
         this.$searchBtn.onclick = function () { return _this.applySearch(_this.$searchToken.value); };
         this.quickSearchTimeout = null;
         this.$searchToken.onkeyup = function (e) { return _this.checkSearchBox(e); };
-        this.$searchToken.addEventListener("search", function (e) { return function (e) { this.applySearch(""); }; });
+        this.$searchToken.onclick = function (e) { return _this.checkSearchBox(e); };
         this.pageCallback(response);
     };
     DbNetGrid.prototype.checkSearchBox = function (event) {

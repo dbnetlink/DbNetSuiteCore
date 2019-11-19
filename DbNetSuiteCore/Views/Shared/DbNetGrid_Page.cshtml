@@ -1,37 +1,35 @@
-﻿@using System.Data
-@model DataTable
+﻿@using DbNetSuiteCore.Helpers
+@using System.Data
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model DbNetSuiteCore.Models.Configuration.DbNetGridConfiguration
 <table class="grid-table">
     <thead>
         <tr>
-            @foreach (DataColumn column in Model.Columns)
+            @foreach (DataColumn column in Model.PageData.Columns)
             {
-                <th>@column.ColumnName</th>
+            <th>
+                @Html.Raw(Html.CellHeading(column, Model.Columns))
+            </th>
+
             }
         </tr>
     </thead>
     <tbody>
-        @if (Model.Rows.Count == 0)
+        @if (Model.PageData.Rows.Count == 0)
         {
             <tr>
-                <td colspan="@Model.Columns.Count">No records found</td>
+                <td colspan="@Model.PageData.Columns.Count">No records found</td>
             </tr>
         }
         else
         {
-            @foreach (DataRow row in Model.Rows)
+            @foreach (DataRow row in Model.PageData.Rows)
             {
                 <tr>
-                    @foreach (DataColumn column in Model.Columns)
+                    @foreach (DataColumn column in Model.PageData.Columns)
                     {
                         <td>
-                            @if (column.DataType == typeof(System.Boolean))
-                            {
-                                <i class="material-icons md-24">(@((bool)row[column.ColumnName]) ? "check_box" : "check_box_outline_blank")</i>
-                            }
-                            else
-                            {
-                                @row[column.ColumnName]
-                            }
+                            @Html.Raw(Html.CellValue(row, column, Model.Columns))
                         </td>
                     }
                 </tr>

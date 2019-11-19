@@ -51,11 +51,11 @@ class DbNetGrid extends Ajax {
         this.$searchBtn.onclick = () => this.applySearch(this.$searchToken.value);
         this.quickSearchTimeout = null;
         this.$searchToken.onkeyup = (e) => this.checkSearchBox(e);
-        this.$searchToken.addEventListener("search", (e) => function (e) { this.applySearch("") });
+        this.$searchToken.onclick = (e) => this.checkSearchBox(e);
         this.pageCallback(response);
     } 
 
-    private checkSearchBox(event: KeyboardEvent) {
+    private checkSearchBox(event: Event) {
         let _this = this;
         let token = <HTMLInputElement>event.target;
         clearTimeout(this.quickSearchTimeout);

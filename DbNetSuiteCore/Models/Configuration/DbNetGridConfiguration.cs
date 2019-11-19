@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Data;
 
 namespace DbNetSuiteCore.Models.Configuration
 {
@@ -15,8 +16,9 @@ namespace DbNetSuiteCore.Models.Configuration
         public int CurrentPage { get; set; } = 1;
         public int TotalPages => (int)Math.Ceiling(TotalRows / (double)PageSize);
         public int TotalRows { get; set; } = -1;
-        public List<DbColumn> Columns { get; set; } = new List<DbColumn>();
+        public List<GridColumn> Columns { get; set; } = new List<GridColumn>();
         public ListDictionary Html { get; set; } = new ListDictionary();
         public string SearchToken { get; set; }
+        public DataTable PageData { get; set; }
     }
 }

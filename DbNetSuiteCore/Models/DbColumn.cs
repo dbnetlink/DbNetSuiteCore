@@ -1,35 +1,24 @@
 ﻿using DbNetSuiteCore.Enums;
-using System;
 using System.Collections.Generic;
-using System.Text;
+using static DbNetSuiteCore.Models.GridColumn;
 
 namespace DbNetSuiteCore.Models
 {
-    /////////////////////////////////////////////// 
     public class DbColumn : Column
-    ///////////////////////////////////////////////
     {
-        public enum LookupSearchModeValues
-        {
-            SearchValue,
-            SearchText
-        }
-
-        internal int MaxTextLength = 10;
         internal bool AddedByUser = true;
-
-        public AuditModes Audit { get; set; } = AuditModes.None;
-        public bool AutoIncrement { get; set; } = false;
-        public bool IsBoolean { get; set; } = false;
         public string BaseSchemaName { get; set; } = string.Empty;
         public string BaseTableName { get; set; } = string.Empty;
-        public bool BulkInsert { get; set; } = false;
-        public string ColumnExpression { get; set; } = string.Empty;
-        public string ColumnExpressionKey { get; set; } = string.Empty;
         public int ColumnSize { get; set; } = 0;
-        public string Culture { get; set; } = string.Empty;
         public string DataType { get; set; } = string.Empty;
         public string DbDataType { get; set; } = string.Empty;
+        public bool PrimaryKey { get; set; } = false;
+        public bool SimpleSearch { get; set; } = true;
+        internal int MaxTextLength = 10;
+        public bool AutoIncrement { get; set; } = false;
+        public bool IsBoolean { get; set; } = false;
+        public bool BulkInsert { get; set; } = false;
+        public string Culture { get; set; } = string.Empty;
         public Dictionary<string, object> EditControlProperties { get; set; } = new Dictionary<string, object>();
         public bool Display { get; set; } = true;
         public ControlType EditControlType { get; set; } = ControlType.Auto;
@@ -37,6 +26,7 @@ namespace DbNetSuiteCore.Models
         public HashTypes Encryption { get; set; } = HashTypes.None;
         public bool UpdateReadOnly { get; set; } = false;
         public bool ForeignKey { get; set; } = false;
+        public Format StandardFormat { get; set; } = Enums.Format.None;
         public string Format { get; set; } = string.Empty;
         public string SearchFormat { get; set; } = string.Empty;
         public string InitialValue { get; set; } = string.Empty;
@@ -50,10 +40,8 @@ namespace DbNetSuiteCore.Models
         public string LookupValueField { get; set; } = string.Empty;
         public int MaxThumbnailHeight { get; set; } = 30;
         public string PlaceHolder { get; set; } = string.Empty;
-        public bool PrimaryKey { get; set; } = false;
         public bool ReadOnly { get; set; } = false;
         public bool Required { get; set; } = false;
-        public bool SimpleSearch { get; set; } = true;
         public bool Search { get; set; } = true;
         public string SearchLookup { get; set; } = string.Empty;
         public int SearchColumnOrderSearch { get; set; } = 0;
@@ -73,5 +61,8 @@ namespace DbNetSuiteCore.Models
         public string XmlElementName { get; set; } = string.Empty;
         public string TableName { get; set; } = string.Empty;
         public int ParentColumnIndex { get; set; } = -1;
+        public DbColumn(string columnName) : base(columnName)
+        {
+        }
     }
 }

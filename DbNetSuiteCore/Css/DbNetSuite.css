@@ -8,6 +8,15 @@
   .dbnetgrid .grid table td, .dbnetgrid .grid table th {
     border: 1pt solid #ccc;
     padding: 5px; }
+  .dbnetgrid .grid table tr:nth-child(even) {
+    background-color: #f2f2f2; }
+  .dbnetgrid .grid table th {
+    background-color: #6ec4c7; }
+    .dbnetgrid .grid table th span {
+      float: left; }
+    .dbnetgrid .grid table th img {
+      float: right;
+      margin-left: 10px; }
 
 .dbnetgrid .toolbar table {
   background-color: #ccc;

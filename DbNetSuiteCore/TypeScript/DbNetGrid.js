@@ -91,8 +91,8 @@ var DbNetGrid = /** @class */ (function (_super) {
         this.$container.querySelector(".grid").innerHTML = response.html.page;
         this.$container.querySelector(".current-page").innerText = response.currentPage.toString();
         this.$container.querySelector(".total-pages").innerText = response.totalPages.toString();
-        this.$prevBtn.disabled = (response.currentPage == 1);
-        this.$nextBtn.disabled = (response.currentPage == response.totalPages);
+        this.$prevBtn.disabled = (response.currentPage === 1);
+        this.$nextBtn.disabled = (response.currentPage === response.totalPages);
     };
     return DbNetGrid;
 }(Ajax));

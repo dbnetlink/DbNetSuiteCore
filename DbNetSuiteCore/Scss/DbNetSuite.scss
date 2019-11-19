@@ -12,6 +12,21 @@
             border: 1pt solid #ccc;
             padding: 5px;
         }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        th {
+            background-color: #6ec4c7;
+            span{
+                float:left;
+            }
+            img {
+                float: right;
+                margin-left: 10px;
+            }
+        }
     }
 
     .toolbar {
@@ -36,8 +51,8 @@
             padding: 5px;
         }
 
-        input.search-token{
-            width:100px;
+        input.search-token {
+            width: 100px;
         }
 
         button {

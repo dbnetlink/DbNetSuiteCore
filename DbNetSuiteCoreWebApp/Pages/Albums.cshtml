@@ -1,0 +1,19 @@
+﻿@page
+@using DbNetSuiteCore.Models
+@{
+    Layout = "/pages/shared/_Layout.cshtml";
+}
+@using DbNetSuiteCore.Models.Configuration
+@using DbNetSuiteCore.Enums
+@await Component.InvokeAsync("DbNetGrid", new DbNetGridConfiguration()
+{
+    Id = "myGrid",
+    ConnectionString = "Chinook",
+    DataProvider = DbNetSuiteCore.Data.DataProvider.SQLite,
+    TableName = "Albums",
+    Columns = new List<GridColumn>() {
+        new GridColumn("AlbumId"),
+        new GridColumn("Title"),
+        new GridColumn("ArtistId") { Label = "Artist", Lookup = "select ArtistId, Name from Artists" }
+    }
+})

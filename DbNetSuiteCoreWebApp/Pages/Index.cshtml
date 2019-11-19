@@ -1,14 +1,12 @@
 ﻿@page
-@using DbNetSuiteCore.Models
 @{
     Layout = "/pages/shared/_Layout.cshtml";
 }
-@using DbNetSuiteCore.Models.Configuration
-@model DbNetSuiteCoreWebApp.Pages.IndexModel
-@await Component.InvokeAsync("DbNetGrid", new DbNetGridConfiguration() {
-    Id = "myGrid",
-    ConnectionString = "Chinook",
-    DataProvider = DbNetSuiteCore.Data.DataProvider.SQLite,
-    TableName = "Customers",
-    PageSize = 5
-})
+@section Css
+{
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+}
+
+<a class="btn btn-primary" href="Customers">Customers</a>
+<a class="btn btn-primary" href="Albums">Albums</a>

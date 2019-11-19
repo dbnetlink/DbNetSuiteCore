@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2003
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29509.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbNetSuiteCore", "DbNetSuiteCore\DbNetSuiteCore.csproj", "{EDDCCA2D-96F5-43C5-94FD-AE81F9A38165}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbNetSuiteCoreWebApp", "DbNetSuiteCoreWebApp\DbNetSuiteCoreWebApp.csproj", "{28DC215C-32B8-420E-AE0D-91416CC753F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbNetSuiteCoreWebApp", "DbNetSuiteCoreWebApp\DbNetSuiteCoreWebApp.csproj", "{28DC215C-32B8-420E-AE0D-91416CC753F9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -43,6 +43,9 @@ namespace DbNetSuiteCore.Middleware
             _viewRenderService = viewRenderService;
         }
 
+        public delegate void OnCellValueAssigned();
+        public event OnCellValueAssigned onCellValueAssigned;
+
         public async Task Invoke(HttpContext context)
         {
             _DbNetGridConfiguration = SerialisationHelper.DeserialiseJson<DbNetGridConfiguration>(context.Request.Body);
@@ -56,11 +59,12 @@ namespace DbNetSuiteCore.Middleware
                 case "init":
                     ConfigureColumns();
                     _DbNetGridConfiguration.Html["toolbar"] = await _viewRenderService.RenderToStringAsync("DbNetGrid", _DbNetGridConfiguration);
-                    _DbNetGridConfiguration.Html["page"] = await _viewRenderService.RenderToStringAsync("DbNetGrid_Page", GetPage());
+                    GetPage();
+                    _DbNetGridConfiguration.Html["page"] = await _viewRenderService.RenderToStringAsync("DbNetGrid_Page", _DbNetGridConfiguration);
                     break;
                 case "page":
                     GetPage();
-                    _DbNetGridConfiguration.Html["page"] = await _viewRenderService.RenderToStringAsync("DbNetGrid_Page", GetPage());
+                    _DbNetGridConfiguration.Html["page"] = await _viewRenderService.RenderToStringAsync("DbNetGrid_Page", _DbNetGridConfiguration);
                     break;
             }
 
@@ -69,7 +73,7 @@ namespace DbNetSuiteCore.Middleware
             await context.Response.WriteAsync(SerialisationHelper.SerialiseToJson(_DbNetGridConfiguration));
         }
 
-        private DataTable GetPage()
+        private void GetPage()
         {
             string Sql = $"select {ColumnList()} from {_DbNetGridConfiguration.TableName} where 1=2";
             DataTable dt = Db.GetDataTable(Sql);
@@ -77,6 +81,7 @@ namespace DbNetSuiteCore.Middleware
             QueryCommandConfig query = new QueryCommandConfig();
             query.Sql = $"select {ColumnList()} from {_DbNetGridConfiguration.TableName}";
             AddFilter(query);
+            AddLookupData();
 
             int firstRecord = (_DbNetGridConfiguration.PageSize * (_DbNetGridConfiguration.CurrentPage - 1)) + 1;
             int lastRecord = (firstRecord + (_DbNetGridConfiguration.PageSize - 1));
@@ -95,20 +100,20 @@ namespace DbNetSuiteCore.Middleware
                         row[i] = Db.ReaderValue(i);
                     }
 
+
                     dt.Rows.Add(row);
                 }
             }
 
             _DbNetGridConfiguration.TotalRows = recordCounter;
-
-            return dt;
+            _DbNetGridConfiguration.PageData = dt;
         }
 
         private void ConfigureColumns()
         {
             Dictionary<string, bool> BaseTables = new Dictionary<string, bool>();
 
-            List<DbColumn> userDefinedColumns = _DbNetGridConfiguration.Columns;
+            List<GridColumn> userDefinedColumns = new List<GridColumn>(_DbNetGridConfiguration.Columns.ToArray());
             string Sql = $"select {ColumnList()} from {_DbNetGridConfiguration.TableName} where 1=2";
             _DbNetGridConfiguration.Columns.Clear();
 
@@ -121,12 +126,9 @@ namespace DbNetSuiteCore.Middleware
                 if (row.Table.Columns.Contains("IsHidden"))
                     if (Convert.ToBoolean(row["IsHidden"]))
                         continue;
-                _DbNetGridConfiguration.Columns.Add(GenerateColumn(row));
 
-                if (userDefinedColumns.Any())
-                {
-                    _DbNetGridConfiguration.Columns[idx].ColumnExpression = userDefinedColumns[idx].ColumnExpression;
-                }
+                GridColumn gridColumn = (userDefinedColumns.Count() > idx) ? userDefinedColumns[idx] : null;
+                _DbNetGridConfiguration.Columns.Add(GenerateColumn(row, gridColumn));
             }
 
             string EditableBaseTable = "";
@@ -326,12 +328,20 @@ namespace DbNetSuiteCore.Middleware
             query.Params["simplesearchtoken"] = $"%{_DbNetGridConfiguration.SearchToken}%";
         }
 
-        private DbColumn GenerateColumn(DataRow row)
+        private GridColumn GenerateColumn(DataRow row, GridColumn column )
         {
-            DbColumn C = new DbColumn();
+            GridColumn C;
 
-            C.ColumnExpression = Db.QualifiedDbObjectName(Convert.ToString(row["ColumnName"]));
-            C.ColumnName = Convert.ToString(row["ColumnName"]);
+            if (column == null)
+            {
+                C = new GridColumn(Convert.ToString(row["ColumnName"]));
+            }
+            else
+            {
+                C = column;
+                C.ColumnName = Convert.ToString(row["ColumnName"]);
+            }
+
             C.BaseTableName = Convert.ToString(row["BaseTableName"]);
 
             GetBaseSchemaName(C, row);
@@ -370,6 +380,25 @@ namespace DbNetSuiteCore.Middleware
             ColumnParts[0] = Regex.Replace(ColumnParts[0], "unique |distinct ", "", RegexOptions.IgnoreCase);
 
             return String.Join(")", ColumnParts);
+        }
+
+        private void AddLookupData()
+        {
+            foreach (GridColumn gc in _DbNetGridConfiguration.Columns)
+            {
+                if (string.IsNullOrEmpty(gc.Lookup))
+                {
+                    continue;
+                }
+                QueryCommandConfig query = new QueryCommandConfig();
+                query.Sql = gc.Lookup;
+                Db.ExecuteQuery(query);
+
+                while(Db.Reader.Read())
+                {
+                    gc.LookupData[Db.ReaderString(0)] = Db.ReaderString(1);
+                }
+            }
         }
     }
 }
