@@ -6,17 +6,12 @@
 @using DbNetSuiteCore.Models.Configuration
 @using DbNetSuiteCore.Enums
 <div class="p-4">
-    <h3>Albums</h3>
+    <h3>Artists</h3>
     @await Component.InvokeAsync("DbNetGrid", new DbNetGridConfiguration()
     {
         Id = "myGrid",
         ConnectionString = "Chinook",
         DataProvider = DbNetSuiteCore.Data.DataProvider.SQLite,
-        TableName = "Albums",
-        Columns = new List<GridColumn>() {
-            new GridColumn("AlbumId"),
-            new GridColumn("Title"),
-            new GridColumn("ArtistId") { Label = "Artist", Lookup = "select ArtistId, Name from Artists", DropDownFilter = true }
-        }
+        TableName = "Artists"
     })
 </div>

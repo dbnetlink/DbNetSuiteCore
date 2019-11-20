@@ -19,13 +19,20 @@
 
         th {
             background-color: #6ec4c7;
-            span{
-                float:left;
+            cursor: pointer;
+            vertical-align: middle;
+            span {
+                float: left;
             }
+
             img {
                 float: right;
                 margin-left: 10px;
             }
+        }
+
+        select {
+            padding:5px;
         }
     }
 

@@ -8,6 +8,10 @@
     columns: DbColumn[];
     html: any;
     searchToken: string;
+    orderByColumn: string;
+    orderBySequence: string;
+    dropDownFilterValue: string;
+    dropDownFilterColumn: string;
 }
 
 interface Column {

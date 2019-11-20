@@ -43,9 +43,6 @@ namespace DbNetSuiteCore.Middleware
             _viewRenderService = viewRenderService;
         }
 
-        public delegate void OnCellValueAssigned();
-        public event OnCellValueAssigned onCellValueAssigned;
-
         public async Task Invoke(HttpContext context)
         {
             _DbNetGridConfiguration = SerialisationHelper.DeserialiseJson<DbNetGridConfiguration>(context.Request.Body);
@@ -80,7 +77,9 @@ namespace DbNetSuiteCore.Middleware
 
             QueryCommandConfig query = new QueryCommandConfig();
             query.Sql = $"select {ColumnList()} from {_DbNetGridConfiguration.TableName}";
-            AddFilter(query);
+            AddSearchTokenFilter(query);
+            AddDropDownFilter(query);
+            AddOrderBy(query);
             AddLookupData();
 
             int firstRecord = (_DbNetGridConfiguration.PageSize * (_DbNetGridConfiguration.CurrentPage - 1)) + 1;
@@ -119,7 +118,7 @@ namespace DbNetSuiteCore.Middleware
 
             DataTable DT = Db.GetSchemaTable(Sql);
 
-            for (var idx = 0; idx < DT.Rows.Count; idx++ )
+            for (var idx = 0; idx < DT.Rows.Count; idx++)
             {
                 DataRow row = DT.Rows[idx];
 
@@ -302,7 +301,7 @@ namespace DbNetSuiteCore.Middleware
             }
         }
 
-        private void AddFilter(QueryCommandConfig query)
+        private void AddSearchTokenFilter(QueryCommandConfig query)
         {
             if (string.IsNullOrWhiteSpace(_DbNetGridConfiguration.SearchToken))
             {
@@ -311,11 +310,11 @@ namespace DbNetSuiteCore.Middleware
 
             var filter = new List<string>();
 
-            foreach(DbColumn column in _DbNetGridConfiguration.Columns)
+            foreach (DbColumn column in _DbNetGridConfiguration.Columns)
             {
                 if (column.SimpleSearch)
                 {
-                    filter.Add(StripColumnRename(column.ColumnExpression) + " like " + Db.ParameterName("simplesearchtoken"));
+                    filter.Add($"{StripColumnRename(column.ColumnExpression)} like {Db.ParameterName("simplesearchtoken")}");
                 }
             }
 
@@ -324,11 +323,32 @@ namespace DbNetSuiteCore.Middleware
                 return;
             }
 
-            query.Sql += $" where {string.Join(" or ", filter)}";
+            query.Sql += $" where ({string.Join(" or ", filter)})";
             query.Params["simplesearchtoken"] = $"%{_DbNetGridConfiguration.SearchToken}%";
         }
 
-        private GridColumn GenerateColumn(DataRow row, GridColumn column )
+        private void AddDropDownFilter(QueryCommandConfig query)
+        {
+            if (string.IsNullOrWhiteSpace(_DbNetGridConfiguration.DropDownFilterValue))
+            {
+                return;
+            }
+
+            query.Sql += $"{(query.Sql.Contains(" where ") ? " and " : " where ")}({_DbNetGridConfiguration.DropDownFilterColumn} = {Db.ParameterName("DropDownFilterValue")})";
+            query.Params["DropDownFilterValue"] = $"{_DbNetGridConfiguration.DropDownFilterValue}";
+        }
+
+        private void AddOrderBy(QueryCommandConfig query)
+        {
+            if (string.IsNullOrEmpty(_DbNetGridConfiguration.OrderByColumn))
+            {
+                _DbNetGridConfiguration.OrderByColumn = _DbNetGridConfiguration.Columns.First().ColumnName;
+                _DbNetGridConfiguration.OrderBySequence = "asc";
+            }
+            query.Sql += $" order by {_DbNetGridConfiguration.OrderByColumn} {_DbNetGridConfiguration.OrderBySequence}";
+        }
+
+        private GridColumn GenerateColumn(DataRow row, GridColumn column)
         {
             GridColumn C;
 
@@ -340,6 +360,11 @@ namespace DbNetSuiteCore.Middleware
             {
                 C = column;
                 C.ColumnName = Convert.ToString(row["ColumnName"]);
+            }
+
+            if (string.IsNullOrEmpty(C.Label))
+            {
+                C.Label = Regex.Replace(C.ColumnName, "(\\B[A-Z])", " $1");
             }
 
             C.BaseTableName = Convert.ToString(row["BaseTableName"]);
@@ -394,7 +419,7 @@ namespace DbNetSuiteCore.Middleware
                 query.Sql = gc.Lookup;
                 Db.ExecuteQuery(query);
 
-                while(Db.Reader.Read())
+                while (Db.Reader.Read())
                 {
                     gc.LookupData[Db.ReaderString(0)] = Db.ReaderString(1);
                 }

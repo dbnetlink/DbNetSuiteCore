@@ -20,5 +20,9 @@ namespace DbNetSuiteCore.Models.Configuration
         public ListDictionary Html { get; set; } = new ListDictionary();
         public string SearchToken { get; set; }
         public DataTable PageData { get; set; }
+        public string OrderByColumn { get; set; }
+        public string OrderBySequence { get; set; }
+        public string DropDownFilterValue { get; set; }
+        public string DropDownFilterColumn { get; set; }
     }
 }

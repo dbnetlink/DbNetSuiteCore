@@ -11,12 +11,16 @@
   .dbnetgrid .grid table tr:nth-child(even) {
     background-color: #f2f2f2; }
   .dbnetgrid .grid table th {
-    background-color: #6ec4c7; }
+    background-color: #6ec4c7;
+    cursor: pointer;
+    vertical-align: middle; }
     .dbnetgrid .grid table th span {
       float: left; }
     .dbnetgrid .grid table th img {
       float: right;
       margin-left: 10px; }
+  .dbnetgrid .grid table select {
+    padding: 5px; }
 
 .dbnetgrid .toolbar table {
   background-color: #ccc;

@@ -34,8 +34,8 @@ class Ajax {
     }
 
     private ajaxError(xhr) {
-        console.log(JSON.stringify(xhr));
-        alert(xhr.responseText);
+        var win = window.open();
+        win.document.body.innerHTML = xhr.responseText;
     }
 
     public callServer(handler: string, data: any, callback: any) {
@@ -69,6 +69,15 @@ class Ajax {
 
     public setAntiForgeryToken() {
         $("input[name='__RequestVerificationToken']").val($("body").attr("xsrf-token"));
+    }
+
+    public closest(element: HTMLElement, tag: string) {
+        while (element.tagName !== tag.toUpperCase()) // uppercase in HTML, lower in XML
+        {
+            element = <HTMLElement>element.parentNode;
+        }
+
+        return element;
     }
 
     /*

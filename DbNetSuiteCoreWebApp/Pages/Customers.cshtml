@@ -5,18 +5,22 @@
 }
 @using DbNetSuiteCore.Models.Configuration
 @using DbNetSuiteCore.Enums
-@await Component.InvokeAsync("DbNetGrid", new DbNetGridConfiguration()
-{
-    Id = "myGrid",
-    ConnectionString = "Chinook",
-    DataProvider = DbNetSuiteCore.Data.DataProvider.SQLite,
-    TableName = "Customers",
-    PageSize = 5,
-    Columns = new List<GridColumn>() {
-        new GridColumn("CustomerId"),
-        new GridColumn("FirstName || ' ' || LastName as Name"),
-        new GridColumn("Company"),
-        new GridColumn("Email") { StandardFormat = Format.Email},
-        new GridColumn("SupportRepId") { Label = "Rep", Lookup = "select employeeId, LastName || ', ' || FirstName from employees" }
-    }
-})
+
+<div class="p-4">
+    <h3>Customers</h3>
+    @await Component.InvokeAsync("DbNetGrid", new DbNetGridConfiguration()
+    {
+        Id = "myGrid",
+        ConnectionString = "Chinook",
+        DataProvider = DbNetSuiteCore.Data.DataProvider.SQLite,
+        TableName = "Customers",
+        PageSize = 5,
+        Columns = new List<GridColumn>() {
+            new GridColumn("CustomerId"),
+            new GridColumn("FirstName || ' ' || LastName as Name"),
+            new GridColumn("Company"),
+            new GridColumn("Email") { StandardFormat = Format.Email},
+            new GridColumn("SupportRepId") { Label = "Rep", Lookup = "select employeeId, LastName || ', ' || FirstName from employees" }
+        }
+    })
+</div>

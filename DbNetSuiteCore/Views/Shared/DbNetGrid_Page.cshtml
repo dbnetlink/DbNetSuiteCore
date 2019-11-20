@@ -1,4 +1,5 @@
 ﻿@using DbNetSuiteCore.Helpers
+@using DbNetSuiteCore.Services.Interfaces
 @using System.Data
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @model DbNetSuiteCore.Models.Configuration.DbNetGridConfiguration
@@ -7,12 +8,29 @@
         <tr>
             @foreach (DataColumn column in Model.PageData.Columns)
             {
-            <th>
-                @Html.Raw(Html.CellHeading(column, Model.Columns))
-            </th>
-
+                <th @Html.CellHeadingAttributes(column, Model.Columns)>
+                    @Html.Raw(Html.CellHeading(column, Model))
+                </th>
             }
         </tr>
+
+        @if (Model.Columns.Any(gc => gc.DropDownFilter && gc.Lookup != ""))
+        {
+            <tr>
+                @foreach (DataColumn column in Model.PageData.Columns)
+                {
+                    <td>
+                    @{
+                        var options = Html.DropDownListFilter(column, Model);
+                        if (options != null)
+                        {
+                            @Html.DropDownList(column.ColumnName, options, "Please select");
+                        }
+                    }
+                </td>
+                }
+            </tr>
+        }
     </thead>
     <tbody>
         @if (Model.PageData.Rows.Count == 0)

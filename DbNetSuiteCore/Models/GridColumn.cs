@@ -17,6 +17,7 @@ namespace DbNetSuiteCore.Models
 
         public AuditModes Audit { get; set; } = AuditModes.None;
         internal Dictionary<string, string> LookupData = new Dictionary<string, string>();
+        public bool DropDownFilter { get; set; } = false;
 
         public GridColumn(string columnName) : base(columnName)
         {

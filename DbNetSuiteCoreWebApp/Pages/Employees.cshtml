@@ -1,0 +1,35 @@
+﻿@page
+@using DbNetSuiteCore.Models
+@{
+    Layout = "/pages/shared/_Layout.cshtml";
+}
+@using DbNetSuiteCore.Models.Configuration
+@using DbNetSuiteCore.Enums
+<div class="p-4">
+    <h3>Employees</h3>
+    @await Component.InvokeAsync("DbNetGrid", new DbNetGridConfiguration()
+{
+    Id = "myGrid",
+    ConnectionString = "Chinook",
+    DataProvider = DbNetSuiteCore.Data.DataProvider.SQLite,
+    TableName = "Employees",
+    Columns = new List<GridColumn>()
+    {
+          new GridColumn("EmployeeId"),
+          new GridColumn("LastName"),
+          new GridColumn("FirstName"),
+          new GridColumn("Title"),
+          new GridColumn("ReportsTo") { Label = "Reports To", Lookup = "select employeeId, LastName || ', ' || FirstName from employees" },
+          new GridColumn("BirthDate"),
+          new GridColumn("HireDate"),
+          new GridColumn("Address"),
+          new GridColumn("City"),
+          new GridColumn("State"),
+          new GridColumn("Country"),
+          new GridColumn("PostalCode"),
+          new GridColumn("Phone"),
+          new GridColumn("Fax"),
+          new GridColumn("Email") { StandardFormat = Format.Email},
+    }
+})
+</div>

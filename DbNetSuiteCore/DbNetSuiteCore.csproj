@@ -24,10 +24,10 @@
     <None Remove="TypeScript\DbNetGrid.js.map" />
     <None Remove="TypeScript\Interfaces.js" />
     <None Remove="TypeScript\Interfaces.js.map" />
-    <None Remove="TypeScript\Interfaces.ts" />
     <None Remove="Views\Shared\Components\DbNetGrid\Default.cshtml" />
     <None Remove="Views\Shared\DbNetGrid.cshtml" />
     <None Remove="Views\Shared\DbNetGrid_Page.cshtml" />
+    <None Remove="Views\Shared\DropDownList.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,6 +44,7 @@
     <EmbeddedResource Include="Images\up.png" />
     <EmbeddedResource Include="JavaScript\DbNetSuite.js" />
     <EmbeddedResource Include="Views\Shared\Components\DbNetGrid\Default.cshtml" />
+    <EmbeddedResource Include="Views\Shared\DropDownList.cshtml" />
     <EmbeddedResource Include="Views\Shared\DbNetGrid_Page.cshtml" />
     <EmbeddedResource Include="Views\Shared\DbNetGrid.cshtml" />
   </ItemGroup>

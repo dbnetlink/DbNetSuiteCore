@@ -24,15 +24,15 @@ var Ajax = /** @class */ (function () {
         */
     }
     Ajax.prototype.timeout = function () {
-        var _this_1 = this;
+        var _this = this;
         var options = {};
         options.message = "Login has timed out";
-        options.callback = function () { return _this_1.reload(); };
+        options.callback = function () { return _this.reload(); };
         bootbox.alert(options);
     };
     Ajax.prototype.ajaxError = function (xhr) {
-        console.log(JSON.stringify(xhr));
-        alert(xhr.responseText);
+        var win = window.open();
+        win.document.body.innerHTML = xhr.responseText;
     };
     Ajax.prototype.callServer = function (handler, data, callback) {
         var xhr = new XMLHttpRequest();
@@ -61,6 +61,13 @@ var Ajax = /** @class */ (function () {
     };
     Ajax.prototype.setAntiForgeryToken = function () {
         $("input[name='__RequestVerificationToken']").val($("body").attr("xsrf-token"));
+    };
+    Ajax.prototype.closest = function (element, tag) {
+        while (element.tagName !== tag.toUpperCase()) // uppercase in HTML, lower in XML
+         {
+            element = element.parentNode;
+        }
+        return element;
     };
     return Ajax;
 }());
@@ -157,13 +164,36 @@ var DbNetGrid = /** @class */ (function (_super) {
         this.configuration.currentPage = 1;
         this.callServer("Page", this.configuration, function (response) { _this.pageCallback(response); });
     };
+    DbNetGrid.prototype.applyDropDownFilter = function (event) {
+        var _this = this;
+        var select = event.target;
+        this.configuration.dropDownFilterValue = select.value;
+        this.configuration.dropDownFilterColumn = select.name;
+        this.callServer("Page", this.configuration, function (response) { _this.pageCallback(response); });
+    };
+    DbNetGrid.prototype.sort = function (e) {
+        var _this = this;
+        var th = this.closest(event.target, "th");
+        this.configuration.orderByColumn = th.getAttribute("column-name");
+        this.configuration.orderBySequence = "asc";
+        var img = th.querySelector("img");
+        if (img) {
+            if (img.getAttribute("sequence") == "asc") {
+                this.configuration.orderBySequence = "desc";
+            }
+        }
+        this.callServer("Page", this.configuration, function (response) { _this.pageCallback(response); });
+    };
     DbNetGrid.prototype.pageCallback = function (response) {
+        var _this = this;
         this.configuration = response;
         this.$container.querySelector(".grid").innerHTML = response.html.page;
         this.$container.querySelector(".current-page").innerText = response.currentPage.toString();
         this.$container.querySelector(".total-pages").innerText = response.totalPages.toString();
         this.$prevBtn.disabled = (response.currentPage === 1);
         this.$nextBtn.disabled = (response.currentPage === response.totalPages);
+        this.$container.querySelectorAll("th").forEach(function (input) { return input.addEventListener('click', function (e) { return _this.sort(e); }); });
+        this.$container.querySelectorAll("thead select").forEach(function (e) { return e.addEventListener('change', function (e) { return _this.applyDropDownFilter(e); }); });
     };
     return DbNetGrid;
 }(Ajax));

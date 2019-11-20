@@ -93,6 +93,26 @@ class DbNetGrid extends Ajax {
         this.callServer("Page", this.configuration, (response) => { this.pageCallback(response) });
     }
 
+    private applyDropDownFilter(event: Event) {
+        let select = <HTMLSelectElement>event.target;
+        this.configuration.dropDownFilterValue = select.value;
+        this.configuration.dropDownFilterColumn = select.name;
+        this.callServer("Page", this.configuration, (response) => { this.pageCallback(response) });
+    }
+
+    private sort(e: Event) {
+        let th = this.closest(<HTMLElement>event.target, "th");
+        this.configuration.orderByColumn = th.getAttribute("column-name");
+        this.configuration.orderBySequence = "asc";
+        let img = <HTMLImageElement>th.querySelector("img");
+        if (img) {
+            if (img.getAttribute("sequence") == "asc") {
+                this.configuration.orderBySequence = "desc";
+            }
+        }
+        this.callServer("Page", this.configuration, (response) => { this.pageCallback(response) });
+    }
+
     private pageCallback(response: DbNetGridConfiguration) {
         this.configuration = response;
         this.$container.querySelector(".grid").innerHTML = response.html.page;
@@ -100,5 +120,8 @@ class DbNetGrid extends Ajax {
         (<HTMLElement>this.$container.querySelector(".total-pages")).innerText = response.totalPages.toString();
         this.$prevBtn.disabled = (response.currentPage === 1);
         this.$nextBtn.disabled = (response.currentPage === response.totalPages);
+        this.$container.querySelectorAll("th").forEach(input => input.addEventListener('click', (e) => this.sort(e))); 
+        this.$container.querySelectorAll("thead select").forEach(e => e.addEventListener('change', (e) => this.applyDropDownFilter(e))); 
+
     }
 }
