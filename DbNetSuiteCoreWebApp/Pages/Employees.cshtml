@@ -9,9 +9,9 @@
     <h3>Employees</h3>
     @await Component.InvokeAsync("DbNetGrid", new DbNetGridConfiguration()
 {
-    Id = "myGrid",
+    Id = "EmployeesGrid",
     ConnectionString = "Chinook",
-    DataProvider = DbNetSuiteCore.Data.DataProvider.SQLite,
+    DataProvider = DbNetSuiteCore.Services.DataProvider.SQLite,
     TableName = "Employees",
     Columns = new List<GridColumn>()
     {
@@ -19,9 +19,9 @@
           new GridColumn("LastName"),
           new GridColumn("FirstName"),
           new GridColumn("Title"),
-          new GridColumn("ReportsTo") { Label = "Reports To", Lookup = "select employeeId, LastName || ', ' || FirstName from employees" },
-          new GridColumn("BirthDate"),
-          new GridColumn("HireDate"),
+          new GridColumn("ReportsTo") { Label = "Line Manager", Lookup = "select employeeId, LastName || ', ' || FirstName from employees" },
+          new GridColumn("BirthDate") { Format = "d"},
+          new GridColumn("HireDate") { Format = "d"},
           new GridColumn("Address"),
           new GridColumn("City"),
           new GridColumn("State"),

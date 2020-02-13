@@ -1,14 +1,9 @@
-﻿using DbNetSuiteCore.Data;
+﻿using DbNetSuiteCore.Services;
 using DbNetSuiteCore.Enums;
 using DbNetSuiteCore.Helpers;
 using DbNetSuiteCore.Models;
 using DbNetSuiteCore.Models.Configuration;
 using DbNetSuiteCore.Services.Interfaces;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -17,37 +12,45 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Http;
 
 namespace DbNetSuiteCore.Middleware
 {
     public class DbNetGridHandler
     {
-        protected DbNetData Db = null;
+        protected IDbNetData Db = null;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IHostingEnvironment _hostingEnvironment;
         private DbNetGridConfiguration _DbNetGridConfiguration;
         private readonly IConfiguration _configuration;
         public const string Extension = ".dbnetgrid";
         public IViewRenderService _viewRenderService;
+        private readonly RequestDelegate _next;
 
         public DbNetGridHandler(RequestDelegate next,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
             IHostingEnvironment hostingEnvironment,
-            IViewRenderService viewRenderService
+            IViewRenderService viewRenderService,
+            IDbNetData dbNetData
             )
         {
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
             _hostingEnvironment = hostingEnvironment;
             _viewRenderService = viewRenderService;
+            _next = next;
+            Db = dbNetData;
         }
 
         public async Task Invoke(HttpContext context)
         {
             _DbNetGridConfiguration = SerialisationHelper.DeserialiseJson<DbNetGridConfiguration>(context.Request.Body);
-            Db = new DbNetData(_DbNetGridConfiguration.ConnectionString, _DbNetGridConfiguration.DataProvider, _httpContextAccessor, _hostingEnvironment, _configuration);
-            Db.Open();
+
+   //         Db = new DbNetData(_DbNetGridConfiguration.ConnectionString, _DbNetGridConfiguration.DataProvider, _httpContextAccessor, _hostingEnvironment, _configuration);
+            Db.Open(_DbNetGridConfiguration.ConnectionString, _DbNetGridConfiguration.DataProvider);
 
             var handler = (string)context.Request.Query["handler"] ?? string.Empty;
 
@@ -68,6 +71,7 @@ namespace DbNetSuiteCore.Middleware
             Db.Close();
             context.Response.ContentType = "application/json";
             await context.Response.WriteAsync(SerialisationHelper.SerialiseToJson(_DbNetGridConfiguration));
+         //   await _next.Invoke(context);
         }
 
         private void GetPage()
@@ -87,14 +91,14 @@ namespace DbNetSuiteCore.Middleware
             int recordCounter = 0;
             Db.ExecuteQuery(query);
 
-            while (Db.Reader.Read())
+            while (Db.GetDataReader().Read())
             {
                 recordCounter++;
                 if (recordCounter >= firstRecord && recordCounter <= lastRecord)
                 {
                     DataRow row = dt.NewRow();
 
-                    for (var i = 0; i < Db.Reader.FieldCount; i++)
+                    for (var i = 0; i < Db.GetDataReader().FieldCount; i++)
                     {
                         row[i] = Db.ReaderValue(i);
                     }
@@ -419,7 +423,7 @@ namespace DbNetSuiteCore.Middleware
                 query.Sql = gc.Lookup;
                 Db.ExecuteQuery(query);
 
-                while (Db.Reader.Read())
+                while (Db.GetDataReader().Read())
                 {
                     gc.LookupData[Db.ReaderString(0)] = Db.ReaderString(1);
                 }

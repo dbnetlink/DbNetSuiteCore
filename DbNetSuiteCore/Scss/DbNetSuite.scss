@@ -13,14 +13,20 @@
             padding: 5px;
         }
 
+        td.align-right {
+            text-align: right;
+        }
+
         tr:nth-child(even) {
             background-color: #f2f2f2;
         }
 
         th {
+            color: #696969;
             background-color: #6ec4c7;
             cursor: pointer;
             vertical-align: middle;
+
             span {
                 float: left;
             }
@@ -32,7 +38,7 @@
         }
 
         select {
-            padding:5px;
+            padding: 5px;
         }
     }
 

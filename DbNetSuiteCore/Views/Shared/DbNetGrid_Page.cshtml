@@ -46,7 +46,7 @@
                 <tr>
                     @foreach (DataColumn column in Model.PageData.Columns)
                     {
-                        <td>
+                        <td @Html.CellAttributes(column, Model.Columns)>
                             @Html.Raw(Html.CellValue(row, column, Model.Columns))
                         </td>
                     }

@@ -4,10 +4,24 @@
     Layout = "/pages/shared/_Layout.cshtml";
 }
 @using DbNetSuiteCore.Models.Configuration
-@await Component.InvokeAsync("DbNetGrid", new DbNetGridConfiguration()
-{
-    Id = "myGrid",
-    ConnectionString = "CustomerSupport",
-    DataProvider = DbNetSuiteCore.Data.DataProvider.SqlClient,
-    TableName = "Dealer"
-})
+<div class="p-4">
+    <h3>Dealers</h3>
+    @await Component.InvokeAsync("DbNetGrid", new DbNetGridConfiguration()
+    {
+        Id = "myGrid",
+        ConnectionString = "CustomerSupport",
+        DataProvider = DbNetSuiteCore.Services.DataProvider.SqlClient,
+        TableName = "Dealer",
+        PageSize = 5
+    })
+
+    <h3>Dealers</h3>
+    @await Component.InvokeAsync("DbNetGrid", new DbNetGridConfiguration()
+    {
+        Id = "dealersGrid",
+        ConnectionString = "CustomerSupport",
+        DataProvider = DbNetSuiteCore.Services.DataProvider.SqlClient,
+        TableName = "Dealer",
+        PageSize = 5
+    })
+</div>

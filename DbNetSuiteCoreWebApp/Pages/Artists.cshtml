@@ -1,17 +1,15 @@
 ﻿@page
-@using DbNetSuiteCore.Models
 @{
     Layout = "/pages/shared/_Layout.cshtml";
 }
 @using DbNetSuiteCore.Models.Configuration
-@using DbNetSuiteCore.Enums
 <div class="p-4">
     <h3>Artists</h3>
     @await Component.InvokeAsync("DbNetGrid", new DbNetGridConfiguration()
     {
-        Id = "myGrid",
+        Id = "ArtistsGrid",
         ConnectionString = "Chinook",
-        DataProvider = DbNetSuiteCore.Data.DataProvider.SQLite,
+        DataProvider = DbNetSuiteCore.Services.DataProvider.SQLite,
         TableName = "Artists"
     })
 </div>

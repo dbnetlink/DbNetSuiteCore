@@ -8,9 +8,12 @@
   .dbnetgrid .grid table td, .dbnetgrid .grid table th {
     border: 1pt solid #ccc;
     padding: 5px; }
+  .dbnetgrid .grid table td.align-right {
+    text-align: right; }
   .dbnetgrid .grid table tr:nth-child(even) {
     background-color: #f2f2f2; }
   .dbnetgrid .grid table th {
+    color: #696969;
     background-color: #6ec4c7;
     cursor: pointer;
     vertical-align: middle; }

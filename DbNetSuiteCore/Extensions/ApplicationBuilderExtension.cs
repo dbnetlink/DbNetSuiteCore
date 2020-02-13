@@ -7,6 +7,14 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using System.Reflection;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using DbNetSuiteCore.Extensions;
+
 
 namespace DbNetSuiteCore.Extensions
 {
@@ -14,17 +22,8 @@ namespace DbNetSuiteCore.Extensions
     {
         public static IApplicationBuilder UseDbNetSuite(this IApplicationBuilder app)
         {
-            app.MapWhen(
-               context => context.Request.Path.ToString().EndsWith(DbNetGridHandler.Extension),
-               appBranch => {
-                   appBranch.UseDbNetGridHandler();
-               });
-
-            app.MapWhen(
-               context => context.Request.Path.ToString().EndsWith(DbNetSuiteHandler.Extension),
-               appBranch => {
-                   appBranch.UseDbNetSuiteHandler();
-               });
+            app.MapWhen(context => context.Request.Path.ToString().EndsWith(DbNetGridHandler.Extension), UseDbNetGridHandler);
+            app.MapWhen(context => context.Request.Path.ToString().EndsWith(DbNetSuiteHandler.Extension), UseDbNetSuiteHandler);
 
             return app;
         }
@@ -32,26 +31,21 @@ namespace DbNetSuiteCore.Extensions
         public static IServiceCollection AddDbNetSuite(this IServiceCollection services)
         {
             services.AddHttpContextAccessor();
-            services.Configure<RazorViewEngineOptions>(options =>
-                {
-                    options.FileProviders.Add(
-                        new EmbeddedFileProvider(
-                            typeof(DbNetGridViewComponent).GetTypeInfo().Assembly
-                            )
-                    );
-                });
+     //       services.AddControllersWithViews()
+      //          .AddRazorRuntimeCompilation(options => options.FileProviders.Add(new PhysicalFileProvider(appDirectory)));
 
             services.AddTransient<IViewRenderService, ViewRenderService>();
+            services.AddTransient<IDbNetData, DbNetData>();
             return services;
         }
 
-        public static IApplicationBuilder UseDbNetGridHandler(this IApplicationBuilder builder)
+        public static void UseDbNetGridHandler(this IApplicationBuilder builder)
         {
-            return builder.UseMiddleware<DbNetGridHandler>();
+            //  builder.UseMiddleware<DbNetGridHandler>();
         }
-        public static IApplicationBuilder UseDbNetSuiteHandler(this IApplicationBuilder builder)
+        public static void UseDbNetSuiteHandler(this IApplicationBuilder builder)
         {
-            return builder.UseMiddleware<DbNetSuiteHandler>();
+            //   builder.UseMiddleware<DbNetSuiteHandler>();
         }
     }
 }

@@ -20,6 +20,7 @@
 
 // Support for OracleClient deprecated in .Net 4. Using reflection instead.
 // using System.Data.OracleClient;
+using DbNetSuiteCore.Services.Interfaces;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -50,7 +51,7 @@ using System.Xml;
 #if (WINDOWS)
 namespace DbNetLink
 #else
-namespace DbNetSuiteCore.Data
+namespace DbNetSuiteCore.Services
 #endif
 
 ////////////////////////////////////////////////////////////////////////////
@@ -523,7 +524,7 @@ namespace DbNetSuiteCore.Data
     /// </summary>
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public class DbNetData : IDisposable
+    public class DbNetData : IDisposable, IDbNetData
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     {
         #region Delegates
@@ -556,7 +557,12 @@ namespace DbNetSuiteCore.Data
         /// <summary>
         /// <seealso href="http://msdn.microsoft.com/en-us/library/system.data.IDataReader.aspx">IDataReader</seealso> implemented by provider
         /// </summary>
-        public IDataReader Reader;
+        public IDataReader _Reader;
+        public IDataReader Reader => _Reader;
+        public IDataReader GetDataReader()
+        {
+            return _Reader;
+        }
         /// <summary>
         /// <seealso href="http://msdn.microsoft.com/en-us/library/system.data.IDbTransaction.aspx">IDbTransaction</seealso> implemented by provider
         /// </summary>
@@ -704,8 +710,16 @@ namespace DbNetSuiteCore.Data
 
         #region Constructors
 
-
-        public DbNetData(string ConnectionString, IHttpContextAccessor httpContextAccessor, IHostingEnvironment hostingEnvironment, IConfiguration configuration)
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////
+        public DbNetData(IHttpContextAccessor httpContextAccessor, IHostingEnvironment hostingEnvironment, IConfiguration configuration)
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////
+        {
+            this._httpContextAccessor = httpContextAccessor;
+            this._hostingEnvironment = hostingEnvironment;
+            this._configuration = configuration;
+        }
+        /*
+            public DbNetData(string ConnectionString, IHttpContextAccessor httpContextAccessor, IHostingEnvironment hostingEnvironment, IConfiguration configuration)
     : this(ConnectionString, DataProvider.SqlClient, DatabaseType.Unknown, httpContextAccessor, hostingEnvironment, configuration)
         {
         }
@@ -715,7 +729,7 @@ namespace DbNetSuiteCore.Data
         {
         }
 
-      
+
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
         public DbNetData(string ConnectionString, DataProvider? Provider, DatabaseType Database, IHttpContextAccessor httpContextAccessor, IHostingEnvironment hostingEnvironment, IConfiguration configuration)
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -723,62 +737,13 @@ namespace DbNetSuiteCore.Data
             this._httpContextAccessor = httpContextAccessor;
             this._hostingEnvironment = hostingEnvironment;
             this._configuration = configuration;
-            this._ConnectionString = MapDatabasePath(ConnectionString);
-            this._Provider = Provider.HasValue ? Provider.Value : DeriveProvider(this._ConnectionString);
-            this._Database = Database;
-            try
-            {
-                switch (Provider)
-                {
-                    case DataProvider.OleDb:
-                        Conn = new OleDbConnection(this.ConnectionString);
-                        Adapter = new OleDbDataAdapter();
-                        ProviderAssembly = Assembly.GetAssembly(typeof(System.Data.OleDb.OleDbConnection));
-                        break;
-                    case DataProvider.Odbc:
-                        Conn = new OdbcConnection(this.ConnectionString);
-                        Adapter = new OdbcDataAdapter();
-                        ProviderAssembly = Assembly.GetAssembly(typeof(System.Data.Odbc.OdbcConnection));
-                        break;
-                    case DataProvider.SqlClient:
-                        Conn = new SqlConnection(this.ConnectionString);
-                        Adapter = new SqlDataAdapter();
-                        this._Database = DatabaseType.SqlServer;
-                        ProviderAssembly = Assembly.GetAssembly(typeof(System.Data.SqlClient.SqlConnection));
-                        break;
-                    default:
-                        GetCustomProviderConnection();
-                        break;
-
-                }
-            }
-            catch (Exception Ex)
-            {
-                HandleError(Ex);
-            }
-
-            try
-            {
-                SetPropertyValue(Adapter, "UpdateBatchSize", 10);
-                this._BatchUpdateSupported = true;
-                SetPropertyValue(Adapter, "UpdateBatchSize", 1);
-            }
-            catch (Exception)
-            {
-            }
-
-            Command = Conn.CreateCommand();
-
-            if (this.Provider == DataProvider.Oracle)
-                SetPropertyValue(Command, "BindByName", true);
-
-            Adapter.SelectCommand = Command;
-
         }
+        */
         #endregion
 
         #region Public Methods
 
+      
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         public void Dispose()
         ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1275,7 +1240,7 @@ namespace DbNetSuiteCore.Data
         {
             try
             {
-                return Reader.IsDBNull(Reader.GetOrdinal(ColumnName));
+                return _Reader.IsDBNull(_Reader.GetOrdinal(ColumnName));
             }
             catch (Exception)
             {
@@ -1288,8 +1253,8 @@ namespace DbNetSuiteCore.Data
         public bool ColumnInReader(string ColumnName)
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
         {
-            for (int i = 0; i < Reader.FieldCount; i++)
-                if (Reader.GetName(i).Equals(ColumnName, StringComparison.InvariantCultureIgnoreCase)) return true;
+            for (int i = 0; i < _Reader.FieldCount; i++)
+                if (_Reader.GetName(i).Equals(ColumnName, StringComparison.InvariantCultureIgnoreCase)) return true;
 
             return false;
         }
@@ -1342,16 +1307,16 @@ namespace DbNetSuiteCore.Data
         {
             List<T> list = new List<T>();
             T obj = default(T);
-            while (Reader.Read())
+            while (_Reader.Read())
             {
                 obj = Activator.CreateInstance<T>();
                 foreach (PropertyInfo prop in obj.GetType().GetProperties())
                 {
                     if (HasColumn(prop.Name))
                     {
-                        if (!object.Equals(Reader[prop.Name], DBNull.Value))
+                        if (!object.Equals(_Reader[prop.Name], DBNull.Value))
                         {
-                            prop.SetValue(obj, Reader[prop.Name], null);
+                            prop.SetValue(obj, _Reader[prop.Name], null);
                         }
                     }
                 }
@@ -1362,9 +1327,9 @@ namespace DbNetSuiteCore.Data
 
         public bool HasColumn(string columnName)
         {
-            for (int i = 0; i < Reader.FieldCount; i++)
+            for (int i = 0; i < _Reader.FieldCount; i++)
             {
-                if (Reader.GetName(i).Equals(columnName, StringComparison.InvariantCultureIgnoreCase))
+                if (_Reader.GetName(i).Equals(columnName, StringComparison.InvariantCultureIgnoreCase))
                     return true;
             }
             return false;
@@ -2206,7 +2171,7 @@ namespace DbNetSuiteCore.Data
 
             try
             {
-                Reader = Command.ExecuteReader(Behaviour);
+                _Reader = Command.ExecuteReader(Behaviour);
             }
             catch (Exception Ex)
             {
@@ -2337,7 +2302,7 @@ namespace DbNetSuiteCore.Data
         ////////////////////////////////////////////////////////////////////////////
         {
             ExecuteQuery(Sql, Params, Behavior);
-            return Reader.Read();
+            return _Reader.Read();
         }
 
         /// <summary>
@@ -2730,18 +2695,18 @@ namespace DbNetSuiteCore.Data
         {
             Hashtable Data = new Hashtable(StringComparer.OrdinalIgnoreCase);
 
-            if (this.Reader.IsClosed)
+            if (this._Reader.IsClosed)
                 return Data;
 
             try
             {
-                for (int i = 0; i < this.Reader.FieldCount; i++)
-                    Data[this.Reader.GetName(i)] = this.ReaderValue(i);
+                for (int i = 0; i < this._Reader.FieldCount; i++)
+                    Data[this._Reader.GetName(i)] = this.ReaderValue(i);
             }
             catch (Exception)
             {
             }
-            Reader.Close();
+            _Reader.Close();
             return Data;
         }
 
@@ -2804,7 +2769,7 @@ namespace DbNetSuiteCore.Data
             }
 
             ExecuteQuery(Sql, Params, CommandBehavior.SchemaOnly | CommandBehavior.KeyInfo);
-            DataTable T = Reader.GetSchemaTable();
+            DataTable T = _Reader.GetSchemaTable();
 
             if (!T.Columns.Contains("DataTypeName"))
                 T.Columns.Add(new DataColumn("DataTypeName", System.Type.GetType("System.String")));
@@ -2814,18 +2779,18 @@ namespace DbNetSuiteCore.Data
 
             T.Columns["DataTypeName"].ReadOnly = false;
 
-            for (int I = 0; I < Reader.FieldCount; I++)
+            for (int I = 0; I < _Reader.FieldCount; I++)
             {
-                T.Rows[I]["DataTypeName"] = Reader.GetDataTypeName(I);
-                T.Rows[I]["FieldTypeName"] = Reader.GetFieldType(I).ToString();
+                T.Rows[I]["DataTypeName"] = _Reader.GetDataTypeName(I);
+                T.Rows[I]["FieldTypeName"] = _Reader.GetFieldType(I).ToString();
 
-                switch (Reader.GetType().Name)
+                switch (_Reader.GetType().Name)
                 {
                     case "SqlDataReader":
                     case "SqlCeDataReader":
                         Object[] Args = new Object[1];
                         Args[0] = I;
-                        T.Rows[I]["ProviderFieldTypeName"] = InvokeMethod(Reader, "GetProviderSpecificFieldType", Args).ToString();
+                        T.Rows[I]["ProviderFieldTypeName"] = InvokeMethod(_Reader, "GetProviderSpecificFieldType", Args).ToString();
                         break;
                 }
 
@@ -2833,7 +2798,7 @@ namespace DbNetSuiteCore.Data
                 //    T.Rows[I]["ProviderFieldTypeName"] = ((SqlDataReader)Reader).GetProviderSpecificFieldType(I).ToString();
             }
 
-            Reader.Close();
+            _Reader.Close();
 
             if (this.Database == DatabaseType.SqlServer && TableName.Length > 0)
             {
@@ -2845,7 +2810,7 @@ namespace DbNetSuiteCore.Data
                 }
 
                 ExecuteQuery(Sql);
-                while (Reader.Read())
+                while (_Reader.Read())
                 {
                     if (T.Columns["IsKey"].ReadOnly)
                     {
@@ -2853,10 +2818,10 @@ namespace DbNetSuiteCore.Data
                         foreach (DataRow R in T.Rows)
                             R["IsKey"] = false;
                     }
-                    DataRow[] Rows = T.Select("ColumnName = '" + Reader.GetString(0) + "'");
+                    DataRow[] Rows = T.Select("ColumnName = '" + _Reader.GetString(0) + "'");
                     Rows[0]["IsKey"] = true;
                 }
-                Reader.Close();
+                _Reader.Close();
             }
 
             switch (this.Database)
@@ -2954,7 +2919,7 @@ namespace DbNetSuiteCore.Data
 
             string Sql = "select " + SequenceName + "." + ((Increment) ? "next" : "curr") + "val from dual";
             this.ExecuteSingletonQuery(Sql);
-            return Convert.ToInt64(Reader.GetValue(0));
+            return Convert.ToInt64(_Reader.GetValue(0));
 
         }
 
@@ -2991,10 +2956,10 @@ namespace DbNetSuiteCore.Data
         {
             ListDictionary Data = new ListDictionary();
 
-            if (Reader != null)
-                if (!Reader.IsClosed)
-                    for (int i = 0; i < Reader.FieldCount; i++)
-                        Data[Reader.GetName(i).ToLower()] = JsonValue(i);
+            if (_Reader != null)
+                if (!_Reader.IsClosed)
+                    for (int i = 0; i < _Reader.FieldCount; i++)
+                        Data[_Reader.GetName(i).ToLower()] = JsonValue(i);
 
             return Data;
         }
@@ -3174,9 +3139,58 @@ namespace DbNetSuiteCore.Data
         /// </example> 
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
-        public void Open()
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////
+        public void Open(string ConnectionString, DataProvider? Provider, DatabaseType Database = DatabaseType.Unknown)
         {
+            this._ConnectionString = MapDatabasePath(ConnectionString);
+            this._Provider = Provider.HasValue ? Provider.Value : DeriveProvider(this._ConnectionString);
+            this._Database = Database;
+            try
+            {
+                switch (Provider)
+                {
+                    case DataProvider.OleDb:
+                        Conn = new OleDbConnection(this.ConnectionString);
+                        Adapter = new OleDbDataAdapter();
+                        ProviderAssembly = Assembly.GetAssembly(typeof(System.Data.OleDb.OleDbConnection));
+                        break;
+                    case DataProvider.Odbc:
+                        Conn = new OdbcConnection(this.ConnectionString);
+                        Adapter = new OdbcDataAdapter();
+                        ProviderAssembly = Assembly.GetAssembly(typeof(System.Data.Odbc.OdbcConnection));
+                        break;
+                    case DataProvider.SqlClient:
+                        Conn = new SqlConnection();
+                        Adapter = new SqlDataAdapter();
+                        this._Database = DatabaseType.SqlServer;
+                     //   ProviderAssembly = Assembly.GetAssembly(typeof(System.Data.SqlClient.SqlConnection));
+                        break;
+                    default:
+                        GetCustomProviderConnection();
+                        break;
+
+                }
+            }
+            catch (Exception Ex)
+            {
+                HandleError(Ex);
+            }
+
+            try
+            {
+                SetPropertyValue(Adapter, "UpdateBatchSize", 10);
+                this._BatchUpdateSupported = true;
+                SetPropertyValue(Adapter, "UpdateBatchSize", 1);
+            }
+            catch (Exception)
+            {
+            }
+
+            Command = Conn.CreateCommand();
+
+            if (this.Provider == DataProvider.Oracle)
+                SetPropertyValue(Command, "BindByName", true);
+
+            Adapter.SelectCommand = Command;
             if (this.Provider == DataProvider.SqlServerCE)
                 CheckSQLCEVersion();
 
@@ -3433,7 +3447,7 @@ namespace DbNetSuiteCore.Data
         {
             try
             {
-                return ReaderValue(Reader.GetOrdinal(ColumnName));
+                return ReaderValue(_Reader.GetOrdinal(ColumnName));
             }
             catch (Exception)
             {
@@ -3467,7 +3481,7 @@ namespace DbNetSuiteCore.Data
         public object ReaderValue(int ColumnIndex)
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
         {
-            return Reader.GetValue(ColumnIndex);
+            return _Reader.GetValue(ColumnIndex);
         }
 
         /// <summary>
@@ -3714,20 +3728,6 @@ namespace DbNetSuiteCore.Data
             CommandStart = System.DateTime.Now;
         }
 
-        ////////////////////////////////////////////////////////////////////////////
-        private static string DeriveConnectionString()
-        ////////////////////////////////////////////////////////////////////////////
-        {
-            string ConnectionString = "";
-            if (ConfigurationManager.ConnectionStrings["DbNetData"] != null)
-                ConnectionString = ConfigurationManager.ConnectionStrings["DbNetData"].ConnectionString;
-            else if (ConfigurationManager.AppSettings["DbNetData"] != null)
-                ConnectionString = ConfigurationManager.AppSettings["DbNetData"];
-
-            if (ConnectionString == "")
-                throw new Exception("Unable to derive DbNetData connection string from configuration file");
-            return ConnectionString;
-        }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
         private DatabaseType GetDatabaseType()
@@ -4257,7 +4257,7 @@ namespace DbNetSuiteCore.Data
                             string CN = R["ColumnName"].ToString();
                             if (!ColumnNames.Contains(CN))
                                 continue;
-            
+
                             SqlDbType T = (SqlDbType)GetProviderDbType(R["DataTypeName"].ToString());
                             int Size = (int)R["ColumnSize"];
                             A.InsertCommand.Parameters.Add(this.ParameterName(CN), T, Size, CN);
@@ -4271,8 +4271,8 @@ namespace DbNetSuiteCore.Data
                         {
                             string CN = R["ColumnName"].ToString();
                             if (!ColumnNames.Contains(CN))
-                                continue; 
-                            
+                                continue;
+
                             object MT = GetProviderDbType(R["DataTypeName"].ToString());
                             int Size = (int)R["ColumnSize"];
                             Object[] Args = new Object[4];
@@ -4348,8 +4348,8 @@ namespace DbNetSuiteCore.Data
         private void CloseReader()
         ////////////////////////////////////////////////////////////////////////////
         {
-            if (Reader is IDataReader)
-                if (!Reader.IsClosed)
+            if (_Reader is IDataReader)
+                if (!_Reader.IsClosed)
                 {
                     try
                     {
@@ -4357,7 +4357,7 @@ namespace DbNetSuiteCore.Data
                     }
                     catch (Exception) { }
 
-                    Reader.Close();
+                    _Reader.Close();
                 }
         }
 
@@ -4533,13 +4533,13 @@ namespace DbNetSuiteCore.Data
                 {
                     try
                     {
-                        Id = Int64.Parse(Reader.GetValue(0).ToString());
+                        Id = Int64.Parse(_Reader.GetValue(0).ToString());
                     }
                     catch (Exception)
                     {
                     }
                 }
-                Reader.Close();
+                _Reader.Close();
             }
 
             return Id;
@@ -4581,7 +4581,7 @@ namespace DbNetSuiteCore.Data
             }
 
             if (ExecuteSingletonQuery(Sql, Params))
-                return "select " + Reader.GetValue(0).ToString().Replace("nextval", "currval");
+                return "select " + _Reader.GetValue(0).ToString().Replace("nextval", "currval");
             else
                 return "";
         }
@@ -4643,7 +4643,7 @@ namespace DbNetSuiteCore.Data
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
-        internal string CommandErrorInfo()
+        public string CommandErrorInfo()
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
         {
             string Msg = "";
@@ -4813,22 +4813,22 @@ namespace DbNetSuiteCore.Data
         internal object JsonValue(int i)
         ///////////////////////////////////////////////
         {
-            if (Reader.IsDBNull(i))
+            if (_Reader.IsDBNull(i))
                 return "";
 
-            if (Reader.GetValue(i) is Byte[])
+            if (_Reader.GetValue(i) is Byte[])
                 return "";
 
-            if (Reader.GetValue(i) is DateTime)
+            if (_Reader.GetValue(i) is DateTime)
             {
                 DateTime d1 = new DateTime(1970, 1, 1);
-                DateTime d2 = Convert.ToDateTime(Reader.GetValue(i)).ToUniversalTime();
+                DateTime d2 = Convert.ToDateTime(_Reader.GetValue(i)).ToUniversalTime();
                 TimeSpan ts = new TimeSpan(d2.Ticks - d1.Ticks);
 
                 return "/Date(" + Convert.ToInt64(ts.TotalMilliseconds).ToString() + ")/";
             }
 
-            return Reader.GetValue(i);
+            return _Reader.GetValue(i);
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////

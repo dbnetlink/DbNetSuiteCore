@@ -1,0 +1,36 @@
+﻿@page
+@using DbNetSuiteCore.Models
+@{
+    Layout = "/pages/shared/_Layout.cshtml";
+}
+@using DbNetSuiteCore.Models.Configuration
+@using DbNetSuiteCore.Enums
+    <div class="p-4">
+        <h3>Invoice</h3>
+        @await Component.InvokeAsync("DbNetGrid", new DbNetGridConfiguration()
+        {
+            Id = "InvoicesGrid",
+            ConnectionString = "Chinook",
+            DataProvider = DbNetSuiteCore.Services.DataProvider.SQLite,
+            TableName = "Invoices",
+            Columns = new List<GridColumn> {
+                new GridColumn("InvoiceId"),
+                new GridColumn("CustomerId") { Label="Customer", Lookup = "select CustomerId, FirstName || ' ' || LastName from Customers", DropDownFilter = true},
+                new GridColumn("InvoiceDate") { Label ="Date"},
+                new GridColumn("BillingAddress") { Label ="Address"},
+                new GridColumn("BillingCity") { Label ="City"},
+                new GridColumn("BillingState") { Label ="State"},
+                new GridColumn("BillingCountry") { Label ="Country"},
+                new GridColumn("BillingPostalCode") { Label ="PostCode"},
+                new GridColumn("Total") { Format = "c"}
+                }
+        })
+        <h3>Invoice Items</h3>
+        @await Component.InvokeAsync("DbNetGrid", new DbNetGridConfiguration()
+        {
+            Id = "InvoiceItemsGrid",
+            ConnectionString = "Chinook",
+            DataProvider = DbNetSuiteCore.Services.DataProvider.SQLite,
+            TableName = "Invoice_Items"
+        })
+    </div>

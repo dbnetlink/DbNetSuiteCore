@@ -1,4 +1,4 @@
-﻿using DbNetSuiteCore.Data;
+﻿using DbNetSuiteCore.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
