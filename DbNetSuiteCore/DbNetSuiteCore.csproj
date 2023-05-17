@@ -1,0 +1,216 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>DbNetLink</Authors>
+    <Company>DbNetLink</Company>
+    <PackageIcon>nuget_logo.png</PackageIcon>
+    <Title>Interactive data-driven components for ASP.Net Core</Title>
+    <Description>Interactive database driven Razor web reporting component for ASP.NET Core.  Supports MSSQL, MySql, PostgreSQL and SQLite</Description>
+    <RepositoryUrl>https://github.com/dbnetlink/DbNetSuiteCore</RepositoryUrl>
+    <PackageTags>asp.net core, grid, spreadsheet</PackageTags>
+    <AssemblyVersion>0.9.33</AssemblyVersion>
+    <FileVersion>0.9.33</FileVersion>
+    <PackageReleaseNotes>Alpah version. Currently still under active development.</PackageReleaseNotes>
+    <PackageProjectUrl>https://dbnetsuitecoreapp.azurewebsites.net</PackageProjectUrl>
+    <Version>0.9.33-alpha</Version>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <PackageLicenseExpression> NPOSL-3.0</PackageLicenseExpression>
+    <BaseOutputPath></BaseOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants)TRACE;WEB_UI</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>$(DefineConstants)TRACE;WEB_UI</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Resources\TypeScript\Typedefs\**" />
+    <EmbeddedResource Remove="Resources\TypeScript\Typedefs\**" />
+    <None Remove="Resources\TypeScript\Typedefs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Utilities\DbNetLink.DbNetData.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Nuget\readme.md" />
+    <None Remove="Resources\CSS\dbnetsuite.css" />
+    <None Remove="Resources\CSS\libraries\cleanslate.css" />
+    <None Remove="Resources\CSS\libraries\jquery-ui.min.css" />
+    <None Remove="Resources\CSS\libraries\jquery-ui.theme.min.css" />
+    <None Remove="Resources\CSS\libraries\jquery.timepicker.min.css" />
+    <None Remove="Resources\CSS\_reboot.css" />
+    <None Remove="Resources\CSS\_reboot.min.css" />
+    <None Remove="Resources\Fonts\material-icons.woff2" />
+    <None Remove="Resources\Fonts\material-icons2.woff2" />
+    <None Remove="Resources\Images\ui-icons_444444_256x240.png" />
+    <None Remove="Resources\Images\ui-icons_555555_256x240.png" />
+    <None Remove="Resources\Images\ui-icons_777620_256x240.png" />
+    <None Remove="Resources\Images\ui-icons_777777_256x240.png" />
+    <None Remove="Resources\Images\ui-icons_cc0000_256x240.png" />
+    <None Remove="Resources\Images\ui-icons_ffffff_256x240.png" />
+    <None Remove="Resources\JavaScript\axios.js" />
+    <None Remove="Resources\JavaScript\dbnetgrid.js" />
+    <None Remove="Resources\JavaScript\DbNetGrid.min.js" />
+    <None Remove="Resources\JavaScript\dbnetsuite.js" />
+    <None Remove="Resources\JavaScript\DbNetSuite.min.js" />
+    <None Remove="Resources\JavaScript\Dialog.js" />
+    <None Remove="Resources\JavaScript\Dialog.min.js" />
+    <None Remove="Resources\JavaScript\GridColumn.js" />
+    <None Remove="Resources\JavaScript\GridColumn.min.js" />
+    <None Remove="Resources\JavaScript\jquery-3.6.0.js" />
+    <None Remove="Resources\JavaScript\libraries\jquery-3.6.1.min.js" />
+    <None Remove="Resources\JavaScript\libraries\jquery-ui.min.js" />
+    <None Remove="Resources\JavaScript\libraries\jquery.timepicker.min.js" />
+    <None Remove="Resources\JavaScript\LookupDialog.js" />
+    <None Remove="Resources\JavaScript\LookupDialog.min.js" />
+    <None Remove="Resources\JavaScript\SearchDialog.js" />
+    <None Remove="Resources\JavaScript\SearchDialog.min.js" />
+    <None Remove="Resources\JavaScript\ViewDialog.js" />
+    <None Remove="Resources\JavaScript\ViewDialog.min.js" />
+    <None Remove="Resources\SCSS\_reboot.scss" />
+    <None Remove="Resources\tsconfig.json" />
+    <None Remove="Resources\TypeScript\dbnetgrid.ts" />
+    <None Remove="Resources\TypeScript\dbnetsuite.ts" />
+    <None Remove="Views\DbNetGrid\Grid.cshtml" />
+    <None Remove="Views\DbNetGrid\HtmlExport.cshtml" />
+    <None Remove="Views\DbNetGrid\LookupDialog.cshtml" />
+    <None Remove="Views\DbNetGrid\LookupDialogContent.cshtml" />
+    <None Remove="Views\DbNetGrid\SearchDialog.cshtml" />
+    <None Remove="Views\DbNetGrid\Toolbar.cshtml" />
+    <None Remove="Views\DbNetGrid\ViewDialog.cshtml" />
+    <None Remove="Views\DbNetGrid\ViewDialogContent.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Nuget\nuget_logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Nuget\readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\CSS\libraries\cleanslate.css" />
+    <EmbeddedResource Include="Resources\CSS\libraries\jquery.timepicker.min.css" />
+    <EmbeddedResource Include="Resources\CSS\_reboot.css" />
+    <EmbeddedResource Include="Resources\CSS\_reboot.min.css" />
+    <EmbeddedResource Include="Resources\JavaScript\DbNetGrid.min.js" />
+    <EmbeddedResource Include="Resources\JavaScript\DbNetSuite.min.js" />
+    <EmbeddedResource Include="Resources\JavaScript\Dialog.js" />
+    <EmbeddedResource Include="Resources\JavaScript\Dialog.min.js" />
+    <EmbeddedResource Include="Resources\JavaScript\GridColumn.min.js" />
+    <EmbeddedResource Include="Resources\JavaScript\libraries\jquery.timepicker.min.js" />
+    <EmbeddedResource Include="Resources\JavaScript\LookupDialog.js" />
+    <EmbeddedResource Include="Resources\JavaScript\LookupDialog.min.js" />
+    <EmbeddedResource Include="Resources\JavaScript\SearchDialog.js" />
+    <EmbeddedResource Include="Resources\JavaScript\SearchDialog.min.js" />
+    <EmbeddedResource Include="Resources\JavaScript\ViewDialog.js" />
+    <EmbeddedResource Include="Resources\JavaScript\ViewDialog.min.js" />
+    <EmbeddedResource Include="Resources\SCSS\dbnetsuite.scss" />
+    <EmbeddedResource Include="Resources\CSS\libraries\jquery-ui.min.css" />
+    <EmbeddedResource Include="Resources\CSS\libraries\jquery-ui.theme.min.css" />
+    <EmbeddedResource Include="Resources\Fonts\material-icons.woff2" />
+    <EmbeddedResource Include="Resources\Images\ui-icons_444444_256x240.png" />
+    <EmbeddedResource Include="Resources\Images\ui-icons_555555_256x240.png" />
+    <EmbeddedResource Include="Resources\Images\ui-icons_777620_256x240.png" />
+    <EmbeddedResource Include="Resources\Images\ui-icons_777777_256x240.png" />
+    <EmbeddedResource Include="Resources\Images\ui-icons_cc0000_256x240.png" />
+    <EmbeddedResource Include="Resources\Images\ui-icons_ffffff_256x240.png" />
+    <EmbeddedResource Include="Resources\JavaScript\GridColumn.js" />
+    <EmbeddedResource Include="Resources\JavaScript\libraries\jquery-ui.min.js" />
+    <EmbeddedResource Include="Resources\SCSS\_reboot.scss" />
+    <EmbeddedResource Include="Views\DbNetGrid\HtmlExport.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\DbNetGrid\LookupDialogContent.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\DbNetGrid\LookupDialog.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\DbNetGrid\SearchDialog.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\DbNetGrid\ViewDialogContent.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\DbNetGrid\ViewDialog.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\DbNetGrid\Toolbar.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\DbNetGrid\Grid.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\CSS\dbnetsuite.css" />
+    <EmbeddedResource Include="Resources\JavaScript\DbNetGrid.js" />
+    <EmbeddedResource Include="Resources\JavaScript\DbNetSuite.js" />
+    <EmbeddedResource Include="Resources\TypeScript\DbNetSuite.ts" />
+    <EmbeddedResource Include="Resources\TypeScript\DbNetGrid.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.100.3" />
+    <PackageReference Include="DocumentFormat.OpenXml" Version="2.18.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.10" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.10" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="6.0.10" />
+    <PackageReference Include="System.Data.Odbc" Version="6.0.1" />
+    <PackageReference Include="System.Data.OleDb" Version="6.0.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\JavaScript\libraries\jquery-3.6.1.min.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Resources\Localization\default.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>default.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\Localization\default.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>default.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Nuget\nuget_logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="tsconfig.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
+
+
+</Project>

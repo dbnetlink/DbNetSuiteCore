@@ -1,0 +1,222 @@
+﻿@namespace DbNetSuiteCore.Views.DbNetGrid
+@using DbNetSuiteCore.Enums
+@using DbNetSuiteCore.Helpers
+@using DbNetSuiteCore.Models
+@using Microsoft.AspNetCore.Html
+@model DbNetSuiteCore.ViewModels.DbNetGrid.SearchDialogViewModel
+
+<div id="@(Model.ComponentId)_search_dialog" class="search-dialog" title="Search">
+    <div class="content">
+        <table>
+            @foreach (GridColumn gridColumn in Model.Columns)
+            {
+                if (gridColumn.Search == false)
+                {
+                    continue;
+                }
+                <tr>
+                    <td class="label">@gridColumn.Label</td>
+                    <td>
+                        <select name="searchOperator(@gridColumn.Index)" class="search-operator" datatype="@gridColumn.DataType" columnindex="@gridColumn.Index">
+                            @SearchOperators(gridColumn)
+                        </select>
+                    </td>
+                    <td>
+                        <table class="layout">
+                            <tr class="search-row" columnindex="@gridColumn.Index" columnkey="@gridColumn.ColumnKey" columnname="@gridColumn.ColumnName">
+                                <td>
+                                    @AddInputControl(gridColumn)
+                                </td>
+                                <td class="between" style="display:none;"><span>&nbsp;and&nbsp;</span></td>
+                                <td class="between" style="display:none;">
+                                    @AddInputControl(gridColumn, true)
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+    <hr />
+    <div>
+        <table>
+            <tr>
+                <td>
+                    <select id="searchFilterJoin">
+                        <option value="and">@Model.Translate("MatchAllCriteria")</option>
+                        <option value="or">@Model.Translate("MatchAtLeastOneCriteria")</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="dialog-toolbar-panel">
+        <table class="search-dialog-toolbar">
+            <tr>
+                @Button("Clear", ToolbarButtonStyle.ImageAndText, "ClearTheSearchCriteria")
+                <td style="width:100%">&nbsp;</td>
+                @Button("Apply", ToolbarButtonStyle.ImageAndText,"ApplyTheEnteredSearchCriteria")
+                @Button("Cancel", ToolbarButtonStyle.ImageAndText, "CloseTheSearchWindow")
+            </tr>
+        </table>
+    </div>
+    <div>
+        <div class="message"></div>
+    </div>
+</div>
+
+@functions
+{
+    public HtmlString Button(string type, ToolbarButtonStyle buttonStyle, string title)
+    {
+        return new HtmlString($"<td><button type=\"button\" class=\"{type.ToLower()}-btn toolbar-button toolbar-button-{buttonStyle.ToString().ToLower()}\" title=\"{@Model.Translate(title)}\" button-type=\"{type.ToLower()}\" id=\"{Model.ComponentId}_View_Dialog_{type}Btn\">{(buttonStyle == ToolbarButtonStyle.Image ? string.Empty : Model.Translate(type))}</button></td>");
+    }
+
+    private HtmlString SearchOperators(GridColumn column)
+    {
+        string dataType = column.DataType;
+
+        /*
+        if (column.Lookup != "" || column.SearchLookup != "")
+            if (column.LookupSearchMode == DbColumn.LookupSearchModeValues.SearchText)
+                dataType = column.LookupDataType;
+        */
+
+        var options = new List<SearchOperator>();
+
+        foreach (SearchOperator searchOperator in Enum.GetValues(typeof(SearchOperator)))
+        {
+            if (string.IsNullOrEmpty(column.Lookup))
+            {
+                AddOperator(searchOperator, dataType, options);
+            }
+            else
+            {
+                switch (searchOperator)
+                {
+                    case SearchOperator.In:
+                    case SearchOperator.NotIn:
+                        AddOperator(searchOperator, dataType, options);
+                        break;
+                }
+            }
+        }
+
+        List<string> html = new List<string>() { "<option/>" };
+        html.AddRange(options.Select(o => $"<option value=\"{o.ToString()}\">{Description(o, column)}</option>").ToList());
+        return new HtmlString(string.Join(string.Empty, html));
+    }
+
+    private string Description(SearchOperator searchOperator, GridColumn column)
+    {
+        if (IsBooleanOperator(searchOperator))
+        {
+            if (Model.BooleanDisplayMode != BooleanDisplayMode.TrueFalse)
+            {
+                    return (searchOperator == SearchOperator.True ? Model.Translate("Yes") : Model.Translate("No"));
+            }
+        }
+
+        return Model.Translate(searchOperator.ToString());
+    }
+
+    private void AddOperator(SearchOperator searchOperator, string dataType, List<SearchOperator> options)
+    {
+        switch (dataType)
+        {
+            case nameof(String):
+                if (IsBooleanOperator(searchOperator))
+                {
+                    return;
+                }
+                break;
+            case nameof(Byte):
+            case nameof(Int16):
+            case nameof(Int32):
+            case nameof(Int64):
+            case nameof(Decimal):
+            case nameof(Single):
+            case nameof(Double):
+            case nameof(DateTime):
+            case nameof(TimeSpan):
+            case nameof(Guid):
+                if (IsBooleanOperator(searchOperator) || IsStringOperator(searchOperator))
+                {
+                    return;
+                }
+                break;
+            case "Boolean":
+                if (IsBooleanOperator(searchOperator) == false)
+                {
+                    return;
+                }
+                break;
+        }
+        options.Add(searchOperator);
+    }
+
+    private Boolean IsBooleanOperator(SearchOperator searchOperator)
+    {
+        switch (searchOperator)
+        {
+            case SearchOperator.True:
+            case SearchOperator.False:
+                return true;
+        }
+
+        return false;
+    }
+
+    private Boolean IsStringOperator(SearchOperator searchOperator)
+    {
+        switch (searchOperator)
+        {
+            case SearchOperator.Contains:
+            case SearchOperator.StartsWith:
+            case SearchOperator.EndsWith:
+            case SearchOperator.DoesNotContain:
+            case SearchOperator.DoesNotEndWith:
+            case SearchOperator.DoesNotStartWith:
+                return true;
+        }
+
+        return false;
+    }
+
+    private HtmlString AddInputControl(GridColumn column, bool hidden = false)
+    {
+        string type = "input";
+         
+        List<string> classNames = new List<string>() { "input-control" };
+        List<string> attributes = new List<string>();
+        attributes.Add(ViewHelper.SetAttribute("columnIndex", column.Index.ToString()));
+        attributes.Add(ViewHelper.SetAttribute("dataType", column.DataType));
+        attributes.Add(ViewHelper.SetAttribute("alt", column.Label));
+        attributes.Add(ViewHelper.SetAttribute("format", column.Format));
+        attributes.Add(ViewHelper.SetAttribute("class", string.Join(" ", classNames)));
+        attributes.Add(ViewHelper.SetAttribute("type", type));
+
+        string controls = $"<input {string.Join(" ", attributes)}/>";
+
+        if (column.DataType.Equals(nameof(DateTime)))
+        {
+            controls += AddButton("calendar", "SelectDate");
+        }
+        else if (column.DataType.Equals(nameof(TimeSpan)))
+        {
+            controls += AddButton("clock", "SelectTime");
+        }
+        else if (string.IsNullOrEmpty(column.Lookup) == false)
+        {
+            controls += AddButton("lookup", "OpenTheLookupWindow");
+        }
+        return new HtmlString(controls);
+    }
+
+    private string AddButton(string type, string title)
+    {
+        string button = $"<button type=\"button\" class=\"toolbar-button toolbar-button-image\" title=\"{Model.Translate(title)}\" button-type=\"{type.ToLower()}\" id=\"{Model.ComponentId}_{type}Btn\"></button>";
+        return button;
+    }
+} 

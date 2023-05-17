@@ -1,0 +1,136 @@
+﻿@namespace DbNetSuiteCore.Views.DbNetGrid
+@using DbNetSuiteCore.Enums
+@using DbNetSuiteCore.Helpers
+@using DbNetSuiteCore.ViewModels.DbNetGrid
+@using DbNetSuiteCore.Models
+@using System.Data
+@using System.Linq
+@using Microsoft.AspNetCore.Html
+@model ViewDialogViewModel
+
+<table class="view-content-table">
+    <tbody>
+            @foreach (DataColumn column in Model.ViewData.Columns)
+            {
+                DataRow row = Model.ViewData.Rows[0];
+                GridColumn gridColumn = Model.Columns[column.ColumnName];
+
+                if (gridColumn.View == false)
+                {
+                    continue;
+                }
+
+                <tr class="view-content-row" data-columnname="@column.ColumnName" data-dbdatatype="@gridColumn.DbDataType">
+                @{
+                    <td class="view-dialog-label">@gridColumn.Label</td>
+                    <td data-type="@gridColumn.DataType" style="@gridColumn.Style" data-value="@(row.ItemArray[gridColumn.Index])">
+                        <div class="view-dialog-value">
+                            @if (gridColumn.DataType == "Byte[]")
+                            {
+                                if  (gridColumn.Download)
+                                {
+                                    <button type="button" class="download">&nbsp;</button>
+                                } 
+                                else if (gridColumn.Image)
+                                {
+                                    <img class="image" />
+                                }
+                            }
+                            else
+                            {
+                                @CellValue(row.ItemArray[gridColumn.Index], gridColumn)
+                            }
+                        </div>
+                    </td>
+                }                
+                </tr>
+            }
+    </tbody>
+ </table>
+@functions
+{
+    public HtmlString CellValue(object dataValue, GridColumn column)
+    {
+        if (dataValue == null || dataValue == System.DBNull.Value)
+        {
+            return new HtmlString("&nbsp;");
+        }
+
+        if (string.IsNullOrEmpty(column.Lookup) == false)
+        {
+            DataTable lookupTable = Model.LookupTables[column.ColumnKey];
+            foreach (DataRow row in lookupTable.Rows)
+            {
+                if (row[0].ToString() == dataValue.ToString())
+                {
+                    return new HtmlString(row[1].ToString());
+                }
+            }
+        }
+
+        if (column.DataType == nameof(DateTime))
+        {
+            return new HtmlString(Convert.ToDateTime(dataValue).ToString(column.Format));
+        }
+
+        if (column.DataType == nameof(Boolean))
+        {
+            switch (Model.BooleanDisplayMode)
+            {
+                case BooleanDisplayMode.Checkbox:
+                    return new HtmlString("&nbsp;");
+                case BooleanDisplayMode.YesNo:
+                    return new HtmlString(BooleanHelper.YesNo(dataValue.ToString()));
+            }
+        }
+
+        switch (column.DataType)
+        {
+            case nameof(Decimal):
+            case nameof(Double):
+            case nameof(Single):
+            case nameof(Int64):
+            case nameof(Int32):
+            case nameof(Int16):
+                return new HtmlString(Convert.ToDecimal(dataValue).ToString(column.Format));
+        }
+
+        return new HtmlString(dataValue.ToString());
+    }
+
+
+    public static int PrimaryKeyIndex(DataColumnCollection columns, GridColumnCollection gridColumns)
+    {
+        foreach (DataColumn column in columns)
+        {
+            GridColumn gridColumn = gridColumns[column.ColumnName];
+            if (gridColumn.PrimaryKey)
+            {
+                return gridColumn.Index;
+            }
+        }
+        return -1;
+    }
+
+    public string CellClass(object dataValue, GridColumn column)
+    {
+        List<string> classeNames = new List<string>();
+
+        if (column.DataType == nameof(Boolean) && Model.BooleanDisplayMode == BooleanDisplayMode.Checkbox)
+        {
+            classeNames.Add($"{Convert.ToBoolean(dataValue).ToString().ToLower()}-icon-cell");
+        }
+
+        if (column.DataType == "Byte[]")
+        {
+            classeNames.Add($"download");
+        }
+
+        if (classeNames.Count() == 0)
+        {
+            return null;
+        }
+
+        return string.Join(" ", classeNames.ToArray());
+    }
+}

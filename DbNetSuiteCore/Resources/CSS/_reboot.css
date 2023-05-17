@@ -1,0 +1,67 @@
+﻿/* Box sizing rules */
+.dbnetsuite *,
+.dbnetsuite *::before,
+.dbnetsuite *::after {
+  box-sizing: border-box;
+}
+
+.dbnetsuite {
+  /* Remove list styles on ul, ol elements with a list role, which suggests default styling will be removed */
+  /* Set core root defaults */
+  /* Set core body defaults */
+  /* A elements that don't have a class get default styles */
+  /* Make images easier to work with */
+  /* Inherit fonts for inputs and buttons */
+  /* Remove all animations, transitions and smooth scroll for people that prefer not to see them */
+}
+.dbnetsuite h1,
+.dbnetsuite h2,
+.dbnetsuite h3,
+.dbnetsuite h4,
+.dbnetsuite p,
+.dbnetsuite figure,
+.dbnetsuite blockquote,
+.dbnetsuite dl,
+.dbnetsuite dd {
+  margin: 0;
+}
+.dbnetsuite ul[role=list],
+.dbnetsuite ol[role=list] {
+  list-style: none;
+}
+.dbnetsuite html:focus-within {
+  scroll-behavior: smooth;
+}
+.dbnetsuite body {
+  min-height: 100vh;
+  text-rendering: optimizeSpeed;
+  line-height: 1.5;
+}
+.dbnetsuite a:not([class]) {
+  text-decoration-skip-ink: auto;
+}
+.dbnetsuite img,
+.dbnetsuite picture {
+  max-width: 100%;
+  display: block;
+}
+.dbnetsuite input,
+.dbnetsuite button,
+.dbnetsuite textarea,
+.dbnetsuite select {
+  font: inherit;
+  box-sizing: border-box;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dbnetsuite html:focus-within {
+    scroll-behavior: auto;
+  }
+  .dbnetsuite *,
+  .dbnetsuite *::before,
+  .dbnetsuite *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

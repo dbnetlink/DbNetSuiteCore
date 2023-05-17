@@ -1,0 +1,14 @@
+﻿[
+  {
+    "outputFile": "Resources/CSS/dbnetsuite.css",
+    "inputFile": "Resources/SCSS/dbnetsuite.scss"
+  },
+  {
+    "outputFile": "Resources/CSS/_reboot.css",
+    "inputFile": "Resources/SCSS/_reboot.scss"
+  },
+  {
+    "outputFile": "Resources/JavaScript/DbNetGrid.js",
+    "inputFile": "Resources/JavaScript/DbNetGrid.min.js"
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@types/bootstrap": "^5.2.6",
+    "@types/google.visualization": "^0.0.69",
+    "@types/jqueryui": "^1.12.16",
+    "axios": "^0.27.2"
+  },
+  "devDependencies": {
+    "@types/jquery": "^3.5.14"
+  }
+}

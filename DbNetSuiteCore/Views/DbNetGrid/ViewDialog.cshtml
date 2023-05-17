@@ -1,0 +1,38 @@
+﻿@namespace DbNetSuiteCore.Views.DbNetGrid
+@using Microsoft.AspNetCore.Html
+@using DbNetSuiteCore.ViewModels.DbNetGrid
+@using DbNetSuiteCore.Enums
+@model ViewDialogViewModel
+
+<div id="@(Model.ComponentId)_view_dialog" class="view-dialog" title="View" style="display:none">
+    <div class="content"></div>
+    <div class="dialog-toolbar-panel">
+        <table class="view-dialog-toolbar">
+            <tr>
+                @Button("Previous", Model.ToolbarButtonStyle)
+                @Button("Next", Model.ToolbarButtonStyle)
+                <td style="width:100%">&nbsp;</td>
+                @Button("Print", ToolbarButtonStyle.ImageAndText)
+                @Button("Close", ToolbarButtonStyle.ImageAndText)
+            </tr>
+        </table>
+    </div>
+</div>
+
+@functions
+{
+    public HtmlString Button(string type, ToolbarButtonStyle buttonStyle)
+    {
+        return new HtmlString($"<td><button type=\"button\" class=\"{type.ToLower()}-btn toolbar-button toolbar-button-{buttonStyle.ToString().ToLower()}\" title=\"{@Title(type)}\" button-type=\"{type.ToLower()}\" id=\"{Model.ComponentId}_View_Dialog_{type}Btn\">{(buttonStyle == ToolbarButtonStyle.Image ? string.Empty : ResourceString(type))}</button></td>");
+    }
+
+    public string Title(string type)
+    {
+        return ResourceString($"{type}Record_Title");
+    }
+
+    public string ResourceString(string key)
+    {
+        return Model.Translate(key) ?? key;
+    }
+}

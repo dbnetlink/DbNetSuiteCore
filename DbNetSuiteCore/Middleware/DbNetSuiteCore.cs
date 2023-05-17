@@ -1,0 +1,90 @@
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
+using DbNetSuiteCore.Models;
+using DbNetSuiteCore.Services;
+
+namespace DbNetLink.Middleware
+{
+    public class DbNetSuiteCore
+    {
+        private RequestDelegate _next;
+
+        public DbNetSuiteCore(RequestDelegate next)
+        {
+            _next = next;
+        }
+
+        public async Task Invoke(HttpContext context, IWebHostEnvironment env, IConfiguration configuration)
+        {
+            if (context.Request.Path.ToString().EndsWith(DbNetSuiteExtensions.PathExtension))
+            {
+                await GenerateResponse(new AspNetCoreServices(context, env, configuration));
+            }
+            else
+            {
+                await _next.Invoke(context);
+            }
+        }
+
+        private async Task GenerateResponse(AspNetCoreServices services)
+        {
+            string page = services.httpContext.Request.Path.ToString().Split('/').Last().Split('.').First();
+            object response = null;
+
+            switch (page.ToLower())
+            {
+                case "resource":
+                    var resource = new Resource(services);
+                    response = await resource.Process();
+                    break;
+                case "dbnetgrid":
+                    var dbnetgrid = new DbNetGrid(services);
+                    response = await dbnetgrid.Process();
+                    break;
+            }
+
+            if (response == null)
+            {
+                return;
+            }
+
+            if (response is byte[])
+            {
+                await services.httpContext.Response.Body.WriteAsync(response as byte[]);
+            }
+            else
+            {
+                await services.httpContext.Response.WriteAsync(response.ToString());
+            }
+        }
+    }
+
+    public static class DbNetSuiteExtensions
+    {
+        public static string PathExtension => ".dbnetsuite";
+
+        public static IApplicationBuilder UseDbNetSuiteCore(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<DbNetSuiteCore>();
+        }
+
+        public static IServiceCollection AddDbNetSuiteCore(this IServiceCollection services)
+        {
+            services.Configure<MvcRazorRuntimeCompilationOptions>(options =>
+            {
+                options.FileProviders.Clear();
+                var embeddedFileProvider = new EmbeddedFileProvider(typeof(DbNetSuiteCore).Assembly);
+                options.FileProviders.Add(embeddedFileProvider);
+            });
+            services.AddRazorPages().AddRazorRuntimeCompilation();
+            return services;
+        }
+    }
+}

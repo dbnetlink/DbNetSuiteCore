@@ -1,0 +1,33 @@
+﻿@namespace DbNetSuiteCore.Views.DbNetGrid
+@using DbNetSuiteCore.Enums
+@using Microsoft.AspNetCore.Html
+@model DbNetSuiteCore.ViewModels.DbNetGrid.LookupDialogViewModel
+
+<div id="@(Model.ComponentId)_lookup_dialog" class="lookup-dialog" title="@Model.Translate("Lookup")" style="display:none">
+    <div class="content">
+        <table>
+            <tr>
+                <td>
+                    <div class="select"></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="dialog-toolbar-panel">
+        <table class="lookup-dialog-toolbar">
+            <tr>
+                <td style="width:100%">&nbsp;</td>
+                @Button("Apply", ToolbarButtonStyle.ImageAndText,"Select")
+                @Button("Cancel", ToolbarButtonStyle.ImageAndText, "Close")
+            </tr>
+        </table>
+    </div>
+</div>
+
+@functions
+{
+    public HtmlString Button(string type, ToolbarButtonStyle buttonStyle, string text)
+    {
+        return new HtmlString($"<td><button type=\"button\" class=\"{type.ToLower()}-btn toolbar-button toolbar-button-{buttonStyle.ToString().ToLower()}\" button-type=\"{type.ToLower()}\" id=\"{Model.ComponentId}_Lookup_Dialog_{type}Btn\">{(buttonStyle == ToolbarButtonStyle.Image ? string.Empty : Model.Translate(text))}</button></td>");
+    }
+} 

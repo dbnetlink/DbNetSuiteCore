@@ -1,0 +1,21 @@
+﻿@namespace DbNetSuiteCore.Views.DbNetGrid
+@using DbNetSuiteCore.ViewModels.DbNetGrid
+@model HtmlExportViewModel
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <style>
+        @Html.Raw(Model.GridCss)
+    </style>
+    <style>
+        th.nested-cell, td.nested-cell
+        {
+            display:none;
+        }
+    </style>
+</head>
+<body>
+    @Html.Raw(Model.GridHtml)
+</body>
+</html>

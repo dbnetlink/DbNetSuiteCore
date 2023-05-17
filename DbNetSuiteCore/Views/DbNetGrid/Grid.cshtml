@@ -1,0 +1,405 @@
+﻿@namespace DbNetSuiteCore.Views.DbNetGrid
+@using DbNetSuiteCore.Enums
+@using DbNetSuiteCore.Helpers
+@using DbNetSuiteCore.ViewModels.DbNetGrid
+@using DbNetSuiteCore.Models
+@using System.Data
+@using System.Linq
+@using Microsoft.AspNetCore.Html
+@using System.Text;
+@using DbNetSuiteCore.Extensions
+@model GridViewModel
+
+@{
+    int rowIdx = 0;
+    int primaryKeyIndex = @PrimaryKeyIndex(Model.Columns);
+}
+
+<table class="dbnetgrid-table">
+    <thead>
+        <tr class="header-row">
+            @if (Model.MultiRowSelectLocation == MultiRowSelectLocation.Left)
+            {
+                @MultiRowSelectCell(true)
+            }
+            @NestedGridCell(true)
+            @foreach (DataColumn column in Model.GridData.Columns)
+            {
+                GridColumn gridColumn = Model.Columns[column.Ordinal];
+                if (gridColumn.Display)
+                {
+                    <th data-columnname="@column.ColumnName" data-columnordinal="@(gridColumn.Index + 1)" data-dbdatatype="@gridColumn.DbDataType" orderby=@gridColumn.OrderBy class="@HeaderCellClass(gridColumn)">@gridColumn.Label</th>
+                }
+            }
+            @if (Model.MultiRowSelectLocation == MultiRowSelectLocation.Right)
+            {
+                @MultiRowSelectCell(true)
+            }
+        </tr>
+        @if (Model.Columns.Any(c => c.Filter))
+        {
+            <tr class="filter-row">
+                @if (Model.MultiRowSelectLocation == MultiRowSelectLocation.Left)
+                {
+                    @MultiRowSelectCell(true)
+                }
+                @NestedGridCell(true)
+                @foreach (DataColumn column in Model.GridData.Columns)
+                {
+                    GridColumn gridColumn = Model.Columns[column.ColumnName];
+                    @ColumnFilter(gridColumn)
+                    ;
+                }
+                @if (Model.MultiRowSelectLocation == MultiRowSelectLocation.Right)
+                {
+                    @MultiRowSelectCell(true)
+                }
+            </tr>
+        }
+    </thead>
+    <tbody>
+        @foreach (DataRow row in Model.GridData.Rows)
+        {
+            if (Model.FixedOrderChange(rowIdx, true) && Model.GroupHeaderColumns.Any())
+            {
+                <tr class="group-header-row">
+                    <td colspan="@Model.Columns.Where(c => c.Display).Count()">@HeaderCellValues(row)</td>
+                </tr>
+            }
+
+            if (Model.FixedOrderChange(rowIdx, false) && Model.TotalBreakColumns.Any())
+            {
+                foreach (var column in Model.TotalBreakColumns.Reverse<GridColumn>())
+                {
+                    if (Model.ColumnChange(column, rowIdx))
+                    {
+                        @Html.Raw(TotalRow(column, rowIdx))
+                    }
+                }
+            }
+
+            <tr class="data-row @(rowIdx % 2 == 0 ? "even" : "odd")" @(DataAttributes(row, primaryKeyIndex))>
+                @if (Model.MultiRowSelectLocation == MultiRowSelectLocation.Left)
+                {
+                    @MultiRowSelectCell(false)
+                }
+                @NestedGridCell(false)
+                @foreach (DataColumn column in Model.GridData.Columns)
+                {
+                    GridColumn gridColumn = Model.Columns[column.Ordinal];
+                    if (gridColumn.Display)
+                    {
+                        <td data-type="@gridColumn.DataType" style="@gridColumn.Style" class="@CellClass(row.ItemArray[gridColumn.Index], gridColumn)" data-value="@(row.ItemArray[gridColumn.Index])">@Html.Raw(CellContent(row, gridColumn, rowIdx))</td>
+                    }
+                }
+                @if (Model.MultiRowSelectLocation == MultiRowSelectLocation.Right)
+                {
+                    @MultiRowSelectCell(false)
+                }
+            </tr>
+            rowIdx++;
+        }
+    </tbody>
+    @if (Model.Columns.Any(c => c.Aggregate != AggregateType.None))
+    {
+        <tfoot>
+            @Html.Raw(TotalRow())
+        </tfoot>
+    }
+</table>
+<div id="@(Model.ComponentId)_message_dialog"></div>
+@functions
+{
+    public string DataAttributes(DataRow row, int primaryKeyIndex)
+    {
+        List<string> dataAttributes = new List<string>();
+
+        if (primaryKeyIndex > -1)
+        {
+            dataAttributes.Add($"data-id={row.ItemArray[primaryKeyIndex]}");
+        }
+
+        foreach (var column in Model.Columns.Where(c => c.DataOnly))
+        {
+            dataAttributes.Add($"data-{column.ColumnName.ToLower()}={row.ItemArray[column.Index]}");
+        }
+
+        return string.Join(" ", dataAttributes.ToArray());
+    }
+
+    public string CellContent(DataRow row, GridColumn gridColumn, int rowIdx)
+    {
+        switch (gridColumn.DataType)
+        {
+            case "Byte[]" when gridColumn.Download:
+                return "<button type=\"button\" class=\"download\">&nbsp;</button>";
+            case "Byte[]" when gridColumn.Image:
+                return "<img class=\"image\"/>";
+            default:
+            {
+                if (gridColumn.ClearDuplicateValue != null && gridColumn.ClearDuplicateValue.Value && Model.DuplicateValue(gridColumn, rowIdx))
+                {
+                    return CellValue(null, gridColumn);
+                }
+                else
+                {
+                    return CellValue(row.ItemArray[gridColumn.Index], gridColumn);
+                }
+            }
+        }
+    }
+
+    public string CellValue(object dataValue, GridColumn column)
+    {
+        if (dataValue == null || dataValue == System.DBNull.Value)
+        {
+            return string.Empty;
+        }
+
+        if (string.IsNullOrEmpty(column.Lookup) == false)
+        {
+            DataTable lookupTable = Model.LookupTables[column.ColumnKey];
+
+            if (lookupTable.Columns.Count > 1)
+            {
+            foreach (DataRow row in lookupTable.Rows)
+            {
+                if (row[0].ToString() == dataValue.ToString())
+                {
+                    return row[1].ToString();
+                }
+            }
+                }
+        }
+
+        if (column.DataType == nameof(DateTime))
+        {
+            return Convert.ToDateTime(dataValue).ToString(column.Format);
+        }
+
+        if (column.DataType == nameof(Boolean))
+        {
+            switch (Model.BooleanDisplayMode)
+            {
+                case BooleanDisplayMode.Checkbox:
+                    return string.Empty;
+                case BooleanDisplayMode.YesNo:
+                    return BooleanHelper.YesNo(dataValue.ToString());
+            }
+        }
+
+        switch (column.DataType)
+        {
+            case nameof(Decimal):
+            case nameof(Double):
+            case nameof(Single):
+            case nameof(Int64):
+            case nameof(Int32):
+            case nameof(Int16):
+                return Convert.ToDecimal(dataValue).ToString(column.Format);
+        }
+
+        return dataValue.ToString();
+    }
+
+    public string HeaderCellValues(DataRow row)
+    {
+        return string.Join(", ", Model.GroupHeaderColumns.Select(c => CellValue(row.ItemArray[c.Index], c)));
+    }
+
+    public static int PrimaryKeyIndex(GridColumnCollection gridColumns)
+    {
+        return gridColumns.Any(c => c.PrimaryKey) ? gridColumns.FirstOrDefault(c => c.PrimaryKey).Index : -1;
+    }
+
+    public HtmlString MultiRowSelectCell(bool header)
+    {
+        if (Model.MultiRowSelect)
+        {
+            return new HtmlString($"<{(header ? "th" : "td")}><input type=\"checkbox\" class=\"multi-select-checkbox\"></input></{(header ? "th" : "td")}>");
+        }
+        return new HtmlString(string.Empty);
+    }
+
+    public HtmlString NestedGridCell(bool header)
+    {
+        if (Model.NestedGrid)
+        {
+            if (header)
+            {
+                return new HtmlString($"<th class=\"nested-cell\"></th>");
+            }
+            else
+            {
+                return new HtmlString($"<td class=\"nested-cell\"><button class=\"nested-grid-button\"></button></td>");
+            }
+        }
+        return new HtmlString(string.Empty);
+    }
+
+    public string CellClass(object dataValue, GridColumn column)
+    {
+        List<string> classeNames = new List<string>();
+
+        if (column.DataType == nameof(Boolean) && Model.BooleanDisplayMode == BooleanDisplayMode.Checkbox)
+        {
+            classeNames.Add($"{Convert.ToBoolean(Convert.ToInt16(dataValue)).ToString().ToLower()}-icon-cell");
+        }
+
+        if (column.DataType == "Byte[]")
+        {
+            classeNames.Add($"download");
+        }
+
+        if (classeNames.Count() == 0)
+        {
+            return null;
+        }
+        else
+        {
+            return string.Join(" ", classeNames.ToArray());
+        }
+    }
+
+    public string HeaderCellClass(GridColumn column)
+    {
+        List<string> classNames = new List<string>();
+        if (Model.FrozenHeader)
+        {
+            classNames.Add("sticky");
+        }
+
+        if (column.TotalBreak)
+        {
+            classNames.Add("no-ordering");
+        }
+
+        if (classNames.Any())
+        {
+            return string.Join(" ", classNames.ToArray());
+        }
+
+        return null;
+    }
+
+    public HtmlString ColumnFilter(GridColumn column)
+    {
+        string className = HeaderCellClass(column);
+        string th = $"th class=\"{className}\"";
+        string id = $"{Model.ComponentId}_{column.ColumnKey}_filter\"";
+
+        if (column.Filter == false)
+        {
+            return new HtmlString($"<{th}></th>");
+        }
+        string value = Model.ColumnFilters.Keys.Contains(column.ColumnName) ? Model.ColumnFilters[column.ColumnName] : string.Empty;
+
+        if (column.FilterMode == FilterColumnSelectMode.List && string.IsNullOrEmpty(column.Lookup) == false)
+        {
+            return new HtmlString($"<{th}><select data-columnname=\"{column.ColumnName}\" id=\"{id}\" class=\"column-filter\" value=\"{value}\">{LookupOptions(Model.LookupTables[column.ColumnName], value)}</select></th>");
+        }
+
+        if (column.DataType == nameof(Boolean))
+        {
+            return new HtmlString($"<{th}><select data-columnname=\"{column.ColumnName}\" id=\"{id}\" class=\"column-filter {Model.BooleanDisplayMode.ToString().ToLower()}\" value=\"{value}\">{BooleanFilterOption(value, null, string.Empty)}{BooleanFilterOption(value, true, "check_box")}{BooleanFilterOption(value, false, "check_box_outline_blank")}</select></th>");
+        }
+        else
+        {
+            return new HtmlString($"<{th}><input data-columnname=\"{column.ColumnName}\" id=\"{id}\" class=\"column-filter\" value=\"{value}\" type=\"text\"></input></th>");
+        }
+    }
+
+    public string BooleanFilterOption(string currentValue, bool? value, string icon)
+    {
+        if (value.HasValue)
+        {
+            string text = string.Empty;
+            bool boolValue = value.Value;
+
+            switch (Model.BooleanDisplayMode)
+            {
+                case BooleanDisplayMode.Checkbox:
+                    text = icon;
+                    break;
+                case BooleanDisplayMode.YesNo:
+                    text = BooleanHelper.YesNo(boolValue.ToString());
+                    break;
+                default:
+                    text = value.ToString();
+                    break;
+            }
+
+            return $"<option {(currentValue == boolValue.ToString() ? "selected" : string.Empty)} value=\"{boolValue.ToString()}\">{text}</option>";
+        }
+        else
+        {
+            return $"<option/>";
+        }
+    }
+
+    public string LookupOptions(DataTable data, string value)
+    {
+        List<string> options = new List<string>();
+
+        int descriptionColumn = data.Columns.Count - 1;
+        options.Add($"<option></option>");
+
+        foreach (DataRow row in data.Rows)
+        {
+            options.Add($"<option {(row[0].ToString() == value ? "selected" : "")} value=\"{row[0].ToString()}\">{row[descriptionColumn].ToString()}</option>");
+        }
+
+        return string.Join(string.Empty, options.ToArray());
+    }
+
+
+    public string TotalRow(GridColumn changecolumn = null, int? rowCount = null)
+    {
+        int colspan = 0;
+        bool firstEmptyCell = true;
+
+        var totalRow = new StringBuilder("<tr class=\"total-row\">");
+
+        foreach (DataColumn column in Model.GridData.Columns)
+        {
+            GridColumn aggregateColumn = Model.Columns[column.Ordinal];
+            if (aggregateColumn.Aggregate != AggregateType.None)
+            {
+                if (colspan > 0)
+                {
+                    totalRow.Append(EmptyCell());
+                    firstEmptyCell = false;
+                }
+                totalRow.Append($"<td data-type=\"{aggregateColumn.DataType}\" class=\"total-value\" {ViewHelper.SetAttribute("style", aggregateColumn.Style)}>" +
+                                $"{CellValue(Model.ColumnTotal(changecolumn, rowCount, aggregateColumn), aggregateColumn)}" +
+                                $"</td>");
+                colspan = 0;
+            }
+            else
+            {
+                colspan++;
+            }
+        }
+        @if (colspan > 0)
+        {
+            totalRow.Append(EmptyCell());
+        }
+        totalRow.Append("</tr>");
+        return totalRow.ToString();
+
+        string EmptyCell()
+        {
+            if (firstEmptyCell)
+            {
+                return $"<td colspan=\"{colspan}\" class=\"total-label\">{Label()}</td>";
+            }
+
+            return $"<td colspan=\"{colspan}\">&nbsp;</td>";
+        }
+
+        string Label()
+        {
+            return changecolumn == null || rowCount == null ? "&nbsp;" : $"<span class=\"total-column\">{changecolumn.Label}</span> {Model.GridData.ColumnValue(rowCount.Value - 1, changecolumn)}";
+        }
+    }
+}

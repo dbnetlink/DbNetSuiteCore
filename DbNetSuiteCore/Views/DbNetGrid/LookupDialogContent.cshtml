@@ -1,0 +1,11 @@
+﻿@namespace DbNetSuiteCore.Views.DbNetGrid
+@using System.Data
+@model DbNetSuiteCore.ViewModels.DbNetGrid.LookupDialogViewModel
+
+<select multiple="multiple" class="lookup-select" size="20">
+    @foreach (DataRow row in Model.LookupData.Rows)
+    {
+        int textIdx = row.ItemArray.Length > 1 ? 1 : 0;
+        <option value="@(row.ItemArray[0]?.ToString())">@(row.ItemArray[textIdx]?.ToString())</option>
+    }
+</select>

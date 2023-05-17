@@ -1,0 +1,44 @@
+[
+  {
+    "outputFileName": "Resources/JavaScript/DbNetGrid.min.js",
+    "inputFiles": [
+      "Resources/JavaScript/DbNetGrid.js"
+    ]
+  },
+  {
+    "outputFileName": "Resources/JavaScript/DbNetSuite.min.js",
+    "inputFiles": [
+      "Resources/JavaScript/DbNetSuite.js"
+    ]
+  },
+  {
+    "outputFileName": "Resources/JavaScript/Dialog.min.js",
+    "inputFiles": [
+      "Resources/JavaScript/Dialog.js"
+    ]
+  },
+  {
+    "outputFileName": "Resources/JavaScript/GridColumn.min.js",
+    "inputFiles": [
+      "Resources/JavaScript/GridColumn.js"
+    ]
+  },
+  {
+    "outputFileName": "Resources/JavaScript/LookupDialog.min.js",
+    "inputFiles": [
+      "Resources/JavaScript/LookupDialog.js"
+    ]
+  },
+  {
+    "outputFileName": "Resources/JavaScript/SearchDialog.min.js",
+    "inputFiles": [
+      "Resources/JavaScript/SearchDialog.js"
+    ]
+  },
+  {
+    "outputFileName": "Resources/JavaScript/ViewDialog.min.js",
+    "inputFiles": [
+      "Resources/JavaScript/ViewDialog.js"
+    ]
+  }
+]

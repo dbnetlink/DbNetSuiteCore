@@ -1,0 +1,9 @@
+﻿namespace DbNetSuiteCore.Models
+{
+    ///////////////////////////////////////////////
+    public class DbColumnCollection<DbColumn> : ColumnCollection<DbColumn>
+    ///////////////////////////////////////////////
+    {
+
+    }
+}
