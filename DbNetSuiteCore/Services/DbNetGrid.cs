@@ -851,7 +851,7 @@ namespace DbNetSuiteCore.Services
                 }
             }
 
-            object? paramValue = string.Empty;
+            object paramValue = string.Empty;
             try
             {
                 switch (dataType)
