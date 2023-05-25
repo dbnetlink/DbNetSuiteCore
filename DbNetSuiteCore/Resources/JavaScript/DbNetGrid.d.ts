@@ -2,9 +2,9 @@
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
 /// <reference types="bootstrap" />
-declare type DbConnectionType = "Sqlite" | "SqlServer";
-declare type ColumnPropertyType = "format" | "lookup" | "style" | "foreignKey" | "filter" | "filterMode" | "download" | "image";
-declare type ToolbarPosition = "Top" | "Bottom" | "Hidden";
+type DbConnectionType = "Sqlite" | "SqlServer";
+type ColumnPropertyType = "format" | "lookup" | "style" | "foreignKey" | "filter" | "filterMode" | "download" | "image";
+type ToolbarPosition = "Top" | "Bottom" | "Hidden";
 declare enum ToolbarButtonStyle {
     Image = 0,
     Text = 1,
@@ -28,7 +28,7 @@ declare class DbNetGrid extends DbNetSuite {
     cellIndexCache: Dictionary<number>;
     columnName: string | undefined;
     columns: GridColumn[];
-    columnFilters: Dictionary<String>;
+    columnFilters: Dictionary<string>;
     connectionType: DbConnectionType;
     connectionString: string;
     copy: boolean;
@@ -40,7 +40,7 @@ declare class DbNetGrid extends DbNetSuite {
     dropTarget: JQuery<HTMLElement> | undefined;
     element: JQuery<HTMLElement>;
     export_: boolean;
-    fixedFilterParams: Dictionary<Object>;
+    fixedFilterParams: Dictionary<object>;
     fixedFilterSql: string;
     fromPart: string;
     frozenHeader: boolean;
@@ -61,6 +61,8 @@ declare class DbNetGrid extends DbNetSuite {
     orderByDirection: string;
     pageSize: number;
     primaryKey: string | undefined;
+    procedureName: string;
+    procedureParams: Dictionary<object>;
     quickSearch: boolean;
     quickSearchDelay: number;
     quickSearchMinChars: number;
@@ -80,6 +82,7 @@ declare class DbNetGrid extends DbNetSuite {
     constructor(id: string);
     initialize(): void;
     setColumnExpressions(...columnExpressions: string[]): void;
+    setColumnKeys(...columnKeys: string[]): void;
     setColumnLabels(...labels: string[]): void;
     setColumnProperty(columnName: string | Array<string>, property: ColumnPropertyType, propertyValue: any): void;
     setColumnProperties(columnName: string, properties: GridColumnProperties): void;
@@ -88,7 +91,7 @@ declare class DbNetGrid extends DbNetSuite {
     columnIndex(columnName: string): number;
     columnCell(columnName: string, row: HTMLTableRowElement | undefined): HTMLTableCellElement | null;
     selectedRow(): HTMLTableRowElement;
-    selectedRows(): JQuery<HTMLElement>;
+    selectedRows(): JQuery<HTMLElement> | undefined;
     columnValue(columnName: string, row: HTMLTableRowElement): any;
     reload(): void;
     getDataArray(callback: Function): void;
@@ -140,4 +143,5 @@ declare class DbNetGrid extends DbNetSuite {
     private openNestedGrid;
     private configureNestedGrid;
     private assignForeignKey;
+    private error;
 }

@@ -26,7 +26,7 @@ namespace DbNetSuiteCore.Services
             HttpContext = services.httpContext;
             Env = services.webHostEnvironment;
             Configuration = services.configuration;
-            Settings = services.configuration.GetSection("DbNetSuiteCore").Get<DbNetSuiteCoreSettings>();
+            Settings = services.configuration.GetSection("DbNetSuiteCore").Get<DbNetSuiteCoreSettings>() ?? new DbNetSuiteCoreSettings();
         }
         protected string QueryParam(string name)
         {

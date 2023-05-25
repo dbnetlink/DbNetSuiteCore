@@ -34,6 +34,8 @@ namespace DbNetSuiteCore.Models
         public OrderByDirection OrderByDirection { get; set; }
         public long PageSize { get; set; }
         public string PrimaryKey { get; set; }
+        public string ProcedureName { get; set; }
+        public Dictionary<string, object> ProcedureParams { get; set; }
         public bool QuickSearch { get; set; }
         public string QuickSearchToken { get; set; }
         public bool Search { get; set; }

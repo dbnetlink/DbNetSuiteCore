@@ -2,7 +2,7 @@
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
 /// <reference types="bootstrap" />
-declare type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized";
+type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized";
 interface CellDataDownloadArgs {
     row: HTMLTableRowElement;
     cell: HTMLTableCellElement;

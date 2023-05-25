@@ -8,6 +8,9 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Html;
 using Microsoft.Extensions.Configuration;
 using System.IO;
+using Azure.Messaging;
+using System.Configuration;
+using System.Data;
 
 namespace DbNetSuiteCore.Components
 {
@@ -17,6 +20,7 @@ namespace DbNetSuiteCore.Components
         private readonly string _connection;
         private readonly string _fromPart;
         private DbNetSuiteCoreSettings _DbNetSuiteCoreSettings;
+        private readonly IConfigurationRoot _configuration;
 
         private List<ColumnProperty> _columnProperties { get; set; } = new List<ColumnProperty>();
         private List<EventBinding> _eventBindings { get; set; } = new List<EventBinding>();
@@ -100,6 +104,14 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public int? PageSize { get; set; } = null;
         /// <summary>
+        /// The name of the stored procedure used as the data source
+        /// </summary>
+        public string ProcedureName { get; set; } = null;
+        /// <summary>
+        /// The parameters passed to the stored procedure
+        /// </summary>
+        public Dictionary<string, object> ProcedureParams { get; set; } =  new Dictionary<string, object>();
+        /// <summary>
         /// Displays a search box in the toolbar that allows for searching against all the text based columns
         /// </summary>
         public bool? QuickSearch { get; set; } = null;
@@ -124,15 +136,20 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public bool? View { get; set; } = null;
 
-
-        public DbNetGridCore(string connection, string fromPart, string id = null)
+        public DbNetGridCore(string connection, string fromPart, string id = null, DataSourceType dataSourceType = DataSourceType.TableOrView)
         {
             _idSupplied = id != null;
             _id = id ?? $"dbnetgrid{Guid.NewGuid().ToString().Split("-").First()}";
             _connection = connection;
             _fromPart = fromPart;
-        }
+            if (dataSourceType == DataSourceType.StoredProcedure)
+            {
+                ProcedureName = fromPart;
+            }
 
+            _configuration = LoadConfiguration();
+        }
+      
         /// <summary>
         /// Assigns a property value to multiple columns
         /// </summary>
@@ -193,6 +210,13 @@ namespace DbNetSuiteCore.Components
 
         public HtmlString Render()
         {
+            string message = ValidateProperties();
+
+            if (string.IsNullOrEmpty(message) == false)
+            {
+                return new HtmlString($"<div class=\"dbnetsuite-error\">{message}</div>");
+            }
+
             string script = string.Empty;
             if (GoogleChartOptions != null)
             {
@@ -264,6 +288,7 @@ with ({_id})
 connectionString = '{EncodingHelper.Encode(_connection)}';
 fromPart = '{EncodingHelper.Encode(_fromPart)}';
 {ColumnExpressions()}
+{ColumnKeys()}
 {ColumnLabels()}
 {ColumnProperties()}
 {EventBindings()}
@@ -297,10 +322,16 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             AddProperty(Culture, nameof(Culture), properties);
             AddProperty(EncodingHelper.Encode(FixedFilterSql), nameof(FixedFilterSql), properties);
             AddProperty(RowSelect, nameof(RowSelect), properties);
+            AddProperty(EncodingHelper.Encode(ProcedureName), nameof(ProcedureName), properties);
 
             if (FixedFilterParams.Count > 0)
             {
                 properties.Add($"fixedFilterParams = {Serialize(FixedFilterParams)};");
+            }
+
+            if (ProcedureParams?.Count > 0)
+            {
+                properties.Add($"procedureParams = {Serialize(ProcedureParams)};");
             }
 
             properties.Add($"datePickerOptions = {DatePickerOptions()};");
@@ -349,7 +380,15 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             {
                 return string.Empty;
             }
-            return $"setColumnExpressions(\"{string.Join("\",\"", Columns.Select(c => EncodingHelper.Encode(c.ToLower())).ToList())}\");";
+            return $"setColumnExpressions(\"{string.Join("\",\"", Columns.Select(c => EncodingHelper.Encode(c)).ToList())}\");";
+        }
+        private string ColumnKeys()
+        {
+            if (Columns.Any() == false)
+            {
+                return string.Empty;
+            }
+            return $"setColumnKeys(\"{string.Join("\",\"", Columns.Select(c => EncodingHelper.Encode(c.ToLower())).ToList())}\");";
         }
         private string ColumnLabels()
         {
@@ -441,17 +480,35 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
         {
             if (_DbNetSuiteCoreSettings == null)
             {
-                var builder = new ConfigurationBuilder()
-                                .SetBasePath(Directory.GetCurrentDirectory())
-                                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                                .AddEnvironmentVariables();
-
-                IConfigurationRoot configuration = builder.Build();
-
-                _DbNetSuiteCoreSettings = configuration.GetSection("DbNetSuiteCore").Get<DbNetSuiteCoreSettings>(); ;
+                _DbNetSuiteCoreSettings = _configuration.GetSection("DbNetSuiteCore").Get<DbNetSuiteCoreSettings>() ?? new DbNetSuiteCoreSettings();
             }
 
             return _DbNetSuiteCoreSettings;
+        }
+
+        private IConfigurationRoot LoadConfiguration()
+        {
+            var builder = new ConfigurationBuilder()
+                  .SetBasePath(Directory.GetCurrentDirectory())
+                  .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                  .AddEnvironmentVariables();
+
+            IConfigurationRoot configuration = builder.Build();
+            return configuration;
+        }
+
+        private string ValidateProperties()
+        {
+            string message = string.Empty;
+
+            string connectionString = _configuration.GetConnectionString(_connection);
+
+            if (connectionString == null)
+            {
+                message = $"Connection string [{_connection}] not found. Please check the connection strings in your appsettings.json file";
+            }
+
+            return message;
         }
     }
 }

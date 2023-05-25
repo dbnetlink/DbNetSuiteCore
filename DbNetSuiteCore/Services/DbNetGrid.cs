@@ -35,7 +35,6 @@ namespace DbNetSuiteCore.Services
 {
     internal class DbNetGrid : DbNetSuite
     {
-        private Dictionary<string, object> _procedureParameters = new Dictionary<string, object>();
         private Dictionary<string, object> _columnProperties = new Dictionary<string, object>(StringComparer.CurrentCultureIgnoreCase);
         private Dictionary<string, DataTable> _lookupTables = new Dictionary<string, DataTable>();
         private Dictionary<string, object> _resp = new Dictionary<string, object>();
@@ -47,7 +46,7 @@ namespace DbNetSuiteCore.Services
         private string _fromPart;
         private string _connectionString;
         private string _fixedFilterSql;
-
+        private string _procedureName;
         public DbNetGrid(AspNetCoreServices services) : base(services)
         {
         }
@@ -101,7 +100,12 @@ namespace DbNetSuiteCore.Services
         public Dictionary<string, object> ParentFilterParams { get; set; } = new Dictionary<string, object>();
         public List<string> ParentFilterSql { get; set; } = new List<string> { };
         public string PrimaryKey { get; set; } = String.Empty;
-        public string ProcedureName { get; set; } = string.Empty;
+        public string ProcedureName
+        {
+            get => EncodingHelper.Decode(_procedureName);
+            set => _procedureName = value;
+        }
+        public Dictionary<string, object> ProcedureParams { get; set; }
         public bool QuickSearch { get; set; } = false;
         public string QuickSearchToken { get; set; } = string.Empty;
         public bool Search { get; set; } = true;
@@ -143,6 +147,13 @@ namespace DbNetSuiteCore.Services
                 CultureInfo ci = new CultureInfo(this.Culture);
                 Thread.CurrentThread.CurrentCulture = ci;
                 Thread.CurrentThread.CurrentUICulture = ci;
+            }
+
+            if (string.IsNullOrEmpty(this.ProcedureName) == false)
+            {
+                View = false;
+                Search = false;
+                QuickSearch = false;
             }
 
             switch (Action.ToLower())
@@ -220,62 +231,98 @@ namespace DbNetSuiteCore.Services
             this.DeleteRow = false;
             this.View = false;
 
-            DbNetDataCore.QueryCommandConfig queryCommand = BuildSql();
+            QueryCommandConfig queryCommand = BuildSql();
 
-            try
+            using (Database)
             {
-                ListDictionary dictionary = Database.DeriveParameters(queryCommand.Sql);
+                Database.Open();
+                Database.ExecuteQuery(queryCommand);
+                DataTable schema = Database.Reader.GetSchemaTable();
 
-                foreach (string key in dictionary.Keys)
-                {
-                    queryCommand.Params[key] = dictionary[key];
-                    ((IDbDataParameter)queryCommand.Params[key]).Value = DBNull.Value;
-                }
-            }
-            catch (Exception) { }
+                var columns = Columns.ToList();
 
-            foreach (string paramName in this._procedureParameters.Keys)
-                Database.SetParamValue(queryCommand.Params, paramName, _procedureParameters[paramName]);
+                Columns.Clear();
 
-            Database.ExecuteQuery(queryCommand);
-            DataTable schema = Database.Reader.GetSchemaTable();
+                var columnIndex = 0;
 
-            if (Columns.Count == 0)
-                foreach (DataRow row in schema.Rows)
-                    Columns.Add(GenerateColumn(row));
-
-            foreach (DbColumn column in Columns)
-            {
                 foreach (DataRow row in schema.Rows)
                 {
-                    string columnName = (column.ColumnName != "") ? column.ColumnName : column.ColumnExpression;
-                    if (row.ColumnName().ToLower() == columnName.ToLower())
+                    if (row.IsHidden())
                     {
-                        column.BaseTableName = row.BaseTableName();
-                        column.ColumnName = row.ColumnName();
-                        column.ColumnSize = row.ColumnSize();
-                        column.DataType = row.DataType().Name;
-
-                        if (column.Label == string.Empty)
-                        {
-                            column.Label = GenerateLabel(column.ColumnName);
-                        }
-
-                        if (Database.Database == DatabaseType.Oracle)
-                        {
-                            if (row["NumericScale"] != DBNull.Value)
-                            {
-                                if (row.NumericScale() == 0)
-                                    column.DataType = "Int64";
-                                else if (row.NumericScale() < 11 && column.Format == null)
-                                    column.Format = "F" + row.NumericScale().ToString();
-                            }
-                        }
-
-                        break;
+                        continue;
                     }
+
+                    GridColumn column = columns.Where(c => MatchingColumn(c, row.ColumnName(), row.BaseTableName())).FirstOrDefault();
+                    if (column == null)
+                    {
+                        column = GenerateColumn(row);
+                    }
+                    column.Index = columnIndex++;
+
+                    ConfigureColumn(column, row);
+
+                    Columns.Add(column);
                 }
             }
+        }
+
+        private void ConfigureColumn(GridColumn column, DataRow row)
+        {
+            column.Unmatched = false;
+
+            if (column.BaseTableName == string.Empty)
+            {
+                column.BaseTableName = row.BaseTableName();
+            }
+
+            GetBaseSchemaName(column, row);
+
+            column.ColumnName = row.ColumnName();
+            column.ColumnSize = row.ColumnSize();
+
+            if (column.Label == "")
+            {
+                column.Label = GenerateLabel(column.ColumnName);
+            }
+
+            column.OriginalDataType = row.DataType()?.Name ?? nameof(String);
+
+            if (String.IsNullOrEmpty(column.DataType))
+            {
+                switch (row.DataTypeName().ToLower())
+                {
+                    case "datetime":
+                        column.DataType = nameof(DateTime);
+                        break;
+                    default:
+                        if (row.DataType() == null)
+                        {
+                            column.ColumnExpression = $"'' as {column.ColumnName}";
+                            column.DataType = nameof(String);
+                        }
+                        else
+                        {
+                            column.DataType = row.DataType().Name;
+                        }
+                        break;
+                }
+            }
+
+            column.DbDataType = row.DataTypeName();
+
+            if (string.IsNullOrEmpty(column.Format))
+            {
+                switch (column.DataType)
+                {
+                    case nameof(DateTime):
+                        column.Format = "d";
+                        break;
+                    case nameof(TimeSpan):
+                        column.Format = "t";
+                        break;
+                }
+            }
+          
         }
 
         internal string DefaultOrderBy()
@@ -343,18 +390,24 @@ namespace DbNetSuiteCore.Services
 
         internal QueryCommandConfig ProcedureCommandConfig()
         {
-            QueryCommandConfig qc = new QueryCommandConfig(this.ProcedureName);
+            QueryCommandConfig queryCommandConfig = new QueryCommandConfig(this.ProcedureName);
 
-            try
+            using (Database)
             {
-                qc.Params = Database.DeriveParameters(qc.Sql);
+                Database.Open();
+                try
+                {
+                    queryCommandConfig.Params = Database.DeriveParameters(queryCommandConfig.Sql);
+                }
+                catch (Exception) { }
             }
-            catch (Exception) { }
 
-            foreach (string paramName in this._procedureParameters.Keys)
-                Database.SetParamValue(qc.Params, paramName, _procedureParameters[paramName]);
+            foreach (string paramName in this.ProcedureParams.Keys)
+            {
+                Database.SetParamValue(queryCommandConfig.Params, paramName, ProcedureParams[paramName]);
+            }
 
-            return qc;
+            return queryCommandConfig;
         }
 
         protected DataTable ArrayToDataTable(string jsonArray)
@@ -581,7 +634,7 @@ namespace DbNetSuiteCore.Services
             {
                 foreach (string paramName in FixedFilterParams.Keys)
                 {
-                        parameters.Add(ParamName(paramName), ConvertToDbParam(FixedFilterParams[paramName]));
+                    parameters.Add(ParamName(paramName), ConvertToDbParam(FixedFilterParams[paramName]));
                 }
             }
 
@@ -1046,10 +1099,7 @@ namespace DbNetSuiteCore.Services
                         continue;
                     }
 
-                    var columnName = row.ColumnName();
-                    var tableName = row.BaseTableName();
-
-                    GridColumn column = Columns.Where(c => MatchingColumn(c, columnName, tableName)).FirstOrDefault();
+                    GridColumn column = Columns.Where(c => MatchingColumn(c, row.ColumnName(), row.BaseTableName())).FirstOrDefault();
 
                     if (column == null)
                     {
@@ -1058,52 +1108,12 @@ namespace DbNetSuiteCore.Services
                     }
 
                     column.Index = columnIndex++;
-
-                    column.Unmatched = false;
-
-                    if (column.BaseTableName == string.Empty)
-                    {
-                        column.BaseTableName = row.BaseTableName();
-                    }
-
-                    GetBaseSchemaName(column, row);
-
-                    column.ColumnName = row.ColumnName();
-                    column.ColumnSize = row.ColumnSize();
+                    ConfigureColumn(column, row);
 
                     if (column.GroupHeader)
                     {
                         column.Display = false;
                     }
-
-                    if (column.Label == "")
-                        column.Label = GenerateLabel(column.ColumnName);
-
-                    column.OriginalDataType = row.DataType()?.Name ?? nameof(String);
-
-                    if (String.IsNullOrEmpty(column.DataType))
-                    {
-                        switch (row.DataTypeName().ToLower())
-                        {
-                            case "datetime":
-                                column.DataType = nameof(DateTime);
-                                break;
-                            default:
-                                if (row.DataType() == null)
-                                {
-                                    column.ColumnExpression = $"'' as {column.ColumnName}";
-                                    column.DataType = nameof(String);
-                                }
-                                else
-                                {
-                                    column.DataType = row.DataType().Name;
-                                }
-                                break;
-                        }
-                    }
-
-                    column.DbDataType = row.DataTypeName();
-
                     if (column.DataType == nameof(String))
                     {
                         column.QuickSearch = true;
@@ -1131,19 +1141,6 @@ namespace DbNetSuiteCore.Services
                     if (column.ClearDuplicateValue.HasValue == false || GroupBy)
                     {
                         column.ClearDuplicateValue = false;
-                    }
-
-                    if (string.IsNullOrEmpty(column.Format))
-                    {
-                        switch (column.DataType)
-                        {
-                            case nameof(DateTime):
-                                column.Format = "d";
-                                break;
-                            case nameof(TimeSpan):
-                                column.Format = "t";
-                                break;
-                        }
                     }
 
                     if (DefaultColumn != null)
@@ -1700,6 +1697,8 @@ namespace DbNetSuiteCore.Services
                 }
 
                 query = BuildSql();
+
+                Database.Open();
                 Database.ExecuteQuery(query);
 
                 int counter = 0;

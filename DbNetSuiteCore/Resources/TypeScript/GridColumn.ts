@@ -15,6 +15,7 @@ enum AggregateType {
 class GridColumn {
     columnExpression?: string;
     columnName?: string;
+    columnKey?: string;
     label?: string;
     format?: string;
     lookup?: string;

@@ -3,9 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
-using System.Data.Odbc;
 using System.Data.OleDb;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -322,6 +321,13 @@ namespace DbNetSuiteCore.Utilities
                 case DataProvider.SqlClient:
                     typeName = "SqlCommandBuilder";
                     break;
+                case DataProvider.MySql:
+                    typeName = "MySqlCommandBuilder";
+                    break;
+                case DataProvider.Npgsql:
+                    typeName = "NpgsqlCommandBuilder";
+                    break;
+                    
                 default:
                     throw new Exception("DeriveParameters not supported by this provider");
             }
@@ -355,7 +361,7 @@ namespace DbNetSuiteCore.Utilities
 
             foreach (IDbDataParameter dbParam in Command.Parameters)
                 if (dbParam.Direction != ParameterDirection.ReturnValue)
-                    parameters.Add(Regex.Replace(dbParam.ParameterName, "[@:?]", ""), dbParam);
+                    parameters.Add(Regex.Replace(dbParam.ParameterName, "[@:?]", string.Empty), dbParam);
 
             return parameters;
         }
@@ -377,7 +383,7 @@ namespace DbNetSuiteCore.Utilities
             }
 
             if (!found)
-                @params[paramName] = paramValue;
+                @params[ParameterName(paramName)] = paramValue;
         }
         public string ParameterName(string key, bool parameterValue = false)
         {
@@ -795,16 +801,22 @@ namespace DbNetSuiteCore.Utilities
 
             foreach (string key in @params.Keys)
             {
-                IDbDataParameter dbParam = Command.CreateParameter(); 
-                dbParam.ParameterName = ParameterName(key);
+                IDbDataParameter dbParam;
 
-                if (@params[key] == null)
+                if (@params[key] is IDbDataParameter)
                 {
-                    dbParam.Value = DBNull.Value;
+                    dbParam = @params[key] as IDbDataParameter;
                 }
                 else
                 {
+                    dbParam = Command.CreateParameter();
+                    dbParam.ParameterName = ParameterName(key);
                     dbParam.Value = @params[key];
+                }
+
+                if (dbParam.Value == null)
+                {
+                    dbParam.Value = DBNull.Value;
                 }
 
                 Command.Parameters.Add(dbParam);

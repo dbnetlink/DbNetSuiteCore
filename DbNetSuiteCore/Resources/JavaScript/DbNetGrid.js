@@ -50,6 +50,8 @@ class DbNetGrid extends DbNetSuite {
         this.orderByDirection = "asc";
         this.pageSize = 20;
         this.primaryKey = undefined;
+        this.procedureName = "";
+        this.procedureParams = {};
         this.quickSearch = false;
         this.quickSearchDelay = 1000;
         this.quickSearchMinChars = 3;
@@ -63,11 +65,11 @@ class DbNetGrid extends DbNetSuite {
         this.totalPages = 0;
         this.view = false;
         this.id = id;
-        this.columns = new Array();
+        this.columns = [];
         this.element = $(`#${this.id}`);
         this.element.addClass("dbnetsuite").addClass("cleanslate");
         if (this.element.length == 0) {
-            alert(`DbNetGrid containing element '${this.id}' not found`);
+            this.error(`DbNetGrid containing element '${this.id}' not found`);
             return;
         }
     }
@@ -94,8 +96,7 @@ class DbNetGrid extends DbNetSuite {
             this.updateColumns(response);
             this.configureGrid(response);
         })
-            .catch(error => {
-        });
+            .catch(() => { });
         this.initialised = true;
         this.fireEvent("onInitialized");
     }
@@ -103,6 +104,11 @@ class DbNetGrid extends DbNetSuite {
         columnExpressions.forEach(columnExpression => {
             const properties = { columnExpression: columnExpression };
             this.columns.push(new GridColumn(properties));
+        });
+    }
+    setColumnKeys(...columnKeys) {
+        columnKeys.forEach((value, index) => {
+            this.columns[index].columnKey = value;
         });
     }
     setColumnLabels(...labels) {
@@ -119,7 +125,7 @@ class DbNetGrid extends DbNetSuite {
             columnName.forEach(c => this.setColumnProperty(c, property, propertyValue));
             return;
         }
-        var matchingColumn = this.columns.find((col) => { return this.matchingColumn(col, columnName); });
+        let matchingColumn = this.columns.find((col) => { return this.matchingColumn(col, columnName); });
         if (matchingColumn == undefined) {
             const properties = { columnExpression: columnName };
             matchingColumn = new GridColumn(properties, true);
@@ -140,12 +146,13 @@ class DbNetGrid extends DbNetSuite {
         this.linkedGrids.push(grid);
     }
     columnIndex(columnName) {
+        var _a;
         let cellIndex = this.cellIndexCache[columnName];
         if (cellIndex) {
             return cellIndex;
         }
         cellIndex = -1;
-        this.gridPanel.find("th[data-columnname]").get().forEach((th) => {
+        (_a = this.gridPanel) === null || _a === void 0 ? void 0 : _a.find("th[data-columnname]").get().forEach((th) => {
             if ($(th).data("columnname")) {
                 if ($(th).data('columnname').toString().toLowerCase() == columnName.toLowerCase()) {
                     cellIndex = th.cellIndex;
@@ -155,9 +162,8 @@ class DbNetGrid extends DbNetSuite {
         });
         return cellIndex;
     }
-    ;
     columnCell(columnName, row) {
-        let cellIndex = this.columnIndex(columnName);
+        const cellIndex = this.columnIndex(columnName);
         if (cellIndex == -1) {
             return null;
         }
@@ -166,21 +172,20 @@ class DbNetGrid extends DbNetSuite {
         }
         return row.cells[cellIndex];
     }
-    ;
     selectedRow() {
-        return this.gridPanel.find("tr.data-row.selected")[0];
+        var _a;
+        return (_a = this.gridPanel) === null || _a === void 0 ? void 0 : _a.find("tr.data-row.selected")[0];
     }
-    ;
     selectedRows() {
-        return this.gridPanel.find("tr.data-row.selected");
+        var _a;
+        return (_a = this.gridPanel) === null || _a === void 0 ? void 0 : _a.find("tr.data-row.selected");
     }
-    ;
     columnValue(columnName, row) {
-        var value = $(row).data(columnName.toLowerCase());
+        const value = $(row).data(columnName.toLowerCase());
         if (value !== undefined) {
             return value;
         }
-        let cell = this.columnCell(columnName, row);
+        const cell = this.columnCell(columnName, row);
         if (cell) {
             return $(cell).data("value");
         }
@@ -190,25 +195,23 @@ class DbNetGrid extends DbNetSuite {
         this.currentPage = 1;
         this.getPage();
     }
-    ;
     getDataArray(callback) {
         this.post("data-array", this.getRequest())
             .then((response) => {
             callback(response);
         });
     }
-    ;
     matchingColumn(gridColumn, columnName) {
-        var _a;
-        var match = false;
-        if (gridColumn.columnExpression.includes(".")) {
-            match = gridColumn.columnExpression.split('.').pop().toLowerCase() == columnName.toLowerCase();
+        var _a, _b, _c, _d, _e, _f;
+        let match = false;
+        if ((_a = gridColumn.columnKey) === null || _a === void 0 ? void 0 : _a.includes(".")) {
+            match = ((_c = (_b = gridColumn.columnKey) === null || _b === void 0 ? void 0 : _b.split('.').pop()) === null || _c === void 0 ? void 0 : _c.toLowerCase()) == columnName.toLowerCase();
         }
-        if (((_a = gridColumn.columnExpression.split(' ').pop()) === null || _a === void 0 ? void 0 : _a.toLowerCase()) == columnName.toLowerCase()) {
+        if (((_e = (_d = gridColumn.columnKey) === null || _d === void 0 ? void 0 : _d.split(' ').pop()) === null || _e === void 0 ? void 0 : _e.toLowerCase()) == columnName.toLowerCase()) {
             match = true;
         }
         if (!match) {
-            match = gridColumn.columnExpression.toLowerCase() == columnName.toLowerCase();
+            match = ((_f = gridColumn.columnKey) === null || _f === void 0 ? void 0 : _f.toLowerCase()) == columnName.toLowerCase();
         }
         return match;
     }
@@ -223,24 +226,24 @@ class DbNetGrid extends DbNetSuite {
         return $(`#${id}`);
     }
     gridElement(name) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return $(`#${this.gridElementId(name)}`);
     }
     gridElementId(name) {
         return `${this.id}_${name}`;
     }
     setInputElement(name, value) {
-        var el = this.gridElement(name);
+        const el = this.gridElement(name);
         el.val(value.toString());
         el.width(`${value.toString().length}em`);
     }
     configureToolbar(response) {
         if (response.toolbar) {
-            var buttons = ["First", "Next", "Previous", "Last", "Download", "Copy", "View", "Search"];
+            const buttons = ["First", "Next", "Previous", "Last", "Download", "Copy", "View", "Search"];
             buttons.forEach(btn => this.addEventListener(`${btn}Btn`));
         }
-        ;
-        var $navigationElements = this.gridElement("dbnetgrid-toolbar").find(".navigation");
-        var $noRecordsCell = this.gridElement("no-records-cell");
+        const $navigationElements = this.gridElement("dbnetgrid-toolbar").find(".navigation");
+        const $noRecordsCell = this.gridElement("no-records-cell");
         if (response.totalRows == 0) {
             $navigationElements.hide();
             $noRecordsCell.show();
@@ -265,16 +268,17 @@ class DbNetGrid extends DbNetSuite {
         this.gridElement("QuickSearch").on("keyup", (event) => this.quickSearchKeyPress(event));
     }
     configureGrid(response) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
         if (this.toolbarPanel) {
             if (response.toolbar) {
-                this.toolbarPanel.html(response.toolbar);
+                (_a = this.toolbarPanel) === null || _a === void 0 ? void 0 : _a.html(response.toolbar);
             }
             this.configureToolbar(response);
         }
-        this.gridPanel.html(response.data);
-        this.gridPanel.find("tr.filter-row :input").get().forEach(input => {
-            let $input = $(input);
-            let width = $input.width();
+        (_b = this.gridPanel) === null || _b === void 0 ? void 0 : _b.html(response.data);
+        (_c = this.gridPanel) === null || _c === void 0 ? void 0 : _c.find("tr.filter-row :input").get().forEach(input => {
+            const $input = $(input);
+            const width = $input.width();
             if (input.nodeName == "SELECT") {
                 $input.width(width + 20);
             }
@@ -283,56 +287,51 @@ class DbNetGrid extends DbNetSuite {
             }
             $input.on("keyup", (event) => this.columnFilterKeyPress(event));
         });
-        this.gridPanel.find("tr.data-row").get().forEach((tr) => {
+        (_d = this.gridPanel) === null || _d === void 0 ? void 0 : _d.find("tr.data-row").get().forEach((tr) => {
             this.addRowEventHandlers($(tr));
             this.fireEvent("onRowTransform", { row: tr });
         });
-        if (this.dragAndDrop) {
-            this.gridPanel.find("tr.header-row th")
-                .draggable({ helper: "clone", cursor: "move" })
-                .on("dragstart", (event, ui) => this.columnDragStarted(event, ui))
-                .on("dragstop", (event, ui) => this.columnDragStopped(event, ui))
-                .on("drag", (event, ui) => this.columnDrag(event, ui));
-            this.gridPanel.find("tr.header-row th")
-                .droppable()
-                .on("dropover", (event, ui) => this.dragDropOver(event, ui))
-                .on("dropout", (event, ui) => this.dragDropOut(event, ui))
-                .on("drop", (event, ui) => this.dragDropped(event, ui));
+        if (this.dragAndDrop && this.procedureName == "") {
+            (_e = this.gridPanel) === null || _e === void 0 ? void 0 : _e.find("tr.header-row th").draggable({ helper: "clone", cursor: "move" }).on("dragstart", (event, ui) => this.columnDragStarted(event, ui)).on("dragstop", (event, ui) => this.columnDragStopped(event, ui)).on("drag", (event, ui) => this.columnDrag(event, ui));
+            (_f = this.gridPanel) === null || _f === void 0 ? void 0 : _f.find("tr.header-row th").droppable().on("dropover", (event, ui) => this.dragDropOver(event, ui)).on("dropout", (event, ui) => this.dragDropOut(event, ui)).on("drop", (event, ui) => this.dragDropped(event, ui));
         }
-        this.gridPanel.find("tr.header-row th").get().forEach(th => {
-            $(th).on("click", () => this.handleHeaderClick($(th)));
-        });
-        this.gridPanel.find("tr.filter-row select").get().forEach(select => {
+        if (this.procedureName == "") {
+            (_g = this.gridPanel) === null || _g === void 0 ? void 0 : _g.find("tr.header-row th").get().forEach(th => {
+                $(th).on("click", () => this.handleHeaderClick($(th)));
+            });
+        }
+        (_h = this.gridPanel) === null || _h === void 0 ? void 0 : _h.find("tr.filter-row select").get().forEach(select => {
             $(select).on("change", (event) => this.runColumnFilterSearch());
         });
-        this.gridPanel.find("input.multi-select-checkbox").get().forEach(e => {
+        (_j = this.gridPanel) === null || _j === void 0 ? void 0 : _j.find("input.multi-select-checkbox").get().forEach(e => {
             $(e).on("click", (e) => this.handleRowSelectClick(e));
         });
-        this.gridPanel.find("button.nested-grid-button").get().forEach(e => {
+        (_k = this.gridPanel) === null || _k === void 0 ? void 0 : _k.find("button.nested-grid-button").get().forEach(e => {
             $(e).on("click", (e) => this.openNestedGrid(e));
         });
-        this.gridPanel.find("button.download").get().forEach(e => {
+        (_l = this.gridPanel) === null || _l === void 0 ? void 0 : _l.find("button.download").get().forEach(e => {
             $(e).on("click", (e) => this.downloadCellData(e.currentTarget, false));
         });
-        this.gridPanel.find("img.image").get().forEach(e => {
+        (_m = this.gridPanel) === null || _m === void 0 ? void 0 : _m.find("img.image").get().forEach(e => {
             this.downloadCellData(e.parentElement, true);
         });
-        this.gridPanel.find("th[data-columnname]").get().forEach((th) => {
+        (_o = this.gridPanel) === null || _o === void 0 ? void 0 : _o.find("th[data-columnname]").get().forEach((th) => {
+            var _a;
             const columnName = $(th).data("columnname");
             const cellIdx = th.cellIndex;
-            this.gridPanel.find("tr.data-row").get().forEach((tr) => {
+            (_a = this.gridPanel) === null || _a === void 0 ? void 0 : _a.find("tr.data-row").get().forEach((tr) => {
                 const td = tr.cells[cellIdx];
                 this.fireEvent("onCellTransform", { cell: td, row: tr, columnName: columnName });
             });
         });
         if (this.autoRowSelect) {
-            this.gridPanel.find("tr.data-row").first().trigger("click");
+            (_p = this.gridPanel) === null || _p === void 0 ? void 0 : _p.find("tr.data-row").first().trigger("click");
         }
-        this.fireEvent("onPageLoaded", { table: this.gridPanel.find("table.dbnetgrid-table")[0] });
+        this.fireEvent("onPageLoaded", { table: (_q = this.gridPanel) === null || _q === void 0 ? void 0 : _q.find("table.dbnetgrid-table")[0] });
         this.renderChart();
         if (this.frozenHeader) {
-            let h = $(this.gridPanel.find("tr.header-row")).height();
-            var $filterRow = $(this.gridPanel.find("tr.filter-row"));
+            const h = (_r = this.gridPanel) === null || _r === void 0 ? void 0 : _r.find("tr.header-row").height();
+            const $filterRow = (_s = this.gridPanel) === null || _s === void 0 ? void 0 : _s.find("tr.filter-row");
             $filterRow.find("th").css("top", h);
         }
     }
@@ -348,9 +347,9 @@ class DbNetGrid extends DbNetSuite {
     }
     drawChart(dataArray) {
         var _a, _b;
-        var dt = google.visualization.arrayToDataTable(dataArray);
-        var chart = new google.visualization[this.googleChartOptions.type](document.getElementById(this.googleChartOptions.panelId));
-        var options = {};
+        const dt = google.visualization.arrayToDataTable(dataArray);
+        const chart = new google.visualization[this.googleChartOptions.type](document.getElementById(this.googleChartOptions.panelId));
+        const options = {};
         if ((_a = this.googleChartOptions) === null || _a === void 0 ? void 0 : _a.functionName) {
             window[(_b = this.googleChartOptions) === null || _b === void 0 ? void 0 : _b.functionName](this, options);
         }
@@ -387,34 +386,35 @@ class DbNetGrid extends DbNetSuite {
         });
     }
     columnDragStarted(event, ui) {
-        var $el = $(event.currentTarget);
+        const $el = $(event.currentTarget);
         $el.css("opacity", 0.5);
         ui.helper.css("opacity", 0.5);
         ui.helper.attr("dbnetgrid_id", this.id);
         ui.helper.width($el.width() + 2).height($el.height() + 2);
     }
     columnDragStopped(event, ui) {
-        var $el = $(event.currentTarget);
+        const $el = $(event.currentTarget);
         $el.css("opacity", 1);
     }
     columnDrag(event, ui) {
+        var _a, _b;
         if (!this.dropTarget || ui.helper.attr("dbnetgrid_id") != this.id) {
             return;
         }
-        this.dropIcon.show();
-        var width = this.dropTarget.width();
-        var pos = this.dropTarget.offset();
-        var parentOffset = this.dropTarget.parent().offset();
-        var uiLeft = ui.position.left + parentOffset.left;
-        var left = (pos.left - 9);
-        var top = (pos.top - 14);
+        (_a = this.dropIcon) === null || _a === void 0 ? void 0 : _a.show();
+        const width = this.dropTarget.width();
+        const pos = this.dropTarget.offset();
+        const parentOffset = this.dropTarget.parent().offset();
+        const uiLeft = ui.position.left + parentOffset.left;
+        let left = (pos.left - 9);
+        const top = (pos.top - 14);
         ui.helper.attr("dropside", "left");
         if ((uiLeft + width) > pos.left) {
             ui.helper.attr("dropside", "right");
             left += width + 4;
             console.log;
         }
-        this.dropIcon.css({ "left": `${left}px`, "top": `${top}px` });
+        (_b = this.dropIcon) === null || _b === void 0 ? void 0 : _b.css({ "left": `${left}px`, "top": `${top}px` });
     }
     dragDropOver(event, ui) {
         if (ui.helper.attr("dbnetgrid_id") != this.id) {
@@ -423,20 +423,22 @@ class DbNetGrid extends DbNetSuite {
         this.dropTarget = $(event.currentTarget);
     }
     dragDropOut(event, ui) {
-        this.dropIcon.hide();
+        var _a;
+        (_a = this.dropIcon) === null || _a === void 0 ? void 0 : _a.hide();
         this.dropTarget = undefined;
     }
     dragDropped(event, ui) {
+        var _a;
         if (ui.helper.attr("dbnetgrid_id") != this.id) {
             return;
         }
-        this.dropIcon.hide();
-        var cols = [];
-        var sourceIdx = parseInt(ui.draggable.data("columnordinal")) - 1;
-        var targetIdx = parseInt($(event.currentTarget).data("columnordinal")) - 1;
-        var column = this.columns[sourceIdx];
-        var dropSide = ui.helper.attr("dropside");
-        for (var i = 0; i < this.columns.length; i++) {
+        (_a = this.dropIcon) === null || _a === void 0 ? void 0 : _a.hide();
+        const cols = [];
+        const sourceIdx = parseInt(ui.draggable.data("columnordinal")) - 1;
+        const targetIdx = parseInt($(event.currentTarget).data("columnordinal")) - 1;
+        const column = this.columns[sourceIdx];
+        const dropSide = ui.helper.attr("dropside");
+        for (let i = 0; i < this.columns.length; i++) {
             if (i == targetIdx && dropSide == "left") {
                 cols.push(column);
             }
@@ -476,7 +478,7 @@ class DbNetGrid extends DbNetSuite {
     }
     handleHeaderClick(th) {
         this.orderBy = th.data('columnordinal');
-        let dbDataType = th.data('dbdatatype');
+        const dbDataType = th.data('dbdatatype');
         switch (dbDataType) {
             case "text":
             case "ntext":
@@ -490,9 +492,9 @@ class DbNetGrid extends DbNetSuite {
         this.getPage();
     }
     handleRowSelectClick(event) {
-        var checkbox = $(event.currentTarget);
+        const checkbox = $(event.currentTarget);
         const checked = checkbox.is(':checked');
-        var rows;
+        let rows;
         if (checkbox.parent().prop("tagName") == "TH") {
             rows = checkbox.closest("table").find("tbody").children();
             rows.get().forEach(tr => $(tr).find("input.multi-select-checkbox").prop('checked', checked));
@@ -509,7 +511,7 @@ class DbNetGrid extends DbNetSuite {
         event.stopPropagation();
     }
     handleClick(event) {
-        var id = event.target.id;
+        const id = event.target.id;
         switch (id) {
             case this.gridElementId("FirstBtn"):
                 this.currentPage = 1;
@@ -551,7 +553,7 @@ class DbNetGrid extends DbNetSuite {
         }
     }
     quickSearchKeyPress(event) {
-        var el = event.target;
+        const el = event.target;
         window.clearTimeout(this.quickSearchTimerId);
         if (el.value.length >= this.quickSearchMinChars || el.value.length == 0 || event.key == 'Enter')
             this.quickSearchTimerId = window.setTimeout(() => { this.runQuickSearch(el.value); }, this.quickSearchDelay);
@@ -566,15 +568,16 @@ class DbNetGrid extends DbNetSuite {
         this.getPage();
     }
     runColumnFilterSearch() {
+        var _a, _b;
         this.columnFilters = {};
-        this.gridPanel.find("tr.filter-row input").get().forEach(e => {
-            var $input = $(e);
+        (_a = this.gridPanel) === null || _a === void 0 ? void 0 : _a.find("tr.filter-row input").get().forEach(e => {
+            const $input = $(e);
             if ($input.val() != '') {
                 this.columnFilters[$input.data('columnname')] = $input.val().toString();
             }
         });
-        this.gridPanel.find("tr.filter-row select").get().forEach(e => {
-            var $input = $(e);
+        (_b = this.gridPanel) === null || _b === void 0 ? void 0 : _b.find("tr.filter-row select").get().forEach(e => {
+            const $input = $(e);
             if ($input.val() != '') {
                 this.columnFilters[$input.data('columnname')] = $input.val().toString();
             }
@@ -587,18 +590,19 @@ class DbNetGrid extends DbNetSuite {
         this.getPage();
     }
     clearColumnFilters() {
+        var _a, _b;
         this.columnFilters = {};
-        this.gridPanel.find("tr.filter-row input").get().forEach(e => {
-            var $input = $(e);
+        (_a = this.gridPanel) === null || _a === void 0 ? void 0 : _a.find("tr.filter-row input").get().forEach(e => {
+            const $input = $(e);
             $input.val('');
         });
-        this.gridPanel.find("tr.filter-row select").get().forEach(e => {
-            var $input = $(e);
+        (_b = this.gridPanel) === null || _b === void 0 ? void 0 : _b.find("tr.filter-row select").get().forEach(e => {
+            const $input = $(e);
             $input.val('');
         });
     }
     getPage(callback) {
-        let activeElementId = this.activeElementId();
+        const activeElementId = this.activeElementId();
         this.post("page", this.getRequest())
             .then((response) => {
             if (response.error == false) {
@@ -611,7 +615,7 @@ class DbNetGrid extends DbNetSuite {
         });
     }
     lookup($input) {
-        var request = this.getRequest();
+        const request = this.getRequest();
         request.lookupColumnIndex = parseInt($input.attr("columnIndex"));
         if (this.lookupDialog && request.lookupColumnIndex == this.lookupDialog.columnIndex) {
             this.lookupDialog.open();
@@ -637,8 +641,8 @@ class DbNetGrid extends DbNetSuite {
     }
     focusActiveElement(activeElementId) {
         if (activeElementId) {
-            let $input = $(`#${activeElementId}`);
-            let txt = $input.val();
+            const $input = $(`#${activeElementId}`);
+            const txt = $input.val();
             $input.trigger("focus").val(txt);
             $input[0].setSelectionRange(txt.length, txt.length);
         }
@@ -656,8 +660,8 @@ class DbNetGrid extends DbNetSuite {
     htmlExport() {
         this.post("html-export", this.getRequest(), true)
             .then((response) => {
-            let url = window.URL.createObjectURL(response);
-            let tab = window.open();
+            const url = window.URL.createObjectURL(response);
+            const tab = window.open();
             tab.location.href = url;
         });
     }
@@ -671,7 +675,7 @@ class DbNetGrid extends DbNetSuite {
         });
     }
     getViewContent() {
-        let $row = $(this.selectedRow());
+        const $row = $(this.selectedRow());
         this.primaryKey = $row.data("id");
         this.post("view-content", this.getRequest())
             .then((response) => {
@@ -695,14 +699,15 @@ class DbNetGrid extends DbNetSuite {
         });
     }
     copyGrid() {
-        var table = this.gridPanel[0].querySelector('table.dbnetgrid-table');
-        this.gridPanel.find("tr.data-row.selected").addClass("unselected").removeClass("selected");
+        var _a, _b, _c, _d, _e;
+        const table = (_a = this.gridPanel) === null || _a === void 0 ? void 0 : _a[0].querySelector('table.dbnetgrid-table');
+        (_b = this.gridPanel) === null || _b === void 0 ? void 0 : _b.find("tr.data-row.selected").addClass("unselected").removeClass("selected");
         try {
-            var range = document.createRange();
+            const range = document.createRange();
             range.selectNode(table);
-            window.getSelection().addRange(range);
+            (_c = window.getSelection()) === null || _c === void 0 ? void 0 : _c.addRange(range);
             document.execCommand('copy');
-            window.getSelection().removeRange(range);
+            (_d = window.getSelection()) === null || _d === void 0 ? void 0 : _d.removeRange(range);
         }
         catch (e) {
             try {
@@ -716,12 +721,12 @@ class DbNetGrid extends DbNetSuite {
                 return;
             }
         }
-        this.gridPanel.find("tr.data-row.unselected").addClass("selected").removeClass("unselected");
+        (_e = this.gridPanel) === null || _e === void 0 ? void 0 : _e.find("tr.data-row.unselected").addClass("selected").removeClass("unselected");
         this.message("Copied");
     }
     message(text) {
-        let dialogId = `${this.id}_message_dialog`;
-        let $dialog = $(`#${dialogId}`);
+        const dialogId = `${this.id}_message_dialog`;
+        const $dialog = $(`#${dialogId}`);
         $dialog.text(text);
         $dialog.attr("title", "Copy");
         $dialog.dialog({
@@ -734,7 +739,7 @@ class DbNetGrid extends DbNetSuite {
         if (this.defaultColumn) {
             this.columns = this.columns.filter(item => item !== this.defaultColumn);
         }
-        let request = {
+        const request = {
             componentId: this.id,
             connectionString: this.connectionString,
             fromPart: this.fromPart,
@@ -766,7 +771,9 @@ class DbNetGrid extends DbNetSuite {
             navigation: this.navigation,
             culture: this.culture,
             fixedFilterParams: this.fixedFilterParams,
-            fixedFilterSql: this.fixedFilterSql
+            fixedFilterSql: this.fixedFilterSql,
+            procedureParams: this.procedureParams,
+            procedureName: this.procedureName
         };
         return request;
     }
@@ -806,25 +813,25 @@ class DbNetGrid extends DbNetSuite {
             .catch(err => {
             err.text().then((errorMessage) => {
                 console.error(errorMessage);
-                this.gridPanel.text(errorMessage.split("\n").shift());
+                this.error(errorMessage.split("\n").shift());
             });
             return Promise.reject();
         });
     }
     downloadCellData(element, image) {
-        var _a;
-        var $viewContentRow = $(element).closest("tr.view-content-row");
+        var _a, _b;
+        const $viewContentRow = $(element).closest("tr.view-content-row");
         const $button = $(element);
-        var $cell = $button.closest("td");
-        var $row = $button.closest("tr");
+        const $cell = $button.closest("td");
+        const $row = $button.closest("tr");
         if ($viewContentRow.length) {
             this.columnName = $viewContentRow.data("columnname");
         }
         else {
             this.primaryKey = $row.data("id");
-            this.columnName = (_a = this.gridPanel.find("th[data-columnname]").get($cell.prop("cellIndex"))) === null || _a === void 0 ? void 0 : _a.getAttribute("data-columnname");
+            this.columnName = (_b = (_a = this.gridPanel) === null || _a === void 0 ? void 0 : _a.find("th[data-columnname]").get($cell.prop("cellIndex"))) === null || _b === void 0 ? void 0 : _b.getAttribute("data-columnname");
         }
-        let args = {
+        const args = {
             row: $row.get(0),
             cell: $cell.get(0),
             extension: "xlxs",
@@ -838,7 +845,7 @@ class DbNetGrid extends DbNetSuite {
         this.post("download-column-data", this.getRequest(), true)
             .then((blob) => {
             if (image) {
-                let img = $cell.find("img");
+                const img = $cell.find("img");
                 img.attr("src", window.URL.createObjectURL(blob));
             }
             else {
@@ -851,46 +858,51 @@ class DbNetGrid extends DbNetSuite {
     }
     openNestedGrid(event) {
         const $button = $(event.currentTarget);
-        var row = $button.closest("tr");
+        const row = $button.closest("tr");
         if ($button.hasClass("open")) {
             $button.removeClass("open");
             row.next().hide();
             return;
         }
-        var table = $button.closest("table");
+        const table = $button.closest("table");
         $button.addClass("open");
         if (row.next().hasClass("nested-grid-row")) {
             row.next().show();
             return;
         }
-        var newRow = table[0].insertRow(row[0].rowIndex + 1);
+        const newRow = table[0].insertRow(row[0].rowIndex + 1);
         newRow.className = "nested-grid-row";
-        var cell = newRow.insertCell(-1);
+        const cell = newRow.insertCell(-1);
         cell.className = "nested-grid-cell";
         cell.colSpan = row[0].cells.length;
-        var handlers = this.eventHandlers["onNestedClick"];
-        for (var i = 0; i < handlers.length; i++) {
+        const handlers = this.eventHandlers["onNestedClick"];
+        for (let i = 0; i < handlers.length; i++) {
             if (handlers[i]) {
                 this.configureNestedGrid(handlers[i], cell, row.data("id"));
             }
         }
     }
     configureNestedGrid(handler, cell, pk) {
-        var gridId = `dbnetgrid${new Date().valueOf()}`;
+        const gridId = `dbnetgrid${new Date().valueOf()}`;
         jQuery(document.createElement("div")).attr("id", gridId).appendTo($(cell));
-        var grid = new DbNetGrid(gridId);
+        const grid = new DbNetGrid(gridId);
         grid.connectionString = this.connectionString;
-        var args = [grid, this];
+        const args = [grid, this];
         handler.apply(window, args);
         this.assignForeignKey(grid, pk);
         grid.initialize();
     }
     assignForeignKey(grid, pk) {
-        var col = grid.columns.find((col) => { return col.foreignKey == true; });
+        const col = grid.columns.find((col) => { return col.foreignKey == true; });
         if (col == undefined) {
             alert('No foreign key defined for nested grid');
             return;
         }
         col.foreignKeyValue = pk;
+    }
+    error(text) {
+        const errorPanel = this.addPanel("error");
+        errorPanel.addClass("dbnetsuite-error");
+        errorPanel.html(text);
     }
 }

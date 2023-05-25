@@ -19,7 +19,7 @@ namespace DbNetSuiteCore.Models
             set => _search = value;
         }
         public bool AddedByUser { get; set; }
-        public string Format { get; set; }
+        public string Format { get; set; } = string.Empty;
         public string ColumnExpression
         {
             get => EncodingHelper.Decode(_columnExpression);

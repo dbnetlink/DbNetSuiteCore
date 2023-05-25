@@ -12,7 +12,7 @@ interface DbNetGridRequest {
     defaultColumn: GridColumn | undefined;
     export: boolean;
     extension?: string | undefined;
-    fixedFilterParams: Dictionary<Object>;
+    fixedFilterParams: Dictionary<object>;
     fixedFilterSql: string | undefined;
     fromPart: string;
     frozenHeader: boolean;
@@ -27,6 +27,8 @@ interface DbNetGridRequest {
     orderByDirection: string;
     pageSize: number;
     primaryKey: string | undefined;
+    procedureName: string | undefined;
+    procedureParams: Dictionary<object>;
     quickSearch: boolean;
     quickSearchToken: string;
     search: boolean;

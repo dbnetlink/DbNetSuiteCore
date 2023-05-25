@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DbNetSuiteCore": {
+      "commandName": "Project",
+      "workingDirectory": "C:\\Users\\robin\\source\\repos\\DbNetSuiteCore-VS2022\\DbNetSuiteCoreApp\\bin"
+    }
+  }
+}

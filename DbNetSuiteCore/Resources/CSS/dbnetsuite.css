@@ -960,10 +960,11 @@ table.lookup-dialog-toolbar td .toolbar-button[button-type=clear] {
 
 .drop-icon {
   border: 1px solid lightsteelblue;
-  padding: 2px;
   border-radius: 2px;
   background-color: whitesmoke;
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='16' width='16' viewBox='226.78 472.65 506.44 251.78' fill='SteelBlue'><path d='M480 724.435 226.782 472.652h506.436L480 724.435Z'/></svg>");
+  background-position: center center;
+  background-repeat: no-repeat;
   position: absolute;
   z-index: 10000;
   width: 18px;
@@ -1000,6 +1001,17 @@ table.lookup-dialog-toolbar td .toolbar-button[button-type=clear] {
 
 .next-icon-left-svg {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='20' width='20' viewBox='' fill='SteelBlue'><path d='M9.4 18 8 16.6l4.6-4.6L8 7.4 9.4 6l6 6Z'/></svg>");
+}
+
+div.dbnetsuite-error {
+  background-color: #F7DC6F;
+  font-weight: bold;
+  border: 2px solid #B9770E;
+  border-radius: 2px;
+  font-family: var(--main-font-family);
+  font-size: var(--main-font-size);
+  width: fit-content;
+  padding: 10px;
 }
 
 .ui-widget-content .ui-icon {
