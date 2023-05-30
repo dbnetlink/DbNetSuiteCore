@@ -36,7 +36,7 @@
                 @MultiRowSelectCell(true)
             }
         </tr>
-        @if (Model.Columns.Any(c => c.Filter))
+        @if (Model.Columns.Any(c => c.Filter) && Model.GridGenerationMode == GridGenerationMode.Display)
         {
             <tr class="filter-row">
                 @if (Model.MultiRowSelectLocation == MultiRowSelectLocation.Left)
@@ -47,8 +47,7 @@
                 @foreach (DataColumn column in Model.GridData.Columns)
                 {
                     GridColumn gridColumn = Model.Columns[column.ColumnName];
-                    @ColumnFilter(gridColumn)
-                    ;
+                    @ColumnFilter(gridColumn);
                 }
                 @if (Model.MultiRowSelectLocation == MultiRowSelectLocation.Right)
                 {
@@ -217,7 +216,7 @@
 
     public HtmlString MultiRowSelectCell(bool header)
     {
-        if (Model.MultiRowSelect)
+        if (Model.MultiRowSelect && Model.GridGenerationMode == GridGenerationMode.Display)
         {
             return new HtmlString($"<{(header ? "th" : "td")}><input type=\"checkbox\" class=\"multi-select-checkbox\"></input></{(header ? "th" : "td")}>");
         }
@@ -226,7 +225,7 @@
 
     public HtmlString NestedGridCell(bool header)
     {
-        if (Model.NestedGrid)
+        if (Model.NestedGrid && Model.GridGenerationMode == GridGenerationMode.Display)
         {
             if (header)
             {

@@ -72,6 +72,10 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public GoogleChartOptions GoogleChartOptions { get; set; } = null;
         /// <summary>
+        /// Set to DataTable to interface with 3rd party client-side rendering tool
+        /// </summary>
+        public GridGenerationMode? GridGenerationMode { get; set; }
+        /// <summary>
         /// Groups the returned data by all the columns not identified as aggregates
         /// </summary>
         public bool? GroupBy { get; set; } = null; 
@@ -237,6 +241,7 @@ namespace DbNetSuiteCore.Components
 document.addEventListener('DOMContentLoaded', function() {{init_{_id}()}});
 function init_{_id}()
 {{
+    if (typeof(DbNetGrid) == 'undefined') {{alert('DbNetSuite client-side code has not loaded. Add @DbNetSuiteCore.ClientScript() to your razor page. See console for details');console.error(""DbNetSuite stylesheet not found. See https://dbnetsuitecore.z35.web.core.windows.net/index.htm?context=20#DbNetSuiteCoreClientScript"");return;}};
 	{ConfigureLinkedGrids()}
 	var {_id} = new DbNetGrid('{_id}');
 	with ({_id})
@@ -323,8 +328,9 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             AddProperty(EncodingHelper.Encode(FixedFilterSql), nameof(FixedFilterSql), properties);
             AddProperty(RowSelect, nameof(RowSelect), properties);
             AddProperty(EncodingHelper.Encode(ProcedureName), nameof(ProcedureName), properties);
+            AddProperty(GridGenerationMode, nameof(GridGenerationMode), properties);
 
-            if (FixedFilterParams.Count > 0)
+             if (FixedFilterParams.Count > 0)
             {
                 properties.Add($"fixedFilterParams = {Serialize(FixedFilterParams)};");
             }

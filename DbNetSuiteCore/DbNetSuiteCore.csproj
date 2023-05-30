@@ -78,11 +78,13 @@
     <None Remove="Resources\tsconfig.json" />
     <None Remove="Resources\TypeScript\dbnetgrid.ts" />
     <None Remove="Resources\TypeScript\dbnetsuite.ts" />
+    <None Remove="Views\DbNetGrid\DataTable.cshtml" />
     <None Remove="Views\DbNetGrid\Grid.cshtml" />
     <None Remove="Views\DbNetGrid\HtmlExport.cshtml" />
     <None Remove="Views\DbNetGrid\LookupDialog.cshtml" />
     <None Remove="Views\DbNetGrid\LookupDialogContent.cshtml" />
     <None Remove="Views\DbNetGrid\SearchDialog.cshtml" />
+    <None Remove="Views\DbNetGrid\Table.cshtml" />
     <None Remove="Views\DbNetGrid\Toolbar.cshtml" />
     <None Remove="Views\DbNetGrid\ViewDialog.cshtml" />
     <None Remove="Views\DbNetGrid\ViewDialogContent.cshtml" />
@@ -126,6 +128,14 @@
     <EmbeddedResource Include="Resources\JavaScript\GridColumn.js" />
     <EmbeddedResource Include="Resources\JavaScript\libraries\jquery-ui.min.js" />
     <EmbeddedResource Include="Resources\SCSS\_reboot.scss" />
+    <EmbeddedResource Include="Views\DbNetGrid\DataTable.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\DbNetGrid\Table.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\DbNetGrid\HtmlExport.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

@@ -18,6 +18,10 @@ enum MultiRowSelectLocation {
     Left,
     Right
 }
+enum GridGenerationMode {
+    Display,
+    DataTable
+}
 
 interface Dictionary<T> {
     [Key: string]: T;
@@ -46,6 +50,7 @@ class DbNetGrid extends DbNetSuite {
     fromPart = "";
     frozenHeader = false;
     googleChartOptions: GoogleChartOptions | undefined = undefined;
+    gridGenerationMode: GridGenerationMode = GridGenerationMode.Display;
     gridPanel: JQuery<HTMLElement> | undefined;
     groupBy = false;
     id = "";
@@ -87,6 +92,8 @@ class DbNetGrid extends DbNetSuite {
         this.columns = [];
         this.element = $(`#${this.id}`) as JQuery<HTMLElement>;
         this.element.addClass("dbnetsuite").addClass("cleanslate")
+
+        this.checkStyleSheetLoaded();
 
         if (this.element.length == 0) {
             this.error(`DbNetGrid containing element '${this.id}' not found`);
@@ -334,6 +341,11 @@ class DbNetGrid extends DbNetSuite {
             this.configureToolbar(response);
         }
 
+        if (this.gridGenerationMode.toString() == "DataTable") {
+            this.configureDataTable(response.data);
+            return;
+        }
+
         this.gridPanel?.html(response.data);
 
         this.gridPanel?.find("tr.filter-row :input").get().forEach(input => {
@@ -414,6 +426,13 @@ class DbNetGrid extends DbNetSuite {
             const $filterRow = this.gridPanel?.find("tr.filter-row") as JQuery<HTMLTableRowElement>;
             $filterRow.find("th").css("top", h)
         }
+    }
+
+    private configureDataTable(_html: string) {
+        this.element.removeClass("dbnetsuite");
+        this.toolbarPanel?.addClass("dbnetsuite");
+        this.gridPanel?.html(_html);
+        this.gridPanel?.find("table").DataTable();
     }
 
     private renderChart() {
@@ -910,7 +929,8 @@ class DbNetGrid extends DbNetSuite {
             fixedFilterParams: this.fixedFilterParams,
             fixedFilterSql: this.fixedFilterSql,
             procedureParams: this.procedureParams,
-            procedureName: this.procedureName
+            procedureName: this.procedureName,
+            gridGenerationMode: this.gridGenerationMode,
         };
 
         return request;

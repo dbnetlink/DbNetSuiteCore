@@ -84,6 +84,7 @@ namespace DbNetSuiteCore.Services
             set => _fromPart = value;
         }
         public bool FrozenHeader { get; set; } = false;
+        public GridGenerationMode GridGenerationMode { get; set; } = GridGenerationMode.Display;
         public bool GroupBy { get; set; } = false;
         public string Having { get; set; } = string.Empty;
         public string Id => ComponentId;
@@ -182,6 +183,11 @@ namespace DbNetSuiteCore.Services
                     break;
                 case "data-array":
                     return DataArray();
+                case "data-table":
+                    response.Toolbar = await Toolbar();
+                    GridGenerationMode = GridGenerationMode.DataTable;
+                    await Grid(response);
+                    break;
             }
 
             var serializeOptions = new JsonSerializerOptions
@@ -1289,7 +1295,7 @@ namespace DbNetSuiteCore.Services
 
         private async Task<byte[]> GenerateHtmlExport(DbNetGridResponse response)
         {
-            PageSize = -1;
+            GridGenerationMode = GridGenerationMode.Export;
             await Grid(response);
             var viewModel = new HtmlExportViewModel
             {
@@ -1674,6 +1680,14 @@ namespace DbNetSuiteCore.Services
             }
             ConfigureColumns();
 
+            switch(GridGenerationMode)
+            {
+                case GridGenerationMode.DataTable:
+                case GridGenerationMode.Export:
+                    PageSize = -1;
+                    break;
+            }
+
             DataTable dataTable = new DataTable();
 
             foreach (GridColumn gridColumn in Columns)
@@ -1746,14 +1760,16 @@ namespace DbNetSuiteCore.Services
             var viewModel = new GridViewModel
             {
                 GridData = dataTable,
-                GridTotals = totalsDataTable
+                GridTotals = totalsDataTable,
             };
 
             ReflectionHelper.CopyProperties(this, viewModel);
             viewModel.Columns = Columns;
             viewModel.LookupTables = _lookupTables;
 
-            response.Data = await HttpContext.RenderToStringAsync("Views/DbNetGrid/Grid.cshtml", viewModel);
+            string viewName = this.GridGenerationMode == GridGenerationMode.DataTable ? "DataTable" : "Grid";
+
+            response.Data = await HttpContext.RenderToStringAsync($"Views/DbNetGrid/{viewName}.cshtml", viewModel);
         }
 
         private DataTable GetTotalsDataTable()

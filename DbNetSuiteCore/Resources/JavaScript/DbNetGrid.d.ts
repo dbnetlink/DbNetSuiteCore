@@ -19,6 +19,10 @@ declare enum MultiRowSelectLocation {
     Left = 0,
     Right = 1
 }
+declare enum GridGenerationMode {
+    Display = 0,
+    DataTable = 1
+}
 interface Dictionary<T> {
     [Key: string]: T;
 }
@@ -45,6 +49,7 @@ declare class DbNetGrid extends DbNetSuite {
     fromPart: string;
     frozenHeader: boolean;
     googleChartOptions: GoogleChartOptions | undefined;
+    gridGenerationMode: GridGenerationMode;
     gridPanel: JQuery<HTMLElement> | undefined;
     groupBy: boolean;
     id: string;
@@ -102,6 +107,7 @@ declare class DbNetGrid extends DbNetSuite {
     private setInputElement;
     private configureToolbar;
     private configureGrid;
+    private configureDataTable;
     private renderChart;
     private loadChart;
     private drawChart;

@@ -38,16 +38,32 @@ class DbNetSuite {
         })
     }
 
-    public fireEvent(event: EventName, params: Object | undefined = undefined) {
+    checkStyleSheetLoaded() {
+        let found = false;
+        for (const sheet of document.styleSheets) {
+            if (sheet.href) {
+                if (sheet?.href?.indexOf("resource.dbnetsuite?action=css") > 0) {
+                    found = true;
+                }
+            }
+        }
+
+        if (!found) {
+            alert("DbNetSuite stylesheet not found. Add @DbNetSuiteCore.StyleSheet() to yoiur Razor page. See console for details.");
+            console.error("DbNetSuite stylesheet not found. See https://dbnetsuitecore.z35.web.core.windows.net/index.htm?context=20#DbNetSuiteCoreStyleSheet");
+        }
+    }
+
+    public fireEvent(event: EventName, params: object | undefined = undefined) {
         if (!this.eventHandlers[event])
             return false;
 
-        var events = this.eventHandlers[event];
+        const events = this.eventHandlers[event];
 
         events.forEach((method: Function) => {
-            var args = [this];
+            let args = [this];
             if (params)
-                args = args.concat(Array.prototype.slice.call(arguments, 1));
+                args = args.concat(Array.prototype.slice.call(params, 1));
             method.apply(window, args);
         })
     }

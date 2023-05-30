@@ -22,9 +22,9 @@ namespace DbNetSuiteCore.Models
         public string FixedFilterSql { get; set; }
         public string FromPart { get; set; }
         public bool FrozenHeader { get; set; }
+        public GridGenerationMode GridGenerationMode { get; set; }
         public bool GroupBy { get; set; }
         public int LookupColumnIndex { get; set; }
-
         public bool MultiRowSelect { get; set; }
         public MultiRowSelectLocation MultiRowSelectLocation { get; set; }
         public bool Navigation { get; set; }

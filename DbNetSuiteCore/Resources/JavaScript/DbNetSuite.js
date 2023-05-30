@@ -17,14 +17,29 @@ class DbNetSuite {
                 f = function () { };
         });
     }
+    checkStyleSheetLoaded() {
+        var _a;
+        let found = false;
+        for (const sheet of document.styleSheets) {
+            if (sheet.href) {
+                if (((_a = sheet === null || sheet === void 0 ? void 0 : sheet.href) === null || _a === void 0 ? void 0 : _a.indexOf("resource.dbnetsuite?action=css")) > 0) {
+                    found = true;
+                }
+            }
+        }
+        if (!found) {
+            alert("DbNetSuite stylesheet not found. Add @DbNetSuiteCore.StyleSheet() to yoiur Razor page. See console for details.");
+            console.error("DbNetSuite stylesheet not found. See https://dbnetsuitecore.z35.web.core.windows.net/index.htm?context=20#DbNetSuiteCoreStyleSheet");
+        }
+    }
     fireEvent(event, params = undefined) {
         if (!this.eventHandlers[event])
             return false;
-        var events = this.eventHandlers[event];
+        const events = this.eventHandlers[event];
         events.forEach((method) => {
-            var args = [this];
+            let args = [this];
             if (params)
-                args = args.concat(Array.prototype.slice.call(arguments, 1));
+                args = args.concat(Array.prototype.slice.call(params, 1));
             method.apply(window, args);
         });
     }

@@ -1,6 +1,6 @@
 interface DbNetGridRequest {
     booleanDisplayMode: BooleanDisplayMode;
-    columnFilters: Dictionary<String>;
+    columnFilters: Dictionary<string>;
     columnName: string | undefined;
     columns: GridColumnRequest[];
     componentId: string;
@@ -16,6 +16,7 @@ interface DbNetGridRequest {
     fixedFilterSql: string | undefined;
     fromPart: string;
     frozenHeader: boolean;
+    gridGenerationMode: GridGenerationMode;
     groupBy: boolean;
     lookupColumnIndex?: number | undefined;
     multiRowSelect: boolean;

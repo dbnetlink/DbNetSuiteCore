@@ -1,0 +1,115 @@
+﻿@namespace DbNetSuiteCore.Views.DbNetGrid
+@using DbNetSuiteCore.Enums
+@using DbNetSuiteCore.Helpers
+@using DbNetSuiteCore.ViewModels.DbNetGrid
+@using DbNetSuiteCore.Models
+@using System.Data
+@using System.Linq
+@using Microsoft.AspNetCore.Html
+@using System.Text;
+@using DbNetSuiteCore.Extensions
+@model GridViewModel
+
+<table class="display">
+    <thead>
+        <tr>
+            @foreach (DataColumn column in Model.GridData.Columns)
+            {
+                GridColumn gridColumn = Model.Columns[column.Ordinal];
+                if (gridColumn.Display && gridColumn.DataType != "Byte[]")
+                {
+                    <th>@gridColumn.Label</th>
+                }
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            foreach (DataRow row in Model.GridData.Rows)
+            {
+                <tr>
+                    @foreach (DataColumn column in Model.GridData.Columns)
+                    {
+                        GridColumn gridColumn = Model.Columns[column.Ordinal];
+                        if (gridColumn.Display && gridColumn.DataType != "Byte[]")
+                        {
+                            <td data-order="@CellValue(row, gridColumn, true)">@CellValue(row, gridColumn)</td>
+                        }
+                    }
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+@functions
+{
+    public string CellValue(DataRow dataRow, GridColumn column, bool orderValue = false)
+    {
+        object dataValue = dataRow.ItemArray[column.Index];
+
+        if (dataValue == null || dataValue == System.DBNull.Value)
+        {
+            return string.Empty;
+        }
+
+        if (string.IsNullOrEmpty(column.Lookup) == false)
+        {
+            DataTable lookupTable = Model.LookupTables[column.ColumnKey];
+
+            if (lookupTable.Columns.Count > 1)
+            {
+                foreach (DataRow row in lookupTable.Rows)
+                {
+                    if (row[0].ToString() == dataValue.ToString())
+                    {
+                        return row[1].ToString();
+                    }
+                }
+            }
+        }
+
+        if (column.DataType == nameof(DateTime))
+        {
+            if (orderValue)
+            {
+                return Convert.ToDateTime(dataValue).Ticks.ToString();
+            }
+            return Convert.ToDateTime(dataValue).ToString(column.Format);
+        }
+
+        if (column.DataType == nameof(Boolean))
+        {
+            if (orderValue)
+            {
+                return dataValue.ToString();
+            }
+            switch (Model.BooleanDisplayMode)
+            {
+                case BooleanDisplayMode.YesNo:
+                    return BooleanHelper.YesNo(dataValue.ToString());
+                default:
+                    return dataValue.ToString();
+            }
+        }
+        try
+        {
+            switch (column.DataType)
+            {
+                case nameof(Decimal):
+                case nameof(Double):
+                case nameof(Single):
+                case nameof(Int64):
+                case nameof(Int32):
+                case nameof(Int16):
+                    if (orderValue)
+                    {
+                        return Convert.ToDecimal(dataValue).ToString();
+                    }
+                    return Convert.ToDecimal(dataValue).ToString(column.Format);
+            }
+        }
+        catch { }
+
+        return dataValue.ToString();
+    }
+}

@@ -16,6 +16,11 @@ var MultiRowSelectLocation;
     MultiRowSelectLocation[MultiRowSelectLocation["Left"] = 0] = "Left";
     MultiRowSelectLocation[MultiRowSelectLocation["Right"] = 1] = "Right";
 })(MultiRowSelectLocation || (MultiRowSelectLocation = {}));
+var GridGenerationMode;
+(function (GridGenerationMode) {
+    GridGenerationMode[GridGenerationMode["Display"] = 0] = "Display";
+    GridGenerationMode[GridGenerationMode["DataTable"] = 1] = "DataTable";
+})(GridGenerationMode || (GridGenerationMode = {}));
 class DbNetGrid extends DbNetSuite {
     constructor(id) {
         super();
@@ -37,6 +42,7 @@ class DbNetGrid extends DbNetSuite {
         this.fromPart = "";
         this.frozenHeader = false;
         this.googleChartOptions = undefined;
+        this.gridGenerationMode = GridGenerationMode.Display;
         this.groupBy = false;
         this.id = "";
         this.initialised = false;
@@ -68,6 +74,7 @@ class DbNetGrid extends DbNetSuite {
         this.columns = [];
         this.element = $(`#${this.id}`);
         this.element.addClass("dbnetsuite").addClass("cleanslate");
+        this.checkStyleSheetLoaded();
         if (this.element.length == 0) {
             this.error(`DbNetGrid containing element '${this.id}' not found`);
             return;
@@ -275,6 +282,10 @@ class DbNetGrid extends DbNetSuite {
             }
             this.configureToolbar(response);
         }
+        if (this.gridGenerationMode.toString() == "DataTable") {
+            this.configureDataTable(response.data);
+            return;
+        }
         (_b = this.gridPanel) === null || _b === void 0 ? void 0 : _b.html(response.data);
         (_c = this.gridPanel) === null || _c === void 0 ? void 0 : _c.find("tr.filter-row :input").get().forEach(input => {
             const $input = $(input);
@@ -334,6 +345,13 @@ class DbNetGrid extends DbNetSuite {
             const $filterRow = (_s = this.gridPanel) === null || _s === void 0 ? void 0 : _s.find("tr.filter-row");
             $filterRow.find("th").css("top", h);
         }
+    }
+    configureDataTable(_html) {
+        var _a, _b, _c;
+        this.element.removeClass("dbnetsuite");
+        (_a = this.toolbarPanel) === null || _a === void 0 ? void 0 : _a.addClass("dbnetsuite");
+        (_b = this.gridPanel) === null || _b === void 0 ? void 0 : _b.html(_html);
+        (_c = this.gridPanel) === null || _c === void 0 ? void 0 : _c.find("table").DataTable();
     }
     renderChart() {
         if (!this.googleChartOptions) {
@@ -773,7 +791,8 @@ class DbNetGrid extends DbNetSuite {
             fixedFilterParams: this.fixedFilterParams,
             fixedFilterSql: this.fixedFilterSql,
             procedureParams: this.procedureParams,
-            procedureName: this.procedureName
+            procedureName: this.procedureName,
+            gridGenerationMode: this.gridGenerationMode,
         };
         return request;
     }

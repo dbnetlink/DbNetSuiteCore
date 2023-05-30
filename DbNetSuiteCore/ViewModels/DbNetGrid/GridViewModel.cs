@@ -23,6 +23,7 @@ namespace DbNetSuiteCore.ViewModels.DbNetGrid
         public BooleanDisplayMode BooleanDisplayMode { get; set; }
         public Dictionary<string, string> ColumnFilters { get; set; }
         public bool FrozenHeader { get; set; }
+        public GridGenerationMode GridGenerationMode { get; set; }
         public bool GroupBy { get; set; }
 
         public List<GridColumn> GroupHeaderColumns => Columns.Where(c => c.GroupHeader).ToList();

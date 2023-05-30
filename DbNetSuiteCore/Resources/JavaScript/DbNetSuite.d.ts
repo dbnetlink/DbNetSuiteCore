@@ -21,5 +21,6 @@ declare class DbNetSuite {
     constructor();
     bind(event: EventName, handler: Function): void;
     unbind(event: EventName, handler: Function): void;
-    fireEvent(event: EventName, params?: Object | undefined): false | undefined;
+    checkStyleSheetLoaded(): void;
+    fireEvent(event: EventName, params?: object | undefined): false | undefined;
 }
