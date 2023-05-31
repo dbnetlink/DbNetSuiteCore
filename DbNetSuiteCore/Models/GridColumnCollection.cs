@@ -7,6 +7,10 @@ namespace DbNetSuiteCore.Models
     public class GridColumnCollection : Collection<GridColumn>
     ///////////////////////////////////////////////
     {
+        public GridColumnCollection() :base(new List<GridColumn>())
+        {
+        }
+
         public GridColumnCollection(IList<GridColumn> list) : base(list)
         {
         }

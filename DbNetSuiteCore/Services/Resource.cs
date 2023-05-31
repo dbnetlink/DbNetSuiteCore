@@ -24,9 +24,8 @@ namespace DbNetSuiteCore.Services
 
 		public async Task<object> Process()
 		{
-			object result = string.Empty;
-
-			switch (Action.ToLower())
+            object result;
+            switch (Action.ToLower())
 			{
 				case "script":
 					result = await Script();
@@ -40,7 +39,10 @@ namespace DbNetSuiteCore.Services
 				case "font":
 					result = await Font();
 					break;
-			}
+				default:
+                    result = null; 
+					break;
+            }
 
 			return result;
 		}

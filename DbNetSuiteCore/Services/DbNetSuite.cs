@@ -19,7 +19,7 @@ namespace DbNetSuiteCore.Services
         protected readonly IWebHostEnvironment Env;
         protected readonly IConfiguration Configuration;
 
-        protected readonly DbNetSuiteCoreSettings Settings; 
+        protected readonly DbNetSuiteCoreSettings Settings;
 
         public DbNetSuite(AspNetCoreServices services)
         {
@@ -41,7 +41,7 @@ namespace DbNetSuiteCore.Services
         {
             byte[] buffer = await GetResource(resourceName);
             return new UTF8Encoding(false).GetString(buffer);
-      //      return System.Text.Encoding.UTF8.GetString(buffer, 0, buffer.Length);
+            //      return System.Text.Encoding.UTF8.GetString(buffer, 0, buffer.Length);
         }
         protected async Task<byte[]> GetResource(string resourceName)
         {
@@ -49,11 +49,18 @@ namespace DbNetSuiteCore.Services
 
             using (Stream stream = assembly.GetManifestResourceStream($"DbNetSuiteCore.Resources.{resourceName}"))
             {
-                using (StreamReader reader = new StreamReader(stream))
+                if (stream != null)
                 {
-                    byte[] buffer = new byte[stream.Length];
-                    await stream.ReadAsync(buffer, 0, buffer.Length);
-                    return buffer;
+                    using (StreamReader reader = new StreamReader(stream))
+                    {
+                        byte[] buffer = new byte[stream.Length];
+                        await stream.ReadAsync(buffer, 0, buffer.Length);
+                        return buffer;
+                    }
+                }
+                else
+                {
+                    return null;
                 }
             }
         }

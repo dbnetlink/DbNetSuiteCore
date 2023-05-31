@@ -9,6 +9,8 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
 using DbNetSuiteCore.Models;
 using DbNetSuiteCore.Services;
+using DocumentFormat.OpenXml.InkML;
+using System.Net;
 
 namespace DbNetLink.Middleware
 {
@@ -52,10 +54,10 @@ namespace DbNetLink.Middleware
 
             if (response == null)
             {
-                return;
+                services.httpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                await services.httpContext.Response.CompleteAsync();
             }
-
-            if (response is byte[])
+            else if (response is byte[])
             {
                 await services.httpContext.Response.Body.WriteAsync(response as byte[]);
             }

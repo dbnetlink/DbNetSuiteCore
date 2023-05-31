@@ -3,10 +3,10 @@ using System;
 
 namespace DbNetSuiteCore.Helpers
 {
-    internal static class EncodingHelper
+    public static class EncodingHelper
     { 
         const byte xorConstant = 0x53;
-        internal static string Encode(string input)
+        public static string Encode(string input)
         {
             if (string.IsNullOrEmpty(input) || input == "*")
             {
@@ -20,7 +20,7 @@ namespace DbNetSuiteCore.Helpers
             return Convert.ToBase64String(data);
         }
 
-        internal static string Decode(string input)
+        public static string Decode(string input)
         {
             if (string.IsNullOrEmpty(input) || input == "*")
             {
