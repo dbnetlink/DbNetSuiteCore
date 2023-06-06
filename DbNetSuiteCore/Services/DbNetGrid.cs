@@ -47,6 +47,8 @@ namespace DbNetSuiteCore.Services
         private string _connectionString;
         private string _fixedFilterSql;
         private string _procedureName;
+        private long _pageSize = 20;
+
         public DbNetGrid(AspNetCoreServices services) : base(services)
         {
         }
@@ -97,7 +99,11 @@ namespace DbNetSuiteCore.Services
         public bool OptimizeForLargeDataset { get; set; } = false;
         public int? OrderBy { get; set; } = null;
         public OrderByDirection OrderByDirection { get; set; } = OrderByDirection.asc;
-        public long PageSize { get; set; } = 20;
+        public long PageSize
+        {
+            get => Navigation == false ? -1 : _pageSize;
+            set => _pageSize = value;
+        }
         public Dictionary<string, object> ParentFilterParams { get; set; } = new Dictionary<string, object>();
         public List<string> ParentFilterSql { get; set; } = new List<string> { };
         public string PrimaryKey { get; set; } = String.Empty;
@@ -1744,8 +1750,12 @@ namespace DbNetSuiteCore.Services
                 if (PageSize <= 0)
                 {
                     PageSize = TotalRows;
+                    TotalPages = 1;
                 }
-                TotalPages = (int)Math.Ceiling((double)TotalRows / (double)PageSize);
+                else
+                {
+                    TotalPages = (int)Math.Ceiling((double)TotalRows / (double)Math.Abs(PageSize));
+                }
 
                 Database.Close();
             }

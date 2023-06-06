@@ -556,7 +556,7 @@ namespace DbNetSuiteCore.Resources.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Download.
+        ///   Looks up a localized string similar to Export.
         /// </summary>
         internal static string Download {
             get {

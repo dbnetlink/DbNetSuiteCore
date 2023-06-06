@@ -284,7 +284,7 @@
     <value>Does not start with</value>
   </data>
   <data name="Download" xml:space="preserve">
-    <value>Download</value>
+    <value>Export</value>
   </data>
   <data name="Download_Title" xml:space="preserve">
     <value>Export data in selected format</value>

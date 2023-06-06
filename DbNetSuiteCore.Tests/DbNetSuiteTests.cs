@@ -1,21 +1,17 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Net;
-using System.Net.Http;
-using Xunit;
 using DbNetLink.Middleware;
 using Microsoft.Extensions.Configuration;
 
 namespace DbNetSuiteCore.Tests
 {
-    public class DbNetSuiteCoreTests : IDisposable
+    public class DbNetSuiteTests : IDisposable
     {
         protected readonly TestServer _server;
         protected readonly HttpClient _client;
 
-        public DbNetSuiteCoreTests()
+        public DbNetSuiteTests()
         {
             var builder = new WebHostBuilder()
                 .UseWebRoot(Directory.GetCurrentDirectory())

@@ -17,7 +17,7 @@ namespace DbNetSuiteCore.Models
         public string Style { get; set; }
         public bool QuickSearch { get; set; } = false;
         public bool Filter { get; set; } = false;
-        public int Index { get; set; }
+        public int Index { get; set; } = -1;
         public bool GroupHeader { get; set; } = false;
         public bool Download { get; set; } = false;
         public bool Image { get; set; } = false;
@@ -32,5 +32,4 @@ namespace DbNetSuiteCore.Models
             this.ColumnExpression = EncodingHelper.Encode(columnExpression);
         }
     }
-   
 }

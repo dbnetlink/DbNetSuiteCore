@@ -2,7 +2,7 @@ using System.Net;
 
 namespace DbNetSuiteCore.Tests
 {
-    public class ResourceTests : DbNetSuiteCoreTests
+    public class ResourceTests : DbNetSuiteTests
     {
         public ResourceTests() : base() {}
 

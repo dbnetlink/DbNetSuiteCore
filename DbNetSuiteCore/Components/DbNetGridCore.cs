@@ -329,8 +329,9 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             AddProperty(RowSelect, nameof(RowSelect), properties);
             AddProperty(EncodingHelper.Encode(ProcedureName), nameof(ProcedureName), properties);
             AddProperty(GridGenerationMode, nameof(GridGenerationMode), properties);
+            AddProperty(Navigation, nameof(Navigation), properties);
 
-             if (FixedFilterParams.Count > 0)
+            if (FixedFilterParams.Count > 0)
             {
                 properties.Add($"fixedFilterParams = {Serialize(FixedFilterParams)};");
             }
