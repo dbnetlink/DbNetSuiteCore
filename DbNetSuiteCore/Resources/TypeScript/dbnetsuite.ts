@@ -11,16 +11,13 @@ interface CellDataDownloadArgs {
 
 interface ViewRecordSelectedArgs {
     dialog: JQuery<HTMLElement>,
-    record: Dictionary<String>
+    record: Dictionary<string>
 }
 
 class DbNetSuite {
 
     public datePickerOptions: JQueryUI.DatepickerOptions = {};
     protected eventHandlers: Dictionary<Array<Function>> = {};
-
-    constructor() {
-    }
 
     bind(event: EventName, handler: Function) {
         if (!this.eventHandlers[event])
@@ -63,7 +60,7 @@ class DbNetSuite {
         events.forEach((method: Function) => {
             let args = [this];
             if (params)
-                args = args.concat(Array.prototype.slice.call(params, 1));
+                args = args.concat(Array.prototype.slice.call(arguments, 1));
             method.apply(window, args);
         })
     }

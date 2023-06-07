@@ -13,12 +13,11 @@ interface CellDataDownloadArgs {
 }
 interface ViewRecordSelectedArgs {
     dialog: JQuery<HTMLElement>;
-    record: Dictionary<String>;
+    record: Dictionary<string>;
 }
 declare class DbNetSuite {
     datePickerOptions: JQueryUI.DatepickerOptions;
     protected eventHandlers: Dictionary<Array<Function>>;
-    constructor();
     bind(event: EventName, handler: Function): void;
     unbind(event: EventName, handler: Function): void;
     checkStyleSheetLoaded(): void;
