@@ -38,8 +38,9 @@ class DbNetSuite {
         const events = this.eventHandlers[event];
         events.forEach((method) => {
             let args = [this];
-            if (params)
-                args = args.concat(Array.prototype.slice.call(arguments, 1));
+            if (params) {
+                args = args.concat([params]);
+            }
             method.apply(window, args);
         });
     }
