@@ -1,0 +1,17 @@
+﻿@using DbNetSuiteCore.Components;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Home Page - Your Project Name</title>
+    @DbNetSuiteCore.StyleSheet()
+</head>
+<body>
+    <div>
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    @DbNetSuiteCore.ClientScript()
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

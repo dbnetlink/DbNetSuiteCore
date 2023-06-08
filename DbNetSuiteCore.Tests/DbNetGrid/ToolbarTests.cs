@@ -91,7 +91,7 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
                 
                 foreach(var button in buttons)
                 {
-                    var classNames = button?.ClassName?.Split(' ');
+                    var classNames = button?.ClassList;
                     switch (toolbarButtonStyle)
                     {
                         case ToolbarButtonStyle.Image:

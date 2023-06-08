@@ -216,22 +216,30 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
             Assert.Equal("INPUT", filterRow!.Children[CellIndex(document, "SupplierID")].Children.First().TagName);
         }
 
-
         [Fact]
-        public async Task HiddenToolbarTest()
+        public async Task FrozenHeaderTest()
         {
-            DbNetGridRequest request = GetRequest();
+            DbNetGridRequest request = GetRequest("products");
+            request.FrozenHeader = true;
+
+            var columns = new List<string>() { "ProductID", "ProductName", "SupplierID", "CategoryID", "QuantityPerUnit", "UnitPrice", "UnitsInStock", "UnitsOnOrder", "ReorderLevel", "Discontinued" };
+
+            foreach (var column in columns)
+            {
+                var gridColumn = new GridColumn(column) { Filter = true };
+                request.Columns.Add(gridColumn);
+            }
 
             DbNetGridResponse? dbNetGridResponse = await GetResponse(request, "initialize");
 
             var parser = new HtmlParser();
             var document = await parser.ParseDocumentAsync(dbNetGridResponse?.Data.ToString() ?? string.Empty);
 
-            var tbody = document.QuerySelector("tbody");
-            IElement tr = tbody!.Children.First();
-            IElement td = tr!.Children.First();
-            Assert.Equal(dbNetGridResponse!.Columns.Count + 1, tr!.Children.Count());
-            Assert.Equal("BUTTON", td!.Children.First().TagName);
+            var thead = document.QuerySelector("thead");
+            foreach (IElement th in thead!.QuerySelectorAll("th"))
+            {
+                Assert.True(th.ClassList.Contains("sticky"));
+            }
         }
     }
 }

@@ -1,0 +1,7 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@{
+    DbNetGridCore customersGrid = new DbNetGridCore("northwind","customers");
+    customersGrid.ToolbarPosition = Enums.ToolbarPosition.Hidden;
+    @customersGrid.Render()
+}

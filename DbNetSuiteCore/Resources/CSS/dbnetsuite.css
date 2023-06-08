@@ -907,7 +907,6 @@ table.lookup-dialog-toolbar td.no-records span,
   height: 24px;
   margin: 0px;
   box-sizing: border-box;
-  margin-bottom: 3px;
 }
 .search-dialog :focus {
   outline-style: solid;

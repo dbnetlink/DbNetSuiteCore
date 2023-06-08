@@ -1,39 +1,41 @@
 "use strict";
 class SearchDialog extends Dialog {
     constructor(id, parent) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
         super(id);
-        this.$dialog.on("dialogopen", (event) => this.dialogOpened(event));
+        (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.on("dialogopen", (event) => this.dialogOpened(event));
         this.parent = parent;
-        this.$dialog.find("select.search-operator").on("change", (event) => this.configureForOperator(event));
-        this.$dialog.find("[button-type='calendar']").on("click", (event) => this.selectDate(event));
-        this.$dialog.find("[button-type='clock']").on("click", (event) => this.selectTime(event));
-        this.$dialog.find("[button-type='lookup']").on("click", (event) => this.lookup(event));
-        this.$dialog.find("input").get().forEach(e => {
-            var $input = $(e);
+        (_b = this.$dialog) === null || _b === void 0 ? void 0 : _b.find("select.search-operator").on("change", (event) => this.configureForOperator(event));
+        (_c = this.$dialog) === null || _c === void 0 ? void 0 : _c.find("[button-type='calendar']").on("click", (event) => this.selectDate(event));
+        (_d = this.$dialog) === null || _d === void 0 ? void 0 : _d.find("[button-type='clock']").on("click", (event) => this.selectTime(event));
+        (_e = this.$dialog) === null || _e === void 0 ? void 0 : _e.find("[button-type='lookup']").on("click", (event) => this.lookup(event));
+        (_f = this.$dialog) === null || _f === void 0 ? void 0 : _f.find("input").get().forEach(e => {
+            const $input = $(e);
             $input.width(240);
             $input.on("keyup", (event) => this.criteriaEntered(event.target));
         });
-        this.$dialog.find("input[datatype='DateTime'").get().forEach(e => {
-            var $input = $(e);
+        (_g = this.$dialog) === null || _g === void 0 ? void 0 : _g.find("input[datatype='DateTime'").get().forEach(e => {
+            const $input = $(e);
             this.addDatePicker($input);
         });
-        this.$dialog.find("input[datatype='TimeSpan'").get().forEach(e => {
-            var $input = $(e);
+        (_h = this.$dialog) === null || _h === void 0 ? void 0 : _h.find("input[datatype='TimeSpan'").get().forEach(e => {
+            const $input = $(e);
             this.addTimePicker($input);
         });
-        this.$dialog.find("[button-type='clear']").on("click", () => this.clear());
-        this.$dialog.find("[button-type='apply']").on("click", () => this.apply());
-        this.$dialog.find("[button-type='cancel']").on("click", () => this.close());
+        (_j = this.$dialog) === null || _j === void 0 ? void 0 : _j.find("[button-type='clear']").on("click", () => this.clear());
+        (_k = this.$dialog) === null || _k === void 0 ? void 0 : _k.find("[button-type='apply']").on("click", () => this.apply());
+        (_l = this.$dialog) === null || _l === void 0 ? void 0 : _l.find("[button-type='cancel']").on("click", () => this.close());
     }
     dialogOpened(event) {
-        var height = this.$dialog.find("table").first().height();
+        var _a, _b;
+        const height = (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find("table").first().height();
         if (height > 400) {
-            this.$dialog.find("div.content").height(400);
+            (_b = this.$dialog) === null || _b === void 0 ? void 0 : _b.find("div.content").height(400);
         }
     }
     configureForOperator(event) {
-        var $select = $(event.target);
-        var $row = $select.closest("tr");
+        const $select = $(event.target);
+        const $row = $select.closest("tr");
         switch ($select.val()) {
             case "Between":
             case "NotBetween":
@@ -47,17 +49,17 @@ class SearchDialog extends Dialog {
         }
     }
     pickerSelected() {
-        var $row = $(this).closest("tr").parent().closest("tr");
-        var $select = $row.find("select");
+        const $row = $(this).closest("tr").parent().closest("tr");
+        const $select = $row.find("select");
         if ($select.val() == "") {
             $select.prop("selectedIndex", 1);
         }
     }
     criteriaEntered(input) {
-        var $input = $(input);
+        const $input = $(input);
         $input.removeClass("highlight");
-        var $row = $input.closest("tr").parent().closest("tr");
-        var $select = $row.find("select");
+        const $row = $input.closest("tr").parent().closest("tr");
+        const $select = $row.find("select");
         if ($input.val() == "") {
             $select.val("");
         }
@@ -66,39 +68,41 @@ class SearchDialog extends Dialog {
         }
     }
     selectDate(event) {
-        var $button = $(event.target);
+        const $button = $(event.target);
         $button.parent().find("input").datepicker("show");
     }
     lookup(event) {
-        var $button = $(event.target);
-        var $input = $button.parent().find("input");
+        const $button = $(event.target);
+        const $input = $button.parent().find("input");
         this.parent.lookup($input);
     }
     selectTime(event) {
-        var $button = $(event.target);
+        const $button = $(event.target);
         $button.parent().find("input").timepicker('open');
         event.stopPropagation();
     }
     clear() {
-        this.$dialog.find(".content").find("input").get().forEach(e => {
-            var $input = $(e);
+        var _a, _b;
+        (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find(".content").find("input").get().forEach(e => {
+            const $input = $(e);
             $input.val("");
             $input.removeClass("highlight");
         });
-        this.$dialog.find(".content").find("select").get().forEach(e => {
-            var $select = $(e);
+        (_b = this.$dialog) === null || _b === void 0 ? void 0 : _b.find(".content").find("select").get().forEach(e => {
+            const $select = $(e);
             $select.val("");
         });
     }
     apply() {
+        var _a, _b;
         this.parent.searchParams = [];
-        this.$dialog.find(".content").find("select").get().forEach(e => {
-            var $select = $(e);
-            var $row = $select.closest("tr");
-            var $input1 = $row.find("input:eq(0)");
-            var $input2 = $row.find("input:eq(1)");
+        (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find(".content").find("select").get().forEach(e => {
+            const $select = $(e);
+            const $row = $select.closest("tr");
+            const $input1 = $row.find("input:eq(0)");
+            const $input2 = $row.find("input:eq(1)");
             if ($select.val() != "") {
-                let searchParam = {
+                const searchParam = {
                     searchOperator: $select.val(),
                     columnIndex: $input1.attr("columnIndex"),
                     value1: $input1.val(),
@@ -108,15 +112,16 @@ class SearchDialog extends Dialog {
             }
         });
         this.parent.clearColumnFilters();
-        this.parent.searchFilterJoin = this.$dialog.find("#searchFilterJoin").val();
+        this.parent.searchFilterJoin = (_b = this.$dialog) === null || _b === void 0 ? void 0 : _b.find("#searchFilterJoin").val();
         this.parent.getPage((response) => this.getPageCallback(response));
     }
     getPageCallback(response) {
         if (response.searchParams) {
             response.searchParams.forEach(sp => {
-                var $row = this.$dialog.find(`tr[columnIndex='${sp.columnIndex}']`);
-                var $input1 = $row.find("input:nth-of-type(1)");
-                var $input2 = $row.find("input:nth-of-type(2)");
+                var _a;
+                const $row = (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find(`tr[columnIndex='${sp.columnIndex}']`);
+                const $input1 = $row.find("input:nth-of-type(1)");
+                const $input2 = $row.find("input:nth-of-type(2)");
                 if (sp.value1Valid == false) {
                     $input1.addClass("highlight");
                 }
@@ -130,12 +135,12 @@ class SearchDialog extends Dialog {
         }
     }
     addDatePicker($input) {
-        let options = this.parent.datePickerOptions;
-        var formats = { D: "DD, MM dd, yy", DDDD: "DD", DDD: "D", MMMM: "MM", MMM: "M", M: "m", MM: "mm", yyyy: "yy" };
+        const options = this.parent.datePickerOptions;
+        const formats = { D: "DD, MM dd, yy", DDDD: "DD", DDD: "D", MMMM: "MM", MMM: "M", M: "m", MM: "mm", yyyy: "yy" };
         let format = $input.attr("format");
         let pattern;
         for (pattern in formats) {
-            var re = new RegExp(`\\b${pattern}\\b`);
+            const re = new RegExp(`\\b${pattern}\\b`);
             format = format.replace(re, formats[pattern]);
         }
         if (format != undefined)
@@ -145,7 +150,7 @@ class SearchDialog extends Dialog {
         $input.datepicker(options);
     }
     addTimePicker($input) {
-        var options = { "zindex": 100000 };
+        const options = { "zindex": 100000 };
         options.change = this.pickerSelected;
         $input.timepicker(options);
     }
