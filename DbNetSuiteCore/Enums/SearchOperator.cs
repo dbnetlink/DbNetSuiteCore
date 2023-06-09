@@ -1,5 +1,4 @@
 ﻿using DbNetSuiteCore.Attributes;
-using Microsoft.Extensions.Options;
 
 namespace DbNetSuiteCore.Enums
 {

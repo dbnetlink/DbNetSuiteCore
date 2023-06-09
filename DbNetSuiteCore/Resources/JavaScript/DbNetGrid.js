@@ -251,6 +251,7 @@ class DbNetGrid extends DbNetSuite {
         }
         const $navigationElements = this.gridElement("dbnetgrid-toolbar").find(".navigation");
         const $noRecordsCell = this.gridElement("no-records-cell");
+        this.setInputElement("Rows", response.totalRows);
         if (response.totalRows == 0) {
             $navigationElements.hide();
             $noRecordsCell.show();
@@ -261,7 +262,6 @@ class DbNetGrid extends DbNetSuite {
             this.gridElement("dbnetgrid-toolbar").find(".navigation").show();
             this.setInputElement("PageNumber", response.currentPage);
             this.setInputElement("PageCount", response.totalPages);
-            this.setInputElement("Rows", response.totalRows);
             this.currentPage = response.currentPage;
             this.totalPages = response.totalPages;
             this.disable("FirstBtn", response.currentPage == 1);

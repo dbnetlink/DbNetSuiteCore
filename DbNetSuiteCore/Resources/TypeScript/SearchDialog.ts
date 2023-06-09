@@ -43,11 +43,16 @@
             case "Between":
             case "NotBetween":
                 $row.find(".between").show();
-                $row.find("input").width(102);
+                $row.find("input").show().width(102);
+                break;
+            case "IsNull":
+            case "IsNotNull":
+                $row.find(".between").hide();
+                $row.find("input").hide();
                 break;
             default:
                 $row.find(".between").hide();
-                $row.find("input").width(240);
+                $row.find("input").show().width(240);
                 break;
         }
     }
@@ -123,6 +128,7 @@
 
         this.parent.clearColumnFilters();
         this.parent.searchFilterJoin = this.$dialog?.find("#searchFilterJoin").val() as string;
+        this.parent.currentPage = 1;
         this.parent.getPage((response: DbNetGridResponse) => this.getPageCallback(response));
     }
 
@@ -130,13 +136,13 @@
         if (response.searchParams) {
             response.searchParams.forEach(sp => {
                 const $row = this.$dialog?.find(`tr[columnIndex='${sp.columnIndex}']`)
-                const $input1 = $row.find("input:nth-of-type(1)");
-                const $input2 = $row.find("input:nth-of-type(2)");
+                const $input1 = $row?.find("input:nth-of-type(1)");
+                const $input2 = $row?.find("input:nth-of-type(2)");
                 if (sp.value1Valid == false) {
-                    $input1.addClass("highlight");
+                    $input1?.addClass("highlight");
                 }
                 if (sp.value2Valid == false) {
-                    $input2.addClass("highlight");
+                    $input2?.addClass("highlight");
                 }
             });
             if (response.message) {

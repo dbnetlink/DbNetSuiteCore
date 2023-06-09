@@ -1,4 +1,9 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Reflection.Metadata;
+using System.Xml.Linq;
+using DbNetSuiteCore.Enums;
+using DocumentFormat.OpenXml.Bibliography;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using Xunit;
@@ -16,34 +21,92 @@ namespace DbNetSuiteCore.UI.Tests
         {
             using (var driver = WebDriver)
             {
-                driver.Navigate().GoToUrl($"{_factory.HostUrl}/simple");
+                driver.Navigate().GoToUrl($"{_factory.HostUrl}/customers");
 
                 var table = GetTable(driver);
                 var rows = GetTableBodyRows(table);
 
                 Assert.Equal(20, rows.Count);
+            }
+        }
 
-                var firstCell = rows.First().FindElements(By.TagName("td")).First();
+        [Fact]
+        public void HeadingSortTest()
+        {
+            using (var driver = WebDriver)
+            {
+                driver.Navigate().GoToUrl($"{_factory.HostUrl}/customers");
+
+                var table = GetTable(driver);
+                var headerRows = GetTableHeaderRows(table);
+                var bodyRows = GetTableBodyRows(table);
+
+                var firstCell = bodyRows.First().FindElements(By.TagName("td")).First();
                 Assert.Equal("ALFKI", firstCell.Text);
 
-                table.FindElements(By.TagName("th")).First().Click();
+                headerRows.First().FindElements(By.TagName("th")).First().Click();
 
                 WaitForLoad(driver);
 
                 table = GetTable(driver);
-                rows = GetTableBodyRows(table);
+                bodyRows = GetTableBodyRows(table);
 
-                firstCell = rows.First().FindElements(By.TagName("td")).First();
+                firstCell = bodyRows.First().FindElements(By.TagName("td")).First();
                 Assert.Equal("WOLZA", firstCell.Text);
-
-                var toolbar = GetToolbar(driver);
-                var searchButton = GetButton(toolbar,"search");
-                searchButton.Click();
-                var searchDialog = WaitForSearchDialog(driver);
-                var applyButton = GetButton(searchDialog, "apply");
-
-                SelectElement select = new SelectElement(searchDialog.FindElements(By.TagName("select")).First());
             }
+        }
+
+
+        [Fact]
+        public void StringSearchDialogTest()
+        {
+            List<SearchTemplate> searchTemplates = new List<SearchTemplate>
+            {
+                new SearchTemplate(SearchOperator.EqualTo, 1, "BOTTM"),
+                new SearchTemplate(SearchOperator.NotEqualTo, 90, "BOTTM"),
+                new SearchTemplate(SearchOperator.Contains, 4, "ER"),
+                new SearchTemplate(SearchOperator.DoesNotContain, 87, "ER"),
+                new SearchTemplate(SearchOperator.StartsWith, 3, "BO"),
+                new SearchTemplate(SearchOperator.DoesNotStartWith, 88, "BO"),
+                new SearchTemplate(SearchOperator.EndsWith, 2, "SH"),
+                new SearchTemplate(SearchOperator.DoesNotEndWith, 89, "SH"),
+                new SearchTemplate(SearchOperator.In, 3, "COMMI,EASTC,DRACD"),
+                new SearchTemplate(SearchOperator.NotIn, 88, "COMMI,EASTC,DRACD"),
+                new SearchTemplate(SearchOperator.GreaterThan, 9, "V"),
+                new SearchTemplate(SearchOperator.LessThan, 82, "V"),
+                new SearchTemplate(SearchOperator.Between, 6, "BLONP","CACTU"),
+                new SearchTemplate(SearchOperator.NotBetween, 85, "BLONP","CACTU"),
+                new SearchTemplate(SearchOperator.NotLessThan, 5, "WARTH"),
+                new SearchTemplate(SearchOperator.NotGreaterThan, 87, "WARTH"),
+                new SearchTemplate(SearchOperator.IsNull, 0),
+                new SearchTemplate(SearchOperator.IsNotNull, 91)
+            };
+
+            ApplySearchTemplates(searchTemplates, "customers", "CustomerID");
+           
+        }
+
+        [Fact]
+        public void DateSearchDialogTest()
+        {
+            List<SearchTemplate> searchTemplates = new List<SearchTemplate>
+            {
+                new SearchTemplate(SearchOperator.EqualTo, 2, "12/2/2017"),
+                new SearchTemplate(SearchOperator.NotEqualTo, 828, "12/2/2017"),
+                new SearchTemplate(SearchOperator.In, 5, "6/5/2018,6/5/2017"),
+                new SearchTemplate(SearchOperator.NotIn, 825, "6/5/2018,6/5/2017"),
+                new SearchTemplate(SearchOperator.GreaterThan, 267, "1/1/2018"),
+                new SearchTemplate(SearchOperator.LessThan, 560, "1/1/2018"),
+                new SearchTemplate(SearchOperator.Between, 270, "1/1/2018","31/12/2018"),
+                new SearchTemplate(SearchOperator.NotBetween, 560, "1/1/2018","31/12/2018"),
+                new SearchTemplate(SearchOperator.NotLessThan, 678, "1/1/2017"),
+                new SearchTemplate(SearchOperator.NotGreaterThan, 154, "1/1/2017"),
+                new SearchTemplate(SearchOperator.IsNull, 0),
+                new SearchTemplate(SearchOperator.IsNotNull, 830)
+            };
+
+            ApplySearchTemplates(searchTemplates, "orders", "OrderDate");
+           
         }
 
         [Fact]
@@ -81,9 +144,8 @@ namespace DbNetSuiteCore.UI.Tests
         }
         private ReadOnlyCollection<IWebElement> GetTableSectionRows(IWebElement table, string tagName)
         {
-            return table.FindElement(By.TagName(tagName)).FindElements(By.CssSelector("tr.data-row"));
+            return table.FindElement(By.TagName(tagName)).FindElements(By.TagName("tr"));
         }
-
         private void WaitForLoad(IWebDriver driver)
         {
             var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
@@ -111,6 +173,78 @@ namespace DbNetSuiteCore.UI.Tests
         private IWebElement GetButton(IWebElement container, string buttonType)
         {
             return container.FindElement(By.CssSelector($"button[button-type='{buttonType}']"));
+        }
+
+        private IWebElement GetInput(IWebElement container, string name)
+        {
+            return container.FindElement(By.CssSelector($"input[name='{name}']"));
+        }
+
+        private void ApplySearchTemplates(List<SearchTemplate> searchTemplates, string page, string columnName)
+        {
+            using (var driver = WebDriver)
+            {
+                var searchDialog = GetSearchDialog(driver, page);
+                var applyButton = GetButton(searchDialog, "apply");
+                var clearButton = GetButton(searchDialog, "clear");
+
+                IWebElement row = searchDialog.FindElements(By.CssSelector($"tr[columnname='{columnName}']")).First();
+                SelectElement select = new SelectElement(row.FindElement(By.TagName("select")));
+                ReadOnlyCollection<IWebElement> inputs = row.FindElements(By.TagName("input"));
+
+                foreach (var searchTemplate in searchTemplates)
+                {
+                    clearButton.Click();
+                    select.SelectByValue(searchTemplate.SearchOperator.ToString());
+
+                    switch (searchTemplate.SearchOperator)
+                    {
+                        case SearchOperator.Between:
+                        case SearchOperator.NotBetween:
+                            inputs[0].SendKeys(searchTemplate.Token1);
+                            inputs[1].SendKeys(searchTemplate.Token2);
+                            break;
+                        case SearchOperator.IsNull:
+                        case SearchOperator.IsNotNull:
+                            break;
+                        default:
+                            inputs.First().SendKeys(searchTemplate.Token1);
+                            break;
+                    }
+                    applyButton.Click();
+                    WaitForLoad(driver);
+                    var toolbar = GetToolbar(driver);
+                    var rowsInput = GetInput(toolbar, "Rows");
+                    Assert.Equal(searchTemplate.ExpectedResult, Convert.ToInt32(rowsInput.GetAttribute("value")));
+                }
+            }
+        }
+
+        private IWebElement GetSearchDialog(IWebDriver driver, string page)
+        {
+            driver.Navigate().GoToUrl($"{_factory.HostUrl}/{page}");
+            var table = GetTable(driver);
+
+            var toolbar = GetToolbar(driver);
+            var searchButton = GetButton(toolbar, "search");
+            searchButton.Click();
+            return WaitForSearchDialog(driver);
+        }
+    }
+
+    public class SearchTemplate
+    {
+        public SearchOperator SearchOperator { get; set; }
+        public int ExpectedResult { get; set; }
+        public string? Token1 { get; set; }
+        public string? Token2 { get; set; }
+
+        public SearchTemplate(SearchOperator searchOperator, int expectedResult, string? token1 = null, string? token2 = null ) 
+        {
+            SearchOperator = searchOperator;
+            ExpectedResult = expectedResult;
+            Token1 = token1;
+            Token2 = token2;
         }
     }
 }
