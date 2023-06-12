@@ -56,6 +56,8 @@
     <None Remove="Resources\Images\ui-icons_cc0000_256x240.png" />
     <None Remove="Resources\Images\ui-icons_ffffff_256x240.png" />
     <None Remove="Resources\JavaScript\axios.js" />
+    <None Remove="Resources\JavaScript\DbNetCombo.js" />
+    <None Remove="Resources\JavaScript\DbNetCombo.min.js" />
     <None Remove="Resources\JavaScript\dbnetgrid.js" />
     <None Remove="Resources\JavaScript\DbNetGrid.min.js" />
     <None Remove="Resources\JavaScript\dbnetsuite.js" />
@@ -76,8 +78,10 @@
     <None Remove="Resources\JavaScript\ViewDialog.min.js" />
     <None Remove="Resources\SCSS\_reboot.scss" />
     <None Remove="Resources\tsconfig.json" />
+    <None Remove="Resources\TypeScript\DbNetCombo.ts" />
     <None Remove="Resources\TypeScript\dbnetgrid.ts" />
     <None Remove="Resources\TypeScript\dbnetsuite.ts" />
+    <None Remove="Views\DbNetCombo\Combo.cshtml" />
     <None Remove="Views\DbNetGrid\DataTable.cshtml" />
     <None Remove="Views\DbNetGrid\Grid.cshtml" />
     <None Remove="Views\DbNetGrid\HtmlExport.cshtml" />
@@ -103,6 +107,8 @@
     <EmbeddedResource Include="Resources\CSS\libraries\jquery.timepicker.min.css" />
     <EmbeddedResource Include="Resources\CSS\_reboot.css" />
     <EmbeddedResource Include="Resources\CSS\_reboot.min.css" />
+    <EmbeddedResource Include="Resources\JavaScript\DbNetCombo.js" />
+    <EmbeddedResource Include="Resources\JavaScript\DbNetCombo.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetGrid.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetSuite.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\Dialog.js" />
@@ -128,6 +134,11 @@
     <EmbeddedResource Include="Resources\JavaScript\GridColumn.js" />
     <EmbeddedResource Include="Resources\JavaScript\libraries\jquery-ui.min.js" />
     <EmbeddedResource Include="Resources\SCSS\_reboot.scss" />
+    <EmbeddedResource Include="Resources\TypeScript\DbNetCombo.ts" />
+    <EmbeddedResource Include="Views\DbNetCombo\Combo.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\DbNetGrid\DataTable.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

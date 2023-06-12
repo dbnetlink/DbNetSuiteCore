@@ -43,7 +43,6 @@ class DbNetGrid extends DbNetSuite {
     dragAndDrop = true;
     dropIcon: JQuery<HTMLElement> | undefined;
     dropTarget: JQuery<HTMLElement> | undefined;
-    element: JQuery<HTMLElement>;
     export_ = true;
     fixedFilterParams: Dictionary<object> = {};
     fixedFilterSql = "";
@@ -53,10 +52,8 @@ class DbNetGrid extends DbNetSuite {
     gridGenerationMode: GridGenerationMode = GridGenerationMode.Display;
     gridPanel: JQuery<HTMLElement> | undefined;
     groupBy = false;
-    id = "";
     initialised = false;
     linkedGrids: Array<DbNetGrid> = [];
-    loadingPanel: JQuery<HTMLElement> | undefined;
     lookupDialog: LookupDialog | undefined;
     multiRowSelect = false;
     multiRowSelectLocation: MultiRowSelectLocation = MultiRowSelectLocation.Left;
@@ -96,7 +93,7 @@ class DbNetGrid extends DbNetSuite {
         this.checkStyleSheetLoaded();
 
         if (this.element.length == 0) {
-            this.error(`DbNetGrid containing element '${this.id}' not found`);
+            this.error(`DbNetGrid container element '${this.id}' not found`);
             return;
         }
     }
@@ -115,10 +112,8 @@ class DbNetGrid extends DbNetSuite {
         if (this.toolbarPosition == "Bottom") {
             this.toolbarPanel = this.addPanel("toolbar");
         }
-        this.loadingPanel = this.addPanel("loading");
-        this.addPanel("loadingIcon", this.loadingPanel);
-        this.loadingPanel.addClass("dbnetgrid-loading");
-        this.loadingPanel.children().first().addClass("icon");
+
+        this.addLoadingPanel();
         this.dropIcon = this.addPanel("dropIcon", $("body"));
         this.dropIcon.addClass("drop-icon");
 
@@ -266,17 +261,6 @@ class DbNetGrid extends DbNetSuite {
             match = gridColumn.columnKey?.toLowerCase() == columnName.toLowerCase();
         }
         return match;
-    }
-
-    private addPanel(panelId: string, parent: JQuery<HTMLElement> | null = null): JQuery<HTMLElement> {
-        const id = `${this.id}_${panelId}Panel`;
-        if (parent == null) {
-            parent = this.element;
-        }
-        jQuery('<div>', {
-            id: id
-        }).appendTo(parent);
-        return $(`#${id}`);
     }
 
     private gridElement(name: string): JQuery<HTMLElement> {
@@ -944,14 +928,6 @@ class DbNetGrid extends DbNetSuite {
         this.gridElement(id).prop("disabled", disabled);
     }
 
-    private showLoader() {
-        this.loadingPanel!.addClass("display");
-    }
-
-    private hideLoader() {
-        this.loadingPanel!.removeClass("display");
-    }
-
     private post<T>(action: string, request: any, blob = false): Promise<T> {
         this.showLoader();
         const options = {
@@ -1082,11 +1058,5 @@ class DbNetGrid extends DbNetSuite {
         }
 
         col.foreignKeyValue = pk;
-    }
-
-    private error(text: string) {
-        const errorPanel = this.addPanel("error");
-        errorPanel.addClass("dbnetsuite-error");
-        errorPanel.html(text);
     }
 }

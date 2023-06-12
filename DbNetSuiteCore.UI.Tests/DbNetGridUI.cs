@@ -21,7 +21,7 @@ namespace DbNetSuiteCore.UI.Tests
         {
             using (var driver = WebDriver)
             {
-                driver.Navigate().GoToUrl($"{_factory.HostUrl}/customers");
+                driver.Navigate().GoToUrl($"{_factory.HostUrl}/dbnetgrid/customers");
 
                 var table = GetTable(driver);
                 var rows = GetTableBodyRows(table);
@@ -35,7 +35,7 @@ namespace DbNetSuiteCore.UI.Tests
         {
             using (var driver = WebDriver)
             {
-                driver.Navigate().GoToUrl($"{_factory.HostUrl}/customers");
+                driver.Navigate().GoToUrl($"{_factory.HostUrl}/dbnetgrid/customers");
 
                 var table = GetTable(driver);
                 var headerRows = GetTableHeaderRows(table);
@@ -106,7 +106,40 @@ namespace DbNetSuiteCore.UI.Tests
             };
 
             ApplySearchTemplates(searchTemplates, "orders", "OrderDate");
-           
+        }
+
+        [Fact]
+        public void DecimalSearchDialogTest()
+        {
+            List<SearchTemplate> searchTemplates = new List<SearchTemplate>
+            {
+                new SearchTemplate(SearchOperator.EqualTo, 16, "263.5"),
+                new SearchTemplate(SearchOperator.NotEqualTo, 2139, "263.5"),
+                new SearchTemplate(SearchOperator.In, 25, "81,64.8,36.8"),
+                new SearchTemplate(SearchOperator.NotIn, 2130, "81,64.8,36.8"),
+                new SearchTemplate(SearchOperator.GreaterThan, 46, "100"),
+                new SearchTemplate(SearchOperator.LessThan, 2109, "100"),
+                new SearchTemplate(SearchOperator.Between, 145, "50","150"),
+                new SearchTemplate(SearchOperator.NotBetween, 2010, "50","150"),
+                new SearchTemplate(SearchOperator.NotLessThan, 24, "200"),
+                new SearchTemplate(SearchOperator.NotGreaterThan, 2131, "200"),
+                new SearchTemplate(SearchOperator.IsNull, 0),
+                new SearchTemplate(SearchOperator.IsNotNull, 2155)
+            };
+
+            ApplySearchTemplates(searchTemplates, "orderdetails", "UnitPrice");
+        }
+
+        [Fact]
+        public void NullSearchDialogTest()
+        {
+            List<SearchTemplate> searchTemplates = new List<SearchTemplate>
+            {
+                new SearchTemplate(SearchOperator.IsNull, 21),
+                new SearchTemplate(SearchOperator.IsNotNull, 809)
+            };
+
+            ApplySearchTemplates(searchTemplates, "orders", "ShippedDate");
         }
 
         [Fact]
@@ -114,7 +147,7 @@ namespace DbNetSuiteCore.UI.Tests
         {
             using (var driver = WebDriver)
             {
-                driver.Navigate().GoToUrl($"{_factory.HostUrl}/notoolbar");
+                driver.Navigate().GoToUrl($"{_factory.HostUrl}/dbnetgrid/notoolbar");
 
                 var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
                 var element = wait.Until(driver => driver.FindElement(By.ClassName("dbnetgrid-table")));
@@ -222,9 +255,7 @@ namespace DbNetSuiteCore.UI.Tests
 
         private IWebElement GetSearchDialog(IWebDriver driver, string page)
         {
-            driver.Navigate().GoToUrl($"{_factory.HostUrl}/{page}");
-            var table = GetTable(driver);
-
+            driver.Navigate().GoToUrl($"{_factory.HostUrl}/dbnetgrid/{page}");
             var toolbar = GetToolbar(driver);
             var searchButton = GetButton(toolbar, "search");
             searchButton.Click();

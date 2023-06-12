@@ -8,6 +8,14 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
+using DbNetSuiteCore.Helpers;
+using System.ComponentModel;
+using System;
+using System.Resources;
+using Microsoft.AspNetCore.WebUtilities;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DbNetSuiteCore.Services
 {
@@ -20,6 +28,19 @@ namespace DbNetSuiteCore.Services
         protected readonly IConfiguration Configuration;
 
         protected readonly DbNetSuiteCoreSettings Settings;
+
+        private string _connectionString;
+
+        public string ComponentId { get; set; } = String.Empty;
+        public string ConnectionString
+        {
+            get => EncodingHelper.Decode(_connectionString);
+            set => _connectionString = value;
+        }
+        public string Culture { get; set; } = String.Empty;
+
+        public string Id => ComponentId;
+        public ResourceManager ResourceManager { get; set; }
 
         public DbNetSuite(AspNetCoreServices services)
         {
@@ -41,7 +62,6 @@ namespace DbNetSuiteCore.Services
         {
             byte[] buffer = await GetResource(resourceName);
             return new UTF8Encoding(false).GetString(buffer);
-            //      return System.Text.Encoding.UTF8.GetString(buffer, 0, buffer.Length);
         }
         protected async Task<byte[]> GetResource(string resourceName)
         {
@@ -62,6 +82,20 @@ namespace DbNetSuiteCore.Services
                 {
                     return null;
                 }
+            }
+        }
+
+        protected async Task<T> GetRequest<T>()
+        {
+            var request = HttpContext.Request;
+            using (var streamReader = new HttpRequestStreamReader(request.Body, Encoding.UTF8))
+            using (var jsonReader = new JsonTextReader(streamReader))
+            {
+                var json = await JObject.LoadAsync(jsonReader);
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                options.Converters.Add(new JsonStringEnumConverter());
+                return json.ToObject<T>();
             }
         }
     }

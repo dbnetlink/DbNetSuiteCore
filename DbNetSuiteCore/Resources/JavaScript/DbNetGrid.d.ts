@@ -42,7 +42,6 @@ declare class DbNetGrid extends DbNetSuite {
     dragAndDrop: boolean;
     dropIcon: JQuery<HTMLElement> | undefined;
     dropTarget: JQuery<HTMLElement> | undefined;
-    element: JQuery<HTMLElement>;
     export_: boolean;
     fixedFilterParams: Dictionary<object>;
     fixedFilterSql: string;
@@ -52,10 +51,8 @@ declare class DbNetGrid extends DbNetSuite {
     gridGenerationMode: GridGenerationMode;
     gridPanel: JQuery<HTMLElement> | undefined;
     groupBy: boolean;
-    id: string;
     initialised: boolean;
     linkedGrids: Array<DbNetGrid>;
-    loadingPanel: JQuery<HTMLElement> | undefined;
     lookupDialog: LookupDialog | undefined;
     multiRowSelect: boolean;
     multiRowSelectLocation: MultiRowSelectLocation;
@@ -101,7 +98,6 @@ declare class DbNetGrid extends DbNetSuite {
     reload(): void;
     getDataArray(callback: Function): void;
     private matchingColumn;
-    private addPanel;
     private gridElement;
     private gridElementId;
     private setInputElement;
@@ -142,12 +138,9 @@ declare class DbNetGrid extends DbNetSuite {
     private getRequest;
     private addEventListener;
     private disable;
-    private showLoader;
-    private hideLoader;
     private post;
     downloadCellData(element: HTMLElement, image: boolean): void;
     private openNestedGrid;
     private configureNestedGrid;
     private assignForeignKey;
-    private error;
 }

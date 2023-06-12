@@ -1,0 +1,7 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@{
+    // Configure the grid and render
+    DbNetComboCore customersCombo = new DbNetComboCore("northwind", "select customerid, companyname from customers order by 2");
+    @customersCombo.Render()
+}

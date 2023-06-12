@@ -44,7 +44,6 @@ class DbNetGrid extends DbNetSuite {
         this.googleChartOptions = undefined;
         this.gridGenerationMode = GridGenerationMode.Display;
         this.groupBy = false;
-        this.id = "";
         this.initialised = false;
         this.linkedGrids = [];
         this.multiRowSelect = false;
@@ -76,7 +75,7 @@ class DbNetGrid extends DbNetSuite {
         this.element.addClass("dbnetsuite").addClass("cleanslate");
         this.checkStyleSheetLoaded();
         if (this.element.length == 0) {
-            this.error(`DbNetGrid containing element '${this.id}' not found`);
+            this.error(`DbNetGrid container element '${this.id}' not found`);
             return;
         }
     }
@@ -92,10 +91,7 @@ class DbNetGrid extends DbNetSuite {
         if (this.toolbarPosition == "Bottom") {
             this.toolbarPanel = this.addPanel("toolbar");
         }
-        this.loadingPanel = this.addPanel("loading");
-        this.addPanel("loadingIcon", this.loadingPanel);
-        this.loadingPanel.addClass("dbnetgrid-loading");
-        this.loadingPanel.children().first().addClass("icon");
+        this.addLoadingPanel();
         this.dropIcon = this.addPanel("dropIcon", $("body"));
         this.dropIcon.addClass("drop-icon");
         this.post("initialize", this.getRequest())
@@ -221,16 +217,6 @@ class DbNetGrid extends DbNetSuite {
             match = ((_f = gridColumn.columnKey) === null || _f === void 0 ? void 0 : _f.toLowerCase()) == columnName.toLowerCase();
         }
         return match;
-    }
-    addPanel(panelId, parent = null) {
-        const id = `${this.id}_${panelId}Panel`;
-        if (parent == null) {
-            parent = this.element;
-        }
-        jQuery('<div>', {
-            id: id
-        }).appendTo(parent);
-        return $(`#${id}`);
     }
     gridElement(name) {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -802,12 +788,6 @@ class DbNetGrid extends DbNetSuite {
     disable(id, disabled) {
         this.gridElement(id).prop("disabled", disabled);
     }
-    showLoader() {
-        this.loadingPanel.addClass("display");
-    }
-    hideLoader() {
-        this.loadingPanel.removeClass("display");
-    }
     post(action, request, blob = false) {
         this.showLoader();
         const options = {
@@ -918,10 +898,5 @@ class DbNetGrid extends DbNetSuite {
             return;
         }
         col.foreignKeyValue = pk;
-    }
-    error(text) {
-        const errorPanel = this.addPanel("error");
-        errorPanel.addClass("dbnetsuite-error");
-        errorPanel.html(text);
     }
 }

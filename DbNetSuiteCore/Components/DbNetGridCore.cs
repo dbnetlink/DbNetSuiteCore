@@ -14,18 +14,12 @@ using System.Data;
 
 namespace DbNetSuiteCore.Components
 {
-    public class DbNetGridCore
+    public class DbNetGridCore : DbNetSuiteCore
     {
-        private readonly string _id;
-        private readonly string _connection;
         private readonly string _fromPart;
-        private DbNetSuiteCoreSettings _DbNetSuiteCoreSettings;
-        private readonly IConfigurationRoot _configuration;
-
         private List<ColumnProperty> _columnProperties { get; set; } = new List<ColumnProperty>();
         private List<EventBinding> _eventBindings { get; set; } = new List<EventBinding>();
         private List<DbNetGridCore> _linkedGrids { get; set; } = new List<DbNetGridCore>();
-        private readonly bool _idSupplied = false;
         public string Id => _id;
         /// <summary>
         /// Automatically selects the first row of the grid (default is true)
@@ -140,18 +134,13 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public bool? View { get; set; } = null;
 
-        public DbNetGridCore(string connection, string fromPart, string id = null, DataSourceType dataSourceType = DataSourceType.TableOrView)
+        public DbNetGridCore(string connection, string fromPart, string id = null, DataSourceType dataSourceType = DataSourceType.TableOrView) : base(connection, id)
         {
-            _idSupplied = id != null;
-            _id = id ?? $"dbnetgrid{Guid.NewGuid().ToString().Split("-").First()}";
-            _connection = connection;
             _fromPart = fromPart;
             if (dataSourceType == DataSourceType.StoredProcedure)
             {
                 ProcedureName = fromPart;
             }
-
-            _configuration = LoadConfiguration();
         }
       
         /// <summary>
@@ -237,11 +226,7 @@ namespace DbNetSuiteCore.Components
 
         private string ClientJavaScript()
         {
-            var script = @$" 
-document.addEventListener('DOMContentLoaded', function() {{init_{_id}()}});
-function init_{_id}()
-{{
-    if (typeof(DbNetGrid) == 'undefined') {{alert('DbNetSuite client-side code has not loaded. Add @DbNetSuiteCore.ClientScript() to your razor page. See console for details');console.error(""DbNetSuite stylesheet not found. See https://dbnetsuitecore.z35.web.core.windows.net/index.htm?context=20#DbNetSuiteCoreClientScript"");return;}};
+            var script = @$"{InitScript()}
 	{ConfigureLinkedGrids()}
 	var {_id} = new DbNetGrid('{_id}');
 	with ({_id})
@@ -355,32 +340,6 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             return string.Join(Environment.NewLine, properties);
         }
 
-        private void AddProperty<T>(T? property, string name, List<string> properties) where T : struct
-        {
-            if (property.HasValue/* && !property.Value.Equals(default(T))*/)
-            {
-                properties.Add($"{LowerCaseFirstLetter(name)} = {PropertyValue(property)};");
-            };
-
-            string PropertyValue(object value)
-            {
-                if (typeof(T).IsEnum)
-                {
-                    return $"\"{value}\"";
-                }
-
-                return value.ToString().ToLower();
-            }
-        }
-
-        private void AddProperty(string property, string name, List<string> properties)
-        {
-            if (string.IsNullOrEmpty(property) == false)
-            {
-                properties.Add($"{LowerCaseFirstLetter(name)} = \"{property}\";");
-            };
-        }
-
         private string ColumnExpressions()
         {
             if (Columns.Any() == false)
@@ -455,17 +414,6 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             return Serialize(datePickerOptions);
         }
 
-        private string Serialize(object obj)
-        {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-            };
-
-            return JsonSerializer.Serialize(obj, options);
-        }
-
         private string ConfigureLinkedGrids()
         {
             var script = string.Empty;
@@ -476,46 +424,6 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             }
 
             return script;
-        }
-
-        private string LowerCaseFirstLetter(string str)
-        {
-            return char.ToLowerInvariant(str[0]) + str.Substring(1);
-        }
-
-        private DbNetSuiteCoreSettings GetCurrentSettings()
-        {
-            if (_DbNetSuiteCoreSettings == null)
-            {
-                _DbNetSuiteCoreSettings = _configuration.GetSection("DbNetSuiteCore").Get<DbNetSuiteCoreSettings>() ?? new DbNetSuiteCoreSettings();
-            }
-
-            return _DbNetSuiteCoreSettings;
-        }
-
-        private IConfigurationRoot LoadConfiguration()
-        {
-            var builder = new ConfigurationBuilder()
-                  .SetBasePath(Directory.GetCurrentDirectory())
-                  .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                  .AddEnvironmentVariables();
-
-            IConfigurationRoot configuration = builder.Build();
-            return configuration;
-        }
-
-        private string ValidateProperties()
-        {
-            string message = string.Empty;
-
-            string connectionString = _configuration.GetConnectionString(_connection);
-
-            if (connectionString == null)
-            {
-                message = $"Connection string [{_connection}] not found. Please check the connection strings in your appsettings.json file";
-            }
-
-            return message;
         }
     }
 }

@@ -2,7 +2,9 @@
 class DbNetSuite {
     constructor() {
         this.datePickerOptions = {};
+        this.element = undefined;
         this.eventHandlers = {};
+        this.id = "";
     }
     bind(event, handler) {
         if (!this.eventHandlers[event])
@@ -28,7 +30,7 @@ class DbNetSuite {
             }
         }
         if (!found) {
-            alert("DbNetSuite stylesheet not found. Add @DbNetSuiteCore.StyleSheet() to yoiur Razor page. See console for details.");
+            alert("DbNetSuite stylesheet not found. Add @DbNetSuiteCore.StyleSheet() to your Razor page. See console for details.");
             console.error("DbNetSuite stylesheet not found. See https://dbnetsuitecore.z35.web.core.windows.net/index.htm?context=20#DbNetSuiteCoreStyleSheet");
         }
     }
@@ -43,6 +45,35 @@ class DbNetSuite {
             }
             method.apply(window, args);
         });
+    }
+    addPanel(panelId, parent = undefined) {
+        const id = `${this.id}_${panelId}Panel`;
+        if (parent == null) {
+            parent = this.element;
+        }
+        jQuery('<div>', {
+            id: id
+        }).appendTo(parent);
+        return $(`#${id}`);
+    }
+    addLoadingPanel() {
+        this.loadingPanel = this.addPanel("loading");
+        this.addPanel("loadingIcon", this.loadingPanel);
+        this.loadingPanel.addClass("dbnetgrid-loading");
+        this.loadingPanel.children().first().addClass("icon");
+    }
+    error(text) {
+        const errorPanel = this.addPanel("error");
+        errorPanel.addClass("dbnetsuite-error");
+        errorPanel.html(text);
+    }
+    showLoader() {
+        var _a;
+        (_a = this.loadingPanel) === null || _a === void 0 ? void 0 : _a.addClass("display");
+    }
+    hideLoader() {
+        var _a;
+        (_a = this.loadingPanel) === null || _a === void 0 ? void 0 : _a.removeClass("display");
     }
 }
 document.addEventListener("DOMContentLoaded", function () {

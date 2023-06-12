@@ -14,18 +14,25 @@ interface ViewRecordSelectedArgs {
     record: Dictionary<string>
 }
 
+type EventHandler = {
+    sender: DbNetSuite;
+    params: object | undefined;
+};
+
 class DbNetSuite {
-
     public datePickerOptions: JQueryUI.DatepickerOptions = {};
-    protected eventHandlers: Dictionary<Array<Function>> = {};
+    protected element: JQuery<HTMLElement> | undefined = undefined;
+    protected eventHandlers: Dictionary<Array<EventHandler>> = {};
+    protected id = "";
+    protected loadingPanel: JQuery<HTMLElement> | undefined;
 
-    bind(event: EventName, handler: Function) {
+    bind(event: EventName, handler: EventHandler) {
         if (!this.eventHandlers[event])
             this.eventHandlers[event] = [];
         this.eventHandlers[event].push(handler);
     }
 
-    unbind(event: EventName, handler: Function) {
+    unbind(event: EventName, handler: EventHandler) {
         if (this.eventHandlers[event] == null)
             return;
 
@@ -46,7 +53,7 @@ class DbNetSuite {
         }
 
         if (!found) {
-            alert("DbNetSuite stylesheet not found. Add @DbNetSuiteCore.StyleSheet() to yoiur Razor page. See console for details.");
+            alert("DbNetSuite stylesheet not found. Add @DbNetSuiteCore.StyleSheet() to your Razor page. See console for details.");
             console.error("DbNetSuite stylesheet not found. See https://dbnetsuitecore.z35.web.core.windows.net/index.htm?context=20#DbNetSuiteCoreStyleSheet");
         }
     }
@@ -57,7 +64,7 @@ class DbNetSuite {
 
         const events = this.eventHandlers[event];
 
-        events.forEach((method: Function) => {
+        events.forEach((method: EventHandler) => {
             let args:object[] = [this];
 
             if (params) {
@@ -65,6 +72,38 @@ class DbNetSuite {
             }
             method.apply(window, args);
         })
+    }
+
+    protected addPanel(panelId: string, parent: JQuery<HTMLElement> | undefined = undefined): JQuery<HTMLElement> {
+        const id = `${this.id}_${panelId}Panel`;
+        if (parent == null) {
+            parent = this.element;
+        }
+        jQuery('<div>', {
+            id: id
+        }).appendTo(parent as JQuery<HTMLElement>);
+        return $(`#${id}`);
+    }
+
+    protected addLoadingPanel() {
+        this.loadingPanel = this.addPanel("loading");
+        this.addPanel("loadingIcon", this.loadingPanel);
+        this.loadingPanel.addClass("dbnetgrid-loading");
+        this.loadingPanel.children().first().addClass("icon");
+    }
+
+    protected error(text: string) {
+        const errorPanel = this.addPanel("error");
+        errorPanel.addClass("dbnetsuite-error");
+        errorPanel.html(text);
+    }
+
+    protected showLoader() {
+        this.loadingPanel?.addClass("display");
+    }
+
+    protected hideLoader() {
+        this.loadingPanel?.removeClass("display");
     }
 }
 

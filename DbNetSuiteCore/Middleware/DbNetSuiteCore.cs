@@ -50,6 +50,10 @@ namespace DbNetLink.Middleware
                     var dbnetgrid = new DbNetGrid(services);
                     response = await dbnetgrid.Process();
                     break;
+                case "dbnetcombo":
+                    var dbnetcombo = new DbNetCombo(services);
+                    response = await dbnetcombo.Process();
+                    break;
             }
 
             if (response == null)

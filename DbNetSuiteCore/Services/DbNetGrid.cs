@@ -44,7 +44,6 @@ namespace DbNetSuiteCore.Services
         private DbNetDataCore Database { get; set; }
         private DbNetGridRequest _dbNetGridRequest;
         private string _fromPart;
-        private string _connectionString;
         private string _fixedFilterSql;
         private string _procedureName;
         private long _pageSize = 20;
@@ -58,13 +57,6 @@ namespace DbNetSuiteCore.Services
         public Dictionary<string, string> ColumnFilters { get; set; } = new Dictionary<string, string>();
         public List<string> ColumnFilterSql { get; set; } = new List<string> { };
         public string ColumnName { get; set; } = String.Empty;
-        public string ComponentId { get; set; } = String.Empty;
-        public string ConnectionString
-        {
-            get => EncodingHelper.Decode(_connectionString);
-            set => _connectionString = value;
-        }
-        public string Culture { get; set; } = String.Empty;
         public bool Copy { get; set; } = true;
         public int CurrentPage { get; set; } = 1;
         public GridColumn DefaultColumn { get; set; }
@@ -89,7 +81,7 @@ namespace DbNetSuiteCore.Services
         public GridGenerationMode GridGenerationMode { get; set; } = GridGenerationMode.Display;
         public bool GroupBy { get; set; } = false;
         public string Having { get; set; } = string.Empty;
-        public string Id => ComponentId;
+       
         public bool IgnorePrimaryKeys { get; set; } = false;
         public bool InsertRow { get; set; } = false;
         public bool MultiRowSelect { get; set; } = false;
@@ -125,8 +117,6 @@ namespace DbNetSuiteCore.Services
         public long TotalRows { get; set; } = 0;
         public bool UpdateRow { get; set; } = false;
         public bool View { get; set; } = false;
-        public ResourceManager ResourceManager { get; set; }
-
         static public string GenerateLabel(string label)
         {
             label = Regex.Replace(label, @"((?<=\p{Ll})\p{Lu})|((?!\A)\p{Lu}(?>\p{Ll}))", " $0");
@@ -1599,20 +1589,6 @@ namespace DbNetSuiteCore.Services
             }
         }
 
-        private async Task<T> GetRequest<T>()
-        {
-            var request = HttpContext.Request;
-            using (var streamReader = new HttpRequestStreamReader(request.Body, Encoding.UTF8))
-            using (var jsonReader = new JsonTextReader(streamReader))
-            {
-                var json = await JObject.LoadAsync(jsonReader);
-                var options = new JsonSerializerOptions();
-                options.PropertyNameCaseInsensitive = true;
-                options.Converters.Add(new JsonStringEnumConverter());
-                return json.ToObject<T>();
-            }
-        }
-
         private string JavaScriptTypeName(GridColumn column)
         {
             switch (column.DataType)
@@ -1770,7 +1746,7 @@ namespace DbNetSuiteCore.Services
             var viewModel = new GridViewModel
             {
                 GridData = dataTable,
-                GridTotals = totalsDataTable,
+                GridTotals = totalsDataTable
             };
 
             ReflectionHelper.CopyProperties(this, viewModel);

@@ -1,0 +1,6 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@{
+    DbNetGridCore orderDetailsGrid = new DbNetGridCore("northwind","[order details]");
+    @orderDetailsGrid.Render()
+}
