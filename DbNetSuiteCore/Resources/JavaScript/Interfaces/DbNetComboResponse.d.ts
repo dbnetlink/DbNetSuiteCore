@@ -1,5 +1,6 @@
 interface DbNetComboResponse {
-    data: string;
+    select: string;
+    options: string;
     totalRows: number;
     message: string;
     error: boolean;

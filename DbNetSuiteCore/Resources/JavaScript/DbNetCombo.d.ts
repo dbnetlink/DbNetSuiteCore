@@ -1,24 +1,23 @@
-/// <reference types="jquery" />
-/// <reference types="jquery" />
-/// <reference types="jqueryui" />
-/// <reference types="bootstrap" />
 declare class DbNetCombo extends DbNetSuite {
-    id: string;
-    connectionString: string;
-    initialised: boolean;
-    element: JQuery<HTMLElement>;
-    linkedControls: Array<DbNetSuite>;
     addEmptyOption: boolean;
+    addFilter: boolean;
+    currentValue: string;
     emptyOptionText: string;
+    linkedControls: Array<DbNetSuite>;
     sql: string;
     params: Dictionary<object>;
-    currentValue: string;
+    filterDelay: number;
+    filterMinChars: number;
+    filterTimerId: number | undefined;
+    filterToken: string;
     constructor(id: string);
     initialize(): void;
     addLinkedControl(control: DbNetGrid): void;
     reload(): void;
     private configureCombo;
-    getPage(): void;
+    private filterKeyPress;
+    private applyFilter;
+    callServer(action: string): void;
     private getRequest;
     private post;
 }

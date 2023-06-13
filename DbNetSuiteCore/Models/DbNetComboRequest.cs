@@ -9,7 +9,9 @@ namespace DbNetSuiteCore.Models
         public string ConnectionType { get; set; }
         public string Sql { get; set; }
         public bool AddEmptyOption { get; set; } = false;
+        public bool AddFilter { get; set; } = false;
         public string EmptyOptionText { get; set; } = string.Empty;
         public Dictionary<string, object> Params { get; set; } = new Dictionary<string, object>();
+        public string FilterToken { get; set; } = string.Empty;
     }
 }

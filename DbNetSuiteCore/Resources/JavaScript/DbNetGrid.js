@@ -29,8 +29,6 @@ class DbNetGrid extends DbNetSuite {
         this.cellIndexCache = {};
         this.columnName = undefined;
         this.columnFilters = {};
-        this.connectionType = "SqlServer";
-        this.connectionString = "";
         this.copy = true;
         this.culture = "";
         this.currentPage = 1;
@@ -44,7 +42,6 @@ class DbNetGrid extends DbNetSuite {
         this.googleChartOptions = undefined;
         this.gridGenerationMode = GridGenerationMode.Display;
         this.groupBy = false;
-        this.initialised = false;
         this.linkedGrids = [];
         this.multiRowSelect = false;
         this.multiRowSelectLocation = MultiRowSelectLocation.Left;
@@ -333,11 +330,11 @@ class DbNetGrid extends DbNetSuite {
         }
     }
     configureDataTable(_html) {
-        var _a, _b, _c;
-        this.element.removeClass("dbnetsuite");
-        (_a = this.toolbarPanel) === null || _a === void 0 ? void 0 : _a.addClass("dbnetsuite");
-        (_b = this.gridPanel) === null || _b === void 0 ? void 0 : _b.html(_html);
-        (_c = this.gridPanel) === null || _c === void 0 ? void 0 : _c.find("table").DataTable();
+        var _a, _b, _c, _d;
+        (_a = this.element) === null || _a === void 0 ? void 0 : _a.removeClass("dbnetsuite");
+        (_b = this.toolbarPanel) === null || _b === void 0 ? void 0 : _b.addClass("dbnetsuite");
+        (_c = this.gridPanel) === null || _c === void 0 ? void 0 : _c.html(_html);
+        (_d = this.gridPanel) === null || _d === void 0 ? void 0 : _d.find("table").DataTable();
     }
     renderChart() {
         if (!this.googleChartOptions) {

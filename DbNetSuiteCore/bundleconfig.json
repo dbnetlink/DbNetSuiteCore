@@ -1,5 +1,11 @@
 [
   {
+    "outputFileName": "Resources/JavaScript/DbNetCombo.min.js",
+    "inputFiles": [
+      "Resources/JavaScript/DbNetCombo.js"
+    ]
+  },
+  {
     "outputFileName": "Resources/JavaScript/DbNetGrid.min.js",
     "inputFiles": [
       "Resources/JavaScript/DbNetGrid.js"

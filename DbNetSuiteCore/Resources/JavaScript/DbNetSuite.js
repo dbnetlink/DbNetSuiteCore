@@ -5,6 +5,9 @@ class DbNetSuite {
         this.element = undefined;
         this.eventHandlers = {};
         this.id = "";
+        this.connectionString = "";
+        this.connectionType = "SqlServer";
+        this.initialised = false;
     }
     bind(event, handler) {
         if (!this.eventHandlers[event])

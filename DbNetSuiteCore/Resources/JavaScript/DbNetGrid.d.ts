@@ -33,8 +33,6 @@ declare class DbNetGrid extends DbNetSuite {
     columnName: string | undefined;
     columns: GridColumn[];
     columnFilters: Dictionary<string>;
-    connectionType: DbConnectionType;
-    connectionString: string;
     copy: boolean;
     culture: string;
     currentPage: number;
@@ -51,7 +49,6 @@ declare class DbNetGrid extends DbNetSuite {
     gridGenerationMode: GridGenerationMode;
     gridPanel: JQuery<HTMLElement> | undefined;
     groupBy: boolean;
-    initialised: boolean;
     linkedGrids: Array<DbNetGrid>;
     lookupDialog: LookupDialog | undefined;
     multiRowSelect: boolean;
@@ -88,7 +85,7 @@ declare class DbNetGrid extends DbNetSuite {
     setColumnLabels(...labels: string[]): void;
     setColumnProperty(columnName: string | Array<string>, property: ColumnPropertyType, propertyValue: any): void;
     setColumnProperties(columnName: string, properties: GridColumnProperties): void;
-    addNestedGrid(handler: Function): void;
+    addNestedGrid(handler: EventHandler): void;
     addLinkedGrid(grid: DbNetGrid): void;
     columnIndex(columnName: string): number;
     columnCell(columnName: string, row: HTMLTableRowElement | undefined): HTMLTableCellElement | null;

@@ -2,15 +2,16 @@
 class DbNetCombo extends DbNetSuite {
     constructor(id) {
         super();
-        this.id = "";
-        this.connectionString = "";
-        this.initialised = false;
-        this.linkedControls = [];
         this.addEmptyOption = false;
+        this.addFilter = false;
+        this.currentValue = "";
         this.emptyOptionText = "";
+        this.linkedControls = [];
         this.sql = "";
         this.params = {};
-        this.currentValue = "";
+        this.filterDelay = 1000;
+        this.filterMinChars = 3;
+        this.filterToken = "";
         this.id = id;
         this.element = $(`#${this.id}`);
         this.element.addClass("dbnetsuite").addClass("cleanslate");
@@ -21,7 +22,7 @@ class DbNetCombo extends DbNetSuite {
         }
     }
     initialize() {
-        this.getPage();
+        this.callServer("page");
         this.initialised = true;
         this.fireEvent("onInitialized");
     }
@@ -29,14 +30,33 @@ class DbNetCombo extends DbNetSuite {
         this.linkedControls.push(control);
     }
     reload() {
-        this.getPage();
+        this.callServer("page");
     }
     configureCombo(response) {
-        var _a;
-        (_a = this.element) === null || _a === void 0 ? void 0 : _a.html(response.data);
+        var _a, _b, _c;
+        if (response.select) {
+            (_a = this.element) === null || _a === void 0 ? void 0 : _a.html(response.select);
+        }
+        const $select = (_b = this.element) === null || _b === void 0 ? void 0 : _b.find("select");
+        $select === null || $select === void 0 ? void 0 : $select.html(response.options);
+        const selectWidth = $select === null || $select === void 0 ? void 0 : $select.width();
+        const $input = (_c = this.element) === null || _c === void 0 ? void 0 : _c.find("input");
+        $input === null || $input === void 0 ? void 0 : $input.width(selectWidth - 4);
+        $input === null || $input === void 0 ? void 0 : $input.on("keyup", (event) => this.filterKeyPress(event));
     }
-    getPage() {
-        this.post("page", this.getRequest())
+    filterKeyPress(event) {
+        const el = event.target;
+        window.clearTimeout(this.filterTimerId);
+        if (el.value.length >= this.filterMinChars || el.value.length == 0 || event.key == 'Enter') {
+            this.filterTimerId = window.setTimeout(() => { this.applyFilter(el.value); }, this.filterDelay);
+        }
+    }
+    applyFilter(filterToken) {
+        this.filterToken = filterToken;
+        this.callServer("filter");
+    }
+    callServer(action) {
+        this.post(action, this.getRequest())
             .then((response) => {
             if (response.error == false) {
                 this.configureCombo(response);
@@ -50,12 +70,14 @@ class DbNetCombo extends DbNetSuite {
             sql: this.sql,
             params: this.params,
             addEmptyOption: this.addEmptyOption,
-            emptyOptionText: this.emptyOptionText
+            emptyOptionText: this.emptyOptionText,
+            addFilter: this.addFilter,
+            filterToken: this.filterToken
         };
         return request;
     }
-    post(action, request, blob = false) {
-        // this.showLoader();
+    post(action, request) {
+        this.showLoader();
         const options = {
             method: "POST",
             headers: {
@@ -66,19 +88,15 @@ class DbNetCombo extends DbNetSuite {
         };
         return fetch(`~/dbnetcombo.dbnetsuite?action=${action}`, options)
             .then(response => {
-            //  this.hideLoader();
+            this.hideLoader();
             if (!response.ok) {
                 throw response;
-            }
-            if (blob) {
-                return response.blob();
             }
             return response.json();
         })
             .catch(err => {
             err.text().then((errorMessage) => {
                 console.error(errorMessage);
-                //   this.error(errorMessage.split("\n").shift() as string)
             });
             return Promise.reject();
         });

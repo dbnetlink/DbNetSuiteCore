@@ -25,6 +25,9 @@ class DbNetSuite {
     protected eventHandlers: Dictionary<Array<EventHandler>> = {};
     protected id = "";
     protected loadingPanel: JQuery<HTMLElement> | undefined;
+    protected connectionString = "";
+    protected connectionType: DbConnectionType = "SqlServer";
+    protected initialised = false;
 
     bind(event: EventName, handler: EventHandler) {
         if (!this.eventHandlers[event])

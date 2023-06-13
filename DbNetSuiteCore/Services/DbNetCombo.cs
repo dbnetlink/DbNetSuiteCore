@@ -1,32 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Data;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Resources;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using ClosedXML.Excel;
 using DbNetSuiteCore.Utilities;
-using DbNetSuiteCore.Attributes;
-using DbNetSuiteCore.Constants;
-using DbNetSuiteCore.Enums;
-using DbNetSuiteCore.Extensions;
 using DbNetSuiteCore.Helpers;
 using DbNetSuiteCore.Models;
-using DbNetSuiteCore.ViewModels.DbNetGrid;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.AspNetCore.WebUtilities;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using GridColumn = DbNetSuiteCore.Models.GridColumn;
 using static DbNetSuiteCore.Utilities.DbNetDataCore;
 using DbNetSuiteCore.ViewModels.DbNetCombo;
 
@@ -41,7 +24,6 @@ namespace DbNetSuiteCore.Services
         private DbNetComboRequest _dbNetComboRequest;
         private string _sql;
 
-
         public DbNetCombo(AspNetCoreServices services) : base(services)
         {
         }
@@ -54,8 +36,10 @@ namespace DbNetSuiteCore.Services
         }
 
         public bool AddEmptyOption { get; set; } = false;
+        public bool AddFilter { get; set; } = false;
         public string EmptyOptionText { get; set; } = String.Empty;
-      
+        public string FilterToken { get; set; } = String.Empty;
+
         public async Task<object> Process()
         {
             await DeserialiseRequest();
@@ -71,14 +55,11 @@ namespace DbNetSuiteCore.Services
                 Thread.CurrentThread.CurrentUICulture = ci;
             }
 
-          
-
             switch (Action.ToLower())
             {
                 case "initialize":
-                    await Combo(response);
-                    break;
                 case "page":
+                case "filter":
                     await Combo(response);
                     break;
             }
@@ -87,7 +68,7 @@ namespace DbNetSuiteCore.Services
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
-            return System.Text.Json.JsonSerializer.Serialize(response, serializeOptions);
+            return JsonSerializer.Serialize(response, serializeOptions);
         }
 
         protected virtual QueryCommandConfig BuildSql()
@@ -121,12 +102,31 @@ namespace DbNetSuiteCore.Services
 
             response.TotalRows = dataTable.Rows.Count;
 
+            DataView dataView = new DataView(dataTable);
+
+            if (Action == "filter" && string.IsNullOrEmpty(FilterToken) == false)
+            {
+                if (FilterToken.Contains("*") == false)
+                {
+                    FilterToken = $"'*{FilterToken}*'";
+                }
+
+                var textIndex = dataTable.Columns.Count > 1 ? 1 : 0;
+                dataView.RowFilter = $"{dataTable.Columns[textIndex].ColumnName} like {FilterToken}";
+            }
+
             var viewModel = new ComboViewModel
             {
-                DataTable = dataTable
+                DataView = dataView,
+                AddFilter = this.AddFilter
             };
 
-            response.Data = await HttpContext.RenderToStringAsync($"Views/DbNetCombo/Combo.cshtml", viewModel);
+            if (Action != "filter")
+            {
+                response.Select = await HttpContext.RenderToStringAsync($"Views/DbNetCombo/Combo.cshtml", viewModel);
+            }
+
+            response.Options = await HttpContext.RenderToStringAsync($"Views/DbNetCombo/Options.cshtml", viewModel);
         }
     }
 }

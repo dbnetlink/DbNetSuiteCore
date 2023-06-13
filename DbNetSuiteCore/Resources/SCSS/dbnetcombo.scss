@@ -1,0 +1,22 @@
+@import "_variables.scss";
+
+select.dbnetcombo {
+    border: 1px solid silver;
+    border-radius: 2px;
+    font-family: var(--main-font-family);
+    font-size: var(--main-font-size);
+    width: fit-content;
+}
+
+input.dbnetcombo {
+    border: 1px solid silver;
+    border-radius: 2px;
+    font-family: var(--main-font-family);
+    font-size: var(--main-font-size);
+    font-weight: normal;
+    background-image: svgUrl("search", "20");
+    background-position: center right;
+    background-repeat: no-repeat;
+    background-size: 20px 20px;
+    margin-bottom:5px;
+}

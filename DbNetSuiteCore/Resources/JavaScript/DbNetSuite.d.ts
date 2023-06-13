@@ -25,6 +25,9 @@ declare class DbNetSuite {
     protected eventHandlers: Dictionary<Array<EventHandler>>;
     protected id: string;
     protected loadingPanel: JQuery<HTMLElement> | undefined;
+    protected connectionString: string;
+    protected connectionType: DbConnectionType;
+    protected initialised: boolean;
     bind(event: EventName, handler: EventHandler): void;
     unbind(event: EventName, handler: EventHandler): void;
     checkStyleSheetLoaded(): void;

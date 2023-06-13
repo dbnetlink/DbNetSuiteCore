@@ -1,0 +1,11 @@
+﻿@namespace DbNetSuiteCore.Views.DbNetGrid
+@using DbNetSuiteCore.ViewModels.DbNetCombo;
+@using System.Data
+@model ComboViewModel
+@{
+    var textIndex = Model.DataView.Table.Columns.Count == 1 ? 0 : 1;
+    foreach (DataRowView dataViewRow in Model.DataView)
+    {
+        <option value="@dataViewRow.Row[0].ToString()">@dataViewRow.Row[textIndex].ToString()</option>
+    }
+}

@@ -34,8 +34,6 @@ class DbNetGrid extends DbNetSuite {
     columnName: string | undefined = undefined;
     columns: GridColumn[];
     columnFilters: Dictionary<string> = {};
-    connectionType: DbConnectionType = "SqlServer";
-    connectionString = "";
     copy = true;
     culture = "";
     currentPage = 1;
@@ -52,7 +50,6 @@ class DbNetGrid extends DbNetSuite {
     gridGenerationMode: GridGenerationMode = GridGenerationMode.Display;
     gridPanel: JQuery<HTMLElement> | undefined;
     groupBy = false;
-    initialised = false;
     linkedGrids: Array<DbNetGrid> = [];
     lookupDialog: LookupDialog | undefined;
     multiRowSelect = false;
@@ -82,7 +79,6 @@ class DbNetGrid extends DbNetSuite {
     totalPages = 0;
     view = false;
     viewDialog: ViewDialog | undefined;
-
     constructor(id: string) {
         super();
         this.id = id;
@@ -172,7 +168,7 @@ class DbNetGrid extends DbNetSuite {
         });
     }
 
-    addNestedGrid(handler: Function) {
+    addNestedGrid(handler: EventHandler) {
         this.bind("onNestedClick", handler);
         this.nestedGrid = true;
     }
@@ -413,7 +409,7 @@ class DbNetGrid extends DbNetSuite {
     }
 
     private configureDataTable(_html: string) {
-        this.element.removeClass("dbnetsuite");
+        this.element?.removeClass("dbnetsuite");
         this.toolbarPanel?.addClass("dbnetsuite");
         this.gridPanel?.html(_html);
         this.gridPanel?.find("table").DataTable();

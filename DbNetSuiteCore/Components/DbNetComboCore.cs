@@ -31,6 +31,10 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public bool? AddEmptyOption { get; set; } = null;
         /// <summary>
+        /// Adds an input to filter the combo options
+        /// </summary>
+        public bool? AddFilter { get; set; } = null;        
+        /// <summary>
         /// Overrides the default culture that controls default date and currency formatting
         /// </summary>
         public string EmptyOptionText { get; set; } = null;
@@ -120,6 +124,7 @@ sql = '{EncodingHelper.Encode(_sql)}';
             List<string> properties = new List<string>();
             AddProperty(AddEmptyOption, nameof(AddEmptyOption), properties);
             AddProperty(EmptyOptionText, nameof(EmptyOptionText), properties);
+            AddProperty(AddFilter, nameof(AddFilter), properties);
 
             if (Params.Count > 0)
             {
