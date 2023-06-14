@@ -1,0 +1,26 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+<style>
+    fieldset {
+        border:1pt solid #111;
+        border-radius:2px;
+    }
+
+    td{
+        vertical-align:top;
+    }
+</style>
+<table>
+    <tr>
+        <td>
+            <fieldset>
+                <legend>Filtered Customers</legend>
+                <div id="filteredcustomers"></div>
+            </fieldset>
+        </td>
+    </tr>
+</table>
+@{
+    DbNetComboCore customersComboWithFilter = new DbNetComboCore("northwind", "customers", "customerid", "companyname", "filteredcustomers") { AddFilter = true };
+    @customersComboWithFilter.Render()
+}

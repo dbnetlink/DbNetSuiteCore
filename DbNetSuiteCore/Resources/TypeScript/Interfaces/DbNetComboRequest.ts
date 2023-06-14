@@ -7,6 +7,10 @@
     connectionType?: string;
     emptyOptionText: string;
     params: Dictionary<object>;
-    sql: string;
+    fromPart: string;
+    valueColumn: string;
+    textColumn: string;
     filterToken: string;
+    foreignKeyColumn : string;
+    foreignKeyValue: object;
 }

@@ -4,20 +4,20 @@ using DbNetSuiteCore.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using Microsoft.AspNetCore.Html;
-using Microsoft.Extensions.Configuration;
-using System.IO;
 using System.Data;
+using DocumentFormat.OpenXml.Drawing;
 
 namespace DbNetSuiteCore.Components
 {
     public class DbNetComboCore : DbNetSuiteCore
     {
-        private readonly string _sql;
+        private readonly string _fromPart;
+        private readonly string _valueColumn;
+        private readonly string _textColumn;
+
         private List<EventBinding> _eventBindings { get; set; } = new List<EventBinding>();
         private List<DbNetSuiteCore> _linkedControls { get; set; } = new List<DbNetSuiteCore>();
-        public string Id => _id;
         /// <summary>
         /// Automatically selects the first row of the grid (default is true)
         /// </summary>
@@ -33,7 +33,7 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Adds an input to filter the combo options
         /// </summary>
-        public bool? AddFilter { get; set; } = null;        
+        public bool? AddFilter { get; set; } = null;
         /// <summary>
         /// Overrides the default culture that controls default date and currency formatting
         /// </summary>
@@ -42,19 +42,17 @@ namespace DbNetSuiteCore.Components
         /// Specifies the text for the empty option
         /// </summary>
         public Dictionary<string, object> Params { get; set; } = new Dictionary<string, object>();
-
-        public DbNetComboCore(string connection, string sql, string id = null): base(connection, id)
-        {
-            _sql = sql;
-        }
-      
         /// <summary>
-        /// Binds an event to a named client-side JavaScript function
+        /// Specifies the name of the foreign key column in a linked combo
         /// </summary>
-        public void Bind(EventType eventType, string functionName)
+        public string ForeignKeyColumn { get; set; } = null;
+        public DbNetComboCore(string connection, string fromPart, string valueColumn, string textColumn = null, string id = null) : base(connection, id)
         {
-            _eventBindings.Add(new EventBinding(eventType, functionName));
+            _fromPart = fromPart;
+            _valueColumn = valueColumn;
+            _textColumn = textColumn;
         }
+
         /// <summary>
         /// Links one grid component to another
         /// </summary>
@@ -83,20 +81,29 @@ namespace DbNetSuiteCore.Components
             return new HtmlString(script);
         }
 
-        private string ClientJavaScript()
+        internal string LinkedRender()
         {
             var script = @$" 
-document.addEventListener('DOMContentLoaded', function() {{init_{_id}()}});
-function init_{_id}()
+{ConfigureLinkedControls()}
+var {_id} = new DbNetCombo('{_id}');
+with ({_id})
 {{
-    if (typeof(DbNetGrid) == 'undefined') {{alert('DbNetSuite client-side code has not loaded. Add @DbNetSuiteCore.ClientScript() to your razor page. See console for details');console.error(""DbNetSuite stylesheet not found. See https://dbnetsuitecore.z35.web.core.windows.net/index.htm?context=20#DbNetSuiteCoreClientScript"");return;}};
+	{ComboConfiguration()}                        
+}};";
+            return script;
+        }
+
+        private string ClientJavaScript()
+        {
+            var script = @$"{InitScript()}
+	{ConfigureLinkedControls()}
 	var {_id} = new DbNetCombo('{_id}');
 	with ({_id})
 	{{
 		{ComboConfiguration()}                            
 		initialize();
 	}}
-}}";
+}};";
 
             if (GetCurrentSettings().Debug == false)
             {
@@ -104,14 +111,17 @@ function init_{_id}()
             }
             return script;
         }
-      
+
         private string ComboConfiguration()
         {
             var script = @$" 
 connectionString = '{EncodingHelper.Encode(_connection)}';
-sql = '{EncodingHelper.Encode(_sql)}';
+fromPart = '{EncodingHelper.Encode(_fromPart)}';
+valueColumn = '{EncodingHelper.Encode(_valueColumn)}';
+
 {EventBindings()}
-{Properties()}";
+{Properties()}
+{LinkedControls()}";
             return script;
         }
 
@@ -125,6 +135,8 @@ sql = '{EncodingHelper.Encode(_sql)}';
             AddProperty(AddEmptyOption, nameof(AddEmptyOption), properties);
             AddProperty(EmptyOptionText, nameof(EmptyOptionText), properties);
             AddProperty(AddFilter, nameof(AddFilter), properties);
+            AddProperty(EncodingHelper.Encode(_textColumn), "TextColumn", properties);
+            AddProperty(EncodingHelper.Encode(ForeignKeyColumn), nameof(ForeignKeyColumn), properties);
 
             if (Params.Count > 0)
             {
@@ -133,11 +145,31 @@ sql = '{EncodingHelper.Encode(_sql)}';
 
             return string.Join(Environment.NewLine, properties);
         }
-          private string EventBindings()
+
+        private string LinkedControls()
         {
             var script = new List<string>();
-            script = _eventBindings.Select(x => $"bind(\"{LowerCaseFirstLetter(x.EventType.ToString())}\",{x.FunctionName});").ToList();
+            script = _linkedControls.Select(x => $"addLinkedControl({x.Id});").ToList();
             return string.Join(Environment.NewLine, script);
+        }
+
+        private string ConfigureLinkedControls()
+        {
+            var script = string.Empty;
+
+            foreach (var linkedControl in _linkedControls)
+            {
+                if (linkedControl is DbNetGridCore)
+                {
+                    script += (linkedControl as DbNetGridCore).LinkedRender();
+                }
+                if (linkedControl is DbNetComboCore)
+                {
+                    script += (linkedControl as DbNetComboCore).LinkedRender();
+                }
+            }
+
+            return script;
         }
     }
 }

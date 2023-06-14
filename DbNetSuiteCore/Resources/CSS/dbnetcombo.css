@@ -4,6 +4,7 @@
   font-family: var(--main-font-family);
   font-size: var(--main-font-size);
   width: fit-content;
+  padding: 2px;
 }
 
 input.dbnetcombo {
@@ -16,4 +17,5 @@ input.dbnetcombo {
   background-position: center right;
   background-repeat: no-repeat;
   background-size: 20px 20px;
+  padding: 2px;
 }

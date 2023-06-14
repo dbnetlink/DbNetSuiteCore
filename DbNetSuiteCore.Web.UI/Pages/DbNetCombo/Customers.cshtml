@@ -1,36 +1,7 @@
 ﻿@page
 @using DbNetSuiteCore.Components;
-<style>
-    fieldset {
-        border:1pt solid #111;
-        border-radius:2px;
-    }
-
-    td{
-        vertical-align:top;
-    }
-</style>
-<table>
-    <tr>
-        <td>
-            <fieldset>
-                <legend>Customers</legend>
-                <div id="customers"></div>
-            </fieldset>
-        </td>
-        <td>
-            <fieldset>
-                <legend>Filtered Customers</legend>
-                <div id="filteredcustomers"></div>
-            </fieldset>
-        </td>
-    </tr>
-</table>
 @{
     // Configure the grid and render
-    DbNetComboCore customersCombo = new DbNetComboCore("northwind", "select customerid, companyname from customers order by 2", "customers");
+    DbNetComboCore customersCombo = new DbNetComboCore("northwind", "customers", "customerid", "companyname");
     @customersCombo.Render()
-
-    DbNetComboCore customersComboWithFilter = new DbNetComboCore("northwind", "select customerid, companyname from customers order by 2", "filteredcustomers") { AddFilter = true };
-    @customersComboWithFilter.Render()
 }

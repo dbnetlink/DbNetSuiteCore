@@ -18,8 +18,9 @@ namespace DbNetSuiteCore.Components
         protected DbNetSuiteCoreSettings _DbNetSuiteCoreSettings;
         protected readonly IConfigurationRoot _configuration;
         protected readonly bool _idSupplied = false;
+        private List<EventBinding> _eventBindings { get; set; } = new List<EventBinding>();
         private string ComponentTypeName => this.GetType().Name.Replace("Core", string.Empty);
-
+        public string Id => _id;
         /// <summary>
         /// Specifies the type of provider for the database connection
         /// </summary>
@@ -51,7 +52,13 @@ namespace DbNetSuiteCore.Components
         {
             return new HtmlString($"<script src=\"~/resource.dbnetsuite?action=script\"></script>");
         }
-
+        /// <summary>
+        /// Binds an event to a named client-side JavaScript function
+        /// </summary>
+        public void Bind(EventType eventType, string functionName)
+        {
+            _eventBindings.Add(new EventBinding(eventType, functionName));
+        }
         private IConfigurationRoot LoadConfiguration()
         {
             var builder = new ConfigurationBuilder()
@@ -96,6 +103,13 @@ namespace DbNetSuiteCore.Components
             };
 
             return JsonSerializer.Serialize(obj, options);
+        }
+
+        protected string EventBindings()
+        {
+            var script = new List<string>();
+            script = _eventBindings.Select(x => $"bind(\"{LowerCaseFirstLetter(x.EventType.ToString())}\",{x.FunctionName});").ToList();
+            return string.Join(Environment.NewLine, script);
         }
 
         protected string LowerCaseFirstLetter(string str)

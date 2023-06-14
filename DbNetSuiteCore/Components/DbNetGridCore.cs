@@ -18,9 +18,7 @@ namespace DbNetSuiteCore.Components
     {
         private readonly string _fromPart;
         private List<ColumnProperty> _columnProperties { get; set; } = new List<ColumnProperty>();
-        private List<EventBinding> _eventBindings { get; set; } = new List<EventBinding>();
         private List<DbNetGridCore> _linkedGrids { get; set; } = new List<DbNetGridCore>();
-        public string Id => _id;
         /// <summary>
         /// Automatically selects the first row of the grid (default is true)
         /// </summary>
@@ -41,10 +39,6 @@ namespace DbNetSuiteCore.Components
         /// Overrides the default culture that controls default date and currency formatting
         /// </summary>
         public string Culture { get; set; } = null;
-        /// <summary>
-        /// Specifies the type of provider for the database connection
-        /// </summary>
-        public DataProvider? DataProvider { get; set; } = null;
         /// <summary>
         /// Adds/removes a grid export option to/from the toolbar
         /// </summary>
@@ -186,13 +180,7 @@ namespace DbNetSuiteCore.Components
                 return name;
             }
         }
-        /// <summary>
-        /// Binds an event to a named client-side JavaScript function
-        /// </summary>
-        public void Bind(EventType eventType, string functionName)
-        {
-            _eventBindings.Add(new EventBinding(eventType, functionName));
-        }
+
         /// <summary>
         /// Links one grid component to another
         /// </summary>
@@ -259,7 +247,7 @@ function configure{_id}(grid)
             return script;
         }
 
-        private string LinkedRender()
+        internal string LinkedRender()
         {
             var script = @$" 
 {ConfigureLinkedGrids()}
@@ -382,13 +370,6 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
                 }
                 return $"\"{value}\"";
             }
-        }
-
-        private string EventBindings()
-        {
-            var script = new List<string>();
-            script = _eventBindings.Select(x => $"bind(\"{LowerCaseFirstLetter(x.EventType.ToString())}\",{x.FunctionName});").ToList();
-            return string.Join(Environment.NewLine, script);
         }
 
         private string LinkedGrids()

@@ -80,18 +80,8 @@ class DbNetGrid extends DbNetSuite {
     view = false;
     viewDialog: ViewDialog | undefined;
     constructor(id: string) {
-        super();
-        this.id = id;
+        super(id);
         this.columns = [];
-        this.element = $(`#${this.id}`) as JQuery<HTMLElement>;
-        this.element.addClass("dbnetsuite").addClass("cleanslate")
-
-        this.checkStyleSheetLoaded();
-
-        if (this.element.length == 0) {
-            this.error(`DbNetGrid container element '${this.id}' not found`);
-            return;
-        }
     }
 
     initialize(): void {
@@ -562,12 +552,7 @@ class DbNetGrid extends DbNetSuite {
         }
 
         this.linkedGrids.forEach((grid) => {
-            this.assignForeignKey(grid, tr.data("id"));
-            if (grid.connectionString == "") {
-                grid.connectionString = this.connectionString;
-            }
-            grid.currentPage = 1;
-            grid.initialised ? grid.getPage() : grid.initialize();
+            this.configureLinkedGrid(grid, tr.data("id"));
         });
 
         if (this.viewDialog && this.viewDialog.isOpen()) {
@@ -1033,7 +1018,7 @@ class DbNetGrid extends DbNetSuite {
         }
     }
 
-    private configureNestedGrid(handler: Function, cell: HTMLTableCellElement, pk: object) {
+    private configureNestedGrid(handler: EventHandler, cell: HTMLTableCellElement, pk: object) {
         const gridId = `dbnetgrid${new Date().valueOf()}`;
         jQuery(document.createElement("div")).attr("id", gridId).appendTo($(cell));
         const grid = new DbNetGrid(gridId);
@@ -1043,6 +1028,15 @@ class DbNetGrid extends DbNetSuite {
         handler.apply(window, args);
         this.assignForeignKey(grid, pk);
         grid.initialize();
+    }
+
+    public configureLinkedGrid(grid: DbNetGrid, pk: object) {
+        this.assignForeignKey(grid, pk);
+        if (grid.connectionString == "") {
+            grid.connectionString = this.connectionString;
+        }
+        grid.currentPage = 1;
+        grid.initialised ? grid.getPage() : grid.initialize();
     }
 
     private assignForeignKey(grid: DbNetGrid, pk: object) {

@@ -139,5 +139,6 @@ declare class DbNetGrid extends DbNetSuite {
     downloadCellData(element: HTMLElement, image: boolean): void;
     private openNestedGrid;
     private configureNestedGrid;
+    configureLinkedGrid(grid: DbNetGrid, pk: object): void;
     private assignForeignKey;
 }

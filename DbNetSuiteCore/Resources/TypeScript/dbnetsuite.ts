@@ -1,4 +1,4 @@
-type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized"
+type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded"
 
 interface CellDataDownloadArgs {
     row: HTMLTableRowElement,
@@ -27,7 +27,20 @@ class DbNetSuite {
     protected loadingPanel: JQuery<HTMLElement> | undefined;
     protected connectionString = "";
     protected connectionType: DbConnectionType = "SqlServer";
-    protected initialised = false;
+    public initialised = false;
+
+    constructor(id: string) {
+        this.id = id;
+        this.element = $(`#${this.id}`) as JQuery<HTMLElement>;
+        this.element.addClass("dbnetsuite").addClass("cleanslate")
+
+        this.checkStyleSheetLoaded();
+
+        if (this.element.length == 0) {
+            this.error(`${this.constructor.name} container element '${this.id}' not found`);
+            return;
+        }
+    }
 
     bind(event: EventName, handler: EventHandler) {
         if (!this.eventHandlers[event])
@@ -96,6 +109,10 @@ class DbNetSuite {
     }
 
     protected error(text: string) {
+        if (this.element?.length == 0) {
+            alert(text);
+            return;
+        }
         const errorPanel = this.addPanel("error");
         errorPanel.addClass("dbnetsuite-error");
         errorPanel.html(text);

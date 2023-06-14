@@ -4,25 +4,20 @@ class DbNetCombo extends DbNetSuite {
     currentValue = "";
     emptyOptionText = "";
     linkedControls: Array<DbNetSuite> = [];
-    sql = "";
+    fromPart = "";
+    valueColumn = "";
+    textColumn = "";
     params: Dictionary<object> = {};
     filterDelay = 1000;
     filterMinChars = 3;
     filterTimerId: number | undefined;
     filterToken = "";
+    foreignKeyColumn = "";
+    foreignKeyValue: object = {};
+    $select: JQuery<HTMLSelectElement> | undefined;
 
     constructor(id: string) {
-        super();
-        this.id = id;
-        this.element = $(`#${this.id}`) as JQuery<HTMLElement>;
-        this.element.addClass("dbnetsuite").addClass("cleanslate")
-
-        this.checkStyleSheetLoaded();
-
-        if (this.element.length == 0) {
-         //   this.error(`DbNetCombo container element '${this.id}' not found`);
-            return;
-        }
+        super(id);
     }
 
     initialize(): void {
@@ -31,7 +26,7 @@ class DbNetCombo extends DbNetSuite {
         this.fireEvent("onInitialized");
     }
 
-    addLinkedControl(control: DbNetGrid) {
+    addLinkedControl(control: DbNetSuite) {
         this.linkedControls.push(control);
     }
 
@@ -40,15 +35,57 @@ class DbNetCombo extends DbNetSuite {
     }
 
     private configureCombo(response: DbNetComboResponse) {
-        if (response.select) { 
+        if (response.select) {
             this.element?.html(response.select);
+            this.$select = this.element?.find("select") as JQuery<HTMLSelectElement>;
+            this.$select?.html(response.options);
+            const selectWidth = this.$select?.width() as number;
+            const $input = this.element?.find("input");
+            $input?.width(selectWidth);
+            $input?.on("keyup", (event) => this.filterKeyPress(event));
+            this.$select.on("change", () => this.optionSelected())
         }
-        const $select = this.element?.find("select");
-        $select?.html(response.options);
-        const selectWidth = $select?.width() as number;
-        const $input = this.element?.find("input");
-        $input?.width(selectWidth - 4);
-        $input?.on("keyup", (event) => this.filterKeyPress(event));
+        else {
+            this.$select?.html(response.options);
+        }
+
+        this.fireEvent("onOptionsLoaded");
+        this.optionSelected();
+    }
+
+    private optionSelected(): void {
+        const selectedValue: object = this.$select?.find(":selected").val() as object;
+
+        this.fireEvent("onOptionSelected");
+
+        this.linkedControls.forEach((control) => {
+            if (control instanceof DbNetGrid) {
+                const grid = control as DbNetGrid;
+                grid.configureLinkedGrid(grid, selectedValue);
+            }
+            if (control instanceof DbNetCombo) {
+                const combo = control as DbNetCombo;
+                combo.configureLinkedCombo(combo, selectedValue);
+            }
+        });
+    }
+
+    public configureLinkedCombo(combo: DbNetCombo, fk: object) {
+        if (combo.connectionString == "") {
+            combo.connectionString = this.connectionString;
+        }
+        combo.foreignKeyValue = fk;
+        if (fk) {
+            combo.initialised ? combo.reload() : combo.initialize();
+        }
+        else {
+            combo.clear()
+        }
+    }
+
+    public clear() {
+        this.$select?.find('option').not("value=['']").remove();
+        this.optionSelected();
     }
 
     private filterKeyPress(event: JQuery.TriggeredEvent): void {
@@ -77,12 +114,16 @@ class DbNetCombo extends DbNetSuite {
         const request: DbNetComboRequest = {
             componentId: this.id,
             connectionString: this.connectionString,
-            sql: this.sql,
+            fromPart: this.fromPart,
+            valueColumn: this.valueColumn,
+            textColumn: this.textColumn,
             params: this.params,
             addEmptyOption: this.addEmptyOption,
             emptyOptionText: this.emptyOptionText,
             addFilter: this.addFilter,
-            filterToken: this.filterToken
+            filterToken: this.filterToken,
+            foreignKeyColumn: this.foreignKeyColumn,
+            foreignKeyValue:this.foreignKeyValue
         };
 
         return request;

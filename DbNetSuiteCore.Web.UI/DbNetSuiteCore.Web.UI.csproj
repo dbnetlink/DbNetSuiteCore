@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\Data\chinook.db" />
     <Content Remove="wwwroot\Data\northwind.db" />
   </ItemGroup>
 
@@ -19,6 +20,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\Data\chinook.db">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="wwwroot\Data\northwind.db">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

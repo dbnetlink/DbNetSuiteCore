@@ -2,7 +2,7 @@
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
 /// <reference types="bootstrap" />
-type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized";
+type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded";
 interface CellDataDownloadArgs {
     row: HTMLTableRowElement;
     cell: HTMLTableCellElement;
@@ -27,7 +27,8 @@ declare class DbNetSuite {
     protected loadingPanel: JQuery<HTMLElement> | undefined;
     protected connectionString: string;
     protected connectionType: DbConnectionType;
-    protected initialised: boolean;
+    initialised: boolean;
+    constructor(id: string);
     bind(event: EventName, handler: EventHandler): void;
     unbind(event: EventName, handler: EventHandler): void;
     checkStyleSheetLoaded(): void;

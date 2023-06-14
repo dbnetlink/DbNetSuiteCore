@@ -1,25 +1,21 @@
 "use strict";
 class DbNetCombo extends DbNetSuite {
     constructor(id) {
-        super();
+        super(id);
         this.addEmptyOption = false;
         this.addFilter = false;
         this.currentValue = "";
         this.emptyOptionText = "";
         this.linkedControls = [];
-        this.sql = "";
+        this.fromPart = "";
+        this.valueColumn = "";
+        this.textColumn = "";
         this.params = {};
         this.filterDelay = 1000;
         this.filterMinChars = 3;
         this.filterToken = "";
-        this.id = id;
-        this.element = $(`#${this.id}`);
-        this.element.addClass("dbnetsuite").addClass("cleanslate");
-        this.checkStyleSheetLoaded();
-        if (this.element.length == 0) {
-            //   this.error(`DbNetCombo container element '${this.id}' not found`);
-            return;
-        }
+        this.foreignKeyColumn = "";
+        this.foreignKeyValue = {};
     }
     initialize() {
         this.callServer("page");
@@ -33,16 +29,54 @@ class DbNetCombo extends DbNetSuite {
         this.callServer("page");
     }
     configureCombo(response) {
-        var _a, _b, _c;
+        var _a, _b, _c, _d, _e, _f;
         if (response.select) {
             (_a = this.element) === null || _a === void 0 ? void 0 : _a.html(response.select);
+            this.$select = (_b = this.element) === null || _b === void 0 ? void 0 : _b.find("select");
+            (_c = this.$select) === null || _c === void 0 ? void 0 : _c.html(response.options);
+            const selectWidth = (_d = this.$select) === null || _d === void 0 ? void 0 : _d.width();
+            const $input = (_e = this.element) === null || _e === void 0 ? void 0 : _e.find("input");
+            $input === null || $input === void 0 ? void 0 : $input.width(selectWidth);
+            $input === null || $input === void 0 ? void 0 : $input.on("keyup", (event) => this.filterKeyPress(event));
+            this.$select.on("change", () => this.optionSelected());
         }
-        const $select = (_b = this.element) === null || _b === void 0 ? void 0 : _b.find("select");
-        $select === null || $select === void 0 ? void 0 : $select.html(response.options);
-        const selectWidth = $select === null || $select === void 0 ? void 0 : $select.width();
-        const $input = (_c = this.element) === null || _c === void 0 ? void 0 : _c.find("input");
-        $input === null || $input === void 0 ? void 0 : $input.width(selectWidth - 4);
-        $input === null || $input === void 0 ? void 0 : $input.on("keyup", (event) => this.filterKeyPress(event));
+        else {
+            (_f = this.$select) === null || _f === void 0 ? void 0 : _f.html(response.options);
+        }
+        this.fireEvent("onOptionsLoaded");
+        this.optionSelected();
+    }
+    optionSelected() {
+        var _a;
+        const selectedValue = (_a = this.$select) === null || _a === void 0 ? void 0 : _a.find(":selected").val();
+        this.fireEvent("onOptionSelected");
+        this.linkedControls.forEach((control) => {
+            if (control instanceof DbNetGrid) {
+                const grid = control;
+                grid.configureLinkedGrid(grid, selectedValue);
+            }
+            if (control instanceof DbNetCombo) {
+                const combo = control;
+                combo.configureLinkedCombo(combo, selectedValue);
+            }
+        });
+    }
+    configureLinkedCombo(combo, fk) {
+        if (combo.connectionString == "") {
+            combo.connectionString = this.connectionString;
+        }
+        combo.foreignKeyValue = fk;
+        if (fk) {
+            combo.initialised ? combo.reload() : combo.initialize();
+        }
+        else {
+            combo.clear();
+        }
+    }
+    clear() {
+        var _a;
+        (_a = this.$select) === null || _a === void 0 ? void 0 : _a.find('option').not("value=['']").remove();
+        this.optionSelected();
     }
     filterKeyPress(event) {
         const el = event.target;
@@ -67,12 +101,16 @@ class DbNetCombo extends DbNetSuite {
         const request = {
             componentId: this.id,
             connectionString: this.connectionString,
-            sql: this.sql,
+            fromPart: this.fromPart,
+            valueColumn: this.valueColumn,
+            textColumn: this.textColumn,
             params: this.params,
             addEmptyOption: this.addEmptyOption,
             emptyOptionText: this.emptyOptionText,
             addFilter: this.addFilter,
-            filterToken: this.filterToken
+            filterToken: this.filterToken,
+            foreignKeyColumn: this.foreignKeyColumn,
+            foreignKeyValue: this.foreignKeyValue
         };
         return request;
     }

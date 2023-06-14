@@ -18,28 +18,47 @@ namespace DbNetSuiteCore.Services
     internal class DbNetCombo : DbNetSuite
     {
         private Dictionary<string, object> _resp = new Dictionary<string, object>();
-        const string NullValueToken = "@@null@@";
 
         private DbNetDataCore Database { get; set; }
         private DbNetComboRequest _dbNetComboRequest;
-        private string _sql;
+        private string _fromPart;
+        private string _foreignKeyColumn;
+        private string _valueColumn;
+        private string _textColumn;
+        private bool _foreignKeySupplied => string.IsNullOrEmpty(ForeignKeyColumn) == false && ForeignKeyValue != null;
 
         public DbNetCombo(AspNetCoreServices services) : base(services)
         {
         }
 
         public Dictionary<string, object> Params { get; set; } = new Dictionary<string, object>();
-        public string Sql
+        public string FromPart
         {
-            get => EncodingHelper.Decode(_sql);
-            set => _sql = value;
+            get => EncodingHelper.Decode(_fromPart);
+            set => _fromPart = value;
         }
 
         public bool AddEmptyOption { get; set; } = false;
         public bool AddFilter { get; set; } = false;
         public string EmptyOptionText { get; set; } = String.Empty;
         public string FilterToken { get; set; } = String.Empty;
+        public string ForeignKeyColumn
+        {
+            get => EncodingHelper.Decode(_foreignKeyColumn);
+            set => _foreignKeyColumn = value;
+        }
+        public object ForeignKeyValue { get; set; } = null;
 
+        public string TextColumn
+        {
+            get => EncodingHelper.Decode(_textColumn);
+            set => _textColumn = value;
+        }
+        public string ValueColumn
+        {
+            get => EncodingHelper.Decode(_valueColumn);
+            set => _valueColumn = value;
+        }
         public async Task<object> Process()
         {
             await DeserialiseRequest();
@@ -73,7 +92,29 @@ namespace DbNetSuiteCore.Services
 
         protected virtual QueryCommandConfig BuildSql()
         {
-            QueryCommandConfig query = new QueryCommandConfig(Sql);
+            List<string> columns = new List<string>() { ValueColumn };
+            if (string.IsNullOrEmpty(TextColumn) == false)
+            {
+                columns.Add(TextColumn);
+            }
+
+            string sql = $"select {string.Join(",", columns)} from {FromPart}";
+
+            var fkParamName = Database.ParameterName("foreignKey");
+
+            if (_foreignKeySupplied)
+            {
+                sql += $" where {ForeignKeyColumn} = {fkParamName}";
+            }
+
+            sql += $" order by {columns.Count}";
+
+            QueryCommandConfig query = new QueryCommandConfig(sql);
+
+            if (_foreignKeySupplied)
+            {
+                query.Params[fkParamName] = ForeignKeyValue;
+            }
             return query;
         }
   
@@ -106,13 +147,14 @@ namespace DbNetSuiteCore.Services
 
             if (Action == "filter" && string.IsNullOrEmpty(FilterToken) == false)
             {
+                FilterToken = FilterToken.Replace("%","*");
                 if (FilterToken.Contains("*") == false)
                 {
-                    FilterToken = $"'*{FilterToken}*'";
+                    FilterToken = $"*{FilterToken}*";
                 }
 
                 var textIndex = dataTable.Columns.Count > 1 ? 1 : 0;
-                dataView.RowFilter = $"{dataTable.Columns[textIndex].ColumnName} like {FilterToken}";
+                dataView.RowFilter = $"[{dataTable.Columns[textIndex].ColumnName}] LIKE '{FilterToken}'";
             }
 
             var viewModel = new ComboViewModel

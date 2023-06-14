@@ -23,7 +23,7 @@ var GridGenerationMode;
 })(GridGenerationMode || (GridGenerationMode = {}));
 class DbNetGrid extends DbNetSuite {
     constructor(id) {
-        super();
+        super(id);
         this.autoRowSelect = true;
         this.booleanDisplayMode = BooleanDisplayMode.TrueFalse;
         this.cellIndexCache = {};
@@ -66,15 +66,7 @@ class DbNetGrid extends DbNetSuite {
         this.toolbarPosition = "Top";
         this.totalPages = 0;
         this.view = false;
-        this.id = id;
         this.columns = [];
-        this.element = $(`#${this.id}`);
-        this.element.addClass("dbnetsuite").addClass("cleanslate");
-        this.checkStyleSheetLoaded();
-        if (this.element.length == 0) {
-            this.error(`DbNetGrid container element '${this.id}' not found`);
-            return;
-        }
     }
     initialize() {
         if (!this.element) {
@@ -465,12 +457,7 @@ class DbNetGrid extends DbNetSuite {
             tr.addClass("selected").find("input.multi-select-checkbox").prop('checked', true);
         }
         this.linkedGrids.forEach((grid) => {
-            this.assignForeignKey(grid, tr.data("id"));
-            if (grid.connectionString == "") {
-                grid.connectionString = this.connectionString;
-            }
-            grid.currentPage = 1;
-            grid.initialised ? grid.getPage() : grid.initialize();
+            this.configureLinkedGrid(grid, tr.data("id"));
         });
         if (this.viewDialog && this.viewDialog.isOpen()) {
             this.getViewContent();
@@ -887,6 +874,14 @@ class DbNetGrid extends DbNetSuite {
         handler.apply(window, args);
         this.assignForeignKey(grid, pk);
         grid.initialize();
+    }
+    configureLinkedGrid(grid, pk) {
+        this.assignForeignKey(grid, pk);
+        if (grid.connectionString == "") {
+            grid.connectionString = this.connectionString;
+        }
+        grid.currentPage = 1;
+        grid.initialised ? grid.getPage() : grid.initialize();
     }
     assignForeignKey(grid, pk) {
         const col = grid.columns.find((col) => { return col.foreignKey == true; });

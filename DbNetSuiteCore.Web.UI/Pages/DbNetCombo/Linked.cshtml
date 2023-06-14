@@ -1,0 +1,42 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+<style>
+    fieldset {
+        border:1pt solid #111;
+        border-radius:2px;
+    }
+
+    td{
+        vertical-align:top;
+    }
+</style>
+<table>
+    <tr>
+        <td>
+            <fieldset>
+                <legend>Artists</legend>
+                <div id="artists"></div>
+            </fieldset>
+        </td>
+        <td>
+            <fieldset>
+                <legend>Albums</legend>
+                <div id="albums"></div>
+            </fieldset>
+        </td>
+        <td>
+            <fieldset>
+                <legend>Tracks</legend>
+                <div id="tracks"></div>
+            </fieldset>
+        </td>
+    </tr>
+</table>
+@{
+    DbNetComboCore tracksCombo = new DbNetComboCore("chinook","tracks", "trackid", "name", "tracks") {ForeignKeyColumn = "albumid"};
+    DbNetComboCore albumsCombo = new DbNetComboCore("chinook","albums", "albumid", "title", "albums") { ForeignKeyColumn = "artistid" };
+    DbNetComboCore artistsCombo = new DbNetComboCore("chinook","artists", "artistid", "name", "artists");
+    albumsCombo.AddLinkedControl(tracksCombo);
+    artistsCombo.AddLinkedControl(albumsCombo);
+    @artistsCombo.Render()
+}

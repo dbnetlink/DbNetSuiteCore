@@ -1,11 +1,13 @@
 ﻿using System.Text;
 using System;
+using System.Linq;
 
 namespace DbNetSuiteCore.Helpers
 {
     public static class EncodingHelper
     { 
         const byte xorConstant = 0x53;
+
         public static string Encode(string input)
         {
             if (string.IsNullOrEmpty(input) || input == "*")
@@ -32,6 +34,11 @@ namespace DbNetSuiteCore.Helpers
                 data[i] = (byte)(data[i] ^ xorConstant);
             }
             return Encoding.UTF8.GetString(data);
+        }
+
+        public static Byte XorConstantFromSessionId(string sessionId)
+        {
+            return Encoding.UTF8.GetBytes(sessionId).First();
         }
     }
 }

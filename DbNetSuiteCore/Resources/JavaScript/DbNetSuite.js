@@ -1,6 +1,6 @@
 "use strict";
 class DbNetSuite {
-    constructor() {
+    constructor(id) {
         this.datePickerOptions = {};
         this.element = undefined;
         this.eventHandlers = {};
@@ -8,6 +8,14 @@ class DbNetSuite {
         this.connectionString = "";
         this.connectionType = "SqlServer";
         this.initialised = false;
+        this.id = id;
+        this.element = $(`#${this.id}`);
+        this.element.addClass("dbnetsuite").addClass("cleanslate");
+        this.checkStyleSheetLoaded();
+        if (this.element.length == 0) {
+            this.error(`${this.constructor.name} container element '${this.id}' not found`);
+            return;
+        }
     }
     bind(event, handler) {
         if (!this.eventHandlers[event])
@@ -66,6 +74,11 @@ class DbNetSuite {
         this.loadingPanel.children().first().addClass("icon");
     }
     error(text) {
+        var _a;
+        if (((_a = this.element) === null || _a === void 0 ? void 0 : _a.length) == 0) {
+            alert(text);
+            return;
+        }
         const errorPanel = this.addPanel("error");
         errorPanel.addClass("dbnetsuite-error");
         errorPanel.html(text);
