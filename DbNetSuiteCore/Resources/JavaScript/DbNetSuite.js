@@ -92,6 +92,7 @@ class DbNetSuite {
         (_a = this.loadingPanel) === null || _a === void 0 ? void 0 : _a.removeClass("display");
     }
 }
+DbNetSuite.DBNull = "DBNull";
 document.addEventListener("DOMContentLoaded", function () {
     if ($.fn.button && $.fn.button.noConflict !== undefined) {
         $.fn.bootstrapBtn = $.fn.button.noConflict();

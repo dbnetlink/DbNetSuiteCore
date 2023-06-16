@@ -250,7 +250,7 @@ class DbNetGrid extends DbNetSuite {
         this.gridElement("QuickSearch").on("keyup", (event) => this.quickSearchKeyPress(event));
     }
     configureGrid(response) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t;
         if (this.toolbarPanel) {
             if (response.toolbar) {
                 (_a = this.toolbarPanel) === null || _a === void 0 ? void 0 : _a.html(response.toolbar);
@@ -313,12 +313,18 @@ class DbNetGrid extends DbNetSuite {
         if (this.autoRowSelect) {
             (_p = this.gridPanel) === null || _p === void 0 ? void 0 : _p.find("tr.data-row").first().trigger("click");
         }
-        this.fireEvent("onPageLoaded", { table: (_q = this.gridPanel) === null || _q === void 0 ? void 0 : _q.find("table.dbnetgrid-table")[0] });
+        const rowCount = (_q = this.gridPanel) === null || _q === void 0 ? void 0 : _q.find("tr.data-row").length;
+        this.fireEvent("onPageLoaded", { table: (_r = this.gridPanel) === null || _r === void 0 ? void 0 : _r.find("table.dbnetgrid-table")[0], rowCount: rowCount });
         this.renderChart();
         if (this.frozenHeader) {
-            const h = (_r = this.gridPanel) === null || _r === void 0 ? void 0 : _r.find("tr.header-row").height();
-            const $filterRow = (_s = this.gridPanel) === null || _s === void 0 ? void 0 : _s.find("tr.filter-row");
+            const h = (_s = this.gridPanel) === null || _s === void 0 ? void 0 : _s.find("tr.header-row").height();
+            const $filterRow = (_t = this.gridPanel) === null || _t === void 0 ? void 0 : _t.find("tr.filter-row");
             $filterRow.find("th").css("top", h);
+        }
+        if (rowCount === 0) {
+            this.linkedGrids.forEach((grid) => {
+                grid.configureLinkedGrid(grid, null);
+            });
         }
     }
     configureDataTable(_html) {
@@ -611,8 +617,9 @@ class DbNetGrid extends DbNetSuite {
         }
         this.post("lookup", request)
             .then((response) => {
+            var _a;
             if (!this.lookupDialog) {
-                this.element.append(response.toolbar);
+                (_a = this.element) === null || _a === void 0 ? void 0 : _a.append(response.toolbar);
                 this.lookupDialog = new LookupDialog(`${this.id}_lookup_dialog`, this);
             }
             this.lookupDialog.update(response, $input);
@@ -667,8 +674,9 @@ class DbNetGrid extends DbNetSuite {
         this.primaryKey = $row.data("id");
         this.post("view-content", this.getRequest())
             .then((response) => {
+            var _a;
             if (!this.viewDialog) {
-                this.element.append(response.toolbar);
+                (_a = this.element) === null || _a === void 0 ? void 0 : _a.append(response.toolbar);
                 this.viewDialog = new ViewDialog(`${this.id}_view_dialog`, this);
             }
             this.viewDialog.update(response, $row);
@@ -681,7 +689,8 @@ class DbNetGrid extends DbNetSuite {
         }
         this.post("search-dialog", this.getRequest())
             .then((response) => {
-            this.element.append(response.data);
+            var _a;
+            (_a = this.element) === null || _a === void 0 ? void 0 : _a.append(response.data);
             this.searchDialog = new SearchDialog(`${this.id}_search_dialog`, this);
             this.searchDialog.open();
         });
@@ -875,20 +884,20 @@ class DbNetGrid extends DbNetSuite {
         this.assignForeignKey(grid, pk);
         grid.initialize();
     }
-    configureLinkedGrid(grid, pk) {
-        this.assignForeignKey(grid, pk);
+    configureLinkedGrid(grid, fk) {
+        this.assignForeignKey(grid, fk);
         if (grid.connectionString == "") {
             grid.connectionString = this.connectionString;
         }
         grid.currentPage = 1;
         grid.initialised ? grid.getPage() : grid.initialize();
     }
-    assignForeignKey(grid, pk) {
+    assignForeignKey(grid, fk) {
         const col = grid.columns.find((col) => { return col.foreignKey == true; });
         if (col == undefined) {
             alert('No foreign key defined for nested grid');
             return;
         }
-        col.foreignKeyValue = pk;
+        col.foreignKeyValue = fk ? fk : DbNetSuite.DBNull;
     }
 }

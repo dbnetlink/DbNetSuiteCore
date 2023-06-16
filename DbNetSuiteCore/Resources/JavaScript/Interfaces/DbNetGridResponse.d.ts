@@ -4,9 +4,9 @@ interface DbNetGridResponse {
     currentPage: number;
     totalPages: number;
     totalRows: number;
-    columns: GridColumn[];
-    record: Dictionary<String>;
-    searchParams: Array<SearchParam>;
-    message: string;
-    error: boolean;
+    columns?: GridColumn[];
+    record?: Dictionary<string>;
+    searchParams?: Array<SearchParam>;
+    message?: string;
+    error?: boolean;
 }

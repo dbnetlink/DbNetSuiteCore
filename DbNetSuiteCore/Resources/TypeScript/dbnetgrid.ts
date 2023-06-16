@@ -108,7 +108,7 @@ class DbNetGrid extends DbNetSuite {
                 this.updateColumns(response);
                 this.configureGrid(response);
             })
-            .catch(() => {});
+            .catch(() => { });
         this.initialised = true;
         this.fireEvent("onInitialized");
     }
@@ -121,7 +121,7 @@ class DbNetGrid extends DbNetSuite {
     }
 
     setColumnKeys(...columnKeys: string[]): void {
-        columnKeys.forEach((value,index) => {
+        columnKeys.forEach((value, index) => {
             this.columns[index].columnKey = value;
         });
     }
@@ -205,13 +205,13 @@ class DbNetGrid extends DbNetSuite {
 
     selectedRows() {
         return this.gridPanel?.find("tr.data-row.selected");
-    } 
+    }
 
     columnValue(columnName: string, row: HTMLTableRowElement) {
         const value = $(row).data(columnName.toLowerCase());
 
         if (value !== undefined) {
-            return value;     
+            return value;
         }
 
         const cell = this.columnCell(columnName, row);
@@ -234,7 +234,7 @@ class DbNetGrid extends DbNetSuite {
                 callback(response);
             })
     }
-  
+
     private matchingColumn(gridColumn: GridColumn, columnName: string) {
         let match = false;
         if (gridColumn.columnKey?.includes(".")) {
@@ -336,8 +336,7 @@ class DbNetGrid extends DbNetSuite {
         }
         );
 
-        if (this.dragAndDrop && this.procedureName == "")
-        {
+        if (this.dragAndDrop && this.procedureName == "") {
             this.gridPanel?.find("tr.header-row th")
                 .draggable({ helper: "clone", cursor: "move" })
                 .on("dragstart", (event: JQuery.TriggeredEvent<HTMLElement>, ui: JQueryUI.DraggableEventUIParams) => this.columnDragStarted(event, ui))
@@ -388,13 +387,22 @@ class DbNetGrid extends DbNetSuite {
         if (this.autoRowSelect) {
             this.gridPanel?.find("tr.data-row").first().trigger("click");
         }
-        this.fireEvent("onPageLoaded", { table: this.gridPanel?.find("table.dbnetgrid-table")[0] });
+
+        const rowCount = this.gridPanel?.find("tr.data-row").length;
+
+        this.fireEvent("onPageLoaded", { table: this.gridPanel?.find("table.dbnetgrid-table")[0], rowCount: rowCount });
         this.renderChart();
 
         if (this.frozenHeader) {
             const h: number = this.gridPanel?.find("tr.header-row").height() as number;
             const $filterRow = this.gridPanel?.find("tr.filter-row") as JQuery<HTMLTableRowElement>;
             $filterRow.find("th").css("top", h)
+        }
+
+        if (rowCount === 0) {
+            this.linkedGrids.forEach((grid) => {
+                grid.configureLinkedGrid(grid, null);
+            });
         }
     }
 
@@ -412,7 +420,7 @@ class DbNetGrid extends DbNetSuite {
         this.getDataArray((dataArray: any) => this.loadChart(dataArray));
     }
 
-    private loadChart(dataArray:any) {
+    private loadChart(dataArray: any) {
         google.charts.load('current', { 'packages': ['corechart'] });
         google.charts.setOnLoadCallback(() => this.drawChart(dataArray));
     }
@@ -453,7 +461,7 @@ class DbNetGrid extends DbNetSuite {
                 clearDuplicateValue: col.clearDuplicateValue,
                 primaryKey: col.primaryKey,
                 index: col.index,
-                dataOnly:col.dataOnly
+                dataOnly: col.dataOnly
             } as GridColumnResponse;
             this.columns.push(new GridColumn(properties));
         });
@@ -489,14 +497,14 @@ class DbNetGrid extends DbNetSuite {
         const top = (pos.top - 14);
 
         ui.helper.attr("dropside", "left");
-   
-        if ((uiLeft + width) > pos.left ) {
+
+        if ((uiLeft + width) > pos.left) {
             ui.helper.attr("dropside", "right");
             left += width + 4;
             console.log
         }
 
-        this.dropIcon?.css({ "left": `${left}px`, "top": `${top}px` });	
+        this.dropIcon?.css({ "left": `${left}px`, "top": `${top}px` });
     }
 
     private dragDropOver(event: JQuery.TriggeredEvent<HTMLElement>, ui: JQueryUI.DroppableEventUIParam) {
@@ -518,8 +526,8 @@ class DbNetGrid extends DbNetSuite {
         }
         this.dropIcon?.hide();
         const cols: GridColumn[] = [];
-        const sourceIdx = parseInt(ui.draggable.data("columnordinal")) -1;
-        const targetIdx = parseInt($(event.currentTarget).data("columnordinal")) -1;
+        const sourceIdx = parseInt(ui.draggable.data("columnordinal")) - 1;
+        const targetIdx = parseInt($(event.currentTarget).data("columnordinal")) - 1;
         const column: GridColumn = this.columns[sourceIdx];
         const dropSide = ui.helper.attr("dropside");
         for (let i = 0; i < this.columns.length; i++) {
@@ -620,7 +628,7 @@ class DbNetGrid extends DbNetSuite {
             case this.gridElementId("CopyBtn"):
             case this.gridElementId("ViewBtn"):
             case this.gridElementId("SearchBtn"):
-               break;
+                break;
             default:
                 return;
         }
@@ -704,7 +712,7 @@ class DbNetGrid extends DbNetSuite {
         });
     }
 
-    public getPage(callback?:Function) {
+    public getPage(callback?: Function) {
         const activeElementId: string | undefined = this.activeElementId();
 
         this.post<DbNetGridResponse>("page", this.getRequest())
@@ -730,7 +738,7 @@ class DbNetGrid extends DbNetSuite {
         this.post<DbNetGridResponse>("lookup", request)
             .then((response) => {
                 if (!this.lookupDialog) {
-                    this.element.append(response.toolbar);
+                    this.element?.append(response.toolbar);
                     this.lookupDialog = new LookupDialog(`${this.id}_lookup_dialog`, this);
                 }
                 this.lookupDialog.update(response, $input);
@@ -757,8 +765,7 @@ class DbNetGrid extends DbNetSuite {
     }
 
     private download() {
-        switch (this.gridElement("DownloadSelect").val())
-        {
+        switch (this.gridElement("DownloadSelect").val()) {
             case "html":
                 this.htmlExport();
                 break;
@@ -794,7 +801,7 @@ class DbNetGrid extends DbNetSuite {
         this.post<DbNetGridResponse>("view-content", this.getRequest())
             .then((response) => {
                 if (!this.viewDialog) {
-                    this.element.append(response.toolbar);
+                    this.element?.append(response.toolbar);
                     this.viewDialog = new ViewDialog(`${this.id}_view_dialog`, this);
                 }
                 this.viewDialog.update(response, $row)
@@ -809,7 +816,7 @@ class DbNetGrid extends DbNetSuite {
 
         this.post<DbNetGridResponse>("search-dialog", this.getRequest())
             .then((response) => {
-                this.element.append(response.data);
+                this.element?.append(response.data);
                 this.searchDialog = new SearchDialog(`${this.id}_search_dialog`, this);
                 this.searchDialog.open();
             });
@@ -885,7 +892,7 @@ class DbNetGrid extends DbNetSuite {
             view: this.view,
             groupBy: this.groupBy,
             search: this.search,
-            searchFilterJoin:this.searchFilterJoin,
+            searchFilterJoin: this.searchFilterJoin,
             searchParams: this.searchParams,
             copy: this.copy,
             export: this.export_,
@@ -1030,8 +1037,8 @@ class DbNetGrid extends DbNetSuite {
         grid.initialize();
     }
 
-    public configureLinkedGrid(grid: DbNetGrid, pk: object) {
-        this.assignForeignKey(grid, pk);
+    public configureLinkedGrid(grid: DbNetGrid, fk: object|null) {
+        this.assignForeignKey(grid, fk);
         if (grid.connectionString == "") {
             grid.connectionString = this.connectionString;
         }
@@ -1039,7 +1046,8 @@ class DbNetGrid extends DbNetSuite {
         grid.initialised ? grid.getPage() : grid.initialize();
     }
 
-    private assignForeignKey(grid: DbNetGrid, pk: object) {
+
+    private assignForeignKey(grid: DbNetGrid, fk: object|null) {
         const col = grid.columns.find((col) => { return col.foreignKey == true });
 
         if (col == undefined) {
@@ -1047,6 +1055,6 @@ class DbNetGrid extends DbNetSuite {
             return;
         }
 
-        col.foreignKeyValue = pk;
+        col.foreignKeyValue = fk ? fk : DbNetSuite.DBNull;
     }
 }

@@ -460,7 +460,29 @@ namespace DbNetSuiteCore.Services
 
             if (fkColumn != null)
             {
-                fp.Add($"{fkColumn.ColumnExpression} = {ParamName(fkColumn, false)}");
+                if (fkColumn.ForeignKeyValue.ToString() == nameof(System.DBNull))
+                {
+                    fp.Add($"{fkColumn.ColumnExpression} is null");
+
+                }
+                else
+                {
+                    if (fkColumn.ForeignKeyValue is List<object>)
+                    {
+                        List<string> paramNames = new List<string>();
+                        List<object> foreignKeyValues = fkColumn.ForeignKeyValue as List<object>;
+                        for (var i = 0; i < foreignKeyValues.Count; i++)
+                        {
+                            paramNames.Add(Database.ParameterName($"{fkColumn.ColumnName}{i}"));
+                        }
+
+                        fp.Add($"{fkColumn.ColumnExpression} in ({string.Join(",", paramNames)})");
+                    }
+                    else
+                    {
+                        fp.Add($"{fkColumn.ColumnExpression} = {ParamName(fkColumn, false)}");
+                    }
+                }
             }
 
             if (string.IsNullOrEmpty(FixedFilterSql) == false)
@@ -629,7 +651,21 @@ namespace DbNetSuiteCore.Services
 
             if (fkColumn != null)
             {
-                parameters.Add(ParamName(fkColumn, true), ConvertToDbParam(fkColumn.ForeignKeyValue, fkColumn));
+                if (fkColumn.ForeignKeyValue.ToString() != nameof(System.DBNull))
+                {
+                    if (fkColumn.ForeignKeyValue is List<object>)
+                    {
+                        List<object> foreignKeyValues = fkColumn.ForeignKeyValue as List<object>;
+                        for (var i = 0; i < foreignKeyValues.Count; i++)
+                        {
+                            parameters.Add(Database.ParameterName($"{fkColumn.ColumnName}{i}"), ConvertToDbParam(foreignKeyValues[i], fkColumn));
+                        }
+                    }
+                    else
+                    {
+                        parameters.Add(ParamName(fkColumn, true), ConvertToDbParam(fkColumn.ForeignKeyValue, fkColumn));
+                    }
+                }
             }
 
             if (FixedFilterParams.Keys.Any())

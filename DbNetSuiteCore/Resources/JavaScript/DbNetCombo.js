@@ -4,18 +4,20 @@ class DbNetCombo extends DbNetSuite {
         super(id);
         this.addEmptyOption = false;
         this.addFilter = false;
+        this.autoRowSelect = false;
         this.currentValue = "";
         this.emptyOptionText = "";
-        this.linkedControls = [];
         this.fromPart = "";
-        this.valueColumn = "";
-        this.textColumn = "";
-        this.params = {};
         this.filterDelay = 1000;
         this.filterMinChars = 3;
         this.filterToken = "";
         this.foreignKeyColumn = "";
-        this.foreignKeyValue = {};
+        this.linkedControls = [];
+        this.multipleSelect = false;
+        this.params = {};
+        this.size = 1;
+        this.textColumn = "";
+        this.valueColumn = "";
     }
     initialize() {
         this.callServer("page");
@@ -29,7 +31,7 @@ class DbNetCombo extends DbNetSuite {
         this.callServer("page");
     }
     configureCombo(response) {
-        var _a, _b, _c, _d, _e, _f;
+        var _a, _b, _c, _d, _e, _f, _g, _h;
         if (response.select) {
             (_a = this.element) === null || _a === void 0 ? void 0 : _a.html(response.select);
             this.$select = (_b = this.element) === null || _b === void 0 ? void 0 : _b.find("select");
@@ -43,12 +45,21 @@ class DbNetCombo extends DbNetSuite {
         else {
             (_f = this.$select) === null || _f === void 0 ? void 0 : _f.html(response.options);
         }
+        if (this.autoRowSelect && this.size > 1 && ((_g = this.$select) === null || _g === void 0 ? void 0 : _g.children().length) > 0) {
+            (_h = this.$select) === null || _h === void 0 ? void 0 : _h.prop("selectedIndex", 0);
+        }
         this.fireEvent("onOptionsLoaded");
         this.optionSelected();
     }
     optionSelected() {
         var _a;
-        const selectedValue = (_a = this.$select) === null || _a === void 0 ? void 0 : _a.find(":selected").val();
+        const selectedValue = new Array();
+        (_a = this.$select) === null || _a === void 0 ? void 0 : _a.find("option:selected").each(function () {
+            const s = $(this).val();
+            if (s.length > 0) {
+                selectedValue.push(s);
+            }
+        });
         this.fireEvent("onOptionSelected");
         this.linkedControls.forEach((control) => {
             if (control instanceof DbNetGrid) {
@@ -66,17 +77,7 @@ class DbNetCombo extends DbNetSuite {
             combo.connectionString = this.connectionString;
         }
         combo.foreignKeyValue = fk;
-        if (fk) {
-            combo.initialised ? combo.reload() : combo.initialize();
-        }
-        else {
-            combo.clear();
-        }
-    }
-    clear() {
-        var _a;
-        (_a = this.$select) === null || _a === void 0 ? void 0 : _a.find('option').not("value=['']").remove();
-        this.optionSelected();
+        combo.initialised ? combo.reload() : combo.initialize();
     }
     filterKeyPress(event) {
         const el = event.target;
@@ -110,7 +111,9 @@ class DbNetCombo extends DbNetSuite {
             addFilter: this.addFilter,
             filterToken: this.filterToken,
             foreignKeyColumn: this.foreignKeyColumn,
-            foreignKeyValue: this.foreignKeyValue
+            foreignKeyValue: this.foreignKeyValue,
+            size: this.size,
+            multipleSelect: this.multipleSelect
         };
         return request;
     }
@@ -135,6 +138,7 @@ class DbNetCombo extends DbNetSuite {
             .catch(err => {
             err.text().then((errorMessage) => {
                 console.error(errorMessage);
+                this.error(errorMessage.split("\n").shift());
             });
             return Promise.reject();
         });

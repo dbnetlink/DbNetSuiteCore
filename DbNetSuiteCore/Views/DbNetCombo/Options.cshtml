@@ -4,6 +4,11 @@
 @model ComboViewModel
 @{
     var textIndex = Model.DataView.Table.Columns.Count == 1 ? 0 : 1;
+    if (Model.AddEmptyOption && Model.DataView.Count > 0)
+    {
+        <option value="">@(Model.EmptyOptionText ?? string.Empty)</option>
+    }
+
     foreach (DataRowView dataViewRow in Model.DataView)
     {
         <option value="@dataViewRow.Row[0].ToString()">@dataViewRow.Row[textIndex].ToString()</option>

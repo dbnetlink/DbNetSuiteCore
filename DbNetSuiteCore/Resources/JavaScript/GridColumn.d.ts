@@ -20,7 +20,7 @@ declare class GridColumn {
     style?: string;
     unmatched: boolean;
     foreignKey?: boolean;
-    foreignKeyValue?: object;
+    foreignKeyValue?: object | string;
     display?: boolean;
     filter?: boolean;
     filterMode?: FilterSelectionMode;

@@ -5,19 +5,22 @@
 declare class DbNetCombo extends DbNetSuite {
     addEmptyOption: boolean;
     addFilter: boolean;
+    autoRowSelect: boolean;
     currentValue: string;
     emptyOptionText: string;
-    linkedControls: Array<DbNetSuite>;
     fromPart: string;
-    valueColumn: string;
-    textColumn: string;
-    params: Dictionary<object>;
     filterDelay: number;
     filterMinChars: number;
     filterTimerId: number | undefined;
     filterToken: string;
     foreignKeyColumn: string;
-    foreignKeyValue: object;
+    foreignKeyValue: Array<string> | undefined;
+    linkedControls: Array<DbNetSuite>;
+    multipleSelect: boolean;
+    params: Dictionary<object>;
+    size: number;
+    textColumn: string;
+    valueColumn: string;
     $select: JQuery<HTMLSelectElement> | undefined;
     constructor(id: string);
     initialize(): void;
@@ -25,8 +28,7 @@ declare class DbNetCombo extends DbNetSuite {
     reload(): void;
     private configureCombo;
     private optionSelected;
-    configureLinkedCombo(combo: DbNetCombo, fk: object): void;
-    clear(): void;
+    configureLinkedCombo(combo: DbNetCombo, fk: Array<string>): void;
     private filterKeyPress;
     private applyFilter;
     callServer(action: string): void;

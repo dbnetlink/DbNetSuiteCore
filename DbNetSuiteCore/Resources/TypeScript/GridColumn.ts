@@ -20,9 +20,9 @@ class GridColumn {
     format?: string;
     lookup?: string;
     style?: string;
-    unmatched: boolean = false;
+    unmatched = false;
     foreignKey?: boolean;
-    foreignKeyValue?: object;
+    foreignKeyValue?: object | string;
     display?: boolean;
     filter?: boolean;
     filterMode?: FilterSelectionMode;

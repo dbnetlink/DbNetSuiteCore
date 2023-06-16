@@ -46,6 +46,14 @@ namespace DbNetSuiteCore.Components
         /// Specifies the name of the foreign key column in a linked combo
         /// </summary>
         public string ForeignKeyColumn { get; set; } = null;
+        /// <summary>
+        /// Specifies the number of visible options in the list
+        /// </summary>
+        public int? Size { get; set; } = null;
+        /// <summary>
+        /// Allows the selection of multiple options
+        /// </summary>
+        public bool? MultipleSelect { get; set; } = null;
         public DbNetComboCore(string connection, string fromPart, string valueColumn, string textColumn = null, string id = null) : base(connection, id)
         {
             _fromPart = fromPart;
@@ -133,10 +141,13 @@ valueColumn = '{EncodingHelper.Encode(_valueColumn)}';
         {
             List<string> properties = new List<string>();
             AddProperty(AddEmptyOption, nameof(AddEmptyOption), properties);
+            AddProperty(AutoRowSelect, nameof(AutoRowSelect), properties);
             AddProperty(EmptyOptionText, nameof(EmptyOptionText), properties);
             AddProperty(AddFilter, nameof(AddFilter), properties);
             AddProperty(EncodingHelper.Encode(_textColumn), "TextColumn", properties);
             AddProperty(EncodingHelper.Encode(ForeignKeyColumn), nameof(ForeignKeyColumn), properties);
+            AddProperty(Size, nameof(Size), properties);
+            AddProperty(MultipleSelect, nameof(MultipleSelect), properties);
 
             if (Params.Count > 0)
             {

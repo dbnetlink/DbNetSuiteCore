@@ -8,5 +8,23 @@
     {
         <input class="dbnetcombo" type="text" />
     }
-    <select class="dbnetcombo"></select>
+    <select class="dbnetcombo" @Attributes()></select>
+}
+@functions
+{
+    public string Attributes()
+    {
+        List<string> dataAttributes = new List<string>();
+
+        if (Model.MultipleSelect)
+        {
+            dataAttributes.Add($"multiple");
+        }
+        if (Model.Size > 1)
+        {
+            dataAttributes.Add($"size={Model.Size}");
+        }
+
+        return string.Join(" ", dataAttributes.ToArray());
+    }
 }

@@ -12,6 +12,7 @@ using DbNetSuiteCore.Models;
 using Microsoft.AspNetCore.Mvc;
 using static DbNetSuiteCore.Utilities.DbNetDataCore;
 using DbNetSuiteCore.ViewModels.DbNetCombo;
+using System.Linq;
 
 namespace DbNetSuiteCore.Services
 {
@@ -47,7 +48,7 @@ namespace DbNetSuiteCore.Services
             get => EncodingHelper.Decode(_foreignKeyColumn);
             set => _foreignKeyColumn = value;
         }
-        public object ForeignKeyValue { get; set; } = null;
+        public List<object> ForeignKeyValue { get; set; } = null;
 
         public string TextColumn
         {
@@ -59,6 +60,8 @@ namespace DbNetSuiteCore.Services
             get => EncodingHelper.Decode(_valueColumn);
             set => _valueColumn = value;
         }
+        public int Size { get; set; } = 1;
+        public bool MultipleSelect { get; set; } = false;
         public async Task<object> Process()
         {
             await DeserialiseRequest();
@@ -100,11 +103,22 @@ namespace DbNetSuiteCore.Services
 
             string sql = $"select {string.Join(",", columns)} from {FromPart}";
 
-            var fkParamName = Database.ParameterName("foreignKey");
-
+            var paramNames = new List<string>();
             if (_foreignKeySupplied)
             {
-                sql += $" where {ForeignKeyColumn} = {fkParamName}";
+                if (ForeignKeyValue.Count == 0)
+                {
+                    sql += $" where {ForeignKeyColumn} is null";
+                }
+                else
+                {
+                    for (var i= 0; i < ForeignKeyValue.Count; i++)
+                    {
+                        paramNames.Add(Database.ParameterName($"foreignKey{i}"));
+                    }
+                   
+                    sql += $" where {ForeignKeyColumn} in ({string.Join(",",paramNames)})";
+                }
             }
 
             sql += $" order by {columns.Count}";
@@ -113,17 +127,23 @@ namespace DbNetSuiteCore.Services
 
             if (_foreignKeySupplied)
             {
-                query.Params[fkParamName] = ForeignKeyValue;
+                if (ForeignKeyValue.Count > 0)
+                {
+                    for (var i = 0; i < ForeignKeyValue.Count; i++)
+                    {
+                        query.Params[paramNames[i]] = ForeignKeyValue[i];
+                    }
+                }
             }
             return query;
         }
-  
+
         private async Task DeserialiseRequest()
         {
             _dbNetComboRequest = await GetRequest<DbNetComboRequest>();
             ReflectionHelper.CopyProperties(_dbNetComboRequest, this);
         }
-     
+
         private async Task Combo(DbNetComboResponse response)
         {
             DataTable dataTable = new DataTable();
@@ -147,7 +167,7 @@ namespace DbNetSuiteCore.Services
 
             if (Action == "filter" && string.IsNullOrEmpty(FilterToken) == false)
             {
-                FilterToken = FilterToken.Replace("%","*");
+                FilterToken = FilterToken.Replace("%", "*");
                 if (FilterToken.Contains("*") == false)
                 {
                     FilterToken = $"*{FilterToken}*";
@@ -159,9 +179,10 @@ namespace DbNetSuiteCore.Services
 
             var viewModel = new ComboViewModel
             {
-                DataView = dataView,
-                AddFilter = this.AddFilter
+                DataView = dataView
             };
+
+            ReflectionHelper.CopyProperties(this, viewModel);
 
             if (Action != "filter")
             {

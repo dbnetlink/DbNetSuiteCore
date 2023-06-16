@@ -1,19 +1,23 @@
 class DbNetCombo extends DbNetSuite {
     addEmptyOption = false;
     addFilter = false;
+    autoRowSelect = false;
     currentValue = "";
     emptyOptionText = "";
-    linkedControls: Array<DbNetSuite> = [];
     fromPart = "";
-    valueColumn = "";
-    textColumn = "";
-    params: Dictionary<object> = {};
     filterDelay = 1000;
     filterMinChars = 3;
     filterTimerId: number | undefined;
     filterToken = "";
     foreignKeyColumn = "";
-    foreignKeyValue: object = {};
+    foreignKeyValue: Array<string> | undefined;
+    linkedControls: Array<DbNetSuite> = [];
+    multipleSelect = false;
+    params: Dictionary<object> = {};
+    size = 1;
+    textColumn = "";
+    valueColumn = "";
+
     $select: JQuery<HTMLSelectElement> | undefined;
 
     constructor(id: string) {
@@ -49,12 +53,23 @@ class DbNetCombo extends DbNetSuite {
             this.$select?.html(response.options);
         }
 
+        if (this.autoRowSelect && this.size > 1 && this.$select?.children().length as number > 0) {
+            this.$select?.prop("selectedIndex", 0);
+        }
+
         this.fireEvent("onOptionsLoaded");
         this.optionSelected();
     }
 
     private optionSelected(): void {
-        const selectedValue: object = this.$select?.find(":selected").val() as object;
+        const selectedValue = new Array<string>();
+
+        this.$select?.find("option:selected").each(function () {
+            const s = $(this).val() as string;
+            if (s.length > 0) {
+                selectedValue.push(s)
+            }
+        });
 
         this.fireEvent("onOptionSelected");
 
@@ -70,22 +85,12 @@ class DbNetCombo extends DbNetSuite {
         });
     }
 
-    public configureLinkedCombo(combo: DbNetCombo, fk: object) {
+    public configureLinkedCombo(combo: DbNetCombo, fk: Array<string>) {
         if (combo.connectionString == "") {
             combo.connectionString = this.connectionString;
         }
         combo.foreignKeyValue = fk;
-        if (fk) {
-            combo.initialised ? combo.reload() : combo.initialize();
-        }
-        else {
-            combo.clear()
-        }
-    }
-
-    public clear() {
-        this.$select?.find('option').not("value=['']").remove();
-        this.optionSelected();
+        combo.initialised ? combo.reload() : combo.initialize();
     }
 
     private filterKeyPress(event: JQuery.TriggeredEvent): void {
@@ -123,7 +128,9 @@ class DbNetCombo extends DbNetSuite {
             addFilter: this.addFilter,
             filterToken: this.filterToken,
             foreignKeyColumn: this.foreignKeyColumn,
-            foreignKeyValue:this.foreignKeyValue
+            foreignKeyValue: this.foreignKeyValue,
+            size: this.size,
+            multipleSelect: this.multipleSelect
         };
 
         return request;
@@ -151,6 +158,7 @@ class DbNetCombo extends DbNetSuite {
             .catch(err => {
                 err.text().then((errorMessage: string) => {
                     console.error(errorMessage);
+                    this.error(errorMessage.split("\n").shift() as string)
                 });
 
                 return Promise.reject()

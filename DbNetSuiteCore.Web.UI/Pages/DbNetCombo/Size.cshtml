@@ -1,0 +1,13 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@{
+    <h2>Customers</h2>
+    DbNetComboCore customersCombo = new DbNetComboCore("northwind", "customers", "customerid", "companyname");
+    customersCombo.Size = 10;
+    @customersCombo.Render()
+    <h2>Employees</h2>
+    DbNetComboCore employeesCombo = new DbNetComboCore("northwind", "employees", "employeeid", "lastname || ', ' || firstname");
+    employeesCombo.Size = 10;
+    employeesCombo.MultipleSelect = true;
+    @employeesCombo.Render()
+}

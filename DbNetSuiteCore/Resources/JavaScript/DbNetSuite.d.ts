@@ -20,6 +20,7 @@ type EventHandler = {
     params: object | undefined;
 };
 declare class DbNetSuite {
+    static DBNull: string;
     datePickerOptions: JQueryUI.DatepickerOptions;
     protected element: JQuery<HTMLElement> | undefined;
     protected eventHandlers: Dictionary<Array<EventHandler>>;

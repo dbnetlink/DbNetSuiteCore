@@ -1,5 +1,6 @@
 ﻿using DbNetSuiteCore.Enums;
 using DbNetSuiteCore.Helpers;
+using System.Collections.Generic;
 
 namespace DbNetSuiteCore.Models
 {
@@ -8,6 +9,7 @@ namespace DbNetSuiteCore.Models
         private bool _search = true;
         private string _lookup;
         private string _columnExpression;
+        private object _foreignKeyValue;
         public string BaseTableName { get; set; }
         public string BaseSchemaName { get; set; }
         public string DataType { get; set; }
@@ -15,7 +17,7 @@ namespace DbNetSuiteCore.Models
 
         public bool Search
         {
-            get => _search && Binary == false;
+            get => _search && Binary == false && ForeignKey == false;
             set => _search = value;
         }
         public bool AddedByUser { get; set; }
@@ -28,7 +30,11 @@ namespace DbNetSuiteCore.Models
         public bool EditDisplay { get; set; }
         public bool PrimaryKey { get; set; } = false;
         public bool ForeignKey { get; set; }
-        public object ForeignKeyValue { get; set; }
+        public object ForeignKeyValue
+        {
+            get => ConvertForeignKeyValue(_foreignKeyValue);
+            set => _foreignKeyValue = value;
+        }
         public bool AutoIncrement { get; set; }
         public int ColumnSize { get; set; }
         public string Lookup
@@ -57,6 +63,20 @@ namespace DbNetSuiteCore.Models
         {
             _columnExpression = EncodingHelper.Encode(_columnExpression);
             _lookup = EncodingHelper.Encode(_lookup);
+        }
+
+        private object ConvertForeignKeyValue(object foreignKeyValue)
+        {
+            if (foreignKeyValue is Newtonsoft.Json.Linq.JArray)
+            {
+                List<object> fkArray = (foreignKeyValue as Newtonsoft.Json.Linq.JArray).ToObject<List<object>>();
+                if (fkArray.Count > 0)
+                {
+                    return fkArray;
+                }
+                return nameof(System.DBNull);
+            }
+            return foreignKeyValue;
         }
     }
 }

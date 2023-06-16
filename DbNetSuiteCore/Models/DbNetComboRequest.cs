@@ -16,6 +16,8 @@ namespace DbNetSuiteCore.Models
         public Dictionary<string, object> Params { get; set; } = new Dictionary<string, object>();
         public string FilterToken { get; set; } = string.Empty;
         public string ForeignKeyColumn { get; set; } = null;
-        public object ForeignKeyValue { get; set; } = null;
+        public List<object> ForeignKeyValue { get; set; } = null;
+        public int Size { get; set; } = 1;
+        public bool MultipleSelect { get; set; } = false;
     }
 }
