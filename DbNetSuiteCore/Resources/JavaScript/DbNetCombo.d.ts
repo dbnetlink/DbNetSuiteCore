@@ -7,6 +7,7 @@ declare class DbNetCombo extends DbNetSuite {
     addFilter: boolean;
     autoRowSelect: boolean;
     currentValue: string;
+    dataOnlyColumns: Array<string>;
     emptyOptionText: string;
     fromPart: string;
     filterDelay: number;
@@ -22,12 +23,17 @@ declare class DbNetCombo extends DbNetSuite {
     textColumn: string;
     valueColumn: string;
     $select: JQuery<HTMLSelectElement> | undefined;
+    $filter: JQuery<HTMLInputElement> | undefined;
     constructor(id: string);
     initialize(): void;
     addLinkedControl(control: DbNetSuite): void;
     reload(): void;
+    selectedValues(): string[];
+    selectedOptions(): HTMLOptionElement[];
     private configureCombo;
     private optionSelected;
+    private getSelectedValues;
+    private getSelectedOptions;
     configureLinkedCombo(combo: DbNetCombo, fk: Array<string>): void;
     private filterKeyPress;
     private applyFilter;

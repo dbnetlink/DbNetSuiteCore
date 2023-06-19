@@ -107,7 +107,7 @@
     employeesGrid.SetColumnProperty("Photo", ColumnPropertyType.Image, true);
     employeesGrid.SetColumnProperty(new String[] { "photo", "notes", "photopath" }, ColumnPropertyType.Display, false);
     employeesGrid.SetColumnProperty(new String[] { "firstname", "lastname", "photo", "notes", "photopath" }, ColumnPropertyType.View, true);
-    employeesGrid.Bind(EventType.OnViewRecordSelected, "updateTitle");
+    employeesGrid.Bind(DbNetGridEventType.OnViewRecordSelected, "updateTitle");
     employeesGrid.SetColumnProperty("TerritoryId", ColumnPropertyType.ForeignKey, true);
     employeesGrid.SetColumnProperty(new String[] { "TerritoryId" }, ColumnPropertyType.GroupHeader, true);
 

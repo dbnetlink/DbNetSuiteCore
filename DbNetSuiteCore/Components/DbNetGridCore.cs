@@ -36,10 +36,6 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public bool? Copy { get; set; } = null;
         /// <summary>
-        /// Overrides the default culture that controls default date and currency formatting
-        /// </summary>
-        public string Culture { get; set; } = null;
-        /// <summary>
         /// Adds/removes a grid export option to/from the toolbar
         /// </summary>
         public bool? Export { get; set; } = null;
@@ -189,6 +185,13 @@ namespace DbNetSuiteCore.Components
             _linkedGrids.Add(linkedGrid);
         }
 
+        /// <summary>
+        /// Binds an event to a named client-side JavaScript function
+        /// </summary>
+        public void Bind(DbNetGridEventType eventType, string functionName)
+        {
+            base.Bind(eventType, functionName);
+        }
         public HtmlString Render()
         {
             string message = ValidateProperties();

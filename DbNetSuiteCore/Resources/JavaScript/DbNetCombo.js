@@ -6,6 +6,7 @@ class DbNetCombo extends DbNetSuite {
         this.addFilter = false;
         this.autoRowSelect = false;
         this.currentValue = "";
+        this.dataOnlyColumns = [];
         this.emptyOptionText = "";
         this.fromPart = "";
         this.filterDelay = 1000;
@@ -30,47 +31,66 @@ class DbNetCombo extends DbNetSuite {
     reload() {
         this.callServer("page");
     }
+    selectedValues() {
+        return this.getSelectedValues();
+    }
+    selectedOptions() {
+        return this.getSelectedOptions();
+    }
     configureCombo(response) {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
         if (response.select) {
             (_a = this.element) === null || _a === void 0 ? void 0 : _a.html(response.select);
             this.$select = (_b = this.element) === null || _b === void 0 ? void 0 : _b.find("select");
             (_c = this.$select) === null || _c === void 0 ? void 0 : _c.html(response.options);
             const selectWidth = (_d = this.$select) === null || _d === void 0 ? void 0 : _d.width();
-            const $input = (_e = this.element) === null || _e === void 0 ? void 0 : _e.find("input");
-            $input === null || $input === void 0 ? void 0 : $input.width(selectWidth);
-            $input === null || $input === void 0 ? void 0 : $input.on("keyup", (event) => this.filterKeyPress(event));
+            this.$filter = (_e = this.element) === null || _e === void 0 ? void 0 : _e.find("input");
+            (_f = this.$filter) === null || _f === void 0 ? void 0 : _f.width(selectWidth);
+            (_g = this.$filter) === null || _g === void 0 ? void 0 : _g.on("keyup", (event) => this.filterKeyPress(event));
             this.$select.on("change", () => this.optionSelected());
         }
         else {
-            (_f = this.$select) === null || _f === void 0 ? void 0 : _f.html(response.options);
+            (_h = this.$select) === null || _h === void 0 ? void 0 : _h.html(response.options);
         }
-        if (this.autoRowSelect && this.size > 1 && ((_g = this.$select) === null || _g === void 0 ? void 0 : _g.children().length) > 0) {
-            (_h = this.$select) === null || _h === void 0 ? void 0 : _h.prop("selectedIndex", 0);
+        if (this.autoRowSelect && this.size > 1 && ((_j = this.$select) === null || _j === void 0 ? void 0 : _j.children().length) > 0) {
+            (_k = this.$select) === null || _k === void 0 ? void 0 : _k.prop("selectedIndex", 0);
         }
         this.fireEvent("onOptionsLoaded");
         this.optionSelected();
     }
     optionSelected() {
-        var _a;
-        const selectedValue = new Array();
-        (_a = this.$select) === null || _a === void 0 ? void 0 : _a.find("option:selected").each(function () {
-            const s = $(this).val();
-            if (s.length > 0) {
-                selectedValue.push(s);
-            }
-        });
-        this.fireEvent("onOptionSelected");
+        const selectedValues = this.getSelectedValues();
+        const selectedOptions = this.getSelectedOptions();
+        this.fireEvent("onOptionSelected", { selectedValues: selectedValues, selectedOptions: selectedOptions });
         this.linkedControls.forEach((control) => {
             if (control instanceof DbNetGrid) {
                 const grid = control;
-                grid.configureLinkedGrid(grid, selectedValue);
+                grid.configureLinkedGrid(grid, selectedValues);
             }
             if (control instanceof DbNetCombo) {
                 const combo = control;
-                combo.configureLinkedCombo(combo, selectedValue);
+                combo.configureLinkedCombo(combo, selectedValues);
             }
         });
+    }
+    getSelectedValues() {
+        var _a;
+        const selectedValues = new Array();
+        (_a = this.$select) === null || _a === void 0 ? void 0 : _a.find("option:selected").each(function () {
+            const s = $(this).val();
+            if (s.length > 0) {
+                selectedValues.push(s);
+            }
+        });
+        return selectedValues;
+    }
+    getSelectedOptions() {
+        var _a;
+        const selectedOptions = new Array();
+        (_a = this.$select) === null || _a === void 0 ? void 0 : _a.find("option:selected").each(function () {
+            selectedOptions.push($(this)[0]);
+        });
+        return selectedOptions;
     }
     configureLinkedCombo(combo, fk) {
         if (combo.connectionString == "") {
@@ -102,6 +122,7 @@ class DbNetCombo extends DbNetSuite {
         const request = {
             componentId: this.id,
             connectionString: this.connectionString,
+            dataOnlyColumns: this.dataOnlyColumns,
             fromPart: this.fromPart,
             valueColumn: this.valueColumn,
             textColumn: this.textColumn,

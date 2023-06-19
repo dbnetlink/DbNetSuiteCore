@@ -20,6 +20,10 @@ namespace DbNetSuiteCore.Components
         protected readonly bool _idSupplied = false;
         private List<EventBinding> _eventBindings { get; set; } = new List<EventBinding>();
         private string ComponentTypeName => this.GetType().Name.Replace("Core", string.Empty);
+        /// <summary>
+        /// Overrides the default culture that controls default date and currency formatting
+        /// </summary>
+        public string Culture { get; set; } = null;
         public string Id => _id;
         /// <summary>
         /// Specifies the type of provider for the database connection
@@ -55,7 +59,7 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Binds an event to a named client-side JavaScript function
         /// </summary>
-        public void Bind(EventType eventType, string functionName)
+        public void Bind(Enum eventType, string functionName)
         {
             _eventBindings.Add(new EventBinding(eventType, functionName));
         }

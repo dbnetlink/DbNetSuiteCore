@@ -1,8 +1,6 @@
-﻿using System.ComponentModel;
-
-namespace DbNetSuiteCore.Enums
+﻿namespace DbNetSuiteCore.Enums
 {
-    public enum EventType
+    public enum DbNetGridEventType
     {
 		OnInitialized,
 		OnRowTransform,

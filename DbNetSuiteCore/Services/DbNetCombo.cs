@@ -41,6 +41,7 @@ namespace DbNetSuiteCore.Services
 
         public bool AddEmptyOption { get; set; } = false;
         public bool AddFilter { get; set; } = false;
+        public List<string> DataOnlyColumns { get; set; } = null;
         public string EmptyOptionText { get; set; } = String.Empty;
         public string FilterToken { get; set; } = String.Empty;
         public string ForeignKeyColumn
@@ -99,6 +100,11 @@ namespace DbNetSuiteCore.Services
             if (string.IsNullOrEmpty(TextColumn) == false)
             {
                 columns.Add(TextColumn);
+            }
+
+            foreach(string c in DataOnlyColumns)
+            {
+                columns.Add(EncodingHelper.Decode(c));
             }
 
             string sql = $"select {string.Join(",", columns)} from {FromPart}";

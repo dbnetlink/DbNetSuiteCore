@@ -1,4 +1,5 @@
 ﻿using DbNetSuiteCore.Helpers;
+using System.Collections.Generic;
 using System.Data;
 
 namespace DbNetSuiteCore.ViewModels.DbNetCombo
@@ -22,5 +23,8 @@ namespace DbNetSuiteCore.ViewModels.DbNetCombo
             get => (_addEmptyOption || string.IsNullOrEmpty(EmptyOptionText) == false) && Size == 1;
             set => _addEmptyOption = value;
         }
+
+        public List<string> DataOnlyColumns { get; set; }
+        public string TextColumn { get; set; } = string.Empty;
     }
 }

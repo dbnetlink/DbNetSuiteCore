@@ -5,6 +5,7 @@
     componentId: string;
     connectionString: string;
     connectionType?: string;
+    dataOnlyColumns: Array<string> | undefined;
     emptyOptionText: string;
     filterToken: string;
     foreignKeyColumn : string;

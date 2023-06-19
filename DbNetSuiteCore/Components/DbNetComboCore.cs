@@ -23,10 +23,6 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public bool? AutoRowSelect { get; set; } = null;
         /// <summary>
-        /// Overrides the default culture that controls default date and currency formatting
-        /// </summary>
-        public string Culture { get; set; } = null;
-        /// <summary>
         /// Automatically adds an empty option to the select 
         /// </summary>
         public bool? AddEmptyOption { get; set; } = null;
@@ -34,6 +30,10 @@ namespace DbNetSuiteCore.Components
         /// Adds an input to filter the combo options
         /// </summary>
         public bool? AddFilter { get; set; } = null;
+        /// <summary>
+        /// Specifies columns whose values will be added as data attributes to each option in the combo
+        /// </summary>
+        public List<string> DataOnlyColumns { get; set; } = new List<string>();
         /// <summary>
         /// Overrides the default culture that controls default date and currency formatting
         /// </summary>
@@ -67,6 +67,14 @@ namespace DbNetSuiteCore.Components
         public void AddLinkedControl(DbNetSuiteCore linkedControl)
         {
             _linkedControls.Add(linkedControl);
+        }
+
+        /// <summary>
+        /// Binds an event to a named client-side JavaScript function
+        /// </summary>
+        public void Bind(DbNetComboEventType eventType, string functionName)
+        {
+            base.Bind(eventType, functionName);
         }
 
         public HtmlString Render()
@@ -152,6 +160,11 @@ valueColumn = '{EncodingHelper.Encode(_valueColumn)}';
             if (Params.Count > 0)
             {
                 properties.Add($"params = {Serialize(Params)};");
+            }
+            if (DataOnlyColumns.Count > 0)
+            {
+                DataOnlyColumns = DataOnlyColumns.Select(c => { c = EncodingHelper.Encode(c);return c;}).ToList();
+                properties.Add($"dataOnlyColumns = {Serialize(DataOnlyColumns)};");
             }
 
             return string.Join(Environment.NewLine, properties);
