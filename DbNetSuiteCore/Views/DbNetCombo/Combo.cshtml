@@ -4,7 +4,7 @@
 @model ComboViewModel
 
 @{
-    if (Model.AddFilter)
+    if (Model.AddFilter && string.IsNullOrEmpty(Model.ProcedureName))
     {
         <input class="dbnetcombo" type="text" />
     }

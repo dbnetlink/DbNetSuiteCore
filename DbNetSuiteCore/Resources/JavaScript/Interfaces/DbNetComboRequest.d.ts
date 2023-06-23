@@ -11,7 +11,8 @@ interface DbNetComboRequest {
     foreignKeyValue?: Array<string> | undefined;
     fromPart: string;
     multipleSelect: boolean;
-    params: Dictionary<object>;
+    procedureParams: Dictionary<object>;
+    procedureName: string | undefined;
     size: number;
     textColumn: string;
     valueColumn: string;

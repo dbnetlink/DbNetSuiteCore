@@ -14,7 +14,8 @@ class DbNetCombo extends DbNetSuite {
     foreignKeyValue: Array<string> | undefined;
     linkedControls: Array<DbNetSuite> = [];
     multipleSelect = false;
-    params: Dictionary<object> = {};
+    procedureParams: Dictionary<object> = {};
+    procedureName = "";
     size = 1;
     textColumn = "";
     valueColumn = "";
@@ -67,7 +68,7 @@ class DbNetCombo extends DbNetSuite {
             this.$select?.prop("selectedIndex", 0);
         }
 
-        this.fireEvent("onOptionsLoaded");
+        this.fireEvent("onOptionsLoaded", { options: this.getOptions() });
         this.optionSelected();
     }
 
@@ -110,6 +111,15 @@ class DbNetCombo extends DbNetSuite {
         return selectedOptions;
     }
 
+    private getOptions() {
+        const options = new Array<HTMLOptionElement>();
+        this.$select?.find("option").each(function () {
+            options.push($(this)[0] as HTMLOptionElement)
+        });
+
+        return options;
+    }
+
     public configureLinkedCombo(combo: DbNetCombo, fk: Array<string>) {
         if (combo.connectionString == "") {
             combo.connectionString = this.connectionString;
@@ -148,7 +158,7 @@ class DbNetCombo extends DbNetSuite {
             fromPart: this.fromPart,
             valueColumn: this.valueColumn,
             textColumn: this.textColumn,
-            params: this.params,
+            procedureParams: this.procedureParams,
             addEmptyOption: this.addEmptyOption,
             emptyOptionText: this.emptyOptionText,
             addFilter: this.addFilter,
@@ -156,7 +166,8 @@ class DbNetCombo extends DbNetSuite {
             foreignKeyColumn: this.foreignKeyColumn,
             foreignKeyValue: this.foreignKeyValue,
             size: this.size,
-            multipleSelect: this.multipleSelect
+            multipleSelect: this.multipleSelect,
+            procedureName: this.procedureName
         };
 
         return request;

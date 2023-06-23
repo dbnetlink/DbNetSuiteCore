@@ -11,6 +11,7 @@ using System.IO;
 using Azure.Messaging;
 using System.Configuration;
 using System.Data;
+using DbNetSuiteCore.Enums.DbNetGrid;
 
 namespace DbNetSuiteCore.Components
 {
@@ -188,7 +189,7 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Binds an event to a named client-side JavaScript function
         /// </summary>
-        public void Bind(DbNetGridEventType eventType, string functionName)
+        public void Bind(EventType eventType, string functionName)
         {
             base.Bind(eventType, functionName);
         }

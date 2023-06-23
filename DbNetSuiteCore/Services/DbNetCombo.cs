@@ -26,6 +26,7 @@ namespace DbNetSuiteCore.Services
         private string _foreignKeyColumn;
         private string _valueColumn;
         private string _textColumn;
+        private string _procedureName;
         private bool _foreignKeySupplied => string.IsNullOrEmpty(ForeignKeyColumn) == false && ForeignKeyValue != null;
 
         public DbNetCombo(AspNetCoreServices services) : base(services)
@@ -63,6 +64,13 @@ namespace DbNetSuiteCore.Services
         }
         public int Size { get; set; } = 1;
         public bool MultipleSelect { get; set; } = false;
+
+        public string ProcedureName
+        {
+            get => EncodingHelper.Decode(_procedureName);
+            set => _procedureName = value;
+        }
+        public Dictionary<string, object> ProcedureParams { get; set; } = new Dictionary<string, object>();
         public async Task<object> Process()
         {
             await DeserialiseRequest();
@@ -144,6 +152,28 @@ namespace DbNetSuiteCore.Services
             return query;
         }
 
+        internal QueryCommandConfig ProcedureCommandConfig()
+        {
+            QueryCommandConfig queryCommandConfig = new QueryCommandConfig(this.ProcedureName);
+
+            using (Database)
+            {
+                Database.Open();
+                try
+                {
+                    queryCommandConfig.Params = Database.DeriveParameters(queryCommandConfig.Sql);
+                }
+                catch (Exception) { }
+            }
+
+            foreach (string paramName in this.ProcedureParams.Keys)
+            {
+                Database.SetParamValue(queryCommandConfig.Params, paramName, ProcedureParams[paramName]);
+            }
+
+            return queryCommandConfig;
+        }
+
         private async Task DeserialiseRequest()
         {
             _dbNetComboRequest = await GetRequest<DbNetComboRequest>();
@@ -159,7 +189,13 @@ namespace DbNetSuiteCore.Services
                 Database.Open();
                 QueryCommandConfig query;
 
-                query = BuildSql();
+                if (string.IsNullOrEmpty(ProcedureName)){
+                    query = BuildSql();
+                }
+                else
+                {
+                    query = ProcedureCommandConfig();
+                }
 
                 Database.Open();
                 Database.ExecuteQuery(query);

@@ -18,7 +18,8 @@ declare class DbNetCombo extends DbNetSuite {
     foreignKeyValue: Array<string> | undefined;
     linkedControls: Array<DbNetSuite>;
     multipleSelect: boolean;
-    params: Dictionary<object>;
+    procedureParams: Dictionary<object>;
+    procedureName: string;
     size: number;
     textColumn: string;
     valueColumn: string;
@@ -34,6 +35,7 @@ declare class DbNetCombo extends DbNetSuite {
     private optionSelected;
     private getSelectedValues;
     private getSelectedOptions;
+    private getOptions;
     configureLinkedCombo(combo: DbNetCombo, fk: Array<string>): void;
     private filterKeyPress;
     private applyFilter;

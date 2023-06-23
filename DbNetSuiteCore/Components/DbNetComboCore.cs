@@ -1,5 +1,4 @@
-﻿using DbNetSuiteCore.Enums;
-using DbNetSuiteCore.Helpers;
+﻿using DbNetSuiteCore.Helpers;
 using DbNetSuiteCore.Models;
 using System;
 using System.Collections.Generic;
@@ -7,6 +6,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Html;
 using System.Data;
 using DocumentFormat.OpenXml.Drawing;
+using DbNetSuiteCore.Enums.DbNetCombo;
+using DbNetSuiteCore.Enums;
 
 namespace DbNetSuiteCore.Components
 {
@@ -15,11 +16,12 @@ namespace DbNetSuiteCore.Components
         private readonly string _fromPart;
         private readonly string _valueColumn;
         private readonly string _textColumn;
+        private readonly string _procedureName;
 
         private List<EventBinding> _eventBindings { get; set; } = new List<EventBinding>();
         private List<DbNetSuiteCore> _linkedControls { get; set; } = new List<DbNetSuiteCore>();
         /// <summary>
-        /// Automatically selects the first row of the grid (default is true)
+        /// Automatically selects the first row of the combo. Only applicable where Size is greater than 1.
         /// </summary>
         public bool? AutoRowSelect { get; set; } = null;
         /// <summary>
@@ -35,13 +37,13 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public List<string> DataOnlyColumns { get; set; } = new List<string>();
         /// <summary>
-        /// Overrides the default culture that controls default date and currency formatting
+        /// Specifies the text for the empty option
         /// </summary>
         public string EmptyOptionText { get; set; } = null;
         /// <summary>
-        /// Specifies the text for the empty option
+        /// Specifies any parameters values when the data source is a stored procedure
         /// </summary>
-        public Dictionary<string, object> Params { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, object> ProcedureParams { get; set; } = new Dictionary<string, object>();
         /// <summary>
         /// Specifies the name of the foreign key column in a linked combo
         /// </summary>
@@ -54,11 +56,15 @@ namespace DbNetSuiteCore.Components
         /// Allows the selection of multiple options
         /// </summary>
         public bool? MultipleSelect { get; set; } = null;
-        public DbNetComboCore(string connection, string fromPart, string valueColumn, string textColumn = null, string id = null) : base(connection, id)
+        public DbNetComboCore(string connection, string fromPart, string valueColumn, string textColumn = null, string id = null, DataSourceType dataSourceType = DataSourceType.TableOrView) : base(connection, id)
         {
             _fromPart = fromPart;
             _valueColumn = valueColumn;
             _textColumn = textColumn;
+            if (dataSourceType == DataSourceType.StoredProcedure)
+            {
+                _procedureName = fromPart;
+            }
         }
 
         /// <summary>
@@ -72,7 +78,7 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Binds an event to a named client-side JavaScript function
         /// </summary>
-        public void Bind(DbNetComboEventType eventType, string functionName)
+        public void Bind(EventType eventType, string functionName)
         {
             base.Bind(eventType, functionName);
         }
@@ -156,15 +162,17 @@ valueColumn = '{EncodingHelper.Encode(_valueColumn)}';
             AddProperty(EncodingHelper.Encode(ForeignKeyColumn), nameof(ForeignKeyColumn), properties);
             AddProperty(Size, nameof(Size), properties);
             AddProperty(MultipleSelect, nameof(MultipleSelect), properties);
+            AddProperty(EncodingHelper.Encode(_procedureName), "ProcedureName", properties);
 
-            if (Params.Count > 0)
-            {
-                properties.Add($"params = {Serialize(Params)};");
-            }
             if (DataOnlyColumns.Count > 0)
             {
                 DataOnlyColumns = DataOnlyColumns.Select(c => { c = EncodingHelper.Encode(c);return c;}).ToList();
                 properties.Add($"dataOnlyColumns = {Serialize(DataOnlyColumns)};");
+            }
+
+            if (ProcedureParams?.Count > 0)
+            {
+                properties.Add($"procedureParams = {Serialize(ProcedureParams)};");
             }
 
             return string.Join(Environment.NewLine, properties);

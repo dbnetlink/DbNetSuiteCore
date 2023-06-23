@@ -15,7 +15,8 @@ class DbNetCombo extends DbNetSuite {
         this.foreignKeyColumn = "";
         this.linkedControls = [];
         this.multipleSelect = false;
-        this.params = {};
+        this.procedureParams = {};
+        this.procedureName = "";
         this.size = 1;
         this.textColumn = "";
         this.valueColumn = "";
@@ -55,7 +56,7 @@ class DbNetCombo extends DbNetSuite {
         if (this.autoRowSelect && this.size > 1 && ((_j = this.$select) === null || _j === void 0 ? void 0 : _j.children().length) > 0) {
             (_k = this.$select) === null || _k === void 0 ? void 0 : _k.prop("selectedIndex", 0);
         }
-        this.fireEvent("onOptionsLoaded");
+        this.fireEvent("onOptionsLoaded", { options: this.getOptions() });
         this.optionSelected();
     }
     optionSelected() {
@@ -92,6 +93,14 @@ class DbNetCombo extends DbNetSuite {
         });
         return selectedOptions;
     }
+    getOptions() {
+        var _a;
+        const options = new Array();
+        (_a = this.$select) === null || _a === void 0 ? void 0 : _a.find("option").each(function () {
+            options.push($(this)[0]);
+        });
+        return options;
+    }
     configureLinkedCombo(combo, fk) {
         if (combo.connectionString == "") {
             combo.connectionString = this.connectionString;
@@ -126,7 +135,7 @@ class DbNetCombo extends DbNetSuite {
             fromPart: this.fromPart,
             valueColumn: this.valueColumn,
             textColumn: this.textColumn,
-            params: this.params,
+            procedureParams: this.procedureParams,
             addEmptyOption: this.addEmptyOption,
             emptyOptionText: this.emptyOptionText,
             addFilter: this.addFilter,
@@ -134,7 +143,8 @@ class DbNetCombo extends DbNetSuite {
             foreignKeyColumn: this.foreignKeyColumn,
             foreignKeyValue: this.foreignKeyValue,
             size: this.size,
-            multipleSelect: this.multipleSelect
+            multipleSelect: this.multipleSelect,
+            procedureName: this.procedureName
         };
         return request;
     }

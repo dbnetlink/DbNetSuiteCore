@@ -4,7 +4,6 @@
 @using Microsoft.AspNetCore.Html;
 @model ComboViewModel
 @{
-    int textIndex = String.IsNullOrEmpty(Model.TextColumn) ? 0 : 1;
     if (Model.AddEmptyOption && Model.DataView.Count > 0)
     {
         <option value="">@(Model.EmptyOptionText ?? string.Empty)</option>
@@ -12,7 +11,7 @@
 
     foreach (DataRowView dataViewRow in Model.DataView)
     {
-        <option value="@dataViewRow.Row[0].ToString()" @DataAttributes(textIndex,dataViewRow)>@dataViewRow.Row[textIndex].ToString()</option>
+        <option value="@dataViewRow.Row[Model.ValueIndex].ToString()" @DataAttributes(Model.TextIndex,dataViewRow)>@dataViewRow.Row[Model.TextIndex].ToString()</option>
     }
 }
 @functions
@@ -20,6 +19,11 @@
     public HtmlString DataAttributes(int textIndex, DataRowView dataRowView)
     {
         List<string> dataAttributes = new List<string>();
+
+        if (string.IsNullOrEmpty(Model.ProcedureName) == false)
+        {
+            return new HtmlString(string.Empty);
+        }
 
         for (int i = textIndex+1; i < Model.DataView.Table.Columns.Count; i++)
         {
