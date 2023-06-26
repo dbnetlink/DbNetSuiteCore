@@ -1,0 +1,7 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums.DbNetCombo;
+@{
+    DbNetComboCore customersCombo = new DbNetComboCore("northwind", "customers", "companyname");
+    @customersCombo.Render()
+}

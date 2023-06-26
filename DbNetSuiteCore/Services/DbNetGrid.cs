@@ -28,8 +28,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using GridColumn = DbNetSuiteCore.Models.GridColumn;
 using static DbNetSuiteCore.Utilities.DbNetDataCore;
-
-
+using DbNetSuiteCore.Constants.DbNetGrid;
 
 namespace DbNetSuiteCore.Services
 {
@@ -155,31 +154,31 @@ namespace DbNetSuiteCore.Services
 
             switch (Action.ToLower())
             {
-                case "initialize":
+                case RequestAction.Initialize:
                     response.Toolbar = await Toolbar();
                     await Grid(response);
                     break;
-                case "page":
+                case RequestAction.Page:
                     await Grid(response);
                     break;
-                case "generate-spreadsheet":
+                case RequestAction.GenerateSpreadsheet:
                     return GenerateSpreadsheet();
-                case "html-export":
+                case RequestAction.HtmlExport:
                     return await GenerateHtmlExport(response);
-                case "download-column-data":
+                case RequestAction.DownloadColumnData:
                     return GetColumnData();
-                case "view-content":
+                case RequestAction.ViewContent:
                     await ViewDialog(response);
                     break;
-                case "search-dialog":
+                case RequestAction.SearchDialog:
                     await SearchDialog(response);
                     break;
-                case "lookup":
+                case RequestAction.Lookup:
                     await LookupDialog(response);
                     break;
-                case "data-array":
+                case RequestAction.DataArray:
                     return DataArray();
-                case "data-table":
+                case RequestAction.DataTable:
                     response.Toolbar = await Toolbar();
                     GridGenerationMode = GridGenerationMode.DataTable;
                     await Grid(response);

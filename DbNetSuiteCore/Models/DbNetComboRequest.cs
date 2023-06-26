@@ -7,7 +7,7 @@ namespace DbNetSuiteCore.Models
         public string ComponentId { get; set; }
         public string ConnectionString { get; set; }
         public string ConnectionType { get; set; }
-        public List<string> DataOnlyColumns { get; set; } = null;
+        public List<string> DataOnlyColumns { get; set; } = new List<string>();
         public string FromPart { get; set; }
         public string ValueColumn { get; set; }
         public string TextColumn { get; set; }

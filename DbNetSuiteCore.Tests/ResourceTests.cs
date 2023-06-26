@@ -1,3 +1,4 @@
+using DbNetSuiteCore.Constants.Resource;
 using System.Net;
 
 namespace DbNetSuiteCore.Tests
@@ -9,7 +10,7 @@ namespace DbNetSuiteCore.Tests
         [Fact]
         public async Task TestGetCssStylesheet()
         {
-            var response = await _client.GetAsync("/resource.dbnetsuite?action=css");
+            var response = await _client.GetAsync($"/resource.dbnetsuite?action={RequestAction.Css}");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
         [Fact]
@@ -17,7 +18,7 @@ namespace DbNetSuiteCore.Tests
         {
             string fontFamily = "Helvetica";
             string fontSize = "Large";
-            var response = await _client.GetAsync($"/resource.dbnetsuite?action=css&font-family={fontFamily}&font-size={fontSize}");
+            var response = await _client.GetAsync($"/resource.dbnetsuite?action={RequestAction.Css}&font-family={fontFamily}&font-size={fontSize}");
             string css = await response.Content.ReadAsStringAsync();
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Contains($"--main-font-size: {fontSize}", css);
@@ -32,31 +33,31 @@ namespace DbNetSuiteCore.Tests
         [Fact]
         public async Task TestGetClientScript()
         {
-            var response = await _client.GetAsync("/resource.dbnetsuite?action=script");
+            var response = await _client.GetAsync($"/resource.dbnetsuite?action={RequestAction.Script}");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
         [Fact]
         public async Task TestGetFont()
         {
-            var response = await _client.GetAsync("/resource.dbnetsuite?action=font&name=material-icons");
+            var response = await _client.GetAsync($"/resource.dbnetsuite?action={RequestAction.Font}&name=material-icons");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
         [Fact]
         public async Task TestGetFontNotFound()
         {
-            var response = await _client.GetAsync("/resource.dbnetsuite?action=font&name=xxxxxx");
+            var response = await _client.GetAsync($"/resource.dbnetsuite?action={RequestAction.Font}&name=xxxxxx");
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
         [Fact]
         public async Task TestGetImage()
         {
-            var response = await _client.GetAsync("/resource.dbnetsuite?action=image&name=ui-icons_444444_256x240.png");
+            var response = await _client.GetAsync($"/resource.dbnetsuite?action={RequestAction.Image}&name=ui-icons_444444_256x240.png");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
         [Fact]
         public async Task TestGetImageNotFound()
         {
-            var response = await _client.GetAsync("/resource.dbnetsuite?action=image&name=xxxxxx.png");
+            var response = await _client.GetAsync($"/resource.dbnetsuite?action={RequestAction.Image}&name=xxxxxx.png");
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
     }

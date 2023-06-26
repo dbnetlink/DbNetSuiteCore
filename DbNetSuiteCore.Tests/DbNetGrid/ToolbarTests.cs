@@ -1,12 +1,8 @@
 using AngleSharp.Html.Parser;
 using DbNetSuiteCore.Models;
-using DbNetSuiteCore.Helpers;
-using System.Text;
-using System.Text.Json;
-using System.Net.Http.Json;
 using DbNetSuiteCore.Tests.Extensions;
 using DbNetSuiteCore.Enums;
-using AngleSharp.Text;
+using DbNetSuiteCore.Constants.DbNetGrid;
 
 namespace DbNetSuiteCore.Tests.DbNetGrid
 {
@@ -19,7 +15,7 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
         {
             DbNetGridRequest request = GetRequest();
 
-            DbNetGridResponse? dbNetGridResponse = await GetResponse(request, "initialize");
+            DbNetGridResponse? dbNetGridResponse = await GetResponse(request, RequestAction.Initialize);
 
             var parser = new HtmlParser();
             var document = await parser.ParseDocumentAsync(dbNetGridResponse!.Toolbar);
@@ -38,7 +34,7 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
             request.Copy = false;
             request.Navigation = false;
 
-            DbNetGridResponse? dbNetGridResponse = await GetResponse(request, "initialize");
+            DbNetGridResponse? dbNetGridResponse = await GetResponse(request, RequestAction.Initialize);
 
             var parser = new HtmlParser();
             var document = await parser.ParseDocumentAsync(dbNetGridResponse!.Toolbar);
@@ -62,7 +58,7 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
         public async Task ToolbarNavigationTest()
         {
             DbNetGridRequest request = GetRequest();
-            DbNetGridResponse? dbNetGridResponse = await GetResponse(request, "initialize");
+            DbNetGridResponse? dbNetGridResponse = await GetResponse(request, RequestAction.Initialize);
 
             var parser = new HtmlParser();
             var document = await parser.ParseDocumentAsync(dbNetGridResponse!.Toolbar);
@@ -83,7 +79,7 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
                 DbNetGridRequest request = GetRequest();
                 request.ToolbarButtonStyle = toolbarButtonStyle;
 
-                DbNetGridResponse? dbNetGridResponse = await GetResponse(request, "initialize");
+                DbNetGridResponse? dbNetGridResponse = await GetResponse(request, RequestAction.Initialize);
 
                 var parser = new HtmlParser();
                 var document = await parser.ParseDocumentAsync(dbNetGridResponse!.Toolbar);

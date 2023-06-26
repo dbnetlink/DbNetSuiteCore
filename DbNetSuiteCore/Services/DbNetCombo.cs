@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using static DbNetSuiteCore.Utilities.DbNetDataCore;
 using DbNetSuiteCore.ViewModels.DbNetCombo;
 using System.Linq;
+using DbNetSuiteCore.Constants.DbNetCombo;
 
 namespace DbNetSuiteCore.Services
 {
@@ -42,7 +43,7 @@ namespace DbNetSuiteCore.Services
 
         public bool AddEmptyOption { get; set; } = false;
         public bool AddFilter { get; set; } = false;
-        public List<string> DataOnlyColumns { get; set; } = null;
+        public List<string> DataOnlyColumns { get; set; } = new List<string>();
         public bool Distinct { get; set; } = false;
         public string EmptyOptionText { get; set; } = String.Empty;
         public string FilterToken { get; set; } = String.Empty;
@@ -89,9 +90,8 @@ namespace DbNetSuiteCore.Services
 
             switch (Action.ToLower())
             {
-                case "initialize":
-                case "page":
-                case "filter":
+                case RequestAction.Page:
+                case RequestAction.Filter:
                     await Combo(response);
                     break;
             }
@@ -208,7 +208,7 @@ namespace DbNetSuiteCore.Services
 
             DataView dataView = new DataView(dataTable);
 
-            if (Action == "filter" && string.IsNullOrEmpty(FilterToken) == false)
+            if (Action == RequestAction.Filter && string.IsNullOrEmpty(FilterToken) == false)
             {
                 FilterToken = FilterToken.Replace("%", "*");
                 if (FilterToken.Contains("*") == false)
@@ -227,7 +227,7 @@ namespace DbNetSuiteCore.Services
 
             ReflectionHelper.CopyProperties(this, viewModel);
 
-            if (Action != "filter")
+            if (Action != RequestAction.Filter)
             {
                 response.Select = await HttpContext.RenderToStringAsync($"Views/DbNetCombo/Combo.cshtml", viewModel);
             }

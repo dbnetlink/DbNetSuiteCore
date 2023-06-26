@@ -1,0 +1,17 @@
+﻿namespace DbNetSuiteCore.Constants.DbNetGrid
+{
+    public class RequestAction
+    {
+        public const string Initialize = "initialize";
+        public const string Page = "page";
+        public const string GenerateSpreadsheet = "generate-spreadsheet";
+        public const string HtmlExport = "html-export";
+        public const string DownloadColumnData = "download-column-data";
+        public const string ViewContent = "view-content";
+        public const string SearchDialog = "search-dialog";
+        public const string Lookup = "lookup";
+        public const string DataArray = "data-array";
+        public const string DataTable = "data-table";
+    }
+}
+

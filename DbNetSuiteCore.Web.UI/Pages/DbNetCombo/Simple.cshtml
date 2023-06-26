@@ -2,15 +2,6 @@
 @using DbNetSuiteCore.Components;
 @using DbNetSuiteCore.Enums.DbNetCombo;
 @{
-    // Configure the grid and render
     DbNetComboCore customersCombo = new DbNetComboCore("northwind", "customers", "customerid", "companyname");
-    customersCombo.Bind(EventType.OnOptionSelected,"showSelectedOption");
     @customersCombo.Render()
 }
-
-<script>
-    function showSelectedOption(sender, args)
-    {
-        alert(args.selectedValues[0])
-    }
-</script>

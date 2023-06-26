@@ -1,11 +1,11 @@
 using AngleSharp.Html.Parser;
 using DbNetSuiteCore.Models;
 using DbNetSuiteCore.Helpers;
-using DbNetSuiteCore.Components;
 using DbNetSuiteCore.Enums;
 using DbNetSuiteCore.Tests.Extensions;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
+using DbNetSuiteCore.Constants.DbNetGrid;
 
 namespace DbNetSuiteCore.Tests.DbNetGrid
 {
@@ -110,7 +110,7 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
             request.Columns.Add(new GridColumn("UnitPrice") { Style = style });
             request.Columns.Add(new GridColumn("UnitsInStock"));
 
-            DbNetGridResponse? dbNetGridResponse = await GetResponse(request, "initialize");
+            DbNetGridResponse? dbNetGridResponse = await GetResponse(request, RequestAction.Initialize);
 
             var parser = new HtmlParser();
             var document = await parser.ParseDocumentAsync(dbNetGridResponse?.Data.ToString() ?? string.Empty);
@@ -131,7 +131,7 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
                 request.MultiRowSelect = true;
                 request.MultiRowSelectLocation = multiRowSelectLocation;
 
-                DbNetGridResponse? dbNetGridResponse = await GetResponse(request, "initialize");
+                DbNetGridResponse? dbNetGridResponse = await GetResponse(request, RequestAction.Initialize);
 
                 var parser = new HtmlParser();
                 var document = await parser.ParseDocumentAsync(dbNetGridResponse?.Data.ToString() ?? string.Empty);
@@ -163,7 +163,7 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
 
             request.NestedGrid = true;
 
-            DbNetGridResponse? dbNetGridResponse = await GetResponse(request, "initialize");
+            DbNetGridResponse? dbNetGridResponse = await GetResponse(request, RequestAction.Initialize);
 
             var parser = new HtmlParser();
             var document = await parser.ParseDocumentAsync(dbNetGridResponse?.Data.ToString() ?? string.Empty);

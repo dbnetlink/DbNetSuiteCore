@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using DbNetSuiteCore.Constants.Resource;
 using DbNetSuiteCore.Models;
 
 namespace DbNetSuiteCore.Services
@@ -27,16 +28,16 @@ namespace DbNetSuiteCore.Services
             object result;
             switch (Action.ToLower())
 			{
-				case "script":
+				case RequestAction.Script:
 					result = await Script();
 					break;
-				case "css":
+				case RequestAction.Css:
 					result = await Css();
 					break;
-				case "image":
+				case RequestAction.Image:
 					result = await Image();
 					break;
-				case "font":
+				case RequestAction.Font:
 					result = await Font();
 					break;
 				default:

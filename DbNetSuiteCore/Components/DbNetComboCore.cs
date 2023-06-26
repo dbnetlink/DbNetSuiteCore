@@ -6,8 +6,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Html;
 using System.Data;
 using DocumentFormat.OpenXml.Drawing;
-using DbNetSuiteCore.Enums.DbNetCombo;
 using DbNetSuiteCore.Enums;
+using DbNetSuiteCore.Enums.DbNetCombo;
 
 namespace DbNetSuiteCore.Components
 {
