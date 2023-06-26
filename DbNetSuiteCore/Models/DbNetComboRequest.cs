@@ -13,6 +13,7 @@ namespace DbNetSuiteCore.Models
         public string TextColumn { get; set; }
         public bool AddEmptyOption { get; set; } = false;
         public bool AddFilter { get; set; } = false;
+        public bool Distinct { get; set; } = false;
         public string EmptyOptionText { get; set; } = string.Empty;
         public Dictionary<string, object> ProcedureParams { get; set; } = new Dictionary<string, object>();
         public string FilterToken { get; set; } = string.Empty;

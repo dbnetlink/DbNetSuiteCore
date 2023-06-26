@@ -8,6 +8,7 @@ declare class DbNetCombo extends DbNetSuite {
     autoRowSelect: boolean;
     currentValue: string;
     dataOnlyColumns: Array<string>;
+    distinct: boolean;
     emptyOptionText: string;
     fromPart: string;
     filterDelay: number;

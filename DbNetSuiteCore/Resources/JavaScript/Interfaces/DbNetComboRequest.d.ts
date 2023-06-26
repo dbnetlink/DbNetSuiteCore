@@ -5,6 +5,7 @@ interface DbNetComboRequest {
     connectionString: string;
     connectionType?: string;
     dataOnlyColumns: Array<string> | undefined;
+    distinct: boolean;
     emptyOptionText: string;
     filterToken: string;
     foreignKeyColumn: string;

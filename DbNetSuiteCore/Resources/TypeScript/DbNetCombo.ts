@@ -4,6 +4,7 @@ class DbNetCombo extends DbNetSuite {
     autoRowSelect = false;
     currentValue = "";
     dataOnlyColumns: Array<string> = [];
+    distinct = false;
     emptyOptionText = "";
     fromPart = "";
     filterDelay = 1000;
@@ -167,7 +168,8 @@ class DbNetCombo extends DbNetSuite {
             foreignKeyValue: this.foreignKeyValue,
             size: this.size,
             multipleSelect: this.multipleSelect,
-            procedureName: this.procedureName
+            procedureName: this.procedureName,
+            distinct:this.distinct
         };
 
         return request;

@@ -37,6 +37,10 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public List<string> DataOnlyColumns { get; set; } = new List<string>();
         /// <summary>
+        /// Selects distinct (unique) values only 
+        /// </summary>
+        public bool? Distinct { get; set; } = null;        
+        /// <summary>
         /// Specifies the text for the empty option
         /// </summary>
         public string EmptyOptionText { get; set; } = null;
@@ -158,6 +162,7 @@ valueColumn = '{EncodingHelper.Encode(_valueColumn)}';
             AddProperty(AutoRowSelect, nameof(AutoRowSelect), properties);
             AddProperty(EmptyOptionText, nameof(EmptyOptionText), properties);
             AddProperty(AddFilter, nameof(AddFilter), properties);
+            AddProperty(Distinct, nameof(Distinct), properties);
             AddProperty(EncodingHelper.Encode(_textColumn), "TextColumn", properties);
             AddProperty(EncodingHelper.Encode(ForeignKeyColumn), nameof(ForeignKeyColumn), properties);
             AddProperty(Size, nameof(Size), properties);

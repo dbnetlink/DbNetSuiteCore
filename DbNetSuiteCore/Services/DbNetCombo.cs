@@ -43,6 +43,7 @@ namespace DbNetSuiteCore.Services
         public bool AddEmptyOption { get; set; } = false;
         public bool AddFilter { get; set; } = false;
         public List<string> DataOnlyColumns { get; set; } = null;
+        public bool Distinct { get; set; } = false;
         public string EmptyOptionText { get; set; } = String.Empty;
         public string FilterToken { get; set; } = String.Empty;
         public string ForeignKeyColumn
@@ -115,7 +116,7 @@ namespace DbNetSuiteCore.Services
                 columns.Add(EncodingHelper.Decode(c));
             }
 
-            string sql = $"select {string.Join(",", columns)} from {FromPart}";
+            string sql = $"select{(Distinct ? " distinct" : string.Empty)} {string.Join(",", columns)} from {FromPart}";
 
             var paramNames = new List<string>();
             if (_foreignKeySupplied)
@@ -135,7 +136,7 @@ namespace DbNetSuiteCore.Services
                 }
             }
 
-            sql += $" order by {columns.Count}";
+            sql += $" order by {(string.IsNullOrEmpty(TextColumn) ? 1 : 2)}";
 
             QueryCommandConfig query = new QueryCommandConfig(sql);
 
