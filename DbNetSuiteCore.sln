@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbNetSuiteCore", "DbNetSuit
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbNetSuiteCore.Tests", "DbNetSuiteCore.Tests\DbNetSuiteCore.Tests.csproj", "{08F9A9E0-E8A3-4544-A88F-A36742F0EE75}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbNetSuiteCore.UI.Tests", "DbNetSuiteCore.UI.Tests\DbNetSuiteCore.UI.Tests.csproj", "{B7D96337-6CE3-4616-B600-CBE6567C9CB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbNetSuiteCore.UI.Tests", "DbNetSuiteCore.UI.Tests\DbNetSuiteCore.UI.Tests.csproj", "{B7D96337-6CE3-4616-B600-CBE6567C9CB4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbNetSuiteCore.Web.UI", "DbNetSuiteCore.Web.UI\DbNetSuiteCore.Web.UI.csproj", "{5D7CAB98-2E19-4D3F-BC99-B83036D31772}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbNetSuiteCore.Web.UI", "DbNetSuiteCore.Web.UI\DbNetSuiteCore.Web.UI.csproj", "{5D7CAB98-2E19-4D3F-BC99-B83036D31772}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

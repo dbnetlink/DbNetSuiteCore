@@ -3,5 +3,6 @@
 @{
     DbNetComboCore customersCombo = new DbNetComboCore("northwind", "customers", "customerid", "companyname");
     customersCombo.Size = 10;
+    customersCombo.AutoRowSelect = true;
     @customersCombo.Render()
 }

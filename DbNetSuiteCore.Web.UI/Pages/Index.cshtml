@@ -1,0 +1,13 @@
+﻿@page
+@using Microsoft.Extensions.FileProviders;
+@model DbNetSuiteCore.Web.UI.Pages.IndexModel
+@{
+    foreach (var component in Model.TestPages.Keys)
+    {
+        <h2>@component</h2>
+        foreach (IFileInfo testPage in Model.TestPages[component])
+        {
+            <div><a href="/@($"{component}/{testPage.Name.Split('.').First()}")">@testPage.Name.Split('.').First()</a></div>
+        }
+    }
+}

@@ -175,16 +175,6 @@ namespace DbNetSuiteCore.UI.Tests
         {
             return table.FindElement(By.TagName(tagName)).FindElements(By.TagName("tr"));
         }
-        private void WaitForLoad(IWebDriver driver)
-        {
-            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
-            wait.Until(driver =>
-            {
-                bool result = (bool)((IJavaScriptExecutor)driver).
-                ExecuteScript("return $('.dbnetgrid-loading:first').is(':visible') == false");
-                return result;
-            });
-        }
 
         private IWebElement WaitForSearchDialog(IWebDriver driver)
         {
@@ -256,6 +246,17 @@ namespace DbNetSuiteCore.UI.Tests
             var searchButton = GetButton(toolbar, "search");
             searchButton.Click();
             return WaitForSearchDialog(driver);
+        }
+
+        private void WaitForLoad(IWebDriver driver)
+        {
+            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+            wait.Until(driver =>
+            {
+                bool result = (bool)((IJavaScriptExecutor)driver).
+                ExecuteScript($"return $('.dbnetsuite-loading:first').is(':visible') == false");
+                return result;
+            });
         }
     }
 

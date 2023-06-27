@@ -1,7 +1,6 @@
 ﻿@page
 @using DbNetSuiteCore.Components;
 @{
-    <h2>Employees</h2>
     DbNetComboCore employeesCombo = new DbNetComboCore("northwind", "employees", "employeeid", "lastname || ', ' || firstname");
     employeesCombo.DataOnlyColumns = new List<string>() { "ReportsTo", "Title", "TitleOfCourtesy", "BirthDate", "HireDate", "Address", "City", "Region", "PostalCode", "Country", "HomePhone", "Extension" };
     @employeesCombo.Render()

@@ -10,7 +10,7 @@ namespace DbNetSuiteCore.Tests.DbNetCombo
     {
         public DbNetComboTests() : base() {}
 
-        protected DbNetComboRequest GetRequest(string connection = "northwind", string fromPart = "customers")
+        protected DbNetComboRequest GetRequest(string fromPart = "customers",string connection = "northwind")
         {
             DbNetComboRequest request = new DbNetComboRequest();
             request.ConnectionString = EncodingHelper.Encode(connection);

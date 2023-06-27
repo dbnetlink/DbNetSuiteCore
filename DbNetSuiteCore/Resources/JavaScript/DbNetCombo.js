@@ -23,6 +23,8 @@ class DbNetCombo extends DbNetSuite {
         this.valueColumn = "";
     }
     initialize() {
+        this.comboPanel = this.addPanel("combo");
+        this.addLoadingPanel();
         this.callServer("page");
         this.initialised = true;
         this.fireEvent("onInitialized");
@@ -42,11 +44,11 @@ class DbNetCombo extends DbNetSuite {
     configureCombo(response) {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
         if (response.select) {
-            (_a = this.element) === null || _a === void 0 ? void 0 : _a.html(response.select);
-            this.$select = (_b = this.element) === null || _b === void 0 ? void 0 : _b.find("select");
+            (_a = this.comboPanel) === null || _a === void 0 ? void 0 : _a.html(response.select);
+            this.$select = (_b = this.comboPanel) === null || _b === void 0 ? void 0 : _b.find("select");
             (_c = this.$select) === null || _c === void 0 ? void 0 : _c.html(response.options);
             const selectWidth = (_d = this.$select) === null || _d === void 0 ? void 0 : _d.width();
-            this.$filter = (_e = this.element) === null || _e === void 0 ? void 0 : _e.find("input");
+            this.$filter = (_e = this.comboPanel) === null || _e === void 0 ? void 0 : _e.find("input");
             (_f = this.$filter) === null || _f === void 0 ? void 0 : _f.width(selectWidth);
             (_g = this.$filter) === null || _g === void 0 ? void 0 : _g.on("keyup", (event) => this.filterKeyPress(event));
             this.$select.on("change", () => this.optionSelected());

@@ -1,0 +1,15 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums;
+@using DbNetSuiteCore.Enums.DbNetGrid;
+<div id="genre"></div>
+<div id="films"></div>
+<div id="actors"></div>
+@{
+    DbNetComboCore actorsCombo = new DbNetComboCore("sakila", "film_actor join actor on film_actor.actor_id = actor.actor_id", "actor.actor_id", "last_name || ', ' || first_name", "actors") { ForeignKeyColumn = "film_actor.film_id", Size = 10, MultipleSelect = true };
+    DbNetComboCore filmsCombo = new DbNetComboCore("sakila", "film_category join film on film.film_id = film_category.film_id", "film.film_Id", "title", "films") { ForeignKeyColumn = "film_category.category_id", Size = 10, MultipleSelect = true, AutoRowSelect = true };
+    DbNetComboCore genreCombo = new DbNetComboCore("sakila", "category", "category_id", "name", "genre") { Size = 10, MultipleSelect = true, AutoRowSelect = true };
+    filmsCombo.AddLinkedControl(actorsCombo);
+    genreCombo.AddLinkedControl(filmsCombo);
+    @genreCombo.Render()
+}

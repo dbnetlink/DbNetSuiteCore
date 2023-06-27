@@ -1,0 +1,18 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums;
+@using DbNetSuiteCore.Enums.DbNetGrid;
+
+<div id="artists"></div>
+<div id="albums"></div>
+<div id="tracks"></div>
+
+@{
+    DbNetComboCore tracksCombo = new DbNetComboCore("chinook", "tracks", "trackid", "name", "tracks") { ForeignKeyColumn = "albumid", EmptyOptionText = "Please select a track ..." };
+    DbNetComboCore albumsCombo = new DbNetComboCore("chinook", "albums", "albumid", "title", "albums") { ForeignKeyColumn = "artistid", EmptyOptionText = "Please select an album ..." };
+    DbNetComboCore artistsCombo = new DbNetComboCore("chinook", "artists", "artistid", "name", "artists") { EmptyOptionText = "Please select an artist ..." };
+    albumsCombo.AddLinkedControl(tracksCombo);
+    artistsCombo.AddLinkedControl(albumsCombo);
+    @artistsCombo.Render()
+}
+

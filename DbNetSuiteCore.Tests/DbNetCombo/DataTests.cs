@@ -193,6 +193,30 @@ namespace DbNetSuiteCore.Tests.DbNetCombo
             Assert.Equal(request.Size, select?.Size);
             Assert.Equal(true, select?.IsMultiple);
         }
+
+        [Fact]
+        public async Task DataOnlyColumnsTest()
+        {
+            var dataOnlyColumns = new List<string>() { "ReportsTo", "Title", "TitleOfCourtesy", "BirthDate", "HireDate", "Address", "City", "Region", "PostalCode", "Country", "HomePhone", "Extension" };
+
+            DbNetComboRequest request = GetRequest("employees");
+            request.ValueColumn = EncodingHelper.Encode("employeeid");
+            request.TextColumn = EncodingHelper.Encode("lastname || ', ' || firstname");
+            request.DataOnlyColumns = dataOnlyColumns.Select(c => EncodingHelper.Encode(c)).ToList();
+
+            DbNetComboResponse? dbNetComboResponse = await GetResponse(request, RequestAction.Page);
+
+            var parser = new HtmlParser();
+
+            var document = await parser.ParseDocumentAsync(dbNetComboResponse?.Options.ToString() ?? string.Empty);
+            List<IHtmlOptionElement> options = document.QuerySelectorAll<IHtmlOptionElement>("option").ToList();
+            var dataset = options?.First()?.Dataset;
+
+            foreach (var column in dataOnlyColumns) 
+            {
+                Assert.NotNull(dataset?[column.ToLower()]);
+            }
+        }
     }
 
 }

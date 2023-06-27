@@ -13,6 +13,18 @@
     --main-font-family: verdana;
 }
 
+section.dbnetsuite {
+    width: fit-content;
+    position: relative;
+
+    &.empty
+    {
+        min-height: 32px;
+        min-width: 32px;
+    }
+}
+
+
 .dbnetsuite {
     all: unset;
     display: grid;
@@ -577,7 +589,7 @@ table.lookup-dialog-toolbar {
     display: none;
 }
 
-.dbnetgrid-loading {
+.dbnetsuite-loading {
     border: 1px solid lightsteelblue;
     padding: 5px;
     background-color: whitesmoke;
@@ -590,7 +602,8 @@ table.lookup-dialog-toolbar {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50% );
+    margin: -16px 0 0 -16px;
+    //transform: translate(-50%, -50% );
 
     &.display {
         display: block;

@@ -13,7 +13,7 @@ namespace DbNetSuiteCore.Components
 {
     public class DbNetComboCore : DbNetSuiteCore
     {
-        private readonly string _fromPart;
+        private readonly string _fromPart; 
         private readonly string _valueColumn;
         private readonly string _textColumn;
         private readonly string _procedureName;

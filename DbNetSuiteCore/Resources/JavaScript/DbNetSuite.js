@@ -10,7 +10,7 @@ class DbNetSuite {
         this.initialised = false;
         this.id = id;
         this.element = $(`#${this.id}`);
-        this.element.addClass("dbnetsuite").addClass("cleanslate");
+        this.element.addClass("dbnetsuite").addClass("cleanslate").addClass("empty");
         this.checkStyleSheetLoaded();
         if (this.element.length == 0) {
             this.error(`${this.constructor.name} container element '${this.id}' not found`);
@@ -70,7 +70,7 @@ class DbNetSuite {
     addLoadingPanel() {
         this.loadingPanel = this.addPanel("loading");
         this.addPanel("loadingIcon", this.loadingPanel);
-        this.loadingPanel.addClass("dbnetgrid-loading");
+        this.loadingPanel.addClass("dbnetsuite-loading");
         this.loadingPanel.children().first().addClass("icon");
     }
     error(text) {
@@ -88,8 +88,9 @@ class DbNetSuite {
         (_a = this.loadingPanel) === null || _a === void 0 ? void 0 : _a.addClass("display");
     }
     hideLoader() {
-        var _a;
-        (_a = this.loadingPanel) === null || _a === void 0 ? void 0 : _a.removeClass("display");
+        var _a, _b;
+        (_a = this.element) === null || _a === void 0 ? void 0 : _a.removeClass("empty");
+        (_b = this.loadingPanel) === null || _b === void 0 ? void 0 : _b.removeClass("display");
     }
 }
 DbNetSuite.DBNull = "DBNull";

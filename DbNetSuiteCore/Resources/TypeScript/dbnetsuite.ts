@@ -33,7 +33,7 @@ class DbNetSuite {
     constructor(id: string) {
         this.id = id;
         this.element = $(`#${this.id}`) as JQuery<HTMLElement>;
-        this.element.addClass("dbnetsuite").addClass("cleanslate")
+        this.element.addClass("dbnetsuite").addClass("cleanslate").addClass("empty");
 
         this.checkStyleSheetLoaded();
 
@@ -105,7 +105,7 @@ class DbNetSuite {
     protected addLoadingPanel() {
         this.loadingPanel = this.addPanel("loading");
         this.addPanel("loadingIcon", this.loadingPanel);
-        this.loadingPanel.addClass("dbnetgrid-loading");
+        this.loadingPanel.addClass("dbnetsuite-loading");
         this.loadingPanel.children().first().addClass("icon");
     }
 
@@ -124,6 +124,7 @@ class DbNetSuite {
     }
 
     protected hideLoader() {
+        this.element?.removeClass("empty")
         this.loadingPanel?.removeClass("display");
     }
 }

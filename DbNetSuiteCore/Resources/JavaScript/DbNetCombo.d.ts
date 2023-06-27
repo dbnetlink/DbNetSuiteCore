@@ -6,6 +6,7 @@ declare class DbNetCombo extends DbNetSuite {
     addEmptyOption: boolean;
     addFilter: boolean;
     autoRowSelect: boolean;
+    comboPanel: JQuery<HTMLElement> | undefined;
     currentValue: string;
     dataOnlyColumns: Array<string>;
     distinct: boolean;

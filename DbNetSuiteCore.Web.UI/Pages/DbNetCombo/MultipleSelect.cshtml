@@ -1,0 +1,8 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@{
+    DbNetComboCore employeesCombo = new DbNetComboCore("northwind", "employees", "employeeid", "lastname || ', ' || firstname");
+    employeesCombo.Size = 10;
+    employeesCombo.MultipleSelect = true;
+    @employeesCombo.Render()
+}

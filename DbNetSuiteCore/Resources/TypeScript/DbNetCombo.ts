@@ -2,6 +2,7 @@ class DbNetCombo extends DbNetSuite {
     addEmptyOption = false;
     addFilter = false;
     autoRowSelect = false;
+    comboPanel: JQuery<HTMLElement> | undefined;
     currentValue = "";
     dataOnlyColumns: Array<string> = [];
     distinct = false;
@@ -29,6 +30,8 @@ class DbNetCombo extends DbNetSuite {
     }
 
     initialize(): void {
+        this.comboPanel = this.addPanel("combo");
+        this.addLoadingPanel();
         this.callServer("page");
         this.initialised = true;
         this.fireEvent("onInitialized");
@@ -52,11 +55,11 @@ class DbNetCombo extends DbNetSuite {
 
     private configureCombo(response: DbNetComboResponse) {
         if (response.select) {
-            this.element?.html(response.select);
-            this.$select = this.element?.find("select") as JQuery<HTMLSelectElement>;
+            this.comboPanel?.html(response.select);
+            this.$select = this.comboPanel?.find("select") as JQuery<HTMLSelectElement>;
             this.$select?.html(response.options);
             const selectWidth = this.$select?.width() as number;
-            this.$filter = this.element?.find("input");
+            this.$filter = this.comboPanel?.find("input");
             this.$filter?.width(selectWidth);
             this.$filter?.on("keyup", (event) => this.filterKeyPress(event));
             this.$select.on("change", () => this.optionSelected())

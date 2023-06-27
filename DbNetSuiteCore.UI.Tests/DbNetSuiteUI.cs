@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Support.UI;
 using Xunit;
 
 namespace DbNetSuiteCore.UI.Tests
@@ -16,7 +17,7 @@ namespace DbNetSuiteCore.UI.Tests
             factory.CreateDefaultClient();
 
             var chromeOptions = new ChromeOptions();
-            chromeOptions.AddArguments("--headless"); // Run Chrome in headless mode (without UI)
+           // chromeOptions.AddArguments("--headless"); // Run Chrome in headless mode (without UI)
             var chromeDriverPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             WebDriver = new ChromeDriver(chromeDriverPath, chromeOptions);
         }
@@ -24,6 +25,6 @@ namespace DbNetSuiteCore.UI.Tests
         public void Dispose()
         {
             WebDriver.Dispose();
-        }   
+        }
     }
 }
