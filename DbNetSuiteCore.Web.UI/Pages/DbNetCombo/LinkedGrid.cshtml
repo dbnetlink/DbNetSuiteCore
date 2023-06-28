@@ -15,10 +15,8 @@
     employeesGrid.SetColumnProperty("Photo", ColumnPropertyType.Image, true);
     employeesGrid.SetColumnProperty(new String[] { "photo", "notes", "photopath" }, ColumnPropertyType.Display, false);
     employeesGrid.SetColumnProperty(new String[] { "firstname", "lastname", "photo", "notes", "photopath" }, ColumnPropertyType.View, true);
-    employeesGrid.Bind(EventType.OnViewRecordSelected, "updateTitle");
     employeesGrid.SetColumnProperty("TerritoryId", ColumnPropertyType.ForeignKey, true);
     employeesGrid.SetColumnProperty(new String[] { "TerritoryId" }, ColumnPropertyType.GroupHeader, true);
-
 
     DbNetComboCore territoriesCombo = new DbNetComboCore("northwind", "territories", "territoryid", "territorydescription", "territories") { ForeignKeyColumn = "regionid", Size = 10, MultipleSelect = true, AutoRowSelect = true };
     DbNetComboCore regionsCombo = new DbNetComboCore("northwind", "regions", "regionid", "regiondescription", "regions") { Size = 10, MultipleSelect = true, AutoRowSelect = true };

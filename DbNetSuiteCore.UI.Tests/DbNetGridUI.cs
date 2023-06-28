@@ -151,29 +151,11 @@ namespace DbNetSuiteCore.UI.Tests
                 Assert.Equal(91, element.FindElements(By.CssSelector("tr.data-row")).Count);
             }
         }
-        private IWebElement GetTable(IWebDriver driver)
-        {
-            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
-            return wait.Until(driver => driver.FindElement(By.ClassName("dbnetgrid-table")));
-        }
-
+    
         private IWebElement GetToolbar(IWebDriver driver)
         {
             var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
             return wait.Until(driver => driver.FindElement(By.ClassName("dbnetgrid-toolbar")));
-        }
-
-        private ReadOnlyCollection<IWebElement> GetTableBodyRows(IWebElement table)
-        {
-            return GetTableSectionRows(table,"tbody");
-        }
-        private ReadOnlyCollection<IWebElement> GetTableHeaderRows(IWebElement table)
-        {
-            return GetTableSectionRows(table, "thead");
-        }
-        private ReadOnlyCollection<IWebElement> GetTableSectionRows(IWebElement table, string tagName)
-        {
-            return table.FindElement(By.TagName(tagName)).FindElements(By.TagName("tr"));
         }
 
         private IWebElement WaitForSearchDialog(IWebDriver driver)
@@ -246,17 +228,6 @@ namespace DbNetSuiteCore.UI.Tests
             var searchButton = GetButton(toolbar, "search");
             searchButton.Click();
             return WaitForSearchDialog(driver);
-        }
-
-        private void WaitForLoad(IWebDriver driver)
-        {
-            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
-            wait.Until(driver =>
-            {
-                bool result = (bool)((IJavaScriptExecutor)driver).
-                ExecuteScript($"return $('.dbnetsuite-loading:first').is(':visible') == false");
-                return result;
-            });
         }
     }
 
