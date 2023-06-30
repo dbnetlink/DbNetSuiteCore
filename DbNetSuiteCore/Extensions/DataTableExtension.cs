@@ -1,6 +1,6 @@
 ﻿using System.Data;
 using System.Linq;
-using DbNetSuiteCore.Models;
+using DbNetSuiteCore.Models.DbNetGrid;
 
 namespace DbNetSuiteCore.Extensions
 {

@@ -1,10 +1,7 @@
-﻿interface DbNetComboRequest
+﻿interface DbNetComboRequest extends DbNetSuiteRequest
 {
     addEmptyOption: boolean;
     addFilter: boolean;
-    componentId: string;
-    connectionString: string;
-    connectionType?: string;
     dataOnlyColumns: Array<string> | undefined;
     distinct: boolean;
     emptyOptionText: string;

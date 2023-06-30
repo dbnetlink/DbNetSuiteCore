@@ -28,6 +28,8 @@ class DbNetSuite {
     protected loadingPanel: JQuery<HTMLElement> | undefined;
     protected connectionString = "";
     protected connectionType: DbConnectionType = "SqlServer";
+    protected culture = "";
+
     public initialised = false;
 
     constructor(id: string) {
@@ -126,6 +128,39 @@ class DbNetSuite {
     protected hideLoader() {
         this.element?.removeClass("empty")
         this.loadingPanel?.removeClass("display");
+    }
+
+    protected post<T>(action: string, request: any, blob = false): Promise<T> {
+        this.showLoader();
+        const options = {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json;charset=UTF-8",
+            },
+            body: JSON.stringify(request)
+        };
+
+        return fetch(`~/${this.constructor.name.toLowerCase()}.dbnetsuite?action=${action}`, options)
+            .then(response => {
+                this.hideLoader();
+
+                if (!response.ok) {
+                    throw response;
+                }
+                if (blob) {
+                    return response.blob() as Promise<T>;
+                }
+                return response.json() as Promise<T>;
+            })
+            .catch(err => {
+                err.text().then((errorMessage: string) => {
+                    console.error(errorMessage);
+                    this.error(errorMessage.split("\n").shift() as string)
+                });
+
+                return Promise.reject()
+            })
     }
 }
 

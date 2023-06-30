@@ -1,19 +1,15 @@
 ﻿using DbNetSuiteCore.Enums;
 using System.Collections.Generic;
 
-namespace DbNetSuiteCore.Models
+namespace DbNetSuiteCore.Models.DbNetGrid
 {
-    public class DbNetGridRequest
+    public class DbNetGridRequest : DbNetSuiteRequest
     {
         public BooleanDisplayMode BooleanDisplayMode { get; set; }
         public Dictionary<string, string> ColumnFilters { get; set; } = new Dictionary<string, string>();
-        public GridColumnCollection Columns { get; set; } = new GridColumnCollection();   
+        public List<GridColumn> Columns { get; set; } = new List<GridColumn>();
         public string ColumnName { get; set; }
-        public string ComponentId { get; set; }
-        public string ConnectionString { get; set; }
-        public string ConnectionType { get; set; }
         public bool Copy { get; set; } = true;
-        public string Culture { get; set; }
         public int CurrentPage { get; set; } = 1;
         public GridColumn DefaultColumn { get; set; }
         public string Extension { get; set; }

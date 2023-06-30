@@ -33,7 +33,9 @@ namespace DbNetSuiteCore.Tests
         [Fact]
         public async Task TestGetClientScript()
         {
-            var response = await _client.GetAsync($"/resource.dbnetsuite?action={RequestAction.Script}");
+            var response = await _client.GetAsync($"/resource.dbnetsuite?action={RequestAction.Script}&debug=true");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            response = await _client.GetAsync($"/resource.dbnetsuite?action={RequestAction.Script}&debug=false");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
         [Fact]

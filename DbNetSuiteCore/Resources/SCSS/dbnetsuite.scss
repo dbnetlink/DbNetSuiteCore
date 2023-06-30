@@ -278,18 +278,18 @@ table.dbnetgrid-table {
     }
 }
 
-div.dbnetgrid-toolbar-panel {
+div.dbnetsuite-toolbar-panel {
     background-color: whitesmoke;
     border-radius: 2px;
     border: 1px solid #ccc;
     display: inline-block;
 }
 
-table.dbnetgrid-toolbar * {
+table.dbnetsuite-toolbar * {
     line-height: 1;
 }
 
-table.dbnetgrid-toolbar,
+table.dbnetsuite-toolbar,
 table.view-dialog-toolbar,
 table.search-dialog-toolbar,
 table.lookup-dialog-toolbar,
@@ -556,6 +556,7 @@ div.dialog-toolbar-panel {
     background-color: #e9e9e9;
 }
 
+table.dbnetsuite-toolbar, 
 table.view-dialog-toolbar,
 table.search-dialog-toolbar,
 table.lookup-dialog-toolbar {

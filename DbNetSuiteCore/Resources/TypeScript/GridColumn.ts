@@ -12,18 +12,7 @@ enum AggregateType {
     Count
 }
 
-class GridColumn {
-    columnExpression?: string;
-    columnName?: string;
-    columnKey?: string;
-    label?: string;
-    format?: string;
-    lookup?: string;
-    style?: string;
-    unmatched = false;
-    foreignKey?: boolean;
-    foreignKeyValue?: object | string;
-    display?: boolean;
+class GridColumn extends DbColumn {
     filter?: boolean;
     filterMode?: FilterSelectionMode;
     groupHeader?: boolean;
@@ -34,11 +23,10 @@ class GridColumn {
     aggregate?: AggregateType
     totalBreak?: boolean;
     clearDuplicateValue?: boolean;
-    primaryKey?: boolean;
-    index?: number;
     dataOnly?: boolean;
 
-    constructor(properties: GridColumnResponse, unmatched: boolean = false) {
+    constructor(properties: GridColumnResponse, unmatched = false) {
+        super();
         Object.keys(properties).forEach((key) => {
             if (properties[key as keyof GridColumnResponse] !== undefined)
                 this[key as keyof GridColumnResponse] = properties[key as keyof GridColumnResponse] as any;

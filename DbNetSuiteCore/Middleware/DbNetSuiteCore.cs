@@ -54,6 +54,10 @@ namespace DbNetLink.Middleware
                     var dbnetcombo = new DbNetCombo(services);
                     response = await dbnetcombo.Process();
                     break;
+                case "dbnetedit":
+                    var dbnetedit = new DbNetEdit(services);
+                    response = await dbnetedit.Process();
+                    break;
             }
 
             if (response == null)

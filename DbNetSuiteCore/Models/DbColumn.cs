@@ -53,10 +53,18 @@ namespace DbNetSuiteCore.Models
         public EditControlType EditControlType { get; set; }
         public bool Unmatched { get; set; }
         public bool Binary => DataType == "Byte[]";
+        public int Index { get; set; } = -1;
+        public bool Display { get; set; } = true;
+        public bool QuickSearch { get; set; } = false;
 
 
         public DbColumn()
         {
+        }
+
+        public DbColumn(string columnExpression)
+        {
+            ColumnExpression = EncodingHelper.Encode(columnExpression);
         }
 
         public void EncodeClientProperties()
@@ -64,7 +72,15 @@ namespace DbNetSuiteCore.Models
             _columnExpression = EncodingHelper.Encode(_columnExpression);
             _lookup = EncodingHelper.Encode(_lookup);
         }
+        public bool IsMatch(string columnName)
+        {
+            if (this.ColumnExpression.ToLower() == columnName.ToLower())
+                return true;
+            else if (this.ColumnName.ToLower() == columnName.ToLower())
+                return true;
 
+            return false;
+        }
         private object ConvertForeignKeyValue(object foreignKeyValue)
         {
             if (foreignKeyValue is Newtonsoft.Json.Linq.JArray)

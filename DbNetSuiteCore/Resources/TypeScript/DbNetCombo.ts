@@ -178,32 +178,5 @@ class DbNetCombo extends DbNetSuite {
         return request;
     }
   
-    private post<T>(action: string, request: any): Promise<T> {
-        this.showLoader();
-        const options = {
-            method: "POST",
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json;charset=UTF-8",
-            },
-            body: JSON.stringify(request)
-        };
 
-        return fetch(`~/dbnetcombo.dbnetsuite?action=${action}`, options)
-            .then(response => {
-                this.hideLoader();
-                if (!response.ok) {
-                    throw response;
-                }
-                return response.json() as Promise<T>;
-            })
-            .catch(err => {
-                err.text().then((errorMessage: string) => {
-                    console.error(errorMessage);
-                    this.error(errorMessage.split("\n").shift() as string)
-                });
-
-                return Promise.reject()
-            })
-    }
  }

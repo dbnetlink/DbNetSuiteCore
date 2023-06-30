@@ -6,6 +6,9 @@ using DbNetSuiteCore.Tests.Extensions;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using DbNetSuiteCore.Constants.DbNetGrid;
+using DbNetSuiteCore.Models.DbNetGrid;
+using DbNetSuiteCore.Components;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace DbNetSuiteCore.Tests.DbNetGrid
 {
@@ -37,7 +40,7 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
             Assert.Equal(11, tr?.Children.Length);
 
             request.CurrentPage = 5;
-            request.Columns = new GridColumnCollection(dbNetGridResponse!.Columns);
+            request.Columns = dbNetGridResponse!.Columns;
 
             dbNetGridResponse = await GetResponse(request, "page");
 
@@ -240,6 +243,48 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
             {
                 Assert.True(th.ClassList.Contains("sticky"));
             }
+        }
+
+        [Fact]
+        public async Task ViewTest()
+        {
+            DbNetGridRequest request = GetRequest("employees");
+            request.View = true;
+
+            var columns = new List<string>() { "firstname", "lastname", "photo", "notes", "photopath" };
+
+            foreach (var column in columns)
+            {
+                var gridColumn = new GridColumn(column);
+
+                switch(column)
+                {
+                    case "photo":
+                    case "notes":
+                    case "photopath":
+                        gridColumn.Display = false;
+                        break;
+                }
+
+                switch (column)
+                {
+                    case "image":
+                        gridColumn.Image = true;
+                        break;
+                }
+
+                gridColumn.View = true;
+                request.Columns.Add(gridColumn);
+            }
+
+            request.Columns.Add(new GridColumn("reportsto") { Lookup = EncodingHelper.Encode("select EmployeeId, lastname + ',' + firstname from employees") } );
+
+            DbNetGridResponse? dbNetGridResponse = await GetResponse(request, "initialize");
+
+            var parser = new HtmlParser();
+            var document = await parser.ParseDocumentAsync(dbNetGridResponse?.Data.ToString() ?? string.Empty);
+            var tbody = document.QuerySelector("tbody");
+            Assert.Equal(9, tbody?.Children.Length);
         }
     }
 }

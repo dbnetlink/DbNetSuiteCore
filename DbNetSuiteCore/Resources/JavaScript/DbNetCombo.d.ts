@@ -43,5 +43,4 @@ declare class DbNetCombo extends DbNetSuite {
     private applyFilter;
     callServer(action: string): void;
     private getRequest;
-    private post;
 }

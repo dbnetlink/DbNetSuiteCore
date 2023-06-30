@@ -30,7 +30,6 @@ class DbNetGrid extends DbNetSuite {
         this.columnName = undefined;
         this.columnFilters = {};
         this.copy = true;
-        this.culture = "";
         this.currentPage = 1;
         this.defaultColumn = undefined;
         this.dragAndDrop = true;
@@ -780,35 +779,6 @@ class DbNetGrid extends DbNetSuite {
     }
     disable(id, disabled) {
         this.gridElement(id).prop("disabled", disabled);
-    }
-    post(action, request, blob = false) {
-        this.showLoader();
-        const options = {
-            method: "POST",
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json;charset=UTF-8",
-            },
-            body: JSON.stringify(request)
-        };
-        return fetch(`~/dbnetgrid.dbnetsuite?action=${action}`, options)
-            .then(response => {
-            this.hideLoader();
-            if (!response.ok) {
-                throw response;
-            }
-            if (blob) {
-                return response.blob();
-            }
-            return response.json();
-        })
-            .catch(err => {
-            err.text().then((errorMessage) => {
-                console.error(errorMessage);
-                this.error(errorMessage.split("\n").shift());
-            });
-            return Promise.reject();
-        });
     }
     downloadCellData(element, image) {
         var _a, _b;

@@ -1,0 +1,2 @@
+﻿interface EditColumnProperties extends GridColumnProperties {
+}

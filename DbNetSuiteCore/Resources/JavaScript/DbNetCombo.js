@@ -152,30 +152,4 @@ class DbNetCombo extends DbNetSuite {
         };
         return request;
     }
-    post(action, request) {
-        this.showLoader();
-        const options = {
-            method: "POST",
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json;charset=UTF-8",
-            },
-            body: JSON.stringify(request)
-        };
-        return fetch(`~/dbnetcombo.dbnetsuite?action=${action}`, options)
-            .then(response => {
-            this.hideLoader();
-            if (!response.ok) {
-                throw response;
-            }
-            return response.json();
-        })
-            .catch(err => {
-            err.text().then((errorMessage) => {
-                console.error(errorMessage);
-                this.error(errorMessage.split("\n").shift());
-            });
-            return Promise.reject();
-        });
-    }
 }

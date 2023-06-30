@@ -1,6 +1,7 @@
 ﻿@namespace DbNetSuiteCore.Views.DbNetGrid
 @using DbNetSuiteCore.Enums
 @using DbNetSuiteCore.Helpers
+@using DbNetSuiteCore.Models.DbNetGrid;
 @using DbNetSuiteCore.ViewModels.DbNetGrid
 @using DbNetSuiteCore.Models
 @using System.Data
@@ -13,7 +14,7 @@
             @foreach (DataColumn column in Model.ViewData.Columns)
             {
                 DataRow row = Model.ViewData.Rows[0];
-                GridColumn gridColumn = Model.Columns[column.ColumnName];
+                GridColumn gridColumn = Model.Columns.First(c => c.IsMatch(column.ColumnName));
 
                 if (gridColumn.View == false)
                 {
@@ -99,11 +100,11 @@
     }
 
 
-    public static int PrimaryKeyIndex(DataColumnCollection columns, GridColumnCollection gridColumns)
+    public static int PrimaryKeyIndex(DataColumnCollection columns, List<GridColumn> gridColumns)
     {
         foreach (DataColumn column in columns)
         {
-            GridColumn gridColumn = gridColumns[column.ColumnName];
+            GridColumn gridColumn = gridColumns.First(c => c.IsMatch(column.ColumnName));
             if (gridColumn.PrimaryKey)
             {
                 return gridColumn.Index;

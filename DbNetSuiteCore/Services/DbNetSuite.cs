@@ -6,16 +6,22 @@ using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using DbNetSuiteCore.Helpers;
-using System.ComponentModel;
 using System;
 using System.Resources;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Text.Json.Serialization;
+using DbNetSuiteCore.Utilities;
+using System.Globalization;
+using System.Threading;
+using DbNetSuiteCore.Enums;
+using DbNetSuiteCore.Models.DbNetGrid;
+using System.Collections.Specialized;
+using System.Data;
+using System.Text.RegularExpressions;
 
 namespace DbNetSuiteCore.Services
 {
@@ -38,6 +44,7 @@ namespace DbNetSuiteCore.Services
             set => _connectionString = value;
         }
         public string Culture { get; set; } = String.Empty;
+        protected DbNetDataCore Database { get; set; }
 
         public string Id => ComponentId;
         public ResourceManager ResourceManager { get; set; }
@@ -61,6 +68,10 @@ namespace DbNetSuiteCore.Services
         protected async Task<string> GetResourceString(string resourceName)
         {
             byte[] buffer = await GetResource(resourceName);
+            if (buffer == null)
+            {
+                throw new Exception($"Resource '{resourceName}' not found");
+            }
             return new UTF8Encoding(false).GetString(buffer);
         }
         protected async Task<byte[]> GetResource(string resourceName)
@@ -83,6 +94,27 @@ namespace DbNetSuiteCore.Services
                     return null;
                 }
             }
+        }
+
+        protected void Initialise()
+        {
+            Database = new DbNetDataCore(ConnectionString, Env, Configuration);
+
+            ResourceManager = new ResourceManager("DbNetSuiteCore.Resources.Localization.default", typeof(DbNetSuite).Assembly);
+
+            if (string.IsNullOrEmpty(Culture) == false)
+            {
+                CultureInfo ci = new CultureInfo(Culture);
+                Thread.CurrentThread.CurrentCulture = ci;
+                Thread.CurrentThread.CurrentUICulture = ci;
+            }
+        }
+
+        protected async Task<T> DeserialiseRequest<T>()
+        {
+            var request = await GetRequest<T>();
+            ReflectionHelper.CopyProperties(request, this);
+            return request;
         }
 
         protected async Task<T> GetRequest<T>()

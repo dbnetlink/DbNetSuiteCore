@@ -1,8 +1,8 @@
 using AngleSharp.Html.Parser;
-using DbNetSuiteCore.Models;
 using DbNetSuiteCore.Tests.Extensions;
 using DbNetSuiteCore.Enums;
 using DbNetSuiteCore.Constants.DbNetGrid;
+using DbNetSuiteCore.Models.DbNetGrid;
 
 namespace DbNetSuiteCore.Tests.DbNetGrid
 {

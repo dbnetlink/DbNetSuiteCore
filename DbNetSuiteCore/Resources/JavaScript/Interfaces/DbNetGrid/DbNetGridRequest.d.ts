@@ -1,14 +1,9 @@
-﻿interface DbNetGridRequest
-{
+interface DbNetGridRequest extends DbNetSuiteRequest {
     booleanDisplayMode: BooleanDisplayMode;
     columnFilters: Dictionary<string>;
     columnName: string | undefined;
     columns: GridColumnRequest[];
-    componentId: string;
-    connectionString: string;
-    connectionType?: string;
     copy: boolean;
-    culture: string;
     currentPage: number;
     defaultColumn: GridColumn | undefined;
     export: boolean;
@@ -17,7 +12,7 @@
     fixedFilterSql: string | undefined;
     fromPart: string;
     frozenHeader: boolean;
-    gridGenerationMode: GridGenerationMode
+    gridGenerationMode: GridGenerationMode;
     groupBy: boolean;
     lookupColumnIndex?: number | undefined;
     multiRowSelect: boolean;

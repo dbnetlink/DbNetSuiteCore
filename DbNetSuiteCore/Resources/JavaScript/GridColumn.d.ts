@@ -10,18 +10,7 @@ declare enum AggregateType {
     Max = 4,
     Count = 5
 }
-declare class GridColumn {
-    columnExpression?: string;
-    columnName?: string;
-    columnKey?: string;
-    label?: string;
-    format?: string;
-    lookup?: string;
-    style?: string;
-    unmatched: boolean;
-    foreignKey?: boolean;
-    foreignKeyValue?: object | string;
-    display?: boolean;
+declare class GridColumn extends DbColumn {
     filter?: boolean;
     filterMode?: FilterSelectionMode;
     groupHeader?: boolean;
@@ -32,8 +21,6 @@ declare class GridColumn {
     aggregate?: AggregateType;
     totalBreak?: boolean;
     clearDuplicateValue?: boolean;
-    primaryKey?: boolean;
-    index?: number;
     dataOnly?: boolean;
     constructor(properties: GridColumnResponse, unmatched?: boolean);
 }

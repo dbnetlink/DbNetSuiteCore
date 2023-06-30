@@ -10,11 +10,11 @@
     <Description>Interactive database driven Razor web reporting component for ASP.NET Core.  Supports MSSQL, MySql, PostgreSQL and SQLite</Description>
     <RepositoryUrl>https://github.com/dbnetlink/DbNetSuiteCore</RepositoryUrl>
     <PackageTags>asp.net core, grid, spreadsheet</PackageTags>
-    <AssemblyVersion>0.9.42</AssemblyVersion>
-    <FileVersion>0.9.42</FileVersion>
-    <PackageReleaseNotes>Alpah version. Currently still under active development.</PackageReleaseNotes>
+    <AssemblyVersion>0.9.43</AssemblyVersion>
+    <FileVersion>0.9.43</FileVersion>
+    <PackageReleaseNotes>Beta version. Currently still under active development.</PackageReleaseNotes>
     <PackageProjectUrl>https://dbnetsuitecoreapp.azurewebsites.net</PackageProjectUrl>
-    <Version>0.9.42-beta</Version>
+    <Version>0.9.43-beta</Version>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageLicenseExpression> NPOSL-3.0</PackageLicenseExpression>
     <BaseOutputPath>C:\Users\robin\source\repos\DbNetSuiteCore-VS2022\DbNetSuiteCoreApp\bin</BaseOutputPath>
@@ -35,6 +35,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\DbColumnCollection.cs" />
+    <Compile Remove="Models\DbNetGrid\GridColumnCollection.cs" />
     <Compile Remove="Utilities\DbNetLink.DbNetData.cs" />
   </ItemGroup>
 
@@ -58,14 +60,20 @@
     <None Remove="Resources\Images\ui-icons_cc0000_256x240.png" />
     <None Remove="Resources\Images\ui-icons_ffffff_256x240.png" />
     <None Remove="Resources\JavaScript\axios.js" />
+    <None Remove="Resources\JavaScript\DbColumn.js" />
+    <None Remove="Resources\JavaScript\DbColumn.min.js" />
     <None Remove="Resources\JavaScript\DbNetCombo.js" />
     <None Remove="Resources\JavaScript\DbNetCombo.min.js" />
+    <None Remove="Resources\JavaScript\DbNetEdit.js" />
+    <None Remove="Resources\JavaScript\DbNetEdit.min.js" />
     <None Remove="Resources\JavaScript\dbnetgrid.js" />
     <None Remove="Resources\JavaScript\DbNetGrid.min.js" />
     <None Remove="Resources\JavaScript\dbnetsuite.js" />
     <None Remove="Resources\JavaScript\DbNetSuite.min.js" />
     <None Remove="Resources\JavaScript\Dialog.js" />
     <None Remove="Resources\JavaScript\Dialog.min.js" />
+    <None Remove="Resources\JavaScript\EditColumn.js" />
+    <None Remove="Resources\JavaScript\EditColumn.min.js" />
     <None Remove="Resources\JavaScript\GridColumn.js" />
     <None Remove="Resources\JavaScript\GridColumn.min.js" />
     <None Remove="Resources\JavaScript\jquery-3.6.0.js" />
@@ -83,10 +91,12 @@
     <None Remove="Resources\SCSS\_variables.scss" />
     <None Remove="Resources\tsconfig.json" />
     <None Remove="Resources\TypeScript\DbNetCombo.ts" />
+    <None Remove="Resources\TypeScript\DbNetEdit.ts" />
     <None Remove="Resources\TypeScript\dbnetgrid.ts" />
     <None Remove="Resources\TypeScript\dbnetsuite.ts" />
     <None Remove="Views\DbNetCombo\Combo.cshtml" />
     <None Remove="Views\DbNetCombo\Options.cshtml" />
+    <None Remove="Views\DbNetEdit\Toolbar.cshtml" />
     <None Remove="Views\DbNetGrid\DataTable.cshtml" />
     <None Remove="Views\DbNetGrid\Grid.cshtml" />
     <None Remove="Views\DbNetGrid\HtmlExport.cshtml" />
@@ -114,12 +124,18 @@
     <EmbeddedResource Include="Resources\CSS\libraries\jquery.timepicker.min.css" />
     <EmbeddedResource Include="Resources\CSS\_reboot.css" />
     <EmbeddedResource Include="Resources\CSS\_reboot.min.css" />
+    <EmbeddedResource Include="Resources\JavaScript\DbColumn.js" />
+    <EmbeddedResource Include="Resources\JavaScript\DbColumn.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetCombo.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetCombo.min.js" />
+    <EmbeddedResource Include="Resources\JavaScript\DbNetEdit.js" />
+    <EmbeddedResource Include="Resources\JavaScript\DbNetEdit.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetGrid.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetSuite.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\Dialog.js" />
     <EmbeddedResource Include="Resources\JavaScript\Dialog.min.js" />
+    <EmbeddedResource Include="Resources\JavaScript\EditColumn.js" />
+    <EmbeddedResource Include="Resources\JavaScript\EditColumn.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\GridColumn.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\libraries\jquery.timepicker.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\LookupDialog.js" />
@@ -143,12 +159,17 @@
     <EmbeddedResource Include="Resources\JavaScript\libraries\jquery-ui.min.js" />
     <EmbeddedResource Include="Resources\SCSS\dbnetcombo.scss" />
     <EmbeddedResource Include="Resources\SCSS\_reboot.scss" />
+    <EmbeddedResource Include="Resources\TypeScript\DbNetEdit.ts" />
     <EmbeddedResource Include="Resources\TypeScript\DbNetCombo.ts" />
     <EmbeddedResource Include="Views\DbNetCombo\Options.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\DbNetCombo\Combo.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\DbNetEdit\Toolbar.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </EmbeddedResource>

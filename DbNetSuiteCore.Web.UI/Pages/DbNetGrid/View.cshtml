@@ -1,0 +1,8 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@{
+    // Configure the grid and render
+    DbNetGridCore customersGrid = new DbNetGridCore("northwind", "customers");
+    customersGrid.View = true;
+    @customersGrid.Render()
+}

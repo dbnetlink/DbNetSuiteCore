@@ -1,5 +1,4 @@
 using AngleSharp.Html.Parser;
-using DbNetSuiteCore.Models;
 using DbNetSuiteCore.Helpers;
 using DbNetSuiteCore.Components;
 using DbNetSuiteCore.Enums;
@@ -7,6 +6,7 @@ using DbNetSuiteCore.Tests.Extensions;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using DbNetSuiteCore.Constants.DbNetCombo;
+using DbNetSuiteCore.Models.DbNetCombo;
 
 namespace DbNetSuiteCore.Tests.DbNetCombo
 {

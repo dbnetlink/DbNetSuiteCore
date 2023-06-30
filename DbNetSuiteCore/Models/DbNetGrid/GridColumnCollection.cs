@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace DbNetSuiteCore.Models
+namespace DbNetSuiteCore.Models.DbNetGrid
 {
     ///////////////////////////////////////////////
     public class GridColumnCollection : Collection<GridColumn>
     ///////////////////////////////////////////////
     {
-        public GridColumnCollection() :base(new List<GridColumn>())
+        public GridColumnCollection() : base(new List<GridColumn>())
         {
         }
 

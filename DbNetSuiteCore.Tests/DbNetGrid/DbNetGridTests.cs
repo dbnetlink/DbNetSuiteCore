@@ -1,10 +1,10 @@
-using DbNetSuiteCore.Models;
 using System.Text;
 using System.Text.Json;
 using System.Net.Http.Json;
 using DbNetSuiteCore.Helpers;
 using Irony.Parsing;
 using AngleSharp.Html.Dom;
+using DbNetSuiteCore.Models.DbNetGrid;
 
 namespace DbNetSuiteCore.Tests.DbNetGrid
 {

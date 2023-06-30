@@ -34,7 +34,6 @@ declare class DbNetGrid extends DbNetSuite {
     columns: GridColumn[];
     columnFilters: Dictionary<string>;
     copy: boolean;
-    culture: string;
     currentPage: number;
     defaultColumn: GridColumn | undefined;
     dragAndDrop: boolean;
@@ -135,7 +134,6 @@ declare class DbNetGrid extends DbNetSuite {
     private getRequest;
     private addEventListener;
     private disable;
-    private post;
     downloadCellData(element: HTMLElement, image: boolean): void;
     private openNestedGrid;
     private configureNestedGrid;

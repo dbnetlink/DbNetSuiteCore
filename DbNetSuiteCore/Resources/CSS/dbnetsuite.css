@@ -221,7 +221,7 @@ table.dbnetgrid-table td button.download {
   vertical-align: top;
   line-height: 0px;
   outline: none;
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='' fill='SteelBlue'><path d='M6 20q-.825 0-1.412-.587Q4 18.825 4 18v-3h2v3h12v-3h2v3q0 .825-.587 1.413Q18.825 20 18 20Zm6-4-5-5 1.4-1.45 2.6 2.6V4h2v8.15l2.6-2.6L17 11Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='SteelBlue'><path d='M236-129q-43.725 0-74.863-31.137Q130-191.275 130-235v-122h106v122h488v-122h106v122q0 43.725-31.138 74.863Q767.725-129 724-129H236Zm245-184L241-553l75-75 112 112v-321h106v321l112-112 75 75-240 240Z'/></svg>");
 }
 table.dbnetgrid-table td button.download:active {
   background-color: #e5e5e5;
@@ -231,25 +231,25 @@ table.dbnetgrid-table td button.download:active {
   box-shadow: inset 0px 0px 5px #c1c1c1;
 }
 
-div.dbnetgrid-toolbar-panel {
+div.dbnetsuite-toolbar-panel {
   background-color: whitesmoke;
   border-radius: 2px;
   border: 1px solid #ccc;
   display: inline-block;
 }
 
-table.dbnetgrid-toolbar * {
+table.dbnetsuite-toolbar * {
   line-height: 1;
 }
 
-table.dbnetgrid-toolbar,
+table.dbnetsuite-toolbar,
 table.view-dialog-toolbar,
 table.search-dialog-toolbar,
 table.lookup-dialog-toolbar,
 .search-dialog {
   border-collapse: inherit;
 }
-table.dbnetgrid-toolbar td,
+table.dbnetsuite-toolbar td,
 table.view-dialog-toolbar td,
 table.search-dialog-toolbar td,
 table.lookup-dialog-toolbar td,
@@ -257,7 +257,7 @@ table.lookup-dialog-toolbar td,
   vertical-align: middle;
   border: 0px;
 }
-table.dbnetgrid-toolbar td .toolbar-button,
+table.dbnetsuite-toolbar td .toolbar-button,
 table.view-dialog-toolbar td .toolbar-button,
 table.search-dialog-toolbar td .toolbar-button,
 table.lookup-dialog-toolbar td .toolbar-button,
@@ -277,7 +277,7 @@ table.lookup-dialog-toolbar td .toolbar-button,
   font-weight: bold;
   color: dimgray;
 }
-table.dbnetgrid-toolbar td .toolbar-button.toolbar-button-image,
+table.dbnetsuite-toolbar td .toolbar-button.toolbar-button-image,
 table.view-dialog-toolbar td .toolbar-button.toolbar-button-image,
 table.search-dialog-toolbar td .toolbar-button.toolbar-button-image,
 table.lookup-dialog-toolbar td .toolbar-button.toolbar-button-image,
@@ -285,7 +285,7 @@ table.lookup-dialog-toolbar td .toolbar-button.toolbar-button-image,
   width: 24px;
   background-position: center center;
 }
-table.dbnetgrid-toolbar td .toolbar-button.toolbar-button-imageandtext,
+table.dbnetsuite-toolbar td .toolbar-button.toolbar-button-imageandtext,
 table.view-dialog-toolbar td .toolbar-button.toolbar-button-imageandtext,
 table.search-dialog-toolbar td .toolbar-button.toolbar-button-imageandtext,
 table.lookup-dialog-toolbar td .toolbar-button.toolbar-button-imageandtext,
@@ -293,7 +293,7 @@ table.lookup-dialog-toolbar td .toolbar-button.toolbar-button-imageandtext,
   background-position: center left;
   padding-left: 20px;
 }
-table.dbnetgrid-toolbar td .toolbar-button:disabled,
+table.dbnetsuite-toolbar td .toolbar-button:disabled,
 table.view-dialog-toolbar td .toolbar-button:disabled,
 table.search-dialog-toolbar td .toolbar-button:disabled,
 table.lookup-dialog-toolbar td .toolbar-button:disabled,
@@ -301,7 +301,7 @@ table.lookup-dialog-toolbar td .toolbar-button:disabled,
   background-color: #F5F5F5;
   color: #CCC;
 }
-table.dbnetgrid-toolbar td .toolbar-button:active,
+table.dbnetsuite-toolbar td .toolbar-button:active,
 table.view-dialog-toolbar td .toolbar-button:active,
 table.search-dialog-toolbar td .toolbar-button:active,
 table.lookup-dialog-toolbar td .toolbar-button:active,
@@ -312,455 +312,455 @@ table.lookup-dialog-toolbar td .toolbar-button:active,
   -moz-box-shadow: inset 0px 0px 5px #c1c1c1;
   box-shadow: inset 0px 0px 5px #c1c1c1;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=previous],
+table.dbnetsuite-toolbar td .toolbar-button[button-type=previous],
 table.view-dialog-toolbar td .toolbar-button[button-type=previous],
 table.search-dialog-toolbar td .toolbar-button[button-type=previous],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=previous],
 .search-dialog td .toolbar-button[button-type=previous] {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='' fill='steelblue'><path d='m14 18-6-6 6-6 1.4 1.4-4.6 4.6 4.6 4.6Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='steelblue'><path d='M562-221 302-481l260-260 74 74-186 186 186 186-74 74Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=previous].toolbar-button-text,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=previous].toolbar-button-text,
 table.view-dialog-toolbar td .toolbar-button[button-type=previous].toolbar-button-text,
 table.search-dialog-toolbar td .toolbar-button[button-type=previous].toolbar-button-text,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=previous].toolbar-button-text,
 .search-dialog td .toolbar-button[button-type=previous].toolbar-button-text {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=previous].toolbar-button-text:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=previous].toolbar-button-text:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=previous].toolbar-button-text:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=previous].toolbar-button-text:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=previous].toolbar-button-text:disabled,
 .search-dialog td .toolbar-button[button-type=previous].toolbar-button-text:disabled {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=previous]:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=previous]:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=previous]:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=previous]:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=previous]:disabled,
 .search-dialog td .toolbar-button[button-type=previous]:disabled {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='' fill='gainsboro'><path d='m14 18-6-6 6-6 1.4 1.4-4.6 4.6 4.6 4.6Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='gainsboro'><path d='M562-221 302-481l260-260 74 74-186 186 186 186-74 74Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=next],
+table.dbnetsuite-toolbar td .toolbar-button[button-type=next],
 table.view-dialog-toolbar td .toolbar-button[button-type=next],
 table.search-dialog-toolbar td .toolbar-button[button-type=next],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=next],
 .search-dialog td .toolbar-button[button-type=next] {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='' fill='steelblue'><path d='M9.4 18 8 16.6l4.6-4.6L8 7.4 9.4 6l6 6Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='steelblue'><path d='m376-221-74-74 186-186-186-186 74-74 260 260-260 260Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=next].toolbar-button-text,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=next].toolbar-button-text,
 table.view-dialog-toolbar td .toolbar-button[button-type=next].toolbar-button-text,
 table.search-dialog-toolbar td .toolbar-button[button-type=next].toolbar-button-text,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=next].toolbar-button-text,
 .search-dialog td .toolbar-button[button-type=next].toolbar-button-text {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=next].toolbar-button-text:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=next].toolbar-button-text:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=next].toolbar-button-text:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=next].toolbar-button-text:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=next].toolbar-button-text:disabled,
 .search-dialog td .toolbar-button[button-type=next].toolbar-button-text:disabled {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=next]:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=next]:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=next]:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=next]:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=next]:disabled,
 .search-dialog td .toolbar-button[button-type=next]:disabled {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='' fill='gainsboro'><path d='M9.4 18 8 16.6l4.6-4.6L8 7.4 9.4 6l6 6Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='gainsboro'><path d='m376-221-74-74 186-186-186-186 74-74 260 260-260 260Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=first],
+table.dbnetsuite-toolbar td .toolbar-button[button-type=first],
 table.view-dialog-toolbar td .toolbar-button[button-type=first],
 table.search-dialog-toolbar td .toolbar-button[button-type=first],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=first],
 .search-dialog td .toolbar-button[button-type=first] {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='' fill='steelblue'><path d='M6 18V6h2v12Zm11 0-6-6 6-6 1.4 1.4-4.6 4.6 4.6 4.6Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='steelblue'><path d='M222-225v-514h106v514H222Zm462 6L422-481l262-262 74 74-188 188 188 188-74 74Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=first].toolbar-button-text,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=first].toolbar-button-text,
 table.view-dialog-toolbar td .toolbar-button[button-type=first].toolbar-button-text,
 table.search-dialog-toolbar td .toolbar-button[button-type=first].toolbar-button-text,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=first].toolbar-button-text,
 .search-dialog td .toolbar-button[button-type=first].toolbar-button-text {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=first].toolbar-button-text:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=first].toolbar-button-text:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=first].toolbar-button-text:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=first].toolbar-button-text:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=first].toolbar-button-text:disabled,
 .search-dialog td .toolbar-button[button-type=first].toolbar-button-text:disabled {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=first]:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=first]:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=first]:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=first]:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=first]:disabled,
 .search-dialog td .toolbar-button[button-type=first]:disabled {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='' fill='gainsboro'><path d='M6 18V6h2v12Zm11 0-6-6 6-6 1.4 1.4-4.6 4.6 4.6 4.6Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='gainsboro'><path d='M222-225v-514h106v514H222Zm462 6L422-481l262-262 74 74-188 188 188 188-74 74Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=last],
+table.dbnetsuite-toolbar td .toolbar-button[button-type=last],
 table.view-dialog-toolbar td .toolbar-button[button-type=last],
 table.search-dialog-toolbar td .toolbar-button[button-type=last],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=last],
 .search-dialog td .toolbar-button[button-type=last] {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='' fill='steelblue'><path d='m7 18-1.4-1.4 4.6-4.6-4.6-4.6L7 6l6 6Zm9 0V6h2v12Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='steelblue'><path d='m278-219-74-74 188-188-188-188 74-74 262 262-262 262Zm356-5v-514h106v514H634Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=last].toolbar-button-text,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=last].toolbar-button-text,
 table.view-dialog-toolbar td .toolbar-button[button-type=last].toolbar-button-text,
 table.search-dialog-toolbar td .toolbar-button[button-type=last].toolbar-button-text,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=last].toolbar-button-text,
 .search-dialog td .toolbar-button[button-type=last].toolbar-button-text {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=last].toolbar-button-text:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=last].toolbar-button-text:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=last].toolbar-button-text:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=last].toolbar-button-text:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=last].toolbar-button-text:disabled,
 .search-dialog td .toolbar-button[button-type=last].toolbar-button-text:disabled {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=last]:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=last]:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=last]:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=last]:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=last]:disabled,
 .search-dialog td .toolbar-button[button-type=last]:disabled {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='' fill='gainsboro'><path d='m7 18-1.4-1.4 4.6-4.6-4.6-4.6L7 6l6 6Zm9 0V6h2v12Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='gainsboro'><path d='m278-219-74-74 188-188-188-188 74-74 262 262-262 262Zm356-5v-514h106v514H634Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=download],
+table.dbnetsuite-toolbar td .toolbar-button[button-type=download],
 table.view-dialog-toolbar td .toolbar-button[button-type=download],
 table.search-dialog-toolbar td .toolbar-button[button-type=download],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=download],
 .search-dialog td .toolbar-button[button-type=download] {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='' fill='steelblue'><path d='M6 20q-.825 0-1.412-.587Q4 18.825 4 18v-3h2v3h12v-3h2v3q0 .825-.587 1.413Q18.825 20 18 20Zm6-4-5-5 1.4-1.45 2.6 2.6V4h2v8.15l2.6-2.6L17 11Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='steelblue'><path d='M236-129q-43.725 0-74.863-31.137Q130-191.275 130-235v-122h106v122h488v-122h106v122q0 43.725-31.138 74.863Q767.725-129 724-129H236Zm245-184L241-553l75-75 112 112v-321h106v321l112-112 75 75-240 240Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=download].toolbar-button-text,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=download].toolbar-button-text,
 table.view-dialog-toolbar td .toolbar-button[button-type=download].toolbar-button-text,
 table.search-dialog-toolbar td .toolbar-button[button-type=download].toolbar-button-text,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=download].toolbar-button-text,
 .search-dialog td .toolbar-button[button-type=download].toolbar-button-text {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=download].toolbar-button-text:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=download].toolbar-button-text:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=download].toolbar-button-text:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=download].toolbar-button-text:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=download].toolbar-button-text:disabled,
 .search-dialog td .toolbar-button[button-type=download].toolbar-button-text:disabled {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=download]:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=download]:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=download]:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=download]:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=download]:disabled,
 .search-dialog td .toolbar-button[button-type=download]:disabled {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='' fill='gainsboro'><path d='M6 20q-.825 0-1.412-.587Q4 18.825 4 18v-3h2v3h12v-3h2v3q0 .825-.587 1.413Q18.825 20 18 20Zm6-4-5-5 1.4-1.45 2.6 2.6V4h2v8.15l2.6-2.6L17 11Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='gainsboro'><path d='M236-129q-43.725 0-74.863-31.137Q130-191.275 130-235v-122h106v122h488v-122h106v122q0 43.725-31.138 74.863Q767.725-129 724-129H236Zm245-184L241-553l75-75 112 112v-321h106v321l112-112 75 75-240 240Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=copy],
+table.dbnetsuite-toolbar td .toolbar-button[button-type=copy],
 table.view-dialog-toolbar td .toolbar-button[button-type=copy],
 table.search-dialog-toolbar td .toolbar-button[button-type=copy],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=copy],
 .search-dialog td .toolbar-button[button-type=copy] {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='' fill='steelblue'><path d='M5 22q-.825 0-1.413-.587Q3 20.825 3 20V6h2v14h11v2Zm4-4q-.825 0-1.412-.587Q7 16.825 7 16V4q0-.825.588-1.413Q8.175 2 9 2h9q.825 0 1.413.587Q20 3.175 20 4v12q0 .825-.587 1.413Q18.825 18 18 18Zm0-2h9V4H9v12Zm0 0V4v12Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='steelblue'><path d='M171-24q-43.725 0-74.862-31.138Q65-86.275 65-130v-610h106v610h488v106H171Zm212-212q-43.725 0-74.862-31.138Q277-298.275 277-342v-488q0-43.725 31.138-74.862Q339.275-936 383-936h366q43.725 0 74.862 31.138Q855-873.725 855-830v488q0 43.725-31.138 74.862Q792.725-236 749-236H383Zm0-106h366v-488H383v488Zm0 0v-488 488Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=copy].toolbar-button-text,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=copy].toolbar-button-text,
 table.view-dialog-toolbar td .toolbar-button[button-type=copy].toolbar-button-text,
 table.search-dialog-toolbar td .toolbar-button[button-type=copy].toolbar-button-text,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=copy].toolbar-button-text,
 .search-dialog td .toolbar-button[button-type=copy].toolbar-button-text {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=copy].toolbar-button-text:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=copy].toolbar-button-text:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=copy].toolbar-button-text:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=copy].toolbar-button-text:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=copy].toolbar-button-text:disabled,
 .search-dialog td .toolbar-button[button-type=copy].toolbar-button-text:disabled {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=copy]:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=copy]:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=copy]:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=copy]:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=copy]:disabled,
 .search-dialog td .toolbar-button[button-type=copy]:disabled {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='' fill='gainsboro'><path d='M5 22q-.825 0-1.413-.587Q3 20.825 3 20V6h2v14h11v2Zm4-4q-.825 0-1.412-.587Q7 16.825 7 16V4q0-.825.588-1.413Q8.175 2 9 2h9q.825 0 1.413.587Q20 3.175 20 4v12q0 .825-.587 1.413Q18.825 18 18 18Zm0-2h9V4H9v12Zm0 0V4v12Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='gainsboro'><path d='M171-24q-43.725 0-74.862-31.138Q65-86.275 65-130v-610h106v610h488v106H171Zm212-212q-43.725 0-74.862-31.138Q277-298.275 277-342v-488q0-43.725 31.138-74.862Q339.275-936 383-936h366q43.725 0 74.862 31.138Q855-873.725 855-830v488q0 43.725-31.138 74.862Q792.725-236 749-236H383Zm0-106h366v-488H383v488Zm0 0v-488 488Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=view],
+table.dbnetsuite-toolbar td .toolbar-button[button-type=view],
 table.view-dialog-toolbar td .toolbar-button[button-type=view],
 table.search-dialog-toolbar td .toolbar-button[button-type=view],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=view],
 .search-dialog td .toolbar-button[button-type=view] {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='steelblue'><path d='M274 696q31 0 55.5-18t34.5-47l15-46q16-48-8-88.5T302 456H161l19 157q5 35 31.5 59t62.5 24Zm412 0q36 0 62.5-24t31.5-59l19-157H659q-45 0-69 41t-8 89l14 45q10 29 34.5 47t55.5 18Zm-412 80q-66 0-115.5-43.5T101 623L80 456H40v-80h262q44 0 80.5 21.5T440 456h81q21-37 57.5-58.5T659 376h261v80h-40l-21 167q-8 66-57.5 109.5T686 776q-57 0-102.5-32.5T520 657l-15-45q-2-7-4-14.5t-4-21.5h-34q-2 12-4 19.5t-4 14.5l-15 46q-18 54-63.5 87T274 776Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='steelblue'><path d='M160-136q-45 0-75.5-30.5T54-242v-476q0-45 30.5-75.5T160-824h640q45 0 75.5 30.5T906-718v476q0 45-30.5 75.5T800-136H160Zm0-106h640v-476H160v476Zm0 0v-476 476Zm478 0 74-74-66-66q15-25 23.5-51.919Q678-460.838 678-490q0-86.667-60.735-147.333Q556.529-698 469.765-698 383-698 322.5-637.265q-60.5 60.736-60.5 147.5Q262-403 322.667-342.5 383.333-282 470-282q27 0 53-6.5t49-19.5l66 66ZM470-388q-42 0-72-30t-30-72q0-42 30-72t72-30q42 0 72 30t30 72q0 42-30 72t-72 30Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=view].toolbar-button-text,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=view].toolbar-button-text,
 table.view-dialog-toolbar td .toolbar-button[button-type=view].toolbar-button-text,
 table.search-dialog-toolbar td .toolbar-button[button-type=view].toolbar-button-text,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=view].toolbar-button-text,
 .search-dialog td .toolbar-button[button-type=view].toolbar-button-text {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=view].toolbar-button-text:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=view].toolbar-button-text:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=view].toolbar-button-text:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=view].toolbar-button-text:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=view].toolbar-button-text:disabled,
 .search-dialog td .toolbar-button[button-type=view].toolbar-button-text:disabled {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=view]:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=view]:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=view]:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=view]:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=view]:disabled,
 .search-dialog td .toolbar-button[button-type=view]:disabled {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='gainsboro'><path d='M274 696q31 0 55.5-18t34.5-47l15-46q16-48-8-88.5T302 456H161l19 157q5 35 31.5 59t62.5 24Zm412 0q36 0 62.5-24t31.5-59l19-157H659q-45 0-69 41t-8 89l14 45q10 29 34.5 47t55.5 18Zm-412 80q-66 0-115.5-43.5T101 623L80 456H40v-80h262q44 0 80.5 21.5T440 456h81q21-37 57.5-58.5T659 376h261v80h-40l-21 167q-8 66-57.5 109.5T686 776q-57 0-102.5-32.5T520 657l-15-45q-2-7-4-14.5t-4-21.5h-34q-2 12-4 19.5t-4 14.5l-15 46q-18 54-63.5 87T274 776Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='gainsboro'><path d='M160-136q-45 0-75.5-30.5T54-242v-476q0-45 30.5-75.5T160-824h640q45 0 75.5 30.5T906-718v476q0 45-30.5 75.5T800-136H160Zm0-106h640v-476H160v476Zm0 0v-476 476Zm478 0 74-74-66-66q15-25 23.5-51.919Q678-460.838 678-490q0-86.667-60.735-147.333Q556.529-698 469.765-698 383-698 322.5-637.265q-60.5 60.736-60.5 147.5Q262-403 322.667-342.5 383.333-282 470-282q27 0 53-6.5t49-19.5l66 66ZM470-388q-42 0-72-30t-30-72q0-42 30-72t72-30q42 0 72 30t30 72q0 42-30 72t-72 30Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=print],
+table.dbnetsuite-toolbar td .toolbar-button[button-type=print],
 table.view-dialog-toolbar td .toolbar-button[button-type=print],
 table.search-dialog-toolbar td .toolbar-button[button-type=print],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=print],
 .search-dialog td .toolbar-button[button-type=print] {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='steelblue'><path d='M640 416V296H320v120h-80V216h480v200h-80Zm-480 80h640-640Zm560 100q17 0 28.5-11.5T760 556q0-17-11.5-28.5T720 516q-17 0-28.5 11.5T680 556q0 17 11.5 28.5T720 596Zm-80 260V696H320v160h320Zm80 80H240V776H80V536q0-51 35-85.5t85-34.5h560q51 0 85.5 34.5T880 536v240H720v160Zm80-240V536q0-17-11.5-28.5T760 496H200q-17 0-28.5 11.5T160 536v160h80v-80h480v80h80Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=print].toolbar-button-text,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=print].toolbar-button-text,
 table.view-dialog-toolbar td .toolbar-button[button-type=print].toolbar-button-text,
 table.search-dialog-toolbar td .toolbar-button[button-type=print].toolbar-button-text,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=print].toolbar-button-text,
 .search-dialog td .toolbar-button[button-type=print].toolbar-button-text {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=print].toolbar-button-text:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=print].toolbar-button-text:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=print].toolbar-button-text:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=print].toolbar-button-text:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=print].toolbar-button-text:disabled,
 .search-dialog td .toolbar-button[button-type=print].toolbar-button-text:disabled {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=print]:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=print]:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=print]:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=print]:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=print]:disabled,
 .search-dialog td .toolbar-button[button-type=print]:disabled {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='gainsboro'><path d='M640 416V296H320v120h-80V216h480v200h-80Zm-480 80h640-640Zm560 100q17 0 28.5-11.5T760 556q0-17-11.5-28.5T720 516q-17 0-28.5 11.5T680 556q0 17 11.5 28.5T720 596Zm-80 260V696H320v160h320Zm80 80H240V776H80V536q0-51 35-85.5t85-34.5h560q51 0 85.5 34.5T880 536v240H720v160Zm80-240V536q0-17-11.5-28.5T760 496H200q-17 0-28.5 11.5T160 536v160h80v-80h480v80h80Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=close],
+table.dbnetsuite-toolbar td .toolbar-button[button-type=close],
 table.view-dialog-toolbar td .toolbar-button[button-type=close],
 table.search-dialog-toolbar td .toolbar-button[button-type=close],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=close],
 .search-dialog td .toolbar-button[button-type=close] {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='steelblue'><path d='m256 856-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='steelblue'><path d='m252-176-74-76 227-228-227-230 74-76 229 230 227-230 74 76-227 230 227 228-74 76-227-230-229 230Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=close].toolbar-button-text,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=close].toolbar-button-text,
 table.view-dialog-toolbar td .toolbar-button[button-type=close].toolbar-button-text,
 table.search-dialog-toolbar td .toolbar-button[button-type=close].toolbar-button-text,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=close].toolbar-button-text,
 .search-dialog td .toolbar-button[button-type=close].toolbar-button-text {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=close].toolbar-button-text:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=close].toolbar-button-text:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=close].toolbar-button-text:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=close].toolbar-button-text:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=close].toolbar-button-text:disabled,
 .search-dialog td .toolbar-button[button-type=close].toolbar-button-text:disabled {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=close]:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=close]:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=close]:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=close]:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=close]:disabled,
 .search-dialog td .toolbar-button[button-type=close]:disabled {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='gainsboro'><path d='m256 856-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='gainsboro'><path d='m252-176-74-76 227-228-227-230 74-76 229 230 227-230 74 76-227 230 227 228-74 76-227-230-229 230Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=search],
+table.dbnetsuite-toolbar td .toolbar-button[button-type=search],
 table.view-dialog-toolbar td .toolbar-button[button-type=search],
 table.search-dialog-toolbar td .toolbar-button[button-type=search],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=search],
 .search-dialog td .toolbar-button[button-type=search] {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='steelblue'><path d='M784 936 532 684q-30 24-69 38t-83 14q-109 0-184.5-75.5T120 476q0-109 75.5-184.5T380 216q109 0 184.5 75.5T640 476q0 44-14 83t-38 69l252 252-56 56ZM380 656q75 0 127.5-52.5T560 476q0-75-52.5-127.5T380 296q-75 0-127.5 52.5T200 476q0 75 52.5 127.5T380 656Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='steelblue'><path d='M793-94 539-348q-30 23-73.5 36.5T377-298q-119 0-201.5-82.5T93-582q0-119 82.5-201.5T377-866q119 0 201.5 82.5T661-582q0 45-12.5 86T612-423l255 255-74 74ZM377-404q75 0 126.5-51.5T555-582q0-75-51.5-126.5T377-760q-75 0-126.5 51.5T199-582q0 75 51.5 126.5T377-404Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=search].toolbar-button-text,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=search].toolbar-button-text,
 table.view-dialog-toolbar td .toolbar-button[button-type=search].toolbar-button-text,
 table.search-dialog-toolbar td .toolbar-button[button-type=search].toolbar-button-text,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=search].toolbar-button-text,
 .search-dialog td .toolbar-button[button-type=search].toolbar-button-text {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=search].toolbar-button-text:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=search].toolbar-button-text:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=search].toolbar-button-text:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=search].toolbar-button-text:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=search].toolbar-button-text:disabled,
 .search-dialog td .toolbar-button[button-type=search].toolbar-button-text:disabled {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=search]:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=search]:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=search]:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=search]:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=search]:disabled,
 .search-dialog td .toolbar-button[button-type=search]:disabled {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='gainsboro'><path d='M784 936 532 684q-30 24-69 38t-83 14q-109 0-184.5-75.5T120 476q0-109 75.5-184.5T380 216q109 0 184.5 75.5T640 476q0 44-14 83t-38 69l252 252-56 56ZM380 656q75 0 127.5-52.5T560 476q0-75-52.5-127.5T380 296q-75 0-127.5 52.5T200 476q0 75 52.5 127.5T380 656Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='gainsboro'><path d='M793-94 539-348q-30 23-73.5 36.5T377-298q-119 0-201.5-82.5T93-582q0-119 82.5-201.5T377-866q119 0 201.5 82.5T661-582q0 45-12.5 86T612-423l255 255-74 74ZM377-404q75 0 126.5-51.5T555-582q0-75-51.5-126.5T377-760q-75 0-126.5 51.5T199-582q0 75 51.5 126.5T377-404Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=calendar],
+table.dbnetsuite-toolbar td .toolbar-button[button-type=calendar],
 table.view-dialog-toolbar td .toolbar-button[button-type=calendar],
 table.search-dialog-toolbar td .toolbar-button[button-type=calendar],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=calendar],
 .search-dialog td .toolbar-button[button-type=calendar] {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='steelblue'><path d='M200 976q-33 0-56.5-23.5T120 896V336q0-33 23.5-56.5T200 256h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840 336v560q0 33-23.5 56.5T760 976H200Zm0-80h560V496H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Zm280 240q-17 0-28.5-11.5T440 616q0-17 11.5-28.5T480 576q17 0 28.5 11.5T520 616q0 17-11.5 28.5T480 656Zm-160 0q-17 0-28.5-11.5T280 616q0-17 11.5-28.5T320 576q17 0 28.5 11.5T360 616q0 17-11.5 28.5T320 656Zm320 0q-17 0-28.5-11.5T600 616q0-17 11.5-28.5T640 576q17 0 28.5 11.5T680 616q0 17-11.5 28.5T640 656ZM480 816q-17 0-28.5-11.5T440 776q0-17 11.5-28.5T480 736q17 0 28.5 11.5T520 776q0 17-11.5 28.5T480 816Zm-160 0q-17 0-28.5-11.5T280 776q0-17 11.5-28.5T320 736q17 0 28.5 11.5T360 776q0 17-11.5 28.5T320 816Zm320 0q-17 0-28.5-11.5T600 776q0-17 11.5-28.5T640 736q17 0 28.5 11.5T680 776q0 17-11.5 28.5T640 816Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=calendar].toolbar-button-text,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=calendar].toolbar-button-text,
 table.view-dialog-toolbar td .toolbar-button[button-type=calendar].toolbar-button-text,
 table.search-dialog-toolbar td .toolbar-button[button-type=calendar].toolbar-button-text,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=calendar].toolbar-button-text,
 .search-dialog td .toolbar-button[button-type=calendar].toolbar-button-text {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=calendar].toolbar-button-text:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=calendar].toolbar-button-text:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=calendar].toolbar-button-text:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=calendar].toolbar-button-text:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=calendar].toolbar-button-text:disabled,
 .search-dialog td .toolbar-button[button-type=calendar].toolbar-button-text:disabled {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=calendar]:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=calendar]:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=calendar]:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=calendar]:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=calendar]:disabled,
 .search-dialog td .toolbar-button[button-type=calendar]:disabled {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='gainsboro'><path d='M200 976q-33 0-56.5-23.5T120 896V336q0-33 23.5-56.5T200 256h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840 336v560q0 33-23.5 56.5T760 976H200Zm0-80h560V496H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Zm280 240q-17 0-28.5-11.5T440 616q0-17 11.5-28.5T480 576q17 0 28.5 11.5T520 616q0 17-11.5 28.5T480 656Zm-160 0q-17 0-28.5-11.5T280 616q0-17 11.5-28.5T320 576q17 0 28.5 11.5T360 616q0 17-11.5 28.5T320 656Zm320 0q-17 0-28.5-11.5T600 616q0-17 11.5-28.5T640 576q17 0 28.5 11.5T680 616q0 17-11.5 28.5T640 656ZM480 816q-17 0-28.5-11.5T440 776q0-17 11.5-28.5T480 736q17 0 28.5 11.5T520 776q0 17-11.5 28.5T480 816Zm-160 0q-17 0-28.5-11.5T280 776q0-17 11.5-28.5T320 736q17 0 28.5 11.5T360 776q0 17-11.5 28.5T320 816Zm320 0q-17 0-28.5-11.5T600 776q0-17 11.5-28.5T640 736q17 0 28.5 11.5T680 776q0 17-11.5 28.5T640 816Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=lookup],
+table.dbnetsuite-toolbar td .toolbar-button[button-type=lookup],
 table.view-dialog-toolbar td .toolbar-button[button-type=lookup],
 table.search-dialog-toolbar td .toolbar-button[button-type=lookup],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=lookup],
 .search-dialog td .toolbar-button[button-type=lookup] {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='steelblue'><path d='M320 776q17 0 28.5-11.5T360 736q0-17-11.5-28.5T320 696q-17 0-28.5 11.5T280 736q0 17 11.5 28.5T320 776Zm0-160q17 0 28.5-11.5T360 576q0-17-11.5-28.5T320 536q-17 0-28.5 11.5T280 576q0 17 11.5 28.5T320 616Zm0-160q17 0 28.5-11.5T360 416q0-17-11.5-28.5T320 376q-17 0-28.5 11.5T280 416q0 17 11.5 28.5T320 456Zm120 320h240v-80H440v80Zm0-160h240v-80H440v80Zm0-160h240v-80H440v80ZM200 936q-33 0-56.5-23.5T120 856V296q0-33 23.5-56.5T200 216h560q33 0 56.5 23.5T840 296v560q0 33-23.5 56.5T760 936H200Zm0-80h560V296H200v560Zm0-560v560-560Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=lookup].toolbar-button-text,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=lookup].toolbar-button-text,
 table.view-dialog-toolbar td .toolbar-button[button-type=lookup].toolbar-button-text,
 table.search-dialog-toolbar td .toolbar-button[button-type=lookup].toolbar-button-text,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=lookup].toolbar-button-text,
 .search-dialog td .toolbar-button[button-type=lookup].toolbar-button-text {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=lookup].toolbar-button-text:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=lookup].toolbar-button-text:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=lookup].toolbar-button-text:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=lookup].toolbar-button-text:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=lookup].toolbar-button-text:disabled,
 .search-dialog td .toolbar-button[button-type=lookup].toolbar-button-text:disabled {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=lookup]:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=lookup]:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=lookup]:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=lookup]:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=lookup]:disabled,
 .search-dialog td .toolbar-button[button-type=lookup]:disabled {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='gainsboro'><path d='M320 776q17 0 28.5-11.5T360 736q0-17-11.5-28.5T320 696q-17 0-28.5 11.5T280 736q0 17 11.5 28.5T320 776Zm0-160q17 0 28.5-11.5T360 576q0-17-11.5-28.5T320 536q-17 0-28.5 11.5T280 576q0 17 11.5 28.5T320 616Zm0-160q17 0 28.5-11.5T360 416q0-17-11.5-28.5T320 376q-17 0-28.5 11.5T280 416q0 17 11.5 28.5T320 456Zm120 320h240v-80H440v80Zm0-160h240v-80H440v80Zm0-160h240v-80H440v80ZM200 936q-33 0-56.5-23.5T120 856V296q0-33 23.5-56.5T200 216h560q33 0 56.5 23.5T840 296v560q0 33-23.5 56.5T760 936H200Zm0-80h560V296H200v560Zm0-560v560-560Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=apply],
+table.dbnetsuite-toolbar td .toolbar-button[button-type=apply],
 table.view-dialog-toolbar td .toolbar-button[button-type=apply],
 table.search-dialog-toolbar td .toolbar-button[button-type=apply],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=apply],
 .search-dialog td .toolbar-button[button-type=apply] {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='steelblue'><path d='M382 816 154 588l57-57 171 171 367-367 57 57-424 424Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='steelblue'><path d='M382-218 130-470l75-75 177 177 375-375 75 75-450 450Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=apply].toolbar-button-text,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=apply].toolbar-button-text,
 table.view-dialog-toolbar td .toolbar-button[button-type=apply].toolbar-button-text,
 table.search-dialog-toolbar td .toolbar-button[button-type=apply].toolbar-button-text,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=apply].toolbar-button-text,
 .search-dialog td .toolbar-button[button-type=apply].toolbar-button-text {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=apply].toolbar-button-text:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=apply].toolbar-button-text:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=apply].toolbar-button-text:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=apply].toolbar-button-text:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=apply].toolbar-button-text:disabled,
 .search-dialog td .toolbar-button[button-type=apply].toolbar-button-text:disabled {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=apply]:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=apply]:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=apply]:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=apply]:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=apply]:disabled,
 .search-dialog td .toolbar-button[button-type=apply]:disabled {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='gainsboro'><path d='M382 816 154 588l57-57 171 171 367-367 57 57-424 424Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='gainsboro'><path d='M382-218 130-470l75-75 177 177 375-375 75 75-450 450Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=reset],
+table.dbnetsuite-toolbar td .toolbar-button[button-type=reset],
 table.view-dialog-toolbar td .toolbar-button[button-type=reset],
 table.search-dialog-toolbar td .toolbar-button[button-type=reset],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=reset],
 .search-dialog td .toolbar-button[button-type=reset] {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='steelblue'><path d='M440 934q-121-15-200.5-105.5T160 616q0-66 26-126.5T260 384l57 57q-38 34-57.5 79T240 616q0 88 56 155.5T440 854v80Zm80 0v-80q87-16 143.5-83T720 616q0-100-70-170t-170-70h-3l44 44-56 56-140-140 140-140 56 56-44 44h3q134 0 227 93t93 227q0 121-79.5 211.5T520 934Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=reset].toolbar-button-text,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=reset].toolbar-button-text,
 table.view-dialog-toolbar td .toolbar-button[button-type=reset].toolbar-button-text,
 table.search-dialog-toolbar td .toolbar-button[button-type=reset].toolbar-button-text,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=reset].toolbar-button-text,
 .search-dialog td .toolbar-button[button-type=reset].toolbar-button-text {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=reset].toolbar-button-text:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=reset].toolbar-button-text:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=reset].toolbar-button-text:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=reset].toolbar-button-text:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=reset].toolbar-button-text:disabled,
 .search-dialog td .toolbar-button[button-type=reset].toolbar-button-text:disabled {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=reset]:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=reset]:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=reset]:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=reset]:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=reset]:disabled,
 .search-dialog td .toolbar-button[button-type=reset]:disabled {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='gainsboro'><path d='M440 934q-121-15-200.5-105.5T160 616q0-66 26-126.5T260 384l57 57q-38 34-57.5 79T240 616q0 88 56 155.5T440 854v80Zm80 0v-80q87-16 143.5-83T720 616q0-100-70-170t-170-70h-3l44 44-56 56-140-140 140-140 56 56-44 44h3q134 0 227 93t93 227q0 121-79.5 211.5T520 934Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=clock],
+table.dbnetsuite-toolbar td .toolbar-button[button-type=clock],
 table.view-dialog-toolbar td .toolbar-button[button-type=clock],
 table.search-dialog-toolbar td .toolbar-button[button-type=clock],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=clock],
 .search-dialog td .toolbar-button[button-type=clock] {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='steelblue'><path d='m612 764 56-56-148-148V376h-80v216l172 172ZM480 976q-83 0-156-31.5T197 859q-54-54-85.5-127T80 576q0-83 31.5-156T197 293q54-54 127-85.5T480 176q83 0 156 31.5T763 293q54 54 85.5 127T880 576q0 83-31.5 156T763 859q-54 54-127 85.5T480 976Zm0-400Zm0 320q133 0 226.5-93.5T800 576q0-133-93.5-226.5T480 256q-133 0-226.5 93.5T160 576q0 133 93.5 226.5T480 896Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=clock].toolbar-button-text,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=clock].toolbar-button-text,
 table.view-dialog-toolbar td .toolbar-button[button-type=clock].toolbar-button-text,
 table.search-dialog-toolbar td .toolbar-button[button-type=clock].toolbar-button-text,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=clock].toolbar-button-text,
 .search-dialog td .toolbar-button[button-type=clock].toolbar-button-text {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=clock].toolbar-button-text:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=clock].toolbar-button-text:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=clock].toolbar-button-text:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=clock].toolbar-button-text:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=clock].toolbar-button-text:disabled,
 .search-dialog td .toolbar-button[button-type=clock].toolbar-button-text:disabled {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=clock]:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=clock]:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=clock]:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=clock]:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=clock]:disabled,
 .search-dialog td .toolbar-button[button-type=clock]:disabled {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='gainsboro'><path d='m612 764 56-56-148-148V376h-80v216l172 172ZM480 976q-83 0-156-31.5T197 859q-54-54-85.5-127T80 576q0-83 31.5-156T197 293q54-54 127-85.5T480 176q83 0 156 31.5T763 293q54 54 85.5 127T880 576q0 83-31.5 156T763 859q-54 54-127 85.5T480 976Zm0-400Zm0 320q133 0 226.5-93.5T800 576q0-133-93.5-226.5T480 256q-133 0-226.5 93.5T160 576q0 133 93.5 226.5T480 896Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=cancel],
+table.dbnetsuite-toolbar td .toolbar-button[button-type=cancel],
 table.view-dialog-toolbar td .toolbar-button[button-type=cancel],
 table.search-dialog-toolbar td .toolbar-button[button-type=cancel],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=cancel],
 .search-dialog td .toolbar-button[button-type=cancel] {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='steelblue'><path d='m252 880-74-76 227-228-227-230 74-76 229 230 227-230 74 76-227 230 227 228-74 76-227-230-229 230Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='steelblue'><path d='M266-182v-106h302q59 0 102.5-36.5T714-418q0-57-43.5-93.5T568-548H340l94 94-74 72-220-219 220-220 74 73-94 94h228q103 0 177.5 68T820-418q0 100-74.5 168T568-182H266Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=cancel].toolbar-button-text,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=cancel].toolbar-button-text,
 table.view-dialog-toolbar td .toolbar-button[button-type=cancel].toolbar-button-text,
 table.search-dialog-toolbar td .toolbar-button[button-type=cancel].toolbar-button-text,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=cancel].toolbar-button-text,
 .search-dialog td .toolbar-button[button-type=cancel].toolbar-button-text {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=cancel].toolbar-button-text:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=cancel].toolbar-button-text:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=cancel].toolbar-button-text:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=cancel].toolbar-button-text:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=cancel].toolbar-button-text:disabled,
 .search-dialog td .toolbar-button[button-type=cancel].toolbar-button-text:disabled {
   background-image: none;
 }
-table.dbnetgrid-toolbar td .toolbar-button[button-type=cancel]:disabled,
+table.dbnetsuite-toolbar td .toolbar-button[button-type=cancel]:disabled,
 table.view-dialog-toolbar td .toolbar-button[button-type=cancel]:disabled,
 table.search-dialog-toolbar td .toolbar-button[button-type=cancel]:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=cancel]:disabled,
 .search-dialog td .toolbar-button[button-type=cancel]:disabled {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='gainsboro'><path d='m252 880-74-76 227-228-227-230 74-76 229 230 227-230 74 76-227 230 227 228-74 76-227-230-229 230Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='gainsboro'><path d='M266-182v-106h302q59 0 102.5-36.5T714-418q0-57-43.5-93.5T568-548H340l94 94-74 72-220-219 220-220 74 73-94 94h228q103 0 177.5 68T820-418q0 100-74.5 168T568-182H266Z'/></svg>");
 }
-table.dbnetgrid-toolbar td .toolbar-info,
+table.dbnetsuite-toolbar td .toolbar-info,
 table.view-dialog-toolbar td .toolbar-info,
 table.search-dialog-toolbar td .toolbar-info,
 table.lookup-dialog-toolbar td .toolbar-info,
@@ -775,7 +775,7 @@ table.lookup-dialog-toolbar td .toolbar-info,
   margin: 0px;
   text-align: center;
 }
-table.dbnetgrid-toolbar td .toolbar-select,
+table.dbnetsuite-toolbar td .toolbar-select,
 table.view-dialog-toolbar td .toolbar-select,
 table.search-dialog-toolbar td .toolbar-select,
 table.lookup-dialog-toolbar td .toolbar-select,
@@ -787,7 +787,7 @@ table.lookup-dialog-toolbar td .toolbar-select,
   height: 24px;
   margin: 0px;
 }
-table.dbnetgrid-toolbar td .toolbar-text,
+table.dbnetsuite-toolbar td .toolbar-text,
 table.view-dialog-toolbar td .toolbar-text,
 table.search-dialog-toolbar td .toolbar-text,
 table.lookup-dialog-toolbar td .toolbar-text,
@@ -797,7 +797,7 @@ table.lookup-dialog-toolbar td .toolbar-text,
   font-family: var(--main-font-family);
   font-size: var(--main-font-size);
 }
-table.dbnetgrid-toolbar td .toolbar-info[name=QuickSearch],
+table.dbnetsuite-toolbar td .toolbar-info[name=QuickSearch],
 table.view-dialog-toolbar td .toolbar-info[name=QuickSearch],
 table.search-dialog-toolbar td .toolbar-info[name=QuickSearch],
 table.lookup-dialog-toolbar td .toolbar-info[name=QuickSearch],
@@ -810,14 +810,14 @@ table.lookup-dialog-toolbar td .toolbar-info[name=QuickSearch],
   background-repeat: no-repeat;
   background-size: 20px 20px;
 }
-table.dbnetgrid-toolbar td.no-records,
+table.dbnetsuite-toolbar td.no-records,
 table.view-dialog-toolbar td.no-records,
 table.search-dialog-toolbar td.no-records,
 table.lookup-dialog-toolbar td.no-records,
 .search-dialog td.no-records {
   display: none;
 }
-table.dbnetgrid-toolbar td.no-records span,
+table.dbnetsuite-toolbar td.no-records span,
 table.view-dialog-toolbar td.no-records span,
 table.search-dialog-toolbar td.no-records span,
 table.lookup-dialog-toolbar td.no-records span,
@@ -950,16 +950,19 @@ div.dialog-toolbar-panel {
   background-color: #e9e9e9;
 }
 
+table.dbnetsuite-toolbar td .toolbar-button[button-type=apply],
 table.view-dialog-toolbar td .toolbar-button[button-type=apply],
 table.search-dialog-toolbar td .toolbar-button[button-type=apply],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=apply] {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='LimeGreen'><path d='M382 816 154 588l57-57 171 171 367-367 57 57-424 424Z'/></svg>") !important;
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='LimeGreen'><path d='M382-218 130-470l75-75 177 177 375-375 75 75-450 450Z'/></svg>") !important;
 }
+table.dbnetsuite-toolbar td .toolbar-button[button-type=cancel],
 table.view-dialog-toolbar td .toolbar-button[button-type=cancel],
 table.search-dialog-toolbar td .toolbar-button[button-type=cancel],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=cancel] {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 96 960 960' fill='IndianRed'><path d='m252 880-74-76 227-228-227-230 74-76 229 230 227-230 74 76-227 230 227 228-74 76-227-230-229 230Z'/></svg>") !important;
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='IndianRed'><path d='M266-182v-106h302q59 0 102.5-36.5T714-418q0-57-43.5-93.5T568-548H340l94 94-74 72-220-219 220-220 74 73-94 94h228q103 0 177.5 68T820-418q0 100-74.5 168T568-182H266Z'/></svg>") !important;
 }
+table.dbnetsuite-toolbar td .toolbar-button[button-type=clear],
 table.view-dialog-toolbar td .toolbar-button[button-type=clear],
 table.search-dialog-toolbar td .toolbar-button[button-type=clear],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=clear] {
@@ -1008,7 +1011,7 @@ table.lookup-dialog-toolbar td .toolbar-button[button-type=clear] {
 }
 
 .next-icon-left-svg {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='20' width='20' viewBox='' fill='SteelBlue'><path d='M9.4 18 8 16.6l4.6-4.6L8 7.4 9.4 6l6 6Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='20' width='20' viewBox='0 -960 960 960' fill='SteelBlue'><path d='m376-221-74-74 186-186-186-186 74-74 260 260-260 260Z'/></svg>");
 }
 
 div.dbnetsuite-error {

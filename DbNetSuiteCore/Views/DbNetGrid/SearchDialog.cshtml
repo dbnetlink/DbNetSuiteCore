@@ -2,6 +2,7 @@
 @using DbNetSuiteCore.Enums
 @using DbNetSuiteCore.Helpers
 @using DbNetSuiteCore.Models
+@using DbNetSuiteCore.Models.DbNetGrid;
 @using Microsoft.AspNetCore.Html
 @model DbNetSuiteCore.ViewModels.DbNetGrid.SearchDialogViewModel
 
@@ -57,7 +58,7 @@
                 @Button("Clear", ToolbarButtonStyle.ImageAndText, "ClearTheSearchCriteria")
                 <td style="width:100%">&nbsp;</td>
                 @Button("Apply", ToolbarButtonStyle.ImageAndText,"ApplyTheEnteredSearchCriteria")
-                @Button("Cancel", ToolbarButtonStyle.ImageAndText, "CloseTheSearchWindow")
+                @Button("Close", ToolbarButtonStyle.ImageAndText, "CloseTheSearchWindow")
             </tr>
         </table>
     </div>

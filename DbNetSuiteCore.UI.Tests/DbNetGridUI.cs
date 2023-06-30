@@ -151,24 +151,55 @@ namespace DbNetSuiteCore.UI.Tests
                 Assert.Equal(91, element.FindElements(By.CssSelector("tr.data-row")).Count);
             }
         }
-    
+
+        [Fact]
+        public void ViewTest()
+        {
+            using (var driver = WebDriver)
+            {
+                driver.Navigate().GoToUrl($"{_factory.HostUrl}/dbnetgrid/view");
+
+                var toolbar = GetToolbar(driver);
+                var viewButton = GetButton(toolbar, "view");
+                viewButton.Click();
+                var viewDialog = WaitForViewDialog(driver);
+                Assert.NotNull(viewDialog);
+
+                IWebElement row = viewDialog.FindElements(By.CssSelector($"tr[data-columnname='CompanyName']")).First();
+                IWebElement div = row.FindElement(By.CssSelector("div.view-dialog-value"));
+                Assert.Equal("Alfreds Futterkiste", div.Text);
+                var parentCell = div.FindElement(By.XPath("./.."));
+                Assert.Equal("Alfreds Futterkiste", parentCell.GetAttribute("data-value"));
+            }
+        }
+
         private IWebElement GetToolbar(IWebDriver driver)
         {
             var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
-            return wait.Until(driver => driver.FindElement(By.ClassName("dbnetgrid-toolbar")));
+            return wait.Until(driver => driver.FindElement(By.ClassName("dbnetsuite-toolbar")));
         }
 
         private IWebElement WaitForSearchDialog(IWebDriver driver)
+        {
+            return WaitForDialog(driver, "search");
+        }
+
+        private IWebElement WaitForViewDialog(IWebDriver driver)
+        {
+            return WaitForDialog(driver, "view");
+        }
+
+        private IWebElement WaitForDialog(IWebDriver driver, string dialogName)
         {
             var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
             wait.Until(driver =>
             {
                 bool result = (bool)((IJavaScriptExecutor)driver).
-                ExecuteScript("return $('.search-dialog:first').is(':visible') == true");
+                ExecuteScript($"return $('.{dialogName}-dialog:first').is(':visible') == true");
                 return result;
             });
 
-            return driver.FindElement(By.CssSelector(".search-dialog"));
+            return driver.FindElement(By.CssSelector($".{dialogName}-dialog"));
         }
 
         private IWebElement GetButton(IWebElement container, string buttonType)

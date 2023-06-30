@@ -35,7 +35,6 @@ class DbNetGrid extends DbNetSuite {
     columns: GridColumn[];
     columnFilters: Dictionary<string> = {};
     copy = true;
-    culture = "";
     currentPage = 1;
     defaultColumn: GridColumn | undefined = undefined;
     dragAndDrop = true;
@@ -876,7 +875,7 @@ class DbNetGrid extends DbNetSuite {
             orderBy: this.orderBy,
             orderByDirection: this.orderByDirection,
             toolbarButtonStyle: this.toolbarButtonStyle,
-            columns: this.columns.map((column) => { return column }),
+            columns: this.columns.map((column) => { return column as GridColumnRequest }),
             multiRowSelect: this.multiRowSelect,
             multiRowSelectLocation: this.multiRowSelectLocation,
             nestedGrid: this.nestedGrid,
@@ -914,39 +913,6 @@ class DbNetGrid extends DbNetSuite {
 
     private disable(id: string, disabled: boolean) {
         this.gridElement(id).prop("disabled", disabled);
-    }
-
-    private post<T>(action: string, request: any, blob = false): Promise<T> {
-        this.showLoader();
-        const options = {
-            method: "POST",
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json;charset=UTF-8",
-            },
-            body: JSON.stringify(request)
-        };
-
-        return fetch(`~/dbnetgrid.dbnetsuite?action=${action}`, options)
-            .then(response => {
-                this.hideLoader();
-
-                if (!response.ok) {
-                    throw response;
-                }
-                if (blob) {
-                    return response.blob() as Promise<T>;
-                }
-                return response.json() as Promise<T>;
-            })
-            .catch(err => {
-                err.text().then((errorMessage: string) => {
-                    console.error(errorMessage);
-                    this.error(errorMessage.split("\n").shift() as string)
-                });
-
-                return Promise.reject()
-            })
     }
 
     public downloadCellData(element: HTMLElement, image: boolean) {

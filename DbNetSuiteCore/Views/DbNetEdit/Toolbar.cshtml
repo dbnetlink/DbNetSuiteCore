@@ -1,0 +1,82 @@
+﻿@namespace DbNetSuiteCore.Views.DbNetEdit
+@using DbNetSuiteCore.ViewModels.DbNetEdit
+@using Microsoft.AspNetCore.Html
+@model ToolbarViewModel
+
+<div class="dbnetsuite-toolbar-panel">
+    <table class="dbnetsuite-toolbar" id="@(Model.ComponentId)_dbnetedit-toolbar">
+        <tbody>
+            <tr>
+                @if (Model.Search)
+                {
+                    @Button("Search", Model, false)
+                }
+                @QuickSearch(Model)
+                @if (Model.Navigation)
+                {
+                    @Button("First", Model)
+                    @Button("Previous", Model)
+                }
+                @NoRecords(Model)
+                @if (Model.Navigation)
+                {
+                    @Text("Row", Model)
+                    @Input("PageNumber", Model)
+                    @Text("Of", Model)
+                    @Input("RowCount", Model)
+                }
+                @if (Model.Navigation)
+                {
+                    @Button("Next", Model)
+                    @Button("Last", Model)
+                }
+                @Button("Apply", Model)
+                @Button("Cancel", Model)
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+@functions
+{
+    public static HtmlString Button(string type, ToolbarViewModel model, bool navigation = true)
+    {
+        return new HtmlString($"<td class=\"{(navigation ? "navigation" : "")}\"><button type=\"button\" class=\"toolbar-button toolbar-button-{model.ToolbarButtonStyle.ToString().ToLower()}\" title=\"{@Title(type, model)}\" button-type=\"{type.ToLower()}\" id=\"{model.ComponentId}_{type}Btn\">{(model.ToolbarButtonStyle == Enums.ToolbarButtonStyle.Image ? string.Empty : ResourceString(type, model))}</button></td>");
+    }
+
+    public static HtmlString Input(string name, ToolbarViewModel model)
+    {
+        return new HtmlString($"<td class=\"navigation\"><input type=\"input\" class=\"toolbar-info\" readonly id=\"{model.ComponentId}_{name}\" name=\"{name}\"/></td>");
+    }
+
+    public static HtmlString Text(string text, ToolbarViewModel model)
+    {
+        return new HtmlString($"<td class=\"navigation\"><span class=\"toolbar-text\">{ResourceString(text, model)}</span></td>");
+    }
+
+    public static HtmlString NoRecords(ToolbarViewModel model)
+    {
+        return new HtmlString($"<td id=\"{model.ComponentId}_no-records-cell\" class=\"no-records\"><span class=\"toolbar-text\">{ResourceString("No_Records_Found", model)}</span></td>");
+    }
+
+    public static string Title(string type, ToolbarViewModel model)
+    {
+        return ResourceString($"{type}_Title", model);
+    }
+
+    public static string ResourceString(string key, ToolbarViewModel model)
+    {
+        return model.ResourceManager.GetString(key) ?? key;
+    }
+
+    public static HtmlString QuickSearch(ToolbarViewModel model)
+    {
+        @if (model.QuickSearch == false)
+        {
+            return new HtmlString(string.Empty);
+        }
+        string id = "QuickSearch";
+        return new HtmlString($"<td><input type=\"input\" class=\"toolbar-info\" id=\"{model.ComponentId}_{id}\" name=\"{id}\" title=\"{@Title(id, model)}\"/></td>");
+    }
+
+}

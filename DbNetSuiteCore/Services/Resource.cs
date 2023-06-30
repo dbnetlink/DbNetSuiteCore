@@ -16,14 +16,13 @@ namespace DbNetSuiteCore.Services
         protected string Name => QueryParam("name");
         protected string FontSize => QueryParam("font-size") ?? Settings?.FontSize;
         protected string FontFamily => QueryParam("font-family") ?? Settings?.FontFamily;
-        protected bool Debug => Settings.Debug;
-
+        protected bool Debug => IsDebugMode();
 
         public Resource(AspNetCoreServices services) : base(services)
 		{
 		}
 
-		public async Task<object> Process()
+        public async Task<object> Process()
 		{
             object result;
             switch (Action.ToLower())
@@ -59,12 +58,15 @@ namespace DbNetSuiteCore.Services
             string[] appScripts = {
                 "DbNetSuite",
                 "DbNetGrid",
+                "DbColumn",               
 				"GridColumn",
-				"Dialog",
+                "EditColumn",
+                "Dialog",
 				"ViewDialog",
 				"SearchDialog",
 				"LookupDialog",
-				"DbNetCombo"
+				"DbNetCombo",
+				"DbNetEdit"
 			};
 
 			List<string> scripts = new List<string>();
@@ -144,6 +146,18 @@ namespace DbNetSuiteCore.Services
             }
 
             return resource;
+        }
+
+        private bool IsDebugMode()
+        {
+            bool isDebugMode = Settings.Debug;
+
+            if (string.IsNullOrEmpty(QueryParam("debug")) == false)
+            {
+                bool.TryParse(QueryParam("debug"), out isDebugMode);
+            }
+
+            return isDebugMode;
         }
     }
 }

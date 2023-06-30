@@ -1,6 +1,5 @@
 ﻿using DbNetSuiteCore.Enums;
-using DbNetSuiteCore.Models;
-using GridColumn = DbNetSuiteCore.Models.GridColumn;
+using GridColumn = DbNetSuiteCore.Models.DbNetGrid.GridColumn;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -9,12 +8,13 @@ using System.Resources;
 using DbNetSuiteCore.Extensions;
 using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.EMMA;
+using DbNetSuiteCore.Models.DbNetGrid;
 
 namespace DbNetSuiteCore.ViewModels.DbNetGrid
 {
     public class GridViewModel : BaseViewModel
     {
-        public GridColumnCollection Columns { get; set; }
+        public List<GridColumn> Columns { get; set; }
         public DataTable GridData { get; set; }
         public bool MultiRowSelect { get; set; }
         public MultiRowSelectLocation MultiRowSelectLocation { get; set; }

@@ -19,7 +19,6 @@ namespace DbNetSuiteCore.Components
         private readonly string _procedureName;
 
         private List<EventBinding> _eventBindings { get; set; } = new List<EventBinding>();
-        private List<DbNetSuiteCore> _linkedControls { get; set; } = new List<DbNetSuiteCore>();
         /// <summary>
         /// Automatically selects the first row of the combo. Only applicable where Size is greater than 1.
         /// </summary>
@@ -182,31 +181,6 @@ valueColumn = '{EncodingHelper.Encode(_valueColumn)}';
 
             return string.Join(Environment.NewLine, properties);
         }
-
-        private string LinkedControls()
-        {
-            var script = new List<string>();
-            script = _linkedControls.Select(x => $"addLinkedControl({x.Id});").ToList();
-            return string.Join(Environment.NewLine, script);
-        }
-
-        private string ConfigureLinkedControls()
-        {
-            var script = string.Empty;
-
-            foreach (var linkedControl in _linkedControls)
-            {
-                if (linkedControl is DbNetGridCore)
-                {
-                    script += (linkedControl as DbNetGridCore).LinkedRender();
-                }
-                if (linkedControl is DbNetComboCore)
-                {
-                    script += (linkedControl as DbNetComboCore).LinkedRender();
-                }
-            }
-
-            return script;
-        }
+    
     }
 }

@@ -13,9 +13,9 @@ var AggregateType;
     AggregateType[AggregateType["Max"] = 4] = "Max";
     AggregateType[AggregateType["Count"] = 5] = "Count";
 })(AggregateType || (AggregateType = {}));
-class GridColumn {
+class GridColumn extends DbColumn {
     constructor(properties, unmatched = false) {
-        this.unmatched = false;
+        super();
         Object.keys(properties).forEach((key) => {
             if (properties[key] !== undefined)
                 this[key] = properties[key];

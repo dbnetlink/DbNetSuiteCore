@@ -28,6 +28,7 @@ declare class DbNetSuite {
     protected loadingPanel: JQuery<HTMLElement> | undefined;
     protected connectionString: string;
     protected connectionType: DbConnectionType;
+    protected culture: string;
     initialised: boolean;
     constructor(id: string);
     bind(event: EventName, handler: EventHandler): void;
@@ -39,4 +40,5 @@ declare class DbNetSuite {
     protected error(text: string): void;
     protected showLoader(): void;
     protected hideLoader(): void;
+    protected post<T>(action: string, request: any, blob?: boolean): Promise<T>;
 }

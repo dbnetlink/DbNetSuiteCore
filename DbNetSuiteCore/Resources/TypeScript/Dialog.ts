@@ -1,7 +1,7 @@
 ﻿class Dialog {
     $dialog: JQuery<HTMLElement> | undefined;
-    width: number = 600;
-    maxWidth: number = 800;
+    width = 600;
+    maxWidth = 800;
 
     constructor(id:string) {
         this.$dialog = $(`#${id}`);

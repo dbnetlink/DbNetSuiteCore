@@ -1,6 +1,7 @@
 ﻿@namespace DbNetSuiteCore.Views.DbNetGrid
 @using DbNetSuiteCore.Enums
 @using DbNetSuiteCore.Helpers
+@using DbNetSuiteCore.Models.DbNetGrid;
 @using DbNetSuiteCore.ViewModels.DbNetGrid
 @using DbNetSuiteCore.Models
 @using System.Data
@@ -46,9 +47,8 @@
                 @NestedGridCell(true)
                 @foreach (DataColumn column in Model.GridData.Columns)
                 {
-                    GridColumn gridColumn = Model.Columns[column.ColumnName];
-                    @ColumnFilter(gridColumn)
-                    ;
+                    GridColumn gridColumn = Model.Columns.First(c => c.IsMatch(column.ColumnName));
+                    @ColumnFilter(gridColumn);
                 }
                 @if (Model.MultiRowSelectLocation == MultiRowSelectLocation.Right)
                 {
@@ -210,7 +210,7 @@
         return string.Join(", ", Model.GroupHeaderColumns.Select(c => CellValue(row.ItemArray[c.Index], c)));
     }
 
-    public static int PrimaryKeyIndex(GridColumnCollection gridColumns)
+    public static int PrimaryKeyIndex(List<GridColumn> gridColumns)
     {
         return gridColumns.Any(c => c.PrimaryKey) ? gridColumns.FirstOrDefault(c => c.PrimaryKey).Index : -1;
     }

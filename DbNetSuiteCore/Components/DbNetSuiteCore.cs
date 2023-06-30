@@ -18,6 +18,8 @@ namespace DbNetSuiteCore.Components
         protected DbNetSuiteCoreSettings _DbNetSuiteCoreSettings;
         protected readonly IConfigurationRoot _configuration;
         protected readonly bool _idSupplied = false;
+        protected List<DbNetSuiteCore> _linkedControls { get; set; } = new List<DbNetSuiteCore>();
+
         private List<EventBinding> _eventBindings { get; set; } = new List<EventBinding>();
         private string ComponentTypeName => this.GetType().Name.Replace("Core", string.Empty);
         /// <summary>
@@ -154,6 +156,37 @@ document.addEventListener('DOMContentLoaded', function() {{init_{_id}()}});
 function init_{_id}()
 {{
     if (typeof({ComponentTypeName}) == 'undefined') {{alert('DbNetSuite client-side code has not loaded. Add @DbNetSuiteCore.ClientScript() to your razor page. See console for details');console.error(""DbNetSuite stylesheet not found. See https://dbnetsuitecore.z35.web.core.windows.net/index.htm?context=20#DbNetSuiteCoreClientScript"");return;}};";
+        }
+
+        protected string LinkedControls()
+        {
+            var script = new List<string>();
+            script = _linkedControls.Select(x => $"addLinkedControl({x.Id});").ToList();
+            return string.Join(Environment.NewLine, script);
+        }
+
+        protected string ConfigureLinkedControls()
+        {
+            var script = string.Empty;
+
+            foreach (var linkedControl in _linkedControls)
+            {
+                if (linkedControl is DbNetGridCore)
+                {
+                    script += (linkedControl as DbNetGridCore).LinkedRender();
+                }
+                if (linkedControl is DbNetComboCore)
+                {
+                    script += (linkedControl as DbNetComboCore).LinkedRender();
+                }
+
+                if (linkedControl is DbNetEditCore)
+                {
+                    script += (linkedControl as DbNetEditCore).LinkedRender();
+                }
+            }
+
+            return script;
         }
     }
 }

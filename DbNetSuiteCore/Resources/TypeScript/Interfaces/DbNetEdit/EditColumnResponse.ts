@@ -1,0 +1,3 @@
+﻿interface EditColumnResponse extends GridColumnResponse
+{
+}

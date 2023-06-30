@@ -1,8 +1,8 @@
-using DbNetSuiteCore.Models;
 using System.Text;
 using System.Text.Json;
 using System.Net.Http.Json;
 using DbNetSuiteCore.Helpers;
+using DbNetSuiteCore.Models.DbNetCombo;
 
 namespace DbNetSuiteCore.Tests.DbNetCombo
 {

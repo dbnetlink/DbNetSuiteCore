@@ -1,12 +1,9 @@
 ﻿using System.Collections.Generic;
 
-namespace DbNetSuiteCore.Models
+namespace DbNetSuiteCore.Models.DbNetCombo
 {
-    public class DbNetComboRequest
+    public class DbNetComboRequest : DbNetSuiteRequest
     {
-        public string ComponentId { get; set; }
-        public string ConnectionString { get; set; }
-        public string ConnectionType { get; set; }
         public List<string> DataOnlyColumns { get; set; } = new List<string>();
         public string FromPart { get; set; }
         public string ValueColumn { get; set; }

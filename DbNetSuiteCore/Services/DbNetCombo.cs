@@ -14,6 +14,7 @@ using static DbNetSuiteCore.Utilities.DbNetDataCore;
 using DbNetSuiteCore.ViewModels.DbNetCombo;
 using System.Linq;
 using DbNetSuiteCore.Constants.DbNetCombo;
+using DbNetSuiteCore.Models.DbNetCombo;
 
 namespace DbNetSuiteCore.Services
 {
@@ -21,8 +22,6 @@ namespace DbNetSuiteCore.Services
     {
         private Dictionary<string, object> _resp = new Dictionary<string, object>();
 
-        private DbNetDataCore Database { get; set; }
-        private DbNetComboRequest _dbNetComboRequest;
         private string _fromPart;
         private string _foreignKeyColumn;
         private string _valueColumn;
@@ -75,18 +74,10 @@ namespace DbNetSuiteCore.Services
         public Dictionary<string, object> ProcedureParams { get; set; } = new Dictionary<string, object>();
         public async Task<object> Process()
         {
-            await DeserialiseRequest();
-            Database = new DbNetDataCore(ConnectionString, Env, Configuration);
+            await DeserialiseRequest<DbNetComboRequest>();
+            Initialise();
+
             DbNetComboResponse response = new DbNetComboResponse();
-
-            ResourceManager = new ResourceManager("DbNetSuiteCore.Resources.Localization.default", typeof(DbNetGrid).Assembly);
-
-            if (string.IsNullOrEmpty(this.Culture) == false)
-            {
-                CultureInfo ci = new CultureInfo(this.Culture);
-                Thread.CurrentThread.CurrentCulture = ci;
-                Thread.CurrentThread.CurrentUICulture = ci;
-            }
 
             switch (Action.ToLower())
             {
@@ -173,12 +164,6 @@ namespace DbNetSuiteCore.Services
             }
 
             return queryCommandConfig;
-        }
-
-        private async Task DeserialiseRequest()
-        {
-            _dbNetComboRequest = await GetRequest<DbNetComboRequest>();
-            ReflectionHelper.CopyProperties(_dbNetComboRequest, this);
         }
 
         private async Task Combo(DbNetComboResponse response)

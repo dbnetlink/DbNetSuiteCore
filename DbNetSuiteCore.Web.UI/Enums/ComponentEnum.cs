@@ -3,6 +3,7 @@
     public enum ComponentEnum
     {
         DbNetGrid,
-        DbNetCombo
+        DbNetCombo,
+        DbNetEdit
     }
 }

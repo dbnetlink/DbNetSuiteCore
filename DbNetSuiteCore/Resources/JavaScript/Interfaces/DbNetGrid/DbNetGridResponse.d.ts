@@ -1,5 +1,4 @@
-﻿interface DbNetGridResponse
-{
+interface DbNetGridResponse extends DbNetSuiteResponse {
     toolbar: string;
     data: string;
     currentPage: number;
@@ -8,7 +7,4 @@
     columns?: GridColumn[];
     record?: Dictionary<string>;
     searchParams?: Array<SearchParam>;
-    message?: string;
-    error?: boolean;
 }
-

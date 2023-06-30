@@ -1,0 +1,2 @@
+interface EditColumnRequest extends GridColumnRequest {
+}

@@ -7,6 +7,7 @@ class DbNetSuite {
         this.id = "";
         this.connectionString = "";
         this.connectionType = "SqlServer";
+        this.culture = "";
         this.initialised = false;
         this.id = id;
         this.element = $(`#${this.id}`);
@@ -91,6 +92,35 @@ class DbNetSuite {
         var _a, _b;
         (_a = this.element) === null || _a === void 0 ? void 0 : _a.removeClass("empty");
         (_b = this.loadingPanel) === null || _b === void 0 ? void 0 : _b.removeClass("display");
+    }
+    post(action, request, blob = false) {
+        this.showLoader();
+        const options = {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json;charset=UTF-8",
+            },
+            body: JSON.stringify(request)
+        };
+        return fetch(`~/${this.constructor.name.toLowerCase()}.dbnetsuite?action=${action}`, options)
+            .then(response => {
+            this.hideLoader();
+            if (!response.ok) {
+                throw response;
+            }
+            if (blob) {
+                return response.blob();
+            }
+            return response.json();
+        })
+            .catch(err => {
+            err.text().then((errorMessage) => {
+                console.error(errorMessage);
+                this.error(errorMessage.split("\n").shift());
+            });
+            return Promise.reject();
+        });
     }
 }
 DbNetSuite.DBNull = "DBNull";

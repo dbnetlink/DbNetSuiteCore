@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using DbNetSuiteCore.Models.DbNetCombo;
+using System.Collections.Generic;
 
-namespace DbNetSuiteCore.Models
+namespace DbNetSuiteCore.Models.DbNetGrid
 {
-    public class DbNetGridResponse
+    public class DbNetGridResponse : DbNetSuiteResponse
     {
         private List<GridColumn> columns;
         public string Toolbar { get; set; }
@@ -17,7 +18,5 @@ namespace DbNetSuiteCore.Models
         }
         public Dictionary<string, object> Record { get; set; }
         public List<SearchParameter> SearchParams { get; set; }
-        public bool Error { get; set; } = false;
-        public string Message { get; set; }
     }
 }
