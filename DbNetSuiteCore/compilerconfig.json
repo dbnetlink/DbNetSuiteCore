@@ -8,6 +8,10 @@
     "inputFile": "Resources/SCSS/dbnetcombo.scss"
   },
   {
+    "outputFile": "Resources/CSS/dbnetedit.css",
+    "inputFile": "Resources/SCSS/dbnetedit.scss"
+  },
+  {
     "outputFile": "Resources/CSS/_reboot.css",
     "inputFile": "Resources/SCSS/_reboot.scss"
   }

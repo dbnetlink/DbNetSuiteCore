@@ -5,7 +5,7 @@
 declare class DbNetEdit extends DbNetSuite {
     columns: EditColumn[];
     currentRow: number;
-    editPanel: JQuery<HTMLElement> | undefined;
+    formPanel: JQuery<HTMLElement> | undefined;
     toolbarPanel: JQuery<HTMLElement> | undefined;
     toolbarPosition: ToolbarPosition;
     linkedControls: Array<DbNetSuite>;

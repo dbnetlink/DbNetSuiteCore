@@ -1,7 +1,4 @@
-﻿using DbNetSuiteCore.Enums;
-using DbNetSuiteCore.Helpers;
-
-namespace DbNetSuiteCore.Models.DbNetGrid
+﻿namespace DbNetSuiteCore.Models.DbNetEdit
 {
     public class EditColumn : DbColumn
     {

@@ -30,7 +30,6 @@ namespace DbNetSuiteCore.Services
     internal class DbNetGrid : DbNetGridEdit
     {
         private Dictionary<string, object> _columnProperties = new Dictionary<string, object>(StringComparer.CurrentCultureIgnoreCase);
-        private Dictionary<string, DataTable> _lookupTables = new Dictionary<string, DataTable>();
         private Dictionary<string, object> _resp = new Dictionary<string, object>();
         const string NullValueToken = "@@null@@";
 
@@ -91,8 +90,6 @@ namespace DbNetSuiteCore.Services
             set => _procedureName = value;
         }
         public Dictionary<string, object> ProcedureParams { get; set; }
-        public string SearchFilterJoin { get; set; } = "and";
-        public List<SearchParameter> SearchParams { get; set; } = new List<SearchParameter>();
         public string SelectModifier { get; set; } = string.Empty;
         public ToolbarButtonStyle ToolbarButtonStyle { get; set; } = ToolbarButtonStyle.Image;
         public ToolbarPosition ToolbarPosition { get; set; } = ToolbarPosition.Top;
@@ -100,7 +97,6 @@ namespace DbNetSuiteCore.Services
         public long TotalRows { get; set; } = 0;
         public bool UpdateRow { get; set; } = false;
         public bool View { get; set; } = false;
-
 
         public static Type GetNullableType(Type type)
         {
@@ -163,7 +159,7 @@ namespace DbNetSuiteCore.Services
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
-            return System.Text.Json.JsonSerializer.Serialize(response, serializeOptions);
+            return JsonSerializer.Serialize(response, serializeOptions);
         }
 
 
@@ -222,7 +218,7 @@ namespace DbNetSuiteCore.Services
                     GridColumn column = columns.Where(c => MatchingColumn(c, row.ColumnName(), row.BaseTableName())).FirstOrDefault();
                     if (column == null)
                     {
-                        column = GenerateColumn(row);
+                        column = InitialiseColumn(new GridColumn(), row) as GridColumn;
                     }
                     column.Index = columnIndex++;
 
@@ -232,19 +228,14 @@ namespace DbNetSuiteCore.Services
                 }
             }
         }
-
-
         internal string DefaultOrderBy()
         {
             return DefaultOrderBy(false);
         }
-
         internal string DefaultOrderBy(bool useColumnName)
         {
             return $"{Columns.First().ColumnExpression} asc";
         }
-
-
         internal int ParseBoolean(string boolString)
         {
             switch (boolString.ToLower())
@@ -256,7 +247,6 @@ namespace DbNetSuiteCore.Services
                     return 0;
             }
         }
-
         internal QueryCommandConfig ProcedureCommandConfig()
         {
             QueryCommandConfig queryCommandConfig = new QueryCommandConfig(this.ProcedureName);
@@ -278,47 +268,6 @@ namespace DbNetSuiteCore.Services
 
             return queryCommandConfig;
         }
-
-        protected DataTable ArrayToDataTable(string jsonArray)
-        {
-            var options = new JsonSerializerOptions();
-            options.PropertyNameCaseInsensitive = true;
-            options.Converters.Add(new JsonStringEnumConverter());
-            return ArrayToDataTable(System.Text.Json.JsonSerializer.Deserialize<object[]>(jsonArray, options));
-        }
-
-        protected DataTable ArrayToDataTable(object[] lookupObject)
-        {
-            DataTable dataTable = new DataTable();
-
-            try
-            {
-                dataTable.Columns.Add("value", typeof(string));
-                dataTable.Columns.Add("text", typeof(string));
-
-                foreach (object r in lookupObject)
-                {
-                    object[] item;
-                    if (r is string)
-                        item = new object[] { r.ToString() };
-                    else
-                        item = (object[])r;
-
-                    DataRow dataRow = dataTable.NewRow();
-                    dataRow[0] = item[0].ToString();
-                    if (item.Length > 1)
-                        dataRow[1] = item[1].ToString();
-                    else
-                        dataRow[1] = dataRow[0];
-
-                    dataTable.Rows.Add(dataRow);
-                }
-            }
-            catch (Exception) { }
-
-            return dataTable;
-        }
-
         protected virtual string BuildFilterPart()
         {
             List<string> fp = new List<string>();
@@ -412,7 +361,6 @@ namespace DbNetSuiteCore.Services
 
             return filterPart;
         }
-
         private string FilterExpression(SearchParameter searchParameter, GridColumn gridColumn)
         {
             string template = searchParameter.SearchOperator.GetAttribute<FilterExpressionAttribute>().Expression;
@@ -468,7 +416,6 @@ namespace DbNetSuiteCore.Services
 
             return string.Join(",", orderPart.ToArray());
         }
-
         protected string BuildGroupByPart(QueryBuildModes buildMode)
         {
             List<string> groupByParts = new List<string>();
@@ -504,12 +451,10 @@ namespace DbNetSuiteCore.Services
 
             return string.Join(",", groupByParts.ToArray());
         }
-
         protected virtual ListDictionary BuildParams()
         {
             return BuildParams(QueryBuildModes.Normal);
         }
-
         protected virtual ListDictionary BuildParams(QueryBuildModes buildMode)
         {
             ListDictionary parameters = new ListDictionary();
@@ -582,7 +527,6 @@ namespace DbNetSuiteCore.Services
 
             return parameters;
         }
-
         private void AddSearchFilterParams(ListDictionary parameters, GridColumn gridColumn, SearchParameter searchParameter, string prefix, string value)
         {
             string template = "{0}";
@@ -617,37 +561,29 @@ namespace DbNetSuiteCore.Services
                     break;
             }
         }
-
         private string ParamName(GridColumn column, string suffix = "", bool parameterValue = false)
         {
             return Database.ParameterName($"{column.ColumnName}{suffix}");
         }
-
         private string ParamName(GridColumn column, bool parameterValue = false)
         {
             return ParamName(column, string.Empty, parameterValue);
         }
-
         private string ParamName(string paramName, bool parameterValue = false)
         {
             return Database.ParameterName(paramName, parameterValue);
         }
-
-    
-
         protected QueryCommandConfig BuildSql()
         {
             return BuildSql(QueryBuildModes.Normal);
         }
-
-        protected QueryCommandConfig BuildSql(QueryBuildModes buildMode)
+       protected QueryCommandConfig BuildSql(QueryBuildModes buildMode)
         {
             if (ProcedureName != "")
                 return ProcedureCommandConfig();
 
             return BuildSql(BuildSelectPart<GridColumn>(buildMode, Columns, GroupBy), BuildFilterPart(), BuildOrderPart(buildMode), BuildGroupByPart(buildMode), buildMode);
         }
-
         protected virtual QueryCommandConfig BuildSql(string selectPart, string filterPart, string orderPart, string groupByPart, QueryBuildModes buildMode)
         {
             if (string.IsNullOrEmpty(selectPart))
@@ -673,7 +609,6 @@ namespace DbNetSuiteCore.Services
             query.Params = p;
             return query;
         }
-
         protected bool ColumnIncluded(DataRow r)
         {
             string columnName = r.ColumnName().ToLower();
@@ -686,7 +621,6 @@ namespace DbNetSuiteCore.Services
             }
             return false;
         }
-
         protected object ConvertToDbParam(object value, DbColumn column = null)
         {
             string dataType = column?.DataType ?? string.Empty;
@@ -777,54 +711,6 @@ namespace DbNetSuiteCore.Services
 
             return paramValue;
         }
-
-        protected Type GetColumnType(string typeName)
-        {
-            return Type.GetType("System." + typeName);
-        }
-
-        protected void GetLookupTables()
-        {
-            _lookupTables.Clear();
-
-            using (Database)
-            {
-                foreach (DbColumn column in Columns)
-                {
-                    if (string.IsNullOrEmpty(column.Lookup))
-                    {
-                        continue;
-                    }
-
-                    if (column.Lookup.StartsWith("["))
-                    {
-                        _lookupTables.Add(column.ColumnKey, ArrayToDataTable(column.Lookup));
-                    }
-                    else
-                    {
-                        Database.Open();
-                        string sql = Database.UpdateConcatenationOperator(column.Lookup);
-
-                        ListDictionary @params = Database.ParseParameters(sql);
-
-                        if (@params.Count > 0)
-                            sql = Regex.Replace(sql, " where .*", " where 1=2", RegexOptions.IgnoreCase);
-
-                        sql = AddLookupOrder(sql);
-                        try
-                        {
-                            _lookupTables.Add(column.ColumnKey, Database.GetDataTable(new QueryCommandConfig(sql)));
-                        }
-                        catch (Exception ex)
-                        {
-                            ThrowException(ex.Message, sql);
-                        }
-                    }
-                    Database.Close();
-                }
-            }
-        }
-
         protected string ReplaceWithCorrectParams(string sql, ListDictionary p)
         {
             Regex paramPattern = new Regex(@"Col\d{1,3}Param\d{1,3}");
@@ -872,28 +758,6 @@ namespace DbNetSuiteCore.Services
             return String.Join(")", columnParts);
         }
 
-        private string AddLookupOrder(string sql)
-        {
-            if (sql.IndexOf("order by", StringComparison.CurrentCultureIgnoreCase) > -1)
-                return sql;
-
-            if (sql.IndexOf("group by", StringComparison.CurrentCultureIgnoreCase) > -1)
-                return sql;
-
-            string[] columns = new string[0];
-
-            Match m = Regex.Match(sql, "select (.*?) from ", RegexOptions.IgnoreCase);
-
-            if (m.Success)
-                columns = Regex.Replace(m.Groups[1].Value, @",(?=[^\']*\'([^\']*\'[^\']*\')*$)", "~").Split(',');
-
-            if (columns.Length == 0)
-                return sql;
-
-            sql += $" order by {((columns.Length == 1) ? "1" : "2")}";
-            return sql;
-        }
-
         private void ConfigureGridColumns()
         {
             if (!String.IsNullOrEmpty(ProcedureName))
@@ -902,34 +766,7 @@ namespace DbNetSuiteCore.Services
                 return;
             }
 
-            DataTable dataTable;
-
-            using (Database)
-            {
-                Database.Open();
-
-                string selectPart = Columns.Any(c => (c as DbColumn).Unmatched == false) == false ? "*" : BuildSelectPart(QueryBuildModes.Configuration, Columns);
-                string sql = $"select {selectPart} from {FromPart} where 1=2";
-
-                dataTable = Database.GetSchemaTable(sql);
-
-                foreach (DataRow row in dataTable.Rows)
-                {
-                    if (row.IsHidden())
-                    {
-                        continue;
-                    }
-
-                    DbColumn column = Columns.Where(c => MatchingColumn(c, row.ColumnName(), row.BaseTableName())).FirstOrDefault();
-
-                    if (column == null)
-                    {
-                        Columns.Add(GenerateColumn(row));
-                    }
-                }
-            }
-
-            Columns = ConfigureColumns(Columns, dataTable, GroupBy);
+            Columns = ConfigureColumns(Columns, GroupBy);
 
             if (DefaultColumn != null)
             {
@@ -949,25 +786,12 @@ namespace DbNetSuiteCore.Services
             }
 
             Columns[OrderBy.Value - 1].OrderBy = OrderByDirection;
-
-            GetLookupTables();
         }
 
-        protected GridColumn GenerateColumn(DataRow row)
+        protected override void AddColumn(DataRow row)
         {
-            GridColumn c = new GridColumn();
-
-            c.ColumnExpression = EncodingHelper.Encode(Database.QualifiedDbObjectName(row.ColumnName(), false));
-            c.ColumnName = row.ColumnName();
-            c.BaseTableName = row.BaseTableName();
-
-            GetBaseSchemaName(c, row);
-
-            c.AddedByUser = false;
-
-            return c;
+            Columns.Add(InitialiseColumn(new GridColumn(), row) as GridColumn);
         }
-
         private async Task<byte[]> GenerateHtmlExport(DbNetGridResponse response)
         {
             GridGenerationMode = GridGenerationMode.Export;
@@ -1335,7 +1159,7 @@ namespace DbNetSuiteCore.Services
 
         private async Task Grid(DbNetGridResponse response)
         {
-            if (ValidateRequest(response) == false)
+            if (ValidateRequest(response, Columns) == false)
             {
                 return;
             }
@@ -1349,14 +1173,7 @@ namespace DbNetSuiteCore.Services
                     break;
             }
 
-            DataTable dataTable = new DataTable();
-
-            foreach (GridColumn gridColumn in Columns)
-            {
-                DataColumn dataColumn = new DataColumn(gridColumn.ColumnName);
-                dataColumn.DataType = GetColumnType(gridColumn.OriginalDataType == "Byte[]" ? nameof(String) : gridColumn.OriginalDataType);
-                dataTable.Columns.Add(dataColumn);
-            }
+            DataTable dataTable = InitialiseDataTable(Columns);
 
             TotalRows = -1;
             using (Database)
@@ -1420,7 +1237,7 @@ namespace DbNetSuiteCore.Services
             response.CurrentPage = CurrentPage;
             response.TotalPages = TotalPages;
             response.TotalRows = TotalRows;
-            response.Columns = Columns.ToList<GridColumn>().ToList();
+            response.Columns = Columns;
 
             var viewModel = new GridViewModel
             {
@@ -1693,105 +1510,6 @@ namespace DbNetSuiteCore.Services
             }
             return dataValue.ToString();
         }
-
-        private bool ValidateRequest(DbNetGridResponse response)
-        {
-            response.Message = String.Empty;
-
-            if (SearchParams.Any())
-            {
-                object convertedValue = new object();
-
-                foreach (SearchParameter searchParameter in SearchParams)
-                {
-                    GridColumn gridColumn = Columns[searchParameter.ColumnIndex];
-
-                    string expression = searchParameter.SearchOperator.GetAttribute<FilterExpressionAttribute>()?.Expression ?? "{0}";
-
-                    switch (searchParameter.SearchOperator)
-                    {
-                        case SearchOperator.In:
-                        case SearchOperator.NotIn:
-                            foreach (string value in searchParameter.Value1.Split(','))
-                            {
-                                searchParameter.Value1Valid = ConvertSearchValue(gridColumn.DataType, value, ref convertedValue);
-                                if (searchParameter.Value1Valid == false)
-                                {
-                                    break;
-                                }
-                            }
-                            break;
-                        default:
-                            if (expression.Contains("{0}"))
-                            {
-                                searchParameter.Value1Valid = ConvertSearchValue(gridColumn.DataType, searchParameter.Value1, ref convertedValue);
-                            }
-                            if (expression.Contains("{1}"))
-                            {
-                                searchParameter.Value2Valid = ConvertSearchValue(gridColumn.DataType, searchParameter.Value2, ref convertedValue);
-                            }
-                            break;
-                    }
-
-                }
-
-                response.SearchParams = SearchParams;
-                var invalid = SearchParams.Any(s => s.Value1Valid == false || s.Value2Valid == false);
-
-                if (invalid)
-                {
-                    response.Error = true;
-                    response.Message = Translate("HighlightedFormatInvalid");
-                }
-            }
-
-            return true;
-        }
-
-        private bool ConvertSearchValue(string dataType, string value, ref object convertedValue)
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                return true;
-            }
-
-            try
-            {
-                switch (dataType)
-                {
-                    case nameof(Double):
-                        convertedValue = Convert.ToDouble(value);
-                        break;
-                    case nameof(Decimal):
-                        convertedValue = Convert.ToDecimal(value);
-                        break;
-                    case nameof(Int16):
-                    case nameof(Int32):
-                    case nameof(Int64):
-                        convertedValue = Convert.ToInt64(value);
-                        break;
-                    case nameof(DateTime):
-                        convertedValue = Convert.ToDateTime(value);
-                        break;
-                    case nameof(Boolean):
-                        convertedValue = Convert.ToBoolean(value);
-                        break;
-                    default:
-                        convertedValue = value.ToString();
-                        break;
-                }
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        public string Translate(string key)
-        {
-            return ResourceManager.GetString(key) ?? $"*{key}*";
-        }
+ 
     }
 }

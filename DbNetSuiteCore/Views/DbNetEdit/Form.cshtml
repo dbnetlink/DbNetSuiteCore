@@ -1,0 +1,92 @@
+﻿@namespace DbNetSuiteCore.Views.DbNetEdit
+@using DbNetSuiteCore.Enums
+@using DbNetSuiteCore.Helpers
+@using DbNetSuiteCore.Models.DbNetEdit
+@using DbNetSuiteCore.ViewModels.DbNetEdit
+@using DbNetSuiteCore.Models
+@using System.Data
+@using System.Linq
+@using Microsoft.AspNetCore.Html
+@using System.Text;
+@using DbNetSuiteCore.Extensions
+@model FormViewModel
+
+@{
+    int primaryKeyIndex = @PrimaryKeyIndex(Model.Columns);
+    DataRow row = Model.EditData.Rows[0];
+}
+
+<table class="dbnetedit-form">
+    <tbody>
+        @foreach (DataColumn column in Model.EditData.Columns)
+        {
+            EditColumn EditColumn = Model.Columns[column.Ordinal];
+            if (EditColumn.Display == false)
+            {
+                continue;
+            }
+            <tr class="form-row">
+                <td class="label">@(EditColumn.Label)</td>
+                <td data-value="@(row.ItemArray[EditColumn.Index])"><input type="text" value="@Html.Raw(CellContent(row, EditColumn))" /></td>
+            </tr>
+        }
+    </tbody>
+</table>
+@functions
+{
+    public string CellContent(DataRow row, EditColumn EditColumn)
+    {
+        return CellValue(row.ItemArray[EditColumn.Index], EditColumn);
+    }
+
+    public string CellValue(object dataValue, EditColumn column)
+    {
+        if (dataValue == null || dataValue == System.DBNull.Value)
+        {
+            return string.Empty;
+        }
+
+        if (string.IsNullOrEmpty(column.Lookup) == false)
+        {
+            DataTable lookupTable = Model.LookupTables[column.ColumnKey];
+
+            if (lookupTable.Columns.Count > 1)
+            {
+                foreach (DataRow row in lookupTable.Rows)
+                {
+                    if (row[0].ToString() == dataValue.ToString())
+                    {
+                        return row[1].ToString();
+                    }
+                }
+            }
+        }
+
+        if (column.DataType == nameof(DateTime))
+        {
+            return Convert.ToDateTime(dataValue).ToString(column.Format);
+        }
+
+        try
+        {
+            switch (column.DataType)
+            {
+                case nameof(Decimal):
+                case nameof(Double):
+                case nameof(Single):
+                case nameof(Int64):
+                case nameof(Int32):
+                case nameof(Int16):
+                    return Convert.ToDecimal(dataValue).ToString(column.Format);
+            }
+        }
+        catch { }
+
+        return dataValue.ToString();
+    }
+
+    public static int PrimaryKeyIndex(List<EditColumn> EditColumns)
+    {
+        return EditColumns.Any(c => c.PrimaryKey) ? EditColumns.FirstOrDefault(c => c.PrimaryKey).Index : -1;
+    }
+}

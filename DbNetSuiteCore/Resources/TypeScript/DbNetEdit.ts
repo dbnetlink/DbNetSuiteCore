@@ -1,7 +1,7 @@
 class DbNetEdit extends DbNetSuite {
     columns: EditColumn[];
     currentRow = 1 ;
-    editPanel: JQuery<HTMLElement> | undefined;
+    formPanel: JQuery<HTMLElement> | undefined;
     toolbarPanel: JQuery<HTMLElement> | undefined;
     toolbarPosition: ToolbarPosition = "Top";
     linkedControls: Array<DbNetSuite> = [];
@@ -24,7 +24,7 @@ class DbNetEdit extends DbNetSuite {
         if (this.toolbarPosition == "Top") {
             this.toolbarPanel = this.addPanel("toolbar");
         }
-        this.editPanel = this.addPanel("edit");
+        this.formPanel = this.addPanel("form");
         if (this.toolbarPosition == "Bottom") {
             this.toolbarPanel = this.addPanel("toolbar");
         }
@@ -48,6 +48,9 @@ class DbNetEdit extends DbNetSuite {
             if (response.toolbar) {
                 this.toolbarPanel?.html(response.toolbar);
             }
+        }
+        if (response.form) {
+            this.formPanel?.html(response.form);
         }
     }
 

@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
-using System.Globalization;
-using System.Resources;
 using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
-using DbNetSuiteCore.Utilities;
 using DbNetSuiteCore.Helpers;
 using DbNetSuiteCore.Models;
 using Microsoft.AspNetCore.Mvc;
 using DbNetSuiteCore.Models.DbNetEdit;
 using DbNetSuiteCore.Constants.DbNetEdit;
+using DbNetSuiteCore.Enums;
+using static DbNetSuiteCore.Utilities.DbNetDataCore;
 using DbNetSuiteCore.ViewModels.DbNetEdit;
 
 namespace DbNetSuiteCore.Services
@@ -23,6 +20,10 @@ namespace DbNetSuiteCore.Services
         private string _foreignKeyColumn;
 
         private bool _foreignKeySupplied => string.IsNullOrEmpty(ForeignKeyColumn) == false && ForeignKeyValue != null;
+        public List<EditColumn> Columns { get; set; } = new List<EditColumn>();
+        public int TotalRows { get; set; }
+        public int CurrentRow { get; set; } = 1;
+
 
         public DbNetEdit(AspNetCoreServices services) : base(services)
         {
@@ -41,17 +42,10 @@ namespace DbNetSuiteCore.Services
 
         public async Task<object> Process()
         {
-            await DeserialiseRequest<DbNetEditRequest>();
-            Database = new DbNetDataCore(ConnectionString, Env, Configuration);
- 
-            ResourceManager = new ResourceManager("DbNetSuiteCore.Resources.Localization.default", typeof(DbNetGrid).Assembly);
+            var request = await DeserialiseRequest<DbNetEditRequest>();
+            Columns = request.Columns;
 
-            if (string.IsNullOrEmpty(this.Culture) == false)
-            {
-                CultureInfo ci = new CultureInfo(this.Culture);
-                Thread.CurrentThread.CurrentCulture = ci;
-                Thread.CurrentThread.CurrentUICulture = ci;
-            }
+            Initialise();
 
             DbNetEditResponse response = new DbNetEditResponse();
 
@@ -59,7 +53,7 @@ namespace DbNetSuiteCore.Services
             {
                 case RequestAction.Initialize:
                     response.Toolbar = await Toolbar();
-                    //response.Form = await Form(response);
+                    await Form(response);
                     break;
             }
 
@@ -73,7 +67,7 @@ namespace DbNetSuiteCore.Services
 
         private async Task<string> Toolbar()
         {
-            var viewModel = new ToolbarViewModel();
+            var viewModel = new ViewModels.DbNetEdit.ToolbarViewModel();
 
             ReflectionHelper.CopyProperties(this, viewModel);
 
@@ -81,5 +75,79 @@ namespace DbNetSuiteCore.Services
             return contents;
         }
 
+        private async Task Form(DbNetEditResponse response)
+        {
+            if (ValidateRequest(response, Columns) == false)
+            {
+                return;
+            }
+
+            ConfigureEditColumns();
+
+            DataTable dataTable = InitialiseDataTable(Columns);
+
+            TotalRows = -1;
+            using (Database)
+            {
+                Database.Open();
+                QueryCommandConfig query;
+
+                query = BuildSql();
+
+                Database.Open();
+                Database.ExecuteQuery(query);
+
+                int counter = 0;
+
+                while (Database.Reader.Read())
+                {
+                    counter++;
+
+                    if (counter == CurrentRow)
+                    {
+                        object[] values = new object[Database.Reader.FieldCount];
+                        Database.Reader.GetValues(values);
+                        dataTable.Rows.Add(values);
+                    }
+                }
+
+                if (TotalRows == -1)
+                {
+                    TotalRows = counter;
+                }
+              
+                Database.Close();
+            }
+
+            response.CurrentRow = CurrentRow;
+            response.TotalRows = TotalRows;
+            response.Columns = Columns;
+
+            var viewModel = new FormViewModel
+            {
+                EditData = dataTable
+            };
+
+            ReflectionHelper.CopyProperties(this, viewModel);
+            viewModel.Columns = Columns;
+            viewModel.LookupTables = _lookupTables;
+
+            response.Form = await HttpContext.RenderToStringAsync($"Views/DbNetEdit/Form.cshtml", viewModel);
+        }
+        private void ConfigureEditColumns()
+        {
+            Columns = ConfigureColumns(Columns);
+        }
+        protected override void AddColumn(DataRow row)
+        {
+            Columns.Add(InitialiseColumn(new EditColumn(), row) as EditColumn);
+        }
+
+        protected virtual QueryCommandConfig BuildSql()
+        {
+            string sql = $"select {BuildSelectPart(QueryBuildModes.Normal,Columns)} from {FromPart}";
+            QueryCommandConfig query = new QueryCommandConfig(sql);
+            return query;
+        }
     }
 }

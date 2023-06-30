@@ -19,7 +19,7 @@ class DbNetEdit extends DbNetSuite {
         if (this.toolbarPosition == "Top") {
             this.toolbarPanel = this.addPanel("toolbar");
         }
-        this.editPanel = this.addPanel("edit");
+        this.formPanel = this.addPanel("form");
         if (this.toolbarPosition == "Bottom") {
             this.toolbarPanel = this.addPanel("toolbar");
         }
@@ -35,11 +35,14 @@ class DbNetEdit extends DbNetSuite {
         this.callServer("page");
     }
     configureEdit(response) {
-        var _a;
+        var _a, _b;
         if (this.toolbarPanel) {
             if (response.toolbar) {
                 (_a = this.toolbarPanel) === null || _a === void 0 ? void 0 : _a.html(response.toolbar);
             }
+        }
+        if (response.form) {
+            (_b = this.formPanel) === null || _b === void 0 ? void 0 : _b.html(response.form);
         }
     }
     callServer(action) {

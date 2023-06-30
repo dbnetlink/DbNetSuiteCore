@@ -282,7 +282,10 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
             DbNetGridResponse? dbNetGridResponse = await GetResponse(request, "initialize");
 
             var parser = new HtmlParser();
-            var document = await parser.ParseDocumentAsync(dbNetGridResponse?.Data.ToString() ?? string.Empty);
+            var document = await parser.ParseDocumentAsync(dbNetGridResponse!.Toolbar);
+            var viewButton = document.QuerySelector("button[button-type=\"view\"]");
+            Assert.NotNull(viewButton);
+            document = await parser.ParseDocumentAsync(dbNetGridResponse?.Data.ToString() ?? string.Empty);
             var tbody = document.QuerySelector("tbody");
             Assert.Equal(9, tbody?.Children.Length);
         }

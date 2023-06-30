@@ -1,0 +1,8 @@
+﻿table.dbnetedit-form td.label {
+  font-family: var(--main-font-family);
+  font-size: var(--main-font-size);
+}
+table.dbnetedit-form input {
+  font-family: var(--main-font-family);
+  font-size: var(--main-font-size);
+}

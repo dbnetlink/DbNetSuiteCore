@@ -1,11 +1,9 @@
 ﻿interface DbNetEditResponse extends DbNetSuiteResponse {
     toolbar: string;
     form: string;
-    data: string;
-    currentPage: number;
-    totalPages: number;
+    currentRow: number;
     totalRows: number;
-    columns?: GridColumn[];
+    columns?: EditColumn[];
     record?: Dictionary<string>;
     searchParams?: Array<SearchParam>;
 }

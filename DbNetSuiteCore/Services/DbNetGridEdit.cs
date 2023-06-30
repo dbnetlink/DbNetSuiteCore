@@ -10,12 +10,18 @@ using System;
 using System.Linq;
 using DbNetSuiteCore.Extensions;
 using System.Threading;
+using DbNetSuiteCore.Attributes;
+using static DbNetSuiteCore.Utilities.DbNetDataCore;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace DbNetSuiteCore.Services
 {
     public class DbNetGridEdit : DbNetSuite
     {
         private string _fromPart;
+        protected Dictionary<string, DataTable> _lookupTables = new Dictionary<string, DataTable>();
+
         public string FromPart
         {
             get => EncodingHelper.Decode(_fromPart);
@@ -25,14 +31,43 @@ namespace DbNetSuiteCore.Services
         public bool QuickSearch { get; set; }
         public string QuickSearchToken { get; set; } = string.Empty;
         public bool Search { get; set; }
+        public string SearchFilterJoin { get; set; } = "and";
+        public List<SearchParameter> SearchParams { get; set; } = new List<SearchParameter>();
+
 
         public DbNetGridEdit(AspNetCoreServices services) : base(services)
         {
         }
 
 
-        protected List<T> ConfigureColumns<T>(List<T> columns, System.Data.DataTable dataTable, bool groupBy)
+        protected List<T> ConfigureColumns<T>(List<T> columns, bool groupBy = false)
         {
+            DataTable dataTable;
+
+            using (Database)
+            {
+                Database.Open();
+
+                string selectPart = columns.Any(c => (c as DbColumn).Unmatched == false) == false ? "*" : BuildSelectPart(QueryBuildModes.Configuration, columns);
+                string sql = $"select {selectPart} from {FromPart} where 1=2";
+
+                dataTable = Database.GetSchemaTable(sql);
+
+                foreach (DataRow row in dataTable.Rows)
+                {
+                    if (row.IsHidden())
+                    {
+                        continue;
+                    }
+
+                    DbColumn column = columns.Where(c => MatchingColumn((c as DbColumn), row.ColumnName(), row.BaseTableName())).FirstOrDefault() as DbColumn;
+
+                    if (column == null)
+                    {
+                        AddColumn(row);
+                    }
+                }
+            }
             int columnIndex = 0;
             foreach (DataRow row in dataTable.Rows)
             {
@@ -114,7 +149,7 @@ namespace DbNetSuiteCore.Services
                     if (@params.Count > 0)
                         sql = Regex.Replace(sql, " where .*", " where 1=2", RegexOptions.IgnoreCase);
 
-                    System.Data.DataTable lookupDataTable;
+                    DataTable lookupDataTable;
                     try
                     {
                         lookupDataTable = Database.GetSchemaTable(sql);
@@ -168,7 +203,13 @@ namespace DbNetSuiteCore.Services
                 columns.Remove(columns.First(c => (c as DbColumn).Unmatched));
             }
 
+            GetLookupTables(columns);
+
             return columns;
+        }
+
+        protected virtual void AddColumn(DataRow row)
+        {
         }
 
         protected string BuildSelectPart<T>(QueryBuildModes buildMode, List<T> columns, bool groupBy = false)
@@ -183,7 +224,6 @@ namespace DbNetSuiteCore.Services
             foreach (object c in columns)
             {
                 DbColumn column = (DbColumn)c;
-                GridColumn gridColumn = (GridColumn)c;
 
                 column.ColumnExpression = EncodingHelper.Encode(Database.UpdateConcatenationOperator(column.ColumnExpression));
 
@@ -203,16 +243,16 @@ namespace DbNetSuiteCore.Services
                     case QueryBuildModes.View:
                         break;
                     case QueryBuildModes.Totals:
-                        if (gridColumn.Aggregate == AggregateType.None)
+                        if ((column as GridColumn).Aggregate == AggregateType.None)
                         {
-                            if (gridColumn.TotalBreak == false)
+                            if ((column as GridColumn).TotalBreak == false)
                             {
                                 continue;
                             }
                         }
                         else
                         {
-                            columnExpression = $"{gridColumn.Aggregate}({AggregateExpression(gridColumn)}) as {gridColumn.ColumnName}";
+                            columnExpression = $"{(column as GridColumn).Aggregate}({AggregateExpression(column)}) as {column.ColumnName}";
                         }
                         break;
                     case QueryBuildModes.Normal:
@@ -223,9 +263,9 @@ namespace DbNetSuiteCore.Services
                         }
                         if (groupBy)
                         {
-                            if (gridColumn.Aggregate != AggregateType.None)
+                            if ((column as GridColumn).Aggregate != AggregateType.None)
                             {
-                                columnExpression = $"{gridColumn.Aggregate}({AggregateExpression(column)}) as {column.ColumnName}";
+                                columnExpression = $"{(column as GridColumn).Aggregate}({AggregateExpression(column)}) as {column.ColumnName}";
                             }
                         }
                         break;
@@ -374,7 +414,7 @@ namespace DbNetSuiteCore.Services
             {
                 match = Regex.Match(columnList, p);
 
-                foreach (System.Text.RegularExpressions.Group g in match.Groups)
+                foreach (Group g in match.Groups)
                     if (!String.IsNullOrEmpty(g.Value))
                         columnList = columnList.Replace(g.Value, g.Value.Replace(",", "~"));
             }
@@ -386,6 +426,239 @@ namespace DbNetSuiteCore.Services
 
             return columnExpressions;
         }
+
+        protected bool ValidateRequest<T>(DbNetGridEditResponse response, List<T> columns)
+        {
+            response.Message = String.Empty;
+
+            if (SearchParams.Any())
+            {
+                object convertedValue = new object();
+
+                foreach (SearchParameter searchParameter in SearchParams)
+                {
+                    DbColumn gridColumn = columns[searchParameter.ColumnIndex] as DbColumn;
+
+                    string expression = searchParameter.SearchOperator.GetAttribute<FilterExpressionAttribute>()?.Expression ?? "{0}";
+
+                    switch (searchParameter.SearchOperator)
+                    {
+                        case SearchOperator.In:
+                        case SearchOperator.NotIn:
+                            foreach (string value in searchParameter.Value1.Split(','))
+                            {
+                                searchParameter.Value1Valid = ConvertSearchValue(gridColumn.DataType, value, ref convertedValue);
+                                if (searchParameter.Value1Valid == false)
+                                {
+                                    break;
+                                }
+                            }
+                            break;
+                        default:
+                            if (expression.Contains("{0}"))
+                            {
+                                searchParameter.Value1Valid = ConvertSearchValue(gridColumn.DataType, searchParameter.Value1, ref convertedValue);
+                            }
+                            if (expression.Contains("{1}"))
+                            {
+                                searchParameter.Value2Valid = ConvertSearchValue(gridColumn.DataType, searchParameter.Value2, ref convertedValue);
+                            }
+                            break;
+                    }
+
+                }
+
+                response.SearchParams = SearchParams;
+                var invalid = SearchParams.Any(s => s.Value1Valid == false || s.Value2Valid == false);
+
+                if (invalid)
+                {
+                    response.Error = true;
+                    response.Message = Translate("HighlightedFormatInvalid");
+                }
+            }
+
+            return true;
+        }
+
+        private bool ConvertSearchValue(string dataType, string value, ref object convertedValue)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return true;
+            }
+
+            try
+            {
+                switch (dataType)
+                {
+                    case nameof(Double):
+                        convertedValue = Convert.ToDouble(value);
+                        break;
+                    case nameof(Decimal):
+                        convertedValue = Convert.ToDecimal(value);
+                        break;
+                    case nameof(Int16):
+                    case nameof(Int32):
+                    case nameof(Int64):
+                        convertedValue = Convert.ToInt64(value);
+                        break;
+                    case nameof(DateTime):
+                        convertedValue = Convert.ToDateTime(value);
+                        break;
+                    case nameof(Boolean):
+                        convertedValue = Convert.ToBoolean(value);
+                        break;
+                    default:
+                        convertedValue = value.ToString();
+                        break;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        protected DataTable InitialiseDataTable<T>(List<T> columns)
+        {
+            DataTable dataTable = new DataTable();
+            foreach (object o in columns)
+            {
+                DbColumn dbColumn = (DbColumn)o;
+                DataColumn dataColumn = new DataColumn(dbColumn.ColumnName);
+                dataColumn.DataType = GetColumnType(dbColumn.OriginalDataType == "Byte[]" ? nameof(String) : dbColumn.OriginalDataType);
+                dataTable.Columns.Add(dataColumn);
+            }
+
+            return dataTable;
+        }
+
+        protected Type GetColumnType(string typeName)
+        {
+            return Type.GetType("System." + typeName);
+        }
+
+        protected DbColumn InitialiseColumn(DbColumn column, DataRow row)
+        {
+            column.ColumnExpression = EncodingHelper.Encode(Database.QualifiedDbObjectName(row.ColumnName(), false));
+            column.ColumnName = row.ColumnName();
+            column.BaseTableName = row.BaseTableName();
+
+            GetBaseSchemaName(column, row);
+
+            column.AddedByUser = false;
+
+            return column;
+        }
+
+        protected void GetLookupTables<T>(List<T> columns) 
+        {
+            _lookupTables.Clear();
+
+            using (Database)
+            {
+                foreach (object o in columns)
+                {
+                    DbColumn column = (DbColumn)o;
+                    if (string.IsNullOrEmpty(column.Lookup))
+                    {
+                        continue;
+                    }
+
+                    if (column.Lookup.StartsWith("["))
+                    {
+                        _lookupTables.Add(column.ColumnKey, ArrayToDataTable(column.Lookup));
+                    }
+                    else
+                    {
+                        Database.Open();
+                        string sql = Database.UpdateConcatenationOperator(column.Lookup);
+
+                        ListDictionary @params = Database.ParseParameters(sql);
+
+                        if (@params.Count > 0)
+                            sql = Regex.Replace(sql, " where .*", " where 1=2", RegexOptions.IgnoreCase);
+
+                        sql = AddLookupOrder(sql);
+                        try
+                        {
+                            _lookupTables.Add(column.ColumnKey, Database.GetDataTable(new QueryCommandConfig(sql)));
+                        }
+                        catch (Exception ex)
+                        {
+                            ThrowException(ex.Message, sql);
+                        }
+                    }
+                    Database.Close();
+                }
+            }
+        }
+
+        private string AddLookupOrder(string sql)
+        {
+            if (sql.IndexOf("order by", StringComparison.CurrentCultureIgnoreCase) > -1)
+                return sql;
+
+            if (sql.IndexOf("group by", StringComparison.CurrentCultureIgnoreCase) > -1)
+                return sql;
+
+            string[] columns = new string[0];
+
+            Match m = Regex.Match(sql, "select (.*?) from ", RegexOptions.IgnoreCase);
+
+            if (m.Success)
+                columns = Regex.Replace(m.Groups[1].Value, @",(?=[^\']*\'([^\']*\'[^\']*\')*$)", "~").Split(',');
+
+            if (columns.Length == 0)
+                return sql;
+
+            sql += $" order by {((columns.Length == 1) ? "1" : "2")}";
+            return sql;
+        }
+
+        protected DataTable ArrayToDataTable(string jsonArray)
+        {
+            var options = new JsonSerializerOptions();
+            options.PropertyNameCaseInsensitive = true;
+            options.Converters.Add(new JsonStringEnumConverter());
+            return ArrayToDataTable(JsonSerializer.Deserialize<object[]>(jsonArray, options));
+        }
+
+        protected DataTable ArrayToDataTable(object[] lookupObject)
+        {
+            DataTable dataTable = new DataTable();
+
+            try
+            {
+                dataTable.Columns.Add("value", typeof(string));
+                dataTable.Columns.Add("text", typeof(string));
+
+                foreach (object r in lookupObject)
+                {
+                    object[] item;
+                    if (r is string)
+                        item = new object[] { r.ToString() };
+                    else
+                        item = (object[])r;
+
+                    DataRow dataRow = dataTable.NewRow();
+                    dataRow[0] = item[0].ToString();
+                    if (item.Length > 1)
+                        dataRow[1] = item[1].ToString();
+                    else
+                        dataRow[1] = dataRow[0];
+
+                    dataTable.Rows.Add(dataRow);
+                }
+            }
+            catch (Exception) { }
+
+            return dataTable;
+        }
+
     }
 }
 

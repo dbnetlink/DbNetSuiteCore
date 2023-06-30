@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DbNetSuiteCore.Models.DbNetGrid
 {
-    public class DbNetGridResponse : DbNetSuiteResponse
+    public class DbNetGridResponse : DbNetGridEditResponse
     {
         private List<GridColumn> columns;
         public string Toolbar { get; set; }
@@ -16,7 +16,5 @@ namespace DbNetSuiteCore.Models.DbNetGrid
             get { return columns; }
             set { columns = value; columns.ForEach(c => c.EncodeClientProperties()); }
         }
-        public Dictionary<string, object> Record { get; set; }
-        public List<SearchParameter> SearchParams { get; set; }
     }
 }

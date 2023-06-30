@@ -96,7 +96,8 @@ namespace DbNetSuiteCore.Services
                 "libraries.jquery.timepicker.min",
                 "_reboot",
                 "dbnetsuite",
-				"dbnetcombo"
+				"dbnetcombo",
+                "dbnetedit"
             };
 			List<string> scripts = new List<string>();
 

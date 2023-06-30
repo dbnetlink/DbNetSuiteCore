@@ -130,6 +130,11 @@ namespace DbNetSuiteCore.Services
                 return json.ToObject<T>();
             }
         }
+
+        public string Translate(string key)
+        {
+            return ResourceManager.GetString(key) ?? $"*{key}*";
+        }
     }
 }
 
