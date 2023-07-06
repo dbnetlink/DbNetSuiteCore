@@ -1,8 +1,7 @@
-interface DbNetEditRequest extends DbNetSuiteRequest {
+interface DbNetEditRequest extends DbNetGridEditRequest {
+    changes: Dictionary<object>;
     columns: EditColumnRequest[];
     currentRow: number | undefined;
-    fromPart: string;
-    search: boolean;
-    navigation: boolean;
-    quickSearch: boolean;
+    totalRows: number;
+    primaryKey: string;
 }

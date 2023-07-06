@@ -26,7 +26,7 @@ declare enum GridGenerationMode {
 interface Dictionary<T> {
     [Key: string]: T;
 }
-declare class DbNetGrid extends DbNetSuite {
+declare class DbNetGrid extends DbNetGridEdit {
     autoRowSelect: boolean;
     booleanDisplayMode: BooleanDisplayMode;
     cellIndexCache: Dictionary<number>;
@@ -42,17 +42,13 @@ declare class DbNetGrid extends DbNetSuite {
     export_: boolean;
     fixedFilterParams: Dictionary<object>;
     fixedFilterSql: string;
-    fromPart: string;
     frozenHeader: boolean;
     googleChartOptions: GoogleChartOptions | undefined;
     gridGenerationMode: GridGenerationMode;
     gridPanel: JQuery<HTMLElement> | undefined;
     groupBy: boolean;
-    linkedGrids: Array<DbNetGrid>;
-    lookupDialog: LookupDialog | undefined;
     multiRowSelect: boolean;
     multiRowSelectLocation: MultiRowSelectLocation;
-    navigation: boolean;
     nestedGrid: boolean;
     optimizeForLargeDataset: boolean;
     orderBy: string;
@@ -61,19 +57,7 @@ declare class DbNetGrid extends DbNetSuite {
     primaryKey: string | undefined;
     procedureName: string;
     procedureParams: Dictionary<object>;
-    quickSearch: boolean;
-    quickSearchDelay: number;
-    quickSearchMinChars: number;
-    quickSearchTimerId: number | undefined;
-    quickSearchToken: string;
     rowSelect: boolean;
-    search: boolean;
-    searchDialog: SearchDialog | undefined;
-    searchFilterJoin: string;
-    searchParams: Array<SearchParam>;
-    toolbarButtonStyle: ToolbarButtonStyle;
-    toolbarPanel: JQuery<HTMLElement> | undefined;
-    toolbarPosition: ToolbarPosition;
     totalPages: number;
     view: boolean;
     viewDialog: ViewDialog | undefined;
@@ -94,9 +78,6 @@ declare class DbNetGrid extends DbNetSuite {
     reload(): void;
     getDataArray(callback: Function): void;
     private matchingColumn;
-    private gridElement;
-    private gridElementId;
-    private setInputElement;
     private configureToolbar;
     private configureGrid;
     private configureDataTable;
@@ -133,10 +114,9 @@ declare class DbNetGrid extends DbNetSuite {
     private message;
     private getRequest;
     private addEventListener;
-    private disable;
     downloadCellData(element: HTMLElement, image: boolean): void;
     private openNestedGrid;
     private configureNestedGrid;
-    configureLinkedGrid(grid: DbNetGrid, fk: object | null): void;
+    configureLinkedGrid(control: DbNetSuite, fk: object | null): void;
     private assignForeignKey;
 }

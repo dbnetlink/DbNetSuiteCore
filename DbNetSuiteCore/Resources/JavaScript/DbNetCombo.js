@@ -14,7 +14,6 @@ class DbNetCombo extends DbNetSuite {
         this.filterMinChars = 3;
         this.filterToken = "";
         this.foreignKeyColumn = "";
-        this.linkedControls = [];
         this.multipleSelect = false;
         this.procedureParams = {};
         this.procedureName = "";
@@ -28,9 +27,6 @@ class DbNetCombo extends DbNetSuite {
         this.callServer("page");
         this.initialised = true;
         this.fireEvent("onInitialized");
-    }
-    addLinkedControl(control) {
-        this.linkedControls.push(control);
     }
     reload() {
         this.callServer("page");
@@ -66,16 +62,7 @@ class DbNetCombo extends DbNetSuite {
         const selectedValues = this.getSelectedValues();
         const selectedOptions = this.getSelectedOptions();
         this.fireEvent("onOptionSelected", { selectedValues: selectedValues, selectedOptions: selectedOptions });
-        this.linkedControls.forEach((control) => {
-            if (control instanceof DbNetGrid) {
-                const grid = control;
-                grid.configureLinkedGrid(grid, selectedValues);
-            }
-            if (control instanceof DbNetCombo) {
-                const combo = control;
-                combo.configureLinkedCombo(combo, selectedValues);
-            }
-        });
+        this.configureLinkedControls(selectedValues);
     }
     getSelectedValues() {
         var _a;

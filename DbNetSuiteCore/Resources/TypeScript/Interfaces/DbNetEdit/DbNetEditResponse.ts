@@ -4,7 +4,7 @@
     currentRow: number;
     totalRows: number;
     columns?: EditColumn[];
-    record?: Dictionary<string>;
+    record?: Dictionary<object>;
     searchParams?: Array<SearchParam>;
+    primaryKey?: string;
 }
-

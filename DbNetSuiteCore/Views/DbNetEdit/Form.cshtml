@@ -12,81 +12,66 @@
 @model FormViewModel
 
 @{
-    int primaryKeyIndex = @PrimaryKeyIndex(Model.Columns);
     DataRow row = Model.EditData.Rows[0];
 }
 
 <table class="dbnetedit-form">
     <tbody>
-        @foreach (DataColumn column in Model.EditData.Columns)
+        @foreach (DataColumn dataColumn in Model.EditData.Columns)
         {
-            EditColumn EditColumn = Model.Columns[column.Ordinal];
-            if (EditColumn.Display == false)
+            EditColumn editColumn = Model.Columns[dataColumn.Ordinal];
+            if (editColumn.Display == false)
             {
                 continue;
             }
             <tr class="form-row">
-                <td class="label">@(EditColumn.Label)</td>
-                <td data-value="@(row.ItemArray[EditColumn.Index])"><input type="text" value="@Html.Raw(CellContent(row, EditColumn))" /></td>
+                <td class="label">@(editColumn.Label)</td>
+                <td>@FormControl(editColumn,dataColumn)</td>
             </tr>
         }
     </tbody>
 </table>
+<div>
+    <div class="message">&nbsp;</div>
+</div>
 @functions
 {
-    public string CellContent(DataRow row, EditColumn EditColumn)
+    public string Attributes(EditColumn editColumn, DataColumn dataColumn)
     {
-        return CellValue(row.ItemArray[EditColumn.Index], EditColumn);
+        List<string> attributes = new List<string>();
+        string inputType = null;
+        string disabled = editColumn.PrimaryKey ? "disabled" : string.Empty;
+        int size = editColumn.ColumnSize == -1 ? 20 : editColumn.ColumnSize;
+  
+        switch (editColumn.EditControlType)
+        {
+            case EditControlType.Auto:
+                inputType = "text";
+                break;
+        }
+
+        if (string.IsNullOrEmpty(inputType) == false)
+        {
+            attributes.Add($"type=\"{inputType}\"");
+        }
+        if (string.IsNullOrEmpty(disabled) == false)
+        {
+            attributes.Add(disabled);
+        }
+        attributes.Add($"name=\"{dataColumn.ColumnName.ToLower()}\"");
+        attributes.Add($"size=\"{size.ToString()}\"");
+        return string.Join(" ", attributes.ToArray());
     }
-
-    public string CellValue(object dataValue, EditColumn column)
+    public HtmlString FormControl(EditColumn editColumn, DataColumn dataColumn)
     {
-        if (dataValue == null || dataValue == System.DBNull.Value)
+        string tagName = "input";
+        switch(editColumn.EditControlType)
         {
-            return string.Empty;
+            case EditControlType.TextArea:
+                tagName = "textarea";
+                break;
         }
-
-        if (string.IsNullOrEmpty(column.Lookup) == false)
-        {
-            DataTable lookupTable = Model.LookupTables[column.ColumnKey];
-
-            if (lookupTable.Columns.Count > 1)
-            {
-                foreach (DataRow row in lookupTable.Rows)
-                {
-                    if (row[0].ToString() == dataValue.ToString())
-                    {
-                        return row[1].ToString();
-                    }
-                }
-            }
-        }
-
-        if (column.DataType == nameof(DateTime))
-        {
-            return Convert.ToDateTime(dataValue).ToString(column.Format);
-        }
-
-        try
-        {
-            switch (column.DataType)
-            {
-                case nameof(Decimal):
-                case nameof(Double):
-                case nameof(Single):
-                case nameof(Int64):
-                case nameof(Int32):
-                case nameof(Int16):
-                    return Convert.ToDecimal(dataValue).ToString(column.Format);
-            }
-        }
-        catch { }
-
-        return dataValue.ToString();
-    }
-
-    public static int PrimaryKeyIndex(List<EditColumn> EditColumns)
-    {
-        return EditColumns.Any(c => c.PrimaryKey) ? EditColumns.FirstOrDefault(c => c.PrimaryKey).Index : -1;
+        
+        return new HtmlString($"<{tagName} {Attributes(editColumn, dataColumn)} class=\"dbnetedit\"></{tagName}>");
     }
 }

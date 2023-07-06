@@ -29,11 +29,13 @@ declare class DbNetSuite {
     protected connectionString: string;
     protected connectionType: DbConnectionType;
     protected culture: string;
+    protected linkedControls: Array<DbNetSuite>;
     initialised: boolean;
     constructor(id: string);
     bind(event: EventName, handler: EventHandler): void;
     unbind(event: EventName, handler: EventHandler): void;
     checkStyleSheetLoaded(): void;
+    addLinkedControl(control: DbNetSuite): void;
     fireEvent(event: EventName, params?: object | undefined): false | undefined;
     protected addPanel(panelId: string, parent?: JQuery<HTMLElement> | undefined): JQuery<HTMLElement>;
     protected addLoadingPanel(): void;
@@ -41,4 +43,10 @@ declare class DbNetSuite {
     protected showLoader(): void;
     protected hideLoader(): void;
     protected post<T>(action: string, request: any, blob?: boolean): Promise<T>;
+    protected controlElement(name: string): JQuery<HTMLElement>;
+    protected controlElementId(name: string): string;
+    protected disable(id: string, disabled: boolean): void;
+    protected setInputElement(name: string, value: number): void;
+    protected configureLinkedControls(fk: object | null): void;
+    private configureLinkedControl;
 }

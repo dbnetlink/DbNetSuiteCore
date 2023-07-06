@@ -774,6 +774,7 @@ table.lookup-dialog-toolbar td .toolbar-info,
   width: 24px;
   margin: 0px;
   text-align: center;
+  pointer-events: none;
 }
 table.dbnetsuite-toolbar td .toolbar-select,
 table.view-dialog-toolbar td .toolbar-select,

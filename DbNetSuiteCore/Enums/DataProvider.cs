@@ -1,5 +1,4 @@
-﻿
-namespace DbNetSuiteCore.Enums
+﻿namespace DbNetSuiteCore.Enums
 {
     public enum DataProvider
     {

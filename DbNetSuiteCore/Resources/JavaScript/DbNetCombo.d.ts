@@ -18,7 +18,6 @@ declare class DbNetCombo extends DbNetSuite {
     filterToken: string;
     foreignKeyColumn: string;
     foreignKeyValue: Array<string> | undefined;
-    linkedControls: Array<DbNetSuite>;
     multipleSelect: boolean;
     procedureParams: Dictionary<object>;
     procedureName: string;
@@ -29,7 +28,6 @@ declare class DbNetCombo extends DbNetSuite {
     $filter: JQuery<HTMLInputElement> | undefined;
     constructor(id: string);
     initialize(): void;
-    addLinkedControl(control: DbNetSuite): void;
     reload(): void;
     selectedValues(): string[];
     selectedOptions(): HTMLOptionElement[];

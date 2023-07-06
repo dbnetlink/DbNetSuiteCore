@@ -3,17 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
-using System.Data.OleDb;
 using Microsoft.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using DbNetSuiteCore.Enums;
 using DbNetSuiteCore.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
+using DbNetSuiteCore.Enums;
 
 namespace DbNetSuiteCore.Utilities
 {
@@ -149,15 +148,6 @@ namespace DbNetSuiteCore.Utilities
             {
                 switch (Provider)
                 {
-                    case DataProvider.OleDb:
-#pragma warning disable CA1416 // Validate platform compatibility
-                        Connection = new OleDbConnection(ConnectionString);
-#pragma warning restore CA1416 // Validate platform compatibility
-#pragma warning disable CA1416 // Validate platform compatibility
-                        Adapter = new OleDbDataAdapter();
-#pragma warning restore CA1416 // Validate platform compatibility
-                        ProviderAssembly = Assembly.GetAssembly(typeof(OleDbConnection));
-                        break;
                     case DataProvider.SQLite:
                         Connection = new SqliteConnection(ConnectionString);
                         ProviderAssembly = Assembly.GetAssembly(typeof(SqliteConnection));
@@ -284,6 +274,28 @@ namespace DbNetSuiteCore.Utilities
                 HandleError(Ex);
             }
 
+        }
+
+
+         public int ExecuteNonQuery(CommandConfig commandConfig)
+         {
+            if (Regex.Match(commandConfig.Sql, "^(delete|update) ", RegexOptions.IgnoreCase).Success)
+                if (!Regex.Match(commandConfig.Sql, " where ", RegexOptions.IgnoreCase).Success)
+                    throw new Exception("Unqualified updates and deletes are not allowed.");
+
+            ConfigureCommand(commandConfig.Sql, commandConfig.Params);
+            int RetVal = 0;
+
+            try
+            {
+                RetVal = Command.ExecuteNonQuery();
+            }
+            catch (Exception Ex)
+            {
+                HandleError(Ex);
+            }
+
+            return RetVal;
         }
 
         public string UpdateConcatenationOperator(string expr)

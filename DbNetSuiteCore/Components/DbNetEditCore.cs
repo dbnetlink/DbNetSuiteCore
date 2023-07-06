@@ -9,12 +9,10 @@ using DbNetSuiteCore.Enums.DbNetEdit;
 
 namespace DbNetSuiteCore.Components
 {
-    public class DbNetEditCore : DbNetSuiteCore
+    public class DbNetEditCore : DbNetGridEditCore
     {
         private readonly string _fromPart; 
 
-        private List<EventBinding> _eventBindings { get; set; } = new List<EventBinding>();
-  
         /// <summary>
         /// Specifies the name of the foreign key column in a linked combo
         /// </summary>
@@ -35,15 +33,6 @@ namespace DbNetSuiteCore.Components
         {
             _fromPart = fromPart;
         }
-
-        /// <summary>
-        /// Links one grid component to another
-        /// </summary>
-        public void AddLinkedControl(DbNetSuiteCore linkedControl)
-        {
-            _linkedControls.Add(linkedControl);
-        }
-
         /// <summary>
         /// Binds an event to a named client-side JavaScript function
         /// </summary>
@@ -51,7 +40,23 @@ namespace DbNetSuiteCore.Components
         {
             base.Bind(eventType, functionName);
         }
-
+        /// <summary>
+        /// Assigns a grid column property to multiple columns
+        /// </summary>
+        public void SetColumnProperty(string[] columnNames, ColumnPropertyType propertyType, object propertyValue)
+        {
+            foreach (var columnName in columnNames)
+            {
+                SetColumnProperty(columnName, propertyType, propertyValue);
+            }
+        }
+        /// <summary>
+        /// Assigns a grid column property value to a single column
+        /// </summary>
+        public void SetColumnProperty(string columnName, ColumnPropertyType propertyType, object propertyValue)
+        {
+            base.SetColumnProperty(columnName, propertyType, (object)propertyValue);
+        }
         public HtmlString Render()
         {
             string message = ValidateProperties();
@@ -76,7 +81,7 @@ namespace DbNetSuiteCore.Components
         {
             var script = @$" 
 {ConfigureLinkedControls()}
-var {_id} = new DbNetCombo('{_id}');
+var {_id} = new DbNetEdit('{_id}');
 with ({_id})
 {{
 	{EditConfiguration()}                        
@@ -108,7 +113,10 @@ with ({_id})
             var script = @$" 
 connectionString = '{EncodingHelper.Encode(_connection)}';
 fromPart = '{EncodingHelper.Encode(_fromPart)}';
-
+{ColumnExpressions()}
+{ColumnKeys()}
+{ColumnLabels()}
+{ColumnProperties()}
 {EventBindings()}
 {Properties()}
 {LinkedControls()}";

@@ -70,6 +70,8 @@
     <None Remove="Resources\JavaScript\DbNetEdit.min.js" />
     <None Remove="Resources\JavaScript\dbnetgrid.js" />
     <None Remove="Resources\JavaScript\DbNetGrid.min.js" />
+    <None Remove="Resources\JavaScript\DbNetGridEdit.js" />
+    <None Remove="Resources\JavaScript\DbNetGridEdit.min.js" />
     <None Remove="Resources\JavaScript\dbnetsuite.js" />
     <None Remove="Resources\JavaScript\DbNetSuite.min.js" />
     <None Remove="Resources\JavaScript\Dialog.js" />
@@ -96,6 +98,7 @@
     <None Remove="Resources\TypeScript\DbNetCombo.ts" />
     <None Remove="Resources\TypeScript\DbNetEdit.ts" />
     <None Remove="Resources\TypeScript\dbnetgrid.ts" />
+    <None Remove="Resources\TypeScript\DbNetGridEdit.ts" />
     <None Remove="Resources\TypeScript\dbnetsuite.ts" />
     <None Remove="Views\DbNetCombo\Combo.cshtml" />
     <None Remove="Views\DbNetCombo\Options.cshtml" />
@@ -137,6 +140,8 @@
     <EmbeddedResource Include="Resources\JavaScript\DbNetEdit.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetEdit.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetGrid.min.js" />
+    <EmbeddedResource Include="Resources\JavaScript\DbNetGridEdit.js" />
+    <EmbeddedResource Include="Resources\JavaScript\DbNetGridEdit.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetSuite.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\Dialog.js" />
     <EmbeddedResource Include="Resources\JavaScript\Dialog.min.js" />
@@ -168,6 +173,7 @@
     <EmbeddedResource Include="Resources\SCSS\_reboot.scss" />
     <EmbeddedResource Include="Resources\TypeScript\DbNetEdit.ts" />
     <EmbeddedResource Include="Resources\TypeScript\DbNetCombo.ts" />
+    <EmbeddedResource Include="Resources\TypeScript\DbNetGridEdit.ts" />
     <EmbeddedResource Include="Views\DbNetCombo\Options.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
@@ -237,14 +243,13 @@
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.100.3" />
     <PackageReference Include="DocumentFormat.OpenXml" Version="2.18.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.3" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.10" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.10" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="6.0.10" />
-    <PackageReference Include="System.Data.Odbc" Version="6.0.1" />
-    <PackageReference Include="System.Data.OleDb" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>

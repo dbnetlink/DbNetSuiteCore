@@ -27,7 +27,7 @@ interface Dictionary<T> {
     [Key: string]: T;
 }
 
-class DbNetGrid extends DbNetSuite {
+class DbNetGrid extends DbNetGridEdit {
     autoRowSelect = true;
     booleanDisplayMode: BooleanDisplayMode = BooleanDisplayMode.TrueFalse;
     cellIndexCache: Dictionary<number> = {};
@@ -43,17 +43,13 @@ class DbNetGrid extends DbNetSuite {
     export_ = true;
     fixedFilterParams: Dictionary<object> = {};
     fixedFilterSql = "";
-    fromPart = "";
     frozenHeader = false;
     googleChartOptions: GoogleChartOptions | undefined = undefined;
     gridGenerationMode: GridGenerationMode = GridGenerationMode.Display;
     gridPanel: JQuery<HTMLElement> | undefined;
     groupBy = false;
-    linkedGrids: Array<DbNetGrid> = [];
-    lookupDialog: LookupDialog | undefined;
     multiRowSelect = false;
     multiRowSelectLocation: MultiRowSelectLocation = MultiRowSelectLocation.Left;
-    navigation = true;
     nestedGrid = false;
     optimizeForLargeDataset = false;
     orderBy = "";
@@ -62,19 +58,7 @@ class DbNetGrid extends DbNetSuite {
     primaryKey: string | undefined = undefined;
     procedureName = "";
     procedureParams: Dictionary<object> = {};
-    quickSearch = false;
-    quickSearchDelay = 1000;
-    quickSearchMinChars = 3;
-    quickSearchTimerId: number | undefined;
-    quickSearchToken = "";
     rowSelect = true;
-    search = true;
-    searchDialog: SearchDialog | undefined;
-    searchFilterJoin = "";
-    searchParams: Array<SearchParam> = [];
-    toolbarButtonStyle: ToolbarButtonStyle = ToolbarButtonStyle.Image;
-    toolbarPanel: JQuery<HTMLElement> | undefined;
-    toolbarPosition: ToolbarPosition = "Top";
     totalPages = 0;
     view = false;
     viewDialog: ViewDialog | undefined;
@@ -163,7 +147,7 @@ class DbNetGrid extends DbNetSuite {
     }
 
     addLinkedGrid(grid: DbNetGrid) {
-        this.linkedGrids.push(grid);
+        this.linkedControls.push(grid);
     }
 
     columnIndex(columnName: string) {
@@ -248,21 +232,6 @@ class DbNetGrid extends DbNetSuite {
         return match;
     }
 
-    private gridElement(name: string): JQuery<HTMLElement> {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return $(`#${this.gridElementId(name)}`)!;
-    }
-
-    private gridElementId(name: string): string {
-        return `${this.id}_${name}`;
-    }
-
-    private setInputElement(name: string, value: number) {
-        const el = this.gridElement(name);
-        el.val(value.toString());
-        el.width(`${value.toString().length}em`);
-    }
-
     private configureToolbar(response: DbNetGridResponse) {
         if (response.toolbar) {
             const buttons = ["First", "Next", "Previous", "Last", "Download", "Copy", "View", "Search"];
@@ -271,8 +240,8 @@ class DbNetGrid extends DbNetSuite {
             )
         }
 
-        const $navigationElements = this.gridElement("dbnetgrid-toolbar").find(".navigation");
-        const $noRecordsCell = this.gridElement("no-records-cell");
+        const $navigationElements = this.controlElement("dbnetgrid-toolbar").find(".navigation");
+        const $noRecordsCell = this.controlElement("no-records-cell");
         this.setInputElement("Rows", response.totalRows);
 
         if (response.totalRows == 0) {
@@ -282,7 +251,7 @@ class DbNetGrid extends DbNetSuite {
         else {
             $navigationElements.show();
             $noRecordsCell.hide();
-            this.gridElement("dbnetgrid-toolbar").find(".navigation").show();
+            this.controlElement("dbnetgrid-toolbar").find(".navigation").show();
             this.setInputElement("PageNumber", response.currentPage);
             this.setInputElement("PageCount", response.totalPages);
 
@@ -299,7 +268,7 @@ class DbNetGrid extends DbNetSuite {
         this.disable("DownloadBtn", response.totalRows == 0);
         this.disable("CopyBtn", response.totalRows == 0);
 
-        this.gridElement("QuickSearch").on("keyup", (event) => this.quickSearchKeyPress(event));
+        this.controlElement("QuickSearch").on("keyup", (event) => this.quickSearchKeyPress(event));
     }
 
     private configureGrid(response: DbNetGridResponse) {
@@ -399,9 +368,7 @@ class DbNetGrid extends DbNetSuite {
         }
 
         if (rowCount === 0) {
-            this.linkedGrids.forEach((grid) => {
-                grid.configureLinkedGrid(grid, null);
-            });
+            this.configureLinkedControls(null);
         }
     }
 
@@ -437,7 +404,7 @@ class DbNetGrid extends DbNetSuite {
     }
     private updateColumns(response: DbNetGridResponse) {
         this.columns = new Array<GridColumn>();
-        response.columns.forEach((col) => {
+        response.columns?.forEach((col) => {
             const properties = {
                 columnExpression: col.columnExpression,
                 columnName: col.columnName,
@@ -558,9 +525,7 @@ class DbNetGrid extends DbNetSuite {
             tr.addClass("selected").find("input.multi-select-checkbox").prop('checked', true);
         }
 
-        this.linkedGrids.forEach((grid) => {
-            this.configureLinkedGrid(grid, tr.data("id"));
-        });
+        this.configureLinkedControls(tr.data("id"));
 
         if (this.viewDialog && this.viewDialog.isOpen()) {
             this.getViewContent();
@@ -611,22 +576,22 @@ class DbNetGrid extends DbNetSuite {
         const id = (event.target as Element).id;
 
         switch (id) {
-            case this.gridElementId("FirstBtn"):
+            case this.controlElementId("FirstBtn"):
                 this.currentPage = 1;
                 break;
-            case this.gridElementId("NextBtn"):
+            case this.controlElementId("NextBtn"):
                 this.currentPage++;
                 break;
-            case this.gridElementId("PreviousBtn"):
+            case this.controlElementId("PreviousBtn"):
                 this.currentPage--;
                 break;
-            case this.gridElementId("LastBtn"):
+            case this.controlElementId("LastBtn"):
                 this.currentPage = this.totalPages;
                 break;
-            case this.gridElementId("DownloadBtn"):
-            case this.gridElementId("CopyBtn"):
-            case this.gridElementId("ViewBtn"):
-            case this.gridElementId("SearchBtn"):
+            case this.controlElementId("DownloadBtn"):
+            case this.controlElementId("CopyBtn"):
+            case this.controlElementId("ViewBtn"):
+            case this.controlElementId("SearchBtn"):
                 break;
             default:
                 return;
@@ -634,16 +599,16 @@ class DbNetGrid extends DbNetSuite {
         event.preventDefault();
 
         switch (id) {
-            case this.gridElementId("DownloadBtn"):
+            case this.controlElementId("DownloadBtn"):
                 this.download();
                 break;
-            case this.gridElementId("CopyBtn"):
+            case this.controlElementId("CopyBtn"):
                 this.copyGrid();
                 break;
-            case this.gridElementId("ViewBtn"):
+            case this.controlElementId("ViewBtn"):
                 this.getViewContent();
                 break;
-            case this.gridElementId("SearchBtn"):
+            case this.controlElementId("SearchBtn"):
                 this.openSearchDialog();
                 break;
             default:
@@ -764,7 +729,7 @@ class DbNetGrid extends DbNetSuite {
     }
 
     private download() {
-        switch (this.gridElement("DownloadSelect").val()) {
+        switch (this.controlElement("DownloadSelect").val()) {
             case "html":
                 this.htmlExport();
                 break;
@@ -908,11 +873,7 @@ class DbNetGrid extends DbNetSuite {
     }
 
     private addEventListener(id: string, eventName = "click") {
-        this.gridElement(id).on(eventName, (event) => this.handleClick(event));
-    }
-
-    private disable(id: string, disabled: boolean) {
-        this.gridElement(id).prop("disabled", disabled);
+        this.controlElement(id).on(eventName, (event) => this.handleClick(event));
     }
 
     public downloadCellData(element: HTMLElement, image: boolean) {
@@ -1003,7 +964,8 @@ class DbNetGrid extends DbNetSuite {
         grid.initialize();
     }
 
-    public configureLinkedGrid(grid: DbNetGrid, fk: object|null) {
+    public configureLinkedGrid(control: DbNetSuite, fk: object | null) {
+        const grid = control as DbNetGrid;
         this.assignForeignKey(grid, fk);
         if (grid.connectionString == "") {
             grid.connectionString = this.connectionString;
@@ -1011,7 +973,6 @@ class DbNetGrid extends DbNetSuite {
         grid.currentPage = 1;
         grid.initialised ? grid.getPage() : grid.initialize();
     }
-
 
     private assignForeignKey(grid: DbNetGrid, fk: object|null) {
         const col = grid.columns.find((col) => { return col.foreignKey == true });

@@ -1,9 +1,10 @@
 ﻿using DbNetSuiteCore.Enums;
+using DbNetSuiteCore.Models.DbNetEdit;
 using System.Collections.Generic;
 
 namespace DbNetSuiteCore.Models.DbNetGrid
 {
-    public class DbNetGridRequest : DbNetSuiteRequest
+    public class DbNetGridRequest : DbNetGridEditRequest
     {
         public BooleanDisplayMode BooleanDisplayMode { get; set; }
         public Dictionary<string, string> ColumnFilters { get; set; } = new Dictionary<string, string>();
@@ -16,14 +17,12 @@ namespace DbNetSuiteCore.Models.DbNetGrid
         public bool Export { get; set; } = true;
         public Dictionary<string, object> FixedFilterParams { get; set; } = new Dictionary<string, object>();
         public string FixedFilterSql { get; set; }
-        public string FromPart { get; set; }
         public bool FrozenHeader { get; set; } = false;
         public GridGenerationMode GridGenerationMode { get; set; } = GridGenerationMode.Display;
         public bool GroupBy { get; set; } = false;
         public int LookupColumnIndex { get; set; }
         public bool MultiRowSelect { get; set; }
         public MultiRowSelectLocation MultiRowSelectLocation { get; set; }
-        public bool Navigation { get; set; } = true;
         public bool NestedGrid { get; set; } = false;
         public bool OptimizeForLargeDataset { get; set; }
         public int? OrderBy { get; set; }
@@ -32,9 +31,7 @@ namespace DbNetSuiteCore.Models.DbNetGrid
         public string PrimaryKey { get; set; }
         public string ProcedureName { get; set; } = string.Empty;
         public Dictionary<string, object> ProcedureParams { get; set; } = new Dictionary<string, object>();
-        public bool QuickSearch { get; set; } = false;
         public string QuickSearchToken { get; set; }
-        public bool Search { get; set; } = true;
         public string SearchFilterJoin { get; set; }
         public List<SearchParameter> SearchParams { get; set; } = new List<SearchParameter>();
         public ToolbarButtonStyle ToolbarButtonStyle { get; set; }

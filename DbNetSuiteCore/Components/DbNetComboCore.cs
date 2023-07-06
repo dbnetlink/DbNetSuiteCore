@@ -71,14 +71,6 @@ namespace DbNetSuiteCore.Components
         }
 
         /// <summary>
-        /// Links one grid component to another
-        /// </summary>
-        public void AddLinkedControl(DbNetSuiteCore linkedControl)
-        {
-            _linkedControls.Add(linkedControl);
-        }
-
-        /// <summary>
         /// Binds an event to a named client-side JavaScript function
         /// </summary>
         public void Bind(EventType eventType, string functionName)

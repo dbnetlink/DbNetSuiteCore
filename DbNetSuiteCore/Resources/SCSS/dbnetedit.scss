@@ -6,8 +6,29 @@ table.dbnetedit-form {
         font-size: var(--main-font-size);
     }
 
-    input {
+    input, textarea {
         font-family: var(--main-font-family);
         font-size: var(--main-font-size);
+    }
+
+    textarea {
+        width: 100%;
+    }
+}
+
+.dbnetedit-form {
+    .message {
+        border: 1pt solid #ddd;
+        border-radius: 2px;
+        font-family: var(--main-font-family);
+        font-size: var(--main-font-size);
+        font-weight: normal;
+        vertical-align: middle;
+        padding: 5px;
+        margin-top: 5px;
+
+        &.highlight {
+            background-color: #FFD54F;
+        }
     }
 }

@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using DbNetSuiteCore.Helpers;
+using System.Collections.Generic;
 
 namespace DbNetSuiteCore.Models.DbNetEdit
 {
     public class DbNetEditResponse : DbNetGridEditResponse
     {
         private List<EditColumn> columns;
+        private string primaryKey;
+
         public object Toolbar { get; set; }
         public object Form { get; set; }
         public List<EditColumn> Columns
@@ -14,5 +17,10 @@ namespace DbNetSuiteCore.Models.DbNetEdit
         }
         public long TotalRows { get; set; }
         public int CurrentRow { get; set; }
+        public string PrimaryKey
+        {
+            get { return primaryKey; }
+            set { primaryKey = EncodingHelper.Encode(value); }
+        }
     }
 }

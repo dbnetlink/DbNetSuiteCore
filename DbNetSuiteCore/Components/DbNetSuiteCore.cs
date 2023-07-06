@@ -58,6 +58,14 @@ namespace DbNetSuiteCore.Components
         {
             return new HtmlString($"<script src=\"~/resource.dbnetsuite?action=script\"></script>");
         }
+
+        /// <summary>
+        /// Links one DbNetSuite component to another
+        /// </summary>
+        public void AddLinkedControl(DbNetSuiteCore linkedControl)
+        {
+            _linkedControls.Add(linkedControl);
+        }
         /// <summary>
         /// Binds an event to a named client-side JavaScript function
         /// </summary>

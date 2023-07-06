@@ -4,23 +4,16 @@ using DbNetSuiteCore.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using Microsoft.AspNetCore.Html;
-using Microsoft.Extensions.Configuration;
-using System.IO;
-using Azure.Messaging;
-using System.Configuration;
 using System.Data;
 using DbNetSuiteCore.Enums.DbNetGrid;
 
 namespace DbNetSuiteCore.Components
 {
-    public class DbNetGridCore : DbNetSuiteCore
+    public class DbNetGridCore : DbNetGridEditCore
     {
         private readonly string _fromPart;
-        private List<ColumnProperty> _columnProperties { get; set; } = new List<ColumnProperty>();
-        private List<DbNetGridCore> _linkedGrids { get; set; } = new List<DbNetGridCore>();
-        /// <summary>
+         /// <summary>
         /// Automatically selects the first row of the grid (default is true)
         /// </summary>
         public bool? AutoRowSelect { get; set; } = null;
@@ -28,10 +21,6 @@ namespace DbNetSuiteCore.Components
         /// Controls the way a boolean value is displayed in the grid
         /// </summary> 
         public BooleanDisplayMode? BooleanDisplayMode { get; set; } = null;
-        /// <summary>
-        /// Selects the columns to be displayed in the grid
-        /// </summary>
-        public List<string> Columns { get; set; } = new List<string>();
         /// <summary>
         /// Adds/removes a page copy option to/from the toolbar
         /// </summary>
@@ -64,10 +53,6 @@ namespace DbNetSuiteCore.Components
         /// Groups the returned data by all the columns not identified as aggregates
         /// </summary>
         public bool? GroupBy { get; set; } = null; 
-        /// <summary>
-        /// Labels for the columns specified in the Columns property
-        /// </summary>
-        public List<string> Labels { get; set; } = new List<string>();
         /// <summary>
         /// Enables selection of multiple rows
         /// </summary>
@@ -135,7 +120,7 @@ namespace DbNetSuiteCore.Components
         }
       
         /// <summary>
-        /// Assigns a property value to multiple columns
+        /// Assigns a grid column property to multiple columns
         /// </summary>
         public void SetColumnProperty(string[] columnNames, ColumnPropertyType propertyType, object propertyValue)
         {
@@ -145,47 +130,12 @@ namespace DbNetSuiteCore.Components
             }
         }
         /// <summary>
-        /// Assigns a property value to a single column
+        /// Assigns a grid column property value to a single column
         /// </summary>
         public void SetColumnProperty(string columnName, ColumnPropertyType propertyType, object propertyValue)
         {
-            columnName = FindColumnName(columnName);
-            _columnProperties.Add(new ColumnProperty(columnName.ToLower(), propertyType, propertyValue));
-
-            string FindColumnName(string name)
-            {
-                if (Columns.Any(c => c.ToLower() == name.ToLower()))
-                {
-                    return name;
-                }
-
-                var splitChars = new string[] { ".", " " };
-                foreach (string splitChar in splitChars)
-                {
-                    var columnExpr = Columns.FirstOrDefault(c => c.Split(splitChar).Last().ToLower() == name.ToLower());
-
-                    if (columnExpr != null)
-                    {
-                        return columnExpr;
-                    }
-                }
-
-                if (propertyType == ColumnPropertyType.DataOnly)
-                {
-                    Columns.Add(name);
-                }
-                return name;
-            }
+            base.SetColumnProperty(columnName, propertyType, (object)propertyValue);
         }
-
-        /// <summary>
-        /// Links one grid component to another
-        /// </summary>
-        public void AddLinkedGrid(DbNetGridCore linkedGrid)
-        {
-            _linkedGrids.Add(linkedGrid);
-        }
-
         /// <summary>
         /// Binds an event to a named client-side JavaScript function
         /// </summary>
@@ -219,7 +169,7 @@ namespace DbNetSuiteCore.Components
         private string ClientJavaScript()
         {
             var script = @$"{InitScript()}
-	{ConfigureLinkedGrids()}
+	{ConfigureLinkedControls()}
 	var {_id} = new DbNetGrid('{_id}');
 	with ({_id})
 	{{
@@ -254,7 +204,7 @@ function configure{_id}(grid)
         internal string LinkedRender()
         {
             var script = @$" 
-{ConfigureLinkedGrids()}
+{ConfigureLinkedControls()}
 var {_id} = new DbNetGrid('{_id}');
 with ({_id})
 {{
@@ -275,7 +225,7 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
 {ColumnProperties()}
 {EventBindings()}
 {Properties()}
-{LinkedGrids()}";
+{LinkedControls()}";
             return script;
         }
 
@@ -332,57 +282,6 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             return string.Join(Environment.NewLine, properties);
         }
 
-        private string ColumnExpressions()
-        {
-            if (Columns.Any() == false)
-            {
-                return string.Empty;
-            }
-            return $"setColumnExpressions(\"{string.Join("\",\"", Columns.Select(c => EncodingHelper.Encode(c)).ToList())}\");";
-        }
-        private string ColumnKeys()
-        {
-            if (Columns.Any() == false)
-            {
-                return string.Empty;
-            }
-            return $"setColumnKeys(\"{string.Join("\",\"", Columns.Select(c => EncodingHelper.Encode(c.ToLower())).ToList())}\");";
-        }
-        private string ColumnLabels()
-        {
-            if (Labels.Any() == false)
-            {
-                return string.Empty;
-            }
-            return $"setColumnLabels(\"{string.Join("\",\"", Labels)}\");";
-        }
-
-        private string ColumnProperties()
-        {
-            var script = _columnProperties.Select(x => $"setColumnProperty(\"{EncodingHelper.Encode(x.ColumnName)}\",\"{LowerCaseFirstLetter(x.PropertyType.ToString())}\",{PropertyValue(x.PropertyValue, x.PropertyType)});").ToList();
-            return string.Join(Environment.NewLine, script);
-
-            string PropertyValue(object value, ColumnPropertyType propertyType)
-            {
-                if (value is bool)
-                {
-                    return value.ToString()!.ToLower();
-                }
-                if (propertyType == ColumnPropertyType.Lookup)
-                {
-                    value = EncodingHelper.Encode(value.ToString());
-                }
-                return $"\"{value}\"";
-            }
-        }
-
-        private string LinkedGrids()
-        {
-            var script = new List<string>();
-            script = _linkedGrids.Select(x => $"addLinkedGrid({x.Id});").ToList();
-            return string.Join(Environment.NewLine, script);
-        }
-
         private string ConfigureNestedGrid()
         {
             if (NestedGrid == null)
@@ -397,18 +296,6 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
         {
             DatePickerOptions datePickerOptions = new DatePickerOptions(this.Culture);
             return Serialize(datePickerOptions);
-        }
-
-        private string ConfigureLinkedGrids()
-        {
-            var script = string.Empty;
-
-            foreach (var linkedGrid in _linkedGrids)
-            {
-                script += linkedGrid.LinkedRender();
-            }
-
-            return script;
         }
     }
 }

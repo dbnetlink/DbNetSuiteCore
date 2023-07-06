@@ -236,17 +236,6 @@ namespace DbNetSuiteCore.Services
         {
             return $"{Columns.First().ColumnExpression} asc";
         }
-        internal int ParseBoolean(string boolString)
-        {
-            switch (boolString.ToLower())
-            {
-                case "true":
-                case "1":
-                    return 1;
-                default:
-                    return 0;
-            }
-        }
         internal QueryCommandConfig ProcedureCommandConfig()
         {
             QueryCommandConfig queryCommandConfig = new QueryCommandConfig(this.ProcedureName);
@@ -561,18 +550,6 @@ namespace DbNetSuiteCore.Services
                     break;
             }
         }
-        private string ParamName(GridColumn column, string suffix = "", bool parameterValue = false)
-        {
-            return Database.ParameterName($"{column.ColumnName}{suffix}");
-        }
-        private string ParamName(GridColumn column, bool parameterValue = false)
-        {
-            return ParamName(column, string.Empty, parameterValue);
-        }
-        private string ParamName(string paramName, bool parameterValue = false)
-        {
-            return Database.ParameterName(paramName, parameterValue);
-        }
         protected QueryCommandConfig BuildSql()
         {
             return BuildSql(QueryBuildModes.Normal);
@@ -621,96 +598,7 @@ namespace DbNetSuiteCore.Services
             }
             return false;
         }
-        protected object ConvertToDbParam(object value, DbColumn column = null)
-        {
-            string dataType = column?.DataType ?? string.Empty;
-            if (value == null)
-            {
-                if (dataType == "Byte[]")
-                    return new byte[0];
-                else
-                    return DBNull.Value;
-            }
-
-            if (dataType == string.Empty)
-                dataType = value.GetType().Name;
-
-            if (value is string)
-            {
-                string valueString = (string)value;
-                if (valueString.Equals("") || valueString.Equals(string.Empty))
-                    return DBNull.Value;
-            }
-
-            if (value is JsonElement)
-            {
-                JsonElement jsonElement = (JsonElement)value;
-                switch (jsonElement.ValueKind)
-                {
-                    case JsonValueKind.String:
-                        value = jsonElement.GetString();
-                        break;
-                    case JsonValueKind.Number:
-                        value = jsonElement.GetUInt64();
-                        break;
-                    default:
-                        throw new Exception($"jsonElement.ValueKind => {jsonElement.ValueKind} not supported");
-                }
-            }
-
-            object paramValue = string.Empty;
-            try
-            {
-                switch (dataType)
-                {
-                    case nameof(Boolean):
-                        if (value.ToString() == String.Empty)
-                            paramValue = DBNull.Value;
-                        else
-                            paramValue = ParseBoolean(value.ToString());
-                        break;
-                    case nameof(TimeSpan):
-                        paramValue = TimeSpan.Parse(DateTime.Parse(value.ToString()).ToString("t"));
-                        break;
-                    case nameof(Byte):
-                        paramValue = value;
-                        break;
-                    case nameof(Guid):
-                        paramValue = new Guid(value.ToString());
-                        break;
-                    case nameof(Int16):
-                    case nameof(Int32):
-                    case nameof(Int64):
-                    case nameof(Decimal):
-                    case nameof(Single):
-                    case nameof(Double):
-                        paramValue = Convert.ChangeType(value, GetColumnType(dataType));
-                        break;
-                    default:
-                        paramValue = Convert.ChangeType(value, GetColumnType(dataType));
-                        break;
-                }
-            }
-            catch (Exception e)
-            {
-                ThrowException(e.Message, "ConvertToDbParam: Value: " + value.ToString() + " DataType:" + dataType);
-                return DBNull.Value;
-            }
-
-            switch (dataType)
-            {
-                case nameof(DateTime):
-                    switch (Database.Database)
-                    {
-                        case DatabaseType.SQLite:
-                            paramValue = Convert.ToDateTime(paramValue).ToString("yyyy-MM-dd");
-                            break;
-                    }
-                    break;
-            }
-
-            return paramValue;
-        }
+      
         protected string ReplaceWithCorrectParams(string sql, ListDictionary p)
         {
             Regex paramPattern = new Regex(@"Col\d{1,3}Param\d{1,3}");
@@ -1426,20 +1314,6 @@ namespace DbNetSuiteCore.Services
             lookupDialogViewModel.LookupData = dataView.ToTable();
 
             response.Data = await HttpContext.RenderToStringAsync("Views/DbNetGrid/LookupDialogContent.cshtml", lookupDialogViewModel);
-        }
-        private Dictionary<string, object> CreateRecord(DataTable dataTable)
-        {
-            var dictionary = new Dictionary<string, object>();
-            foreach (DataColumn column in dataTable.Columns)
-            {
-                if (column.DataType == typeof(Byte[]))
-                {
-                    continue;
-                }
-                dictionary[column.ColumnName.ToLower()] = dataTable.Rows[0][column.ColumnName];
-            }
-
-            return dictionary;
         }
 
         private DataTable GetViewData()

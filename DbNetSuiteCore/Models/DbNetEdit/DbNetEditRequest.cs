@@ -2,12 +2,12 @@
 
 namespace DbNetSuiteCore.Models.DbNetEdit
 {
-    public class DbNetEditRequest : DbNetSuiteRequest
+    public class DbNetEditRequest : DbNetGridEditRequest
     {
+        public Dictionary<string,object> Changes { get; set; } = new Dictionary<string, object>();
         public List<EditColumn> Columns { get; set; } = new List<EditColumn>();
-        public string FromPart { get; set; }
-        public bool Navigation { get; set; }
-        public bool QuickSearch { get; set; }
-        public bool Search { get; set; }
+        public int TotalRows { get; set; }
+        public int CurrentRow { get; set; } = 1;
+        public string PrimaryKey { get; set; }
     }
 }

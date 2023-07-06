@@ -57,16 +57,17 @@ namespace DbNetSuiteCore.Services
             };
             string[] appScripts = {
                 "DbNetSuite",
+                "DbNetGridEdit",
                 "DbNetGrid",
+                "DbNetCombo",
+                "DbNetEdit",
                 "DbColumn",               
 				"GridColumn",
                 "EditColumn",
                 "Dialog",
 				"ViewDialog",
 				"SearchDialog",
-				"LookupDialog",
-				"DbNetCombo",
-				"DbNetEdit"
+				"LookupDialog"
 			};
 
 			List<string> scripts = new List<string>();

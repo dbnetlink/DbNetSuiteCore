@@ -29,6 +29,8 @@ class DbNetSuite {
     protected connectionString = "";
     protected connectionType: DbConnectionType = "SqlServer";
     protected culture = "";
+    protected linkedControls: Array<DbNetSuite> = [];
+
 
     public initialised = false;
 
@@ -77,7 +79,11 @@ class DbNetSuite {
         }
     }
 
-    public fireEvent(event: EventName, params: object | undefined = undefined) {
+    addLinkedControl(control: DbNetSuite) {
+        this.linkedControls.push(control);
+    }
+
+    fireEvent(event: EventName, params: object | undefined = undefined) {
         if (!this.eventHandlers[event])
             return false;
 
@@ -100,7 +106,7 @@ class DbNetSuite {
         }
         jQuery('<div>', {
             id: id
-        }).appendTo(parent as JQuery<HTMLElement>);
+        }).addClass(`${this.constructor.name.toLowerCase()}-${panelId}`).appendTo(parent as JQuery<HTMLElement>);
         return $(`#${id}`);
     }
 
@@ -161,6 +167,39 @@ class DbNetSuite {
 
                 return Promise.reject()
             })
+    }
+
+    protected controlElement(name: string): JQuery<HTMLElement> {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return $(`#${this.controlElementId(name)}`)!;
+    }
+    protected controlElementId(name: string): string {
+        return `${this.id}_${name}`;
+    }
+    protected disable(id: string, disabled: boolean) {
+        this.controlElement(id).prop("disabled", disabled);
+    }
+    protected setInputElement(name: string, value: number) {
+        const el = this.controlElement(name);
+        el.val(value.toString());
+        el.width(`${value.toString().length}em`);
+    }
+
+    protected configureLinkedControls(fk: object | null) {
+        this.linkedControls.forEach((control) => {
+            control.configureLinkedControl(control, fk);
+        });
+    }
+
+    private configureLinkedControl(control: DbNetSuite, fk: object | null) {
+        if (control instanceof DbNetGrid) {
+            const grid = control as DbNetGrid;
+            grid.configureLinkedGrid(grid, fk);
+        }
+        if (control instanceof DbNetCombo) {
+            const combo = control as DbNetCombo;
+            combo.configureLinkedCombo(combo, fk as string[]);
+        }
     }
 }
 

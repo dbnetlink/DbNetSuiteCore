@@ -8,6 +8,7 @@ class DbNetSuite {
         this.connectionString = "";
         this.connectionType = "SqlServer";
         this.culture = "";
+        this.linkedControls = [];
         this.initialised = false;
         this.id = id;
         this.element = $(`#${this.id}`);
@@ -46,6 +47,9 @@ class DbNetSuite {
             console.error("DbNetSuite stylesheet not found. See https://dbnetsuitecore.z35.web.core.windows.net/index.htm?context=20#DbNetSuiteCoreStyleSheet");
         }
     }
+    addLinkedControl(control) {
+        this.linkedControls.push(control);
+    }
     fireEvent(event, params = undefined) {
         if (!this.eventHandlers[event])
             return false;
@@ -65,7 +69,7 @@ class DbNetSuite {
         }
         jQuery('<div>', {
             id: id
-        }).appendTo(parent);
+        }).addClass(`${this.constructor.name.toLowerCase()}-${panelId}`).appendTo(parent);
         return $(`#${id}`);
     }
     addLoadingPanel() {
@@ -121,6 +125,36 @@ class DbNetSuite {
             });
             return Promise.reject();
         });
+    }
+    controlElement(name) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return $(`#${this.controlElementId(name)}`);
+    }
+    controlElementId(name) {
+        return `${this.id}_${name}`;
+    }
+    disable(id, disabled) {
+        this.controlElement(id).prop("disabled", disabled);
+    }
+    setInputElement(name, value) {
+        const el = this.controlElement(name);
+        el.val(value.toString());
+        el.width(`${value.toString().length}em`);
+    }
+    configureLinkedControls(fk) {
+        this.linkedControls.forEach((control) => {
+            control.configureLinkedControl(control, fk);
+        });
+    }
+    configureLinkedControl(control, fk) {
+        if (control instanceof DbNetGrid) {
+            const grid = control;
+            grid.configureLinkedGrid(grid, fk);
+        }
+        if (control instanceof DbNetCombo) {
+            const combo = control;
+            combo.configureLinkedCombo(combo, fk);
+        }
     }
 }
 DbNetSuite.DBNull = "DBNull";

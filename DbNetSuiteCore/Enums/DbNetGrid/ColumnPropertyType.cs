@@ -1,4 +1,4 @@
-﻿namespace DbNetSuiteCore.Enums
+﻿namespace DbNetSuiteCore.Enums.DbNetGrid
 {
     public enum ColumnPropertyType
     {
@@ -13,12 +13,12 @@
         ForeignKey,
         Format,
         GroupHeader,
-		Image,
-		Label,
+        Image,
+        Label,
         Lookup,
         PrimaryKey,
-		Style,
+        Style,
         TotalBreak,
         View
-	}
+    }
 }

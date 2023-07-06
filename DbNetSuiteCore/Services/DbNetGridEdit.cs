@@ -14,6 +14,7 @@ using DbNetSuiteCore.Attributes;
 using static DbNetSuiteCore.Utilities.DbNetDataCore;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using DbNetSuiteCore.Models.DbNetEdit;
 
 namespace DbNetSuiteCore.Services
 {
@@ -132,7 +133,29 @@ namespace DbNetSuiteCore.Services
                         }
                     }
                 }
+
+                if (column is EditColumn)
+                {
+                    var editColumn = (EditColumn)column;
+
+                    if (editColumn.DataType == "Byte[]")
+                    {
+                        editColumn.Display = false;
+                    }
+
+                    if (editColumn.DataType == nameof(String))
+                    {
+                        if (editColumn.ColumnSize > 100)
+                        { 
+                            if (editColumn.EditControlType == EditControlType.Auto)
+                            {
+                                editColumn.EditControlType = EditControlType.TextArea;
+                            }
+                        }
+                    }
+                }
             }
+
 
             columns = columns.OrderBy(c => (c as DbColumn).Index).ToList();
 
@@ -658,7 +681,137 @@ namespace DbNetSuiteCore.Services
 
             return dataTable;
         }
+        protected Dictionary<string, object> CreateRecord(DataTable dataTable)
+        {
+            var dictionary = new Dictionary<string, object>();
+            foreach (DataColumn column in dataTable.Columns)
+            {
+                if (column.DataType == typeof(Byte[]))
+                {
+                    continue;
+                }
+                var columnValue = dataTable.Rows[0][column.ColumnName];
+                dictionary[column.ColumnName.ToLower()] = (columnValue == System.DBNull.Value ? string.Empty : columnValue);
+            }
 
+            return dictionary;
+        }
+
+        protected string ParamName(DbColumn column, string suffix = "", bool parameterValue = false)
+        {
+            return Database.ParameterName($"{column.ColumnName}{suffix}");
+        }
+        protected string ParamName(DbColumn column, bool parameterValue = false)
+        {
+            return ParamName(column, string.Empty, parameterValue);
+        }
+        protected string ParamName(string paramName, bool parameterValue = false)
+        {
+            return Database.ParameterName(paramName, parameterValue);
+        }
+        protected object ConvertToDbParam(object value, DbColumn column = null)
+        {
+            string dataType = column?.DataType ?? string.Empty;
+            if (value == null)
+            {
+                if (dataType == "Byte[]")
+                    return new byte[0];
+                else
+                    return DBNull.Value;
+            }
+
+            if (dataType == string.Empty)
+                dataType = value.GetType().Name;
+
+            if (value is string)
+            {
+                string valueString = (string)value;
+                if (valueString.Equals("") || valueString.Equals(string.Empty))
+                    return DBNull.Value;
+            }
+
+            if (value is JsonElement)
+            {
+                JsonElement jsonElement = (JsonElement)value;
+                switch (jsonElement.ValueKind)
+                {
+                    case JsonValueKind.String:
+                        value = jsonElement.GetString();
+                        break;
+                    case JsonValueKind.Number:
+                        value = jsonElement.GetUInt64();
+                        break;
+                    default:
+                        throw new Exception($"jsonElement.ValueKind => {jsonElement.ValueKind} not supported");
+                }
+                dataType = value.GetType().Name;
+            }
+
+            object paramValue = string.Empty;
+            try
+            {
+                switch (dataType)
+                {
+                    case nameof(Boolean):
+                        if (value.ToString() == String.Empty)
+                            paramValue = DBNull.Value;
+                        else
+                            paramValue = ParseBoolean(value.ToString());
+                        break;
+                    case nameof(TimeSpan):
+                        paramValue = TimeSpan.Parse(DateTime.Parse(value.ToString()).ToString("t"));
+                        break;
+                    case nameof(Byte):
+                        paramValue = value;
+                        break;
+                    case nameof(Guid):
+                        paramValue = new Guid(value.ToString());
+                        break;
+                    case nameof(Int16):
+                    case nameof(Int32):
+                    case nameof(Int64):
+                    case nameof(Decimal):
+                    case nameof(Single):
+                    case nameof(Double):
+                        paramValue = Convert.ChangeType(value, GetColumnType(dataType));
+                        break;
+                    default:
+                        paramValue = Convert.ChangeType(value, GetColumnType(dataType));
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                ThrowException(e.Message, "ConvertToDbParam: Value: " + value.ToString() + " DataType:" + dataType);
+                return DBNull.Value;
+            }
+
+            switch (dataType)
+            {
+                case nameof(DateTime):
+                    switch (Database.Database)
+                    {
+                        case DatabaseType.SQLite:
+                            paramValue = Convert.ToDateTime(paramValue).ToString("yyyy-MM-dd");
+                            break;
+                    }
+                    break;
+            }
+
+            return paramValue;
+        }
+
+        private int ParseBoolean(string boolString)
+        {
+            switch (boolString.ToLower())
+            {
+                case "true":
+                case "1":
+                    return 1;
+                default:
+                    return 0;
+            }
+        }
     }
 }
 
