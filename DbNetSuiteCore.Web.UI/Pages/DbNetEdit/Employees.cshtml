@@ -1,6 +1,8 @@
 ﻿@page
 @using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums.DbNetEdit;
 @{
     DbNetEditCore employeesEdit = new DbNetEditCore("northwind", "employees");
+    employeesEdit.SetColumnProperty("ReportsTo", ColumnPropertyType.Lookup, new Lookup("employees", "employeeid", "lastname + ',' + firstname"));
     @employeesEdit.Render()
 }

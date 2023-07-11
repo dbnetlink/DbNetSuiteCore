@@ -10,12 +10,11 @@ using DbNetSuiteCore.Constants.DbNetEdit;
 using DbNetSuiteCore.Enums;
 using static DbNetSuiteCore.Utilities.DbNetDataCore;
 using DbNetSuiteCore.ViewModels.DbNetEdit;
-using DocumentFormat.OpenXml.Drawing;
 using System.Collections.Specialized;
-using System.Collections;
 using System;
-using DocumentFormat.OpenXml.Spreadsheet;
 using System.Linq;
+using DbNetSuiteCore.Attributes;
+using DbNetSuiteCore.Constants;
 
 namespace DbNetSuiteCore.Services
 {
@@ -60,11 +59,20 @@ namespace DbNetSuiteCore.Services
                     response.Toolbar = await Toolbar();
                     await Form(response);
                     break;
+                case RequestAction.SearchDialog:
+                    await SearchDialog(response, Columns.Cast<DbColumn>().ToList());
+                    break;
+                case RequestAction.Lookup:
+                    await LookupDialog(response, Columns.Cast<DbColumn>().ToList());
+                    break;
                 case RequestAction.GetRecord:
                     GetRecord(response);
                     break;
                 case RequestAction.ApplyChanges:
                     ApplyChanges(response);
+                    break;
+                case RequestAction.Search:
+                    await Form(response);
                     break;
             }
 
@@ -113,7 +121,7 @@ namespace DbNetSuiteCore.Services
 
             if (dataTable.Rows.Count > 0)
             {
-                response.Record = CreateRecord(dataTable);
+                response.Record = CreateRecord(dataTable, Columns.Cast<DbColumn>().ToList());
                 response.PrimaryKey = SerialisePrimaryKey(dataTable.Rows[0]);
             }
         }
@@ -164,7 +172,7 @@ namespace DbNetSuiteCore.Services
             response.CurrentRow = CurrentRow;
             response.TotalRows = TotalRows;
             response.Columns = Columns;
-            response.Record = CreateRecord(dataTable);
+            response.Record = CreateRecord(dataTable, Columns.Cast<DbColumn>().ToList());
             response.PrimaryKey = SerialisePrimaryKey(dataTable.Rows[0]);
         }
         private void ConfigureEditColumns()
@@ -175,14 +183,38 @@ namespace DbNetSuiteCore.Services
         {
             Columns.Add(InitialiseColumn(new EditColumn(), row) as EditColumn);
         }
-
         protected virtual QueryCommandConfig BuildSql()
         {
             string sql = $"select {BuildSelectPart(QueryBuildModes.Normal,Columns)} from {FromPart}";
-            QueryCommandConfig query = new QueryCommandConfig(sql);
-            return query;
-        }
+            ListDictionary parameters = new ListDictionary();
+            List<string> filterPart = new List<string>();
 
+            if (SearchParams.Any())
+            {
+                List<string> searchFilterPart = new List<string>();
+                foreach (SearchParameter searchParameter in SearchParams)
+                {
+                    EditColumn editColumn = Columns[searchParameter.ColumnIndex];
+                    searchFilterPart.Add($"{RefineSearchExpression(editColumn)} {FilterExpression(searchParameter, editColumn)}");
+                }
+
+                filterPart.Add($"{string.Join($" {SearchFilterJoin}", searchFilterPart.ToArray())}");
+                AddSearchDialogParameters(Columns.Cast<DbColumn>().ToList(), parameters);
+            }
+
+            if (String.IsNullOrEmpty(QuickSearchToken) == false)
+            {
+                filterPart.Add($"({string.Join(" or ", QuickSearchFilter(Columns.Cast<DbColumn>().ToList()).ToArray())})");
+                parameters.Add(ParamName(ParamNames.QuickSearchToken, true), ConvertToDbParam($"%{QuickSearchToken}%"));
+            }
+
+            if (filterPart.Any())
+            {
+                sql += $" where {string.Join(" or ", filterPart)}";
+            }
+
+            return new QueryCommandConfig(sql, parameters);
+        }
         private string SerialisePrimaryKey(DataRow dataRow)
         {
             Dictionary<string,object> primaryKeyValues = new Dictionary<string,object>();
@@ -199,7 +231,6 @@ namespace DbNetSuiteCore.Services
         {
             return JsonSerializer.Deserialize<Dictionary<string, object>>(PrimaryKey);
         }
-
         private void ApplyChanges(DbNetEditResponse response)
         {
             List<string> updatePart = new List<string>();

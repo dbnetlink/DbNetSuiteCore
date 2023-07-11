@@ -32,7 +32,6 @@ class DbNetGrid extends DbNetGridEdit {
     booleanDisplayMode: BooleanDisplayMode = BooleanDisplayMode.TrueFalse;
     cellIndexCache: Dictionary<number> = {};
     columnName: string | undefined = undefined;
-    columns: GridColumn[];
     columnFilters: Dictionary<string> = {};
     copy = true;
     currentPage = 1;
@@ -64,7 +63,6 @@ class DbNetGrid extends DbNetGridEdit {
     viewDialog: ViewDialog | undefined;
     constructor(id: string) {
         super(id);
-        this.columns = [];
     }
 
     initialize(): void {
@@ -96,52 +94,7 @@ class DbNetGrid extends DbNetGridEdit {
         this.fireEvent("onInitialized");
     }
 
-    setColumnExpressions(...columnExpressions: string[]): void {
-        columnExpressions.forEach(columnExpression => {
-            const properties = { columnExpression: columnExpression } as GridColumnResponse;
-            this.columns.push(new GridColumn(properties));
-        });
-    }
-
-    setColumnKeys(...columnKeys: string[]): void {
-        columnKeys.forEach((value, index) => {
-            this.columns[index].columnKey = value;
-        });
-    }
-
-    setColumnLabels(...labels: string[]): void {
-        let idx = 0;
-        labels.forEach(label => {
-            if (this.columns.length > idx) {
-                this.columns[idx].label = label;
-                idx++;
-            }
-        });
-    }
-
-    setColumnProperty(columnName: string | Array<string>, property: ColumnPropertyType, propertyValue: any): void {
-        if (columnName instanceof Array<string>) {
-            columnName.forEach(c => this.setColumnProperty(c, property, propertyValue));
-            return;
-        }
-        let matchingColumn = this.columns.find((col) => { return this.matchingColumn(col, columnName) });
-
-        if (matchingColumn == undefined) {
-            const properties = { columnExpression: columnName } as GridColumnResponse;
-            matchingColumn = new GridColumn(properties, true)
-            this.columns.push(matchingColumn);
-        }
-
-        (matchingColumn as any)[property] = propertyValue;
-    }
-
-    setColumnProperties(columnName: string, properties: GridColumnProperties) {
-        Object.keys(properties).forEach((key: string) => {
-            this.setColumnProperty(columnName, key as ColumnPropertyType, properties[key as ColumnPropertyType] as string);
-        });
-    }
-
-    addNestedGrid(handler: EventHandler) {
+     addNestedGrid(handler: EventHandler) {
         this.bind("onNestedClick", handler);
         this.nestedGrid = true;
     }
@@ -217,21 +170,7 @@ class DbNetGrid extends DbNetGridEdit {
                 callback(response);
             })
     }
-
-    private matchingColumn(gridColumn: GridColumn, columnName: string) {
-        let match = false;
-        if (gridColumn.columnKey?.includes(".")) {
-            match = gridColumn.columnKey?.split('.').pop()?.toLowerCase() == columnName.toLowerCase();
-        }
-        if (gridColumn.columnKey?.split(' ').pop()?.toLowerCase() == columnName.toLowerCase()) {
-            match = true;
-        }
-        if (!match) {
-            match = gridColumn.columnKey?.toLowerCase() == columnName.toLowerCase();
-        }
-        return match;
-    }
-
+   
     private configureToolbar(response: DbNetGridResponse) {
         if (response.toolbar) {
             const buttons = ["First", "Next", "Previous", "Last", "Download", "Copy", "View", "Search"];
@@ -609,7 +548,7 @@ class DbNetGrid extends DbNetGridEdit {
                 this.getViewContent();
                 break;
             case this.controlElementId("SearchBtn"):
-                this.openSearchDialog();
+                this.openSearchDialog(this.getRequest());
                 break;
             default:
                 this.getPage();
@@ -617,23 +556,9 @@ class DbNetGrid extends DbNetGridEdit {
         }
     }
 
-    private quickSearchKeyPress(event: JQuery.TriggeredEvent): void {
-        const el = event.target as HTMLInputElement;
-        window.clearTimeout(this.quickSearchTimerId);
-
-        if (el.value.length >= this.quickSearchMinChars || el.value.length == 0 || event.key == 'Enter')
-            this.quickSearchTimerId = window.setTimeout(() => { this.runQuickSearch(el.value) }, this.quickSearchDelay);
-    }
-
     private columnFilterKeyPress(event: JQuery.TriggeredEvent): void {
         window.clearTimeout(this.quickSearchTimerId);
         this.quickSearchTimerId = window.setTimeout(() => { this.runColumnFilterSearch() }, this.quickSearchDelay);
-    }
-
-    private runQuickSearch(token: string) {
-        this.quickSearchToken = token;
-        this.currentPage = 1;
-        this.getPage();
     }
 
     private runColumnFilterSearch() {
@@ -688,25 +613,6 @@ class DbNetGrid extends DbNetGridEdit {
                 if (callback) {
                     callback(response);
                 }
-            })
-    }
-
-    public lookup($input: JQuery<HTMLInputElement>) {
-        const request = this.getRequest();
-        request.lookupColumnIndex = parseInt($input.attr("columnIndex") as string);
-
-        if (this.lookupDialog && request.lookupColumnIndex == this.lookupDialog.columnIndex) {
-            this.lookupDialog.open();
-            return;
-        }
-        this.post<DbNetGridResponse>("lookup", request)
-            .then((response) => {
-                if (!this.lookupDialog) {
-                    this.element?.append(response.toolbar);
-                    this.lookupDialog = new LookupDialog(`${this.id}_lookup_dialog`, this);
-                }
-                this.lookupDialog.update(response, $input);
-                this.lookupDialog.open();
             })
     }
 
@@ -772,20 +678,6 @@ class DbNetGrid extends DbNetGridEdit {
             });
     }
 
-    private openSearchDialog() {
-        if (this.searchDialog) {
-            this.searchDialog.open();
-            return;
-        }
-
-        this.post<DbNetGridResponse>("search-dialog", this.getRequest())
-            .then((response) => {
-                this.element?.append(response.data);
-                this.searchDialog = new SearchDialog(`${this.id}_search_dialog`, this);
-                this.searchDialog.open();
-            });
-    }
-
     private copyGrid() {
         const table = this.gridPanel?.[0].querySelector('table.dbnetgrid-table');
 
@@ -826,7 +718,7 @@ class DbNetGrid extends DbNetGridEdit {
 
         $dialog.dialog("open");
     }
-    private getRequest(): DbNetGridRequest {
+    public getRequest(): DbNetGridRequest {
         this.defaultColumn = this.columns.find((col) => { return col.columnExpression! == "*" });
         if (this.defaultColumn) {
             this.columns = this.columns.filter(item => item !== this.defaultColumn)

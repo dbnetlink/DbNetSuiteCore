@@ -1,10 +1,11 @@
-﻿using System.Data;
+﻿using System.Collections.Generic;
+using System.Data;
 
 namespace DbNetSuiteCore.ViewModels.DbNetGrid
 {
     public class LookupDialogViewModel : BaseViewModel
     {
-        public DataTable LookupData { get; set; }
+        public List<DataRow> LookupData { get; set; }
 
     }
 }

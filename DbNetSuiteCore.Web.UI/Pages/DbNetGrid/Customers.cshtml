@@ -3,5 +3,8 @@
 @{
     // Configure the grid and render
     DbNetGridCore customersGrid = new DbNetGridCore("northwind","customers");
+    customersGrid.SetColumnLookup("country");
+    customersGrid.SetColumnLookup("region");
+    customersGrid.QuickSearch = true;
     @customersGrid.Render()
 }

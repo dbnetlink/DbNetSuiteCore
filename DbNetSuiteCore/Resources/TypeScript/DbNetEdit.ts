@@ -1,6 +1,5 @@
 class DbNetEdit extends DbNetGridEdit {
     changes: Dictionary<object> = {};
-    columns: EditColumn[];
     currentRow = 1;
     formPanel: JQuery<HTMLElement> | undefined;
     search = true;
@@ -9,7 +8,6 @@ class DbNetEdit extends DbNetGridEdit {
 
     constructor(id: string) {
         super(id);
-        this.columns = [];
     }
 
     initialize(): void {
@@ -27,7 +25,13 @@ class DbNetEdit extends DbNetGridEdit {
         }
 
         this.addLoadingPanel();
-        this.callServer("initialize");
+        this.post<DbNetEditResponse>("initialize", this.getRequest())
+            .then((response) => {
+                if (response.error == false) {
+                    this.updateColumns(response);
+                    this.configureEdit(response);
+                }
+            })
         this.initialised = true;
         this.fireEvent("onInitialized");
     }
@@ -36,8 +40,8 @@ class DbNetEdit extends DbNetGridEdit {
         this.linkedControls.push(control);
     }
 
-    reload() {
-        this.callServer("page");
+    getRows(callback?: Function) {
+        this.callServer("search", callback);
     }
 
     private configureEdit(response: DbNetEditResponse) {
@@ -57,7 +61,7 @@ class DbNetEdit extends DbNetGridEdit {
     private updateForm(response: DbNetEditResponse) {
         const record = response.record;
         for (const columnName in record) {
-            const $input = this.formPanel?.find(`input[name='${columnName}']`) as JQuery<HTMLFormElement>;
+            const $input = this.formPanel?.find(`:input[name='${columnName}']`) as JQuery<HTMLFormElement>;
             const value = record[columnName].toString();
             $input.val(value).data("value", value);
         }
@@ -69,16 +73,19 @@ class DbNetEdit extends DbNetGridEdit {
         }
     }
 
-    private callServer(action:string) {
+    private callServer(action: string, callback?: Function) {
         this.post<DbNetEditResponse>(action, this.getRequest())
             .then((response) => {
                 if (response.error == false) {
-                    this.updateColumns(response);
-                    this.configureEdit(response);
+                    this.configureToolbar(response);
+                    this.updateForm(response);
+                }
+                if (callback) {
+                    callback(response);
                 }
             })
     }
-    private getRequest(): DbNetEditRequest {
+    public getRequest(): DbNetEditRequest {
         const request: DbNetEditRequest = {
             componentId: this.id,
             connectionString: this.connectionString,
@@ -87,8 +94,11 @@ class DbNetEdit extends DbNetGridEdit {
             currentRow: this.currentRow,
             culture: this.culture,
             search: this.search,
+            searchFilterJoin: this.searchFilterJoin,
+            searchParams: this.searchParams,
             navigation: this.navigation,
             quickSearch: this.quickSearch,
+            quickSearchToken: this.quickSearchToken,
             totalRows: this.totalRows,
             primaryKey: this.primaryKey,
             changes: this.changes
@@ -140,8 +150,15 @@ class DbNetEdit extends DbNetGridEdit {
                 columnName: col.columnName,
                 label: col.label,
                 format: col.format,
-                foreignKey: col.foreignKey
-            } as EditColumnResponse;
+                foreignKey: col.foreignKey,
+                foreignKeyValue: col.foreignKeyValue,
+                lookup: col.lookup,
+                style: col.style,
+                display: col.display,
+                dataType: col.dataType,
+                primaryKey: col.primaryKey,
+                index: col.index
+            } as unknown as EditColumnResponse;
             this.columns.push(new EditColumn(properties));
         });
     }
@@ -152,6 +169,21 @@ class DbNetEdit extends DbNetGridEdit {
 
     private handleClick(event: JQuery.TriggeredEvent): void {
         const id = (event.target as Element).id;
+        /*
+        switch (id) {
+            case this.controlElementId("FirstBtn"):
+            case this.controlElementId("NextBtn"):
+            case this.controlElementId("PreviousBtn"):
+            case this.controlElementId("LastBtn"):
+                if (this.hasUnappliedChanges()) {
+                    this.messageBox("There are unapplied changes. Discard ?");
+
+                }                    
+                break;
+            default:
+                break;
+        }
+        */
 
         switch (id) {
             case this.controlElementId("FirstBtn"):
@@ -177,7 +209,7 @@ class DbNetEdit extends DbNetGridEdit {
 
         switch (id) {
             case this.controlElementId("SearchBtn"):
-                this.openSearchDialog();
+                this.openSearchDialog(this.getRequest());
                 break;
             case this.controlElementId("ApplyBtn"):
                 this.applyChanges();
@@ -188,45 +220,13 @@ class DbNetEdit extends DbNetGridEdit {
         }
     }
 
-    private openSearchDialog() {
-        if (this.searchDialog) {
-            this.searchDialog.open();
-            return;
-        }
-
-        this.post<DbNetEditResponse>("search-dialog", this.getRequest())
-            .then((response) => {
-                this.element?.append(response.data);
-                this.searchDialog = new SearchDialog(`${this.id}_search_dialog`, this);
-                this.searchDialog.open();
-            });
-    }
-
-    private quickSearchKeyPress(event: JQuery.TriggeredEvent): void {
-        const el = event.target as HTMLInputElement;
-        window.clearTimeout(this.quickSearchTimerId);
-
-        if (el.value.length >= this.quickSearchMinChars || el.value.length == 0 || event.key == 'Enter')
-            this.quickSearchTimerId = window.setTimeout(() => { this.runQuickSearch(el.value) }, this.quickSearchDelay);
-    }
-
-    private runQuickSearch(token: string) {
-        this.quickSearchToken = token;
-        this.currentRow = 1;
-        this.runSearch();
-    }
-
-    private runSearch() {
-        return;
-    }
-
     private getRecord() {
         this.callServer("getrecord");
     }
 
     private applyChanges() {
         const changes: Dictionary<object> = {}
-        this.formPanel?.find(':input.dbnetedit').each(
+        this.formPanel?.find(':input.dbnetedit,select.dbnetedit').each(
             function (index) {
                 const $input = $(this);
                 if ($input.val() != $input.data("value")) {

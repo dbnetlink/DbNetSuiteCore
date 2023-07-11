@@ -1,0 +1,541 @@
+﻿@import "_variables.scss";
+
+table.dbnetgrid-table {
+    width: auto;
+    border-collapse: collapse;
+    border: 1px solid #c0c0c0;
+
+    td,
+    th {
+        border: 1px solid #c0c0c0;
+        font-family: var(--main-font-family);
+        font-size: var(--main-font-size);
+
+        &.sticky {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+    }
+
+    tr.header-row {
+        th {
+            background-color: gainsboro;
+            cursor: pointer;
+            text-align: left;
+        }
+    }
+
+    tr.filter-row {
+        th {
+            background-color: gainsboro;
+        }
+
+        input.column-filter {
+            border-radius: 2px;
+            border: 1px solid silver;
+            font-family: var(--main-font-family);
+            font-size: var(--main-font-size);
+            font-weight: normal;
+            height: 24px;
+            width: 100%;
+            margin: 0px;
+            text-align: left;
+            background-image: svgUrl("columnfilter", "20");
+            background-position: center right;
+            background-repeat: no-repeat;
+            background-size: 20px 20px;
+        }
+
+        select.column-filter {
+            font-family: var(--main-font-family);
+            font-size: var(--main-font-size);
+            font-weight: normal;
+            border-radius: 2px;
+            border: 1px solid silver;
+            height: 24px;
+            width: 100%;
+            margin: 0px;
+            background-image: svgUrl("columnfilter", "20");
+            background-position: center right 12px;
+            background-repeat: no-repeat;
+            background-size: 20px 20px;
+            padding-right: 10px;
+
+            &.checkbox {
+                font-family: MaterialIcons;
+                font-weight: bold;
+
+                option {
+                    text-align: center
+                }
+            }
+        }
+    }
+
+    th[orderby] {
+        background-repeat: no-repeat;
+        background-position: right 2px center;
+        padding-right: 20px;
+        background-size: 12px;
+    }
+
+    th[orderby=asc] {
+        background-image: svgUrl("up", "16");
+    }
+
+    th[orderby=desc] {
+        background-image: svgUrl("down", "16");
+    }
+
+    tr.odd {
+        background-color: #F5F5F5;
+    }
+
+    tr.group-header-row {
+        background-color: LightBlue;
+        color: SlateGray;
+        font-weight: bold;
+    }
+
+    tr.total-row {
+        background-color: LightSteelBlue;
+
+        td.total-value,
+        span.total-column {
+            font-weight: bold;
+        }
+
+        td.total-label {
+            text-align: right;
+        }
+    }
+
+    tr.highlight {
+        background-color: PaleGoldenRod;
+    }
+
+    tr.selected {
+        background-color: SteelBlue !important;
+
+        td {
+            color: white !important;
+        }
+    }
+
+    td[data-type=Single],
+    td[data-type=Double],
+    td[data-type=Decimal],
+    td[data-type=Int16],
+    td[data-type=Int32],
+    td[data-type=Int64] {
+        text-align: right;
+    }
+
+    td[data-type=Byte\[\]] {
+        text-align: center;
+    }
+
+    input.multi-select-checkbox {
+        margin: 5px;
+        height: 16px;
+        width: 16px;
+    }
+
+    button.nested-grid-button {
+        height: 20px;
+        width: 20px;
+        background-image: svgUrl("add", "20");
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-color: #ededed;
+        border-radius: 2px;
+        border: 1px solid #ccc;
+        line-height: 0px;
+        outline: none;
+        margin: auto;
+        display: block;
+
+        &.open {
+            background-color: #F5F5F5;
+            background-image: svgUrl("subtract", "20");
+        }
+    }
+
+    td.nested-grid-cell {
+        padding: 10px;
+    }
+
+    td {
+        background-position: center center;
+        background-repeat: no-repeat;
+    }
+
+    tr.selected {
+        background-color: SteelBlue !important;
+
+        td.true-icon-cell {
+            background-image: svgUrl("checked_box", "20", "White");
+        }
+
+        td.false-icon-cell {
+            background-image: svgUrl("unchecked_box", "20", "White");
+        }
+    }
+
+    td.true-icon-cell {
+        background-image: svgUrl("checked_box", "20", "Black");
+    }
+
+    td.false-icon-cell {
+        background-image: svgUrl("unchecked_box", "20", "Black");
+    }
+
+    td {
+        button.download {
+            background-color: #ededed;
+            border-radius: 2px;
+            border: 1px solid #ccc;
+            font-family: var(--main-font-family);
+            font-size: var(--main-font-size);
+            height: 24px;
+            width: 24px;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: 20px 20px;
+            vertical-align: top;
+            line-height: 0px;
+            outline: none;
+
+            &:active {
+                background-color: #e5e5e5;
+                outline: none;
+                -webkit-box-shadow: inset 0px 0px 5px #c1c1c1;
+                -moz-box-shadow: inset 0px 0px 5px #c1c1c1;
+                box-shadow: inset 0px 0px 5px #c1c1c1;
+            }
+
+            background-image: svgUrl("download", "24","SteelBlue");
+        }
+    }
+}
+
+div.dbnetsuite-toolbar-panel {
+    background-color: whitesmoke;
+    border-radius: 2px;
+    border: 1px solid #ccc;
+    display: inline-block;
+}
+
+table.dbnetsuite-toolbar * {
+    line-height: 1;
+}
+
+table.dbnetsuite-toolbar,
+table.view-dialog-toolbar,
+table.search-dialog-toolbar,
+table.lookup-dialog-toolbar,
+.search-dialog {
+    border-collapse: inherit;
+
+    td.navigation {
+        .toolbar-info {
+            pointer-events: none;
+        }
+    }
+
+    td {
+        vertical-align: middle;
+        border: 0px;
+
+        .toolbar-button {
+            background-color: #ededed;
+            border-radius: 2px;
+            border: 1px solid #ccc;
+            font-family: var(--main-font-family);
+            font-size: var(--main-font-size);
+            height: 24px;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: 20px 20px;
+            vertical-align: top;
+            line-height: 0px;
+            outline: none;
+            font-weight: bold;
+            color: dimgray;
+            cursor: pointer;
+
+            &.toolbar-button-image {
+                width: 24px;
+                background-position: center center;
+            }
+
+            &.toolbar-button-imageandtext {
+                background-position: center left;
+                padding-left: 20px;
+            }
+
+            &:disabled {
+                background-color: #F5F5F5;
+                color: #CCC;
+                cursor: inherit;
+            }
+
+            &:active {
+                background-color: #e5e5e5;
+                outline: none;
+                -webkit-box-shadow: inset 0px 0px 5px #c1c1c1;
+                -moz-box-shadow: inset 0px 0px 5px #c1c1c1;
+                box-shadow: inset 0px 0px 5px #c1c1c1;
+            }
+
+            @each $toolbarButton in $toolbarButtons {
+                &[button-type=#{$toolbarButton}] {
+                    background-image: svgUrl($toolbarButton, "24", "steelblue");
+
+                    &.toolbar-button-text {
+                        background-image: none;
+
+                        &:disabled {
+                            background-image: none;
+                        }
+                    }
+
+                    &:disabled {
+                        background-image: svgUrl($toolbarButton, "24", "gainsboro");
+                    }
+                }
+            }
+        }
+
+        .toolbar-info {
+            width: 1.5em;
+            border-radius: 2px;
+            border: 1px solid silver;
+            font-family: var(--main-font-family);
+            font-size: var(--main-font-size);
+            height: 24px;
+            width: 24px;
+            margin: 0px;
+            text-align: center;
+        }
+
+        .toolbar-select {
+            border: 1px solid silver;
+            border-radius: 2px;
+            font-family: var(--main-font-family);
+            font-size: var(--main-font-size);
+            height: 24px;
+            margin: 0px;
+        }
+
+        .toolbar-text {
+            padding-left: 3px;
+            padding-right: 3px;
+            font-family: var(--main-font-family);
+            font-size: var(--main-font-size);
+        }
+
+        .toolbar-info[name=QuickSearch] {
+            width: 150px;
+            margin: 0px;
+            text-align: left;
+            background-image: svgUrl("filter", "20");
+            background-position: center right;
+            background-repeat: no-repeat;
+            background-size: 20px 20px;
+        }
+    }
+
+    td.no-records {
+        display: none;
+
+        span {
+            height: 24px;
+            border-radius: 2px;
+            border: 1px solid silver;
+            font-family: var(--main-font-family);
+            font-size: var(--main-font-size);
+            background-color: gold;
+            display: table-cell;
+            vertical-align: middle;
+        }
+    }
+}
+
+.dialog {
+    background: whitesmoke !important;
+
+    hr {
+        margin: 2px 0px;
+        border: 1px;
+        color: #ccc;
+    }
+}
+
+.view-dialog {
+    .view-content-table {
+        border-collapse: separate;
+    }
+
+    .content {
+        overflow: auto;
+        height: 600px;
+    }
+
+    .view-dialog-label {
+        font-weight: bold;
+        font-family: var(--main-font-family);
+        font-size: var(--main-font-size);
+        white-space: nowrap;
+    }
+
+    .view-dialog-value {
+        border-radius: 2px;
+        font-family: var(--main-font-family);
+        font-size: var(--main-font-size);
+        background-color: white;
+        border: 1pt solid silver;
+        padding: 2px;
+        width: fit-content;
+    }
+}
+
+.lookup-dialog {
+    select {
+        border: 1px solid silver;
+        border-radius: 2px;
+        font-family: var(--main-font-family);
+        font-size: var(--main-font-size);
+    }
+
+    :focus {
+        outline-style: solid;
+        outline-color: silver;
+        outline-width: thin;
+    }
+}
+
+.search-dialog {
+    table {
+        border-collapse: separate;
+        border-spacing: 2px;
+
+        td {
+            padding: 0px;
+        }
+    }
+
+    table.layout {
+        border-spacing: 0px;
+    }
+
+    .content {
+        overflow: auto;
+    }
+
+    .label {
+        font-weight: bold;
+        font-family: var(--main-font-family);
+        font-size: var(--main-font-size);
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    input {
+        border-radius: 2px;
+        border: 1px solid silver;
+        font-family: var(--main-font-family);
+        font-size: var(--main-font-size);
+        height: 24px;
+        margin: 0px;
+        box-sizing: border-box;
+
+        &.highlight {
+            background-color: palegoldenrod;
+        }
+    }
+
+    select {
+        border: 1px solid silver;
+        border-radius: 2px;
+        font-family: var(--main-font-family);
+        font-size: var(--main-font-size);
+        height: 24px;
+        margin: 0px;
+        box-sizing: border-box;
+    }
+
+    :focus {
+        outline-style: solid;
+        outline-color: silver;
+        outline-width: thin;
+    }
+
+    tr.search-row {
+        td {
+            font-family: var(--main-font-family);
+            font-size: var(--main-font-size);
+            white-space: nowrap;
+
+            button {
+                margin-top: 0px;
+            }
+        }
+    }
+
+    .message {
+        border: 1pt solid #ddd;
+        border-radius: 2px;
+        font-family: var(--main-font-family);
+        font-size: var(--main-font-size);
+        font-weight: bold;
+        vertical-align: middle;
+        padding: 2px;
+        margin-top: 5px;
+
+        &.highlight {
+            background-color: gold;
+        }
+    }
+}
+
+div.dialog-toolbar-panel {
+    border: 1pt solid #ddd;
+    border-radius: 2px;
+    background-color: #e9e9e9;
+}
+
+table.dbnetsuite-toolbar, 
+table.view-dialog-toolbar,
+table.search-dialog-toolbar,
+table.lookup-dialog-toolbar {
+    td {
+        .toolbar-button[button-type=apply] {
+            background-image: svgUrl("apply", "24", "LimeGreen") !important;
+        }
+
+        .toolbar-button[button-type=cancel] {
+            background-image: svgUrl("cancel", "24", "IndianRed") !important;
+        }
+
+        .toolbar-button[button-type=clear] {
+            background-image: svgUrl("reset", "24") !important;
+        }
+    }
+}
+
+.drop-icon {
+    border: 1px solid lightsteelblue;
+//    padding: 2px;
+    border-radius: 2px;
+    background-color: whitesmoke;
+    background-image: svgUrl("drop", "16");
+    background-position: center center;
+    background-repeat: no-repeat;
+    position: absolute;
+    z-index: 10000;
+    width: 18px;
+    height: 16px;
+    display: none;
+}

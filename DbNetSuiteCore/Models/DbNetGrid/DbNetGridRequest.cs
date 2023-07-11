@@ -20,7 +20,6 @@ namespace DbNetSuiteCore.Models.DbNetGrid
         public bool FrozenHeader { get; set; } = false;
         public GridGenerationMode GridGenerationMode { get; set; } = GridGenerationMode.Display;
         public bool GroupBy { get; set; } = false;
-        public int LookupColumnIndex { get; set; }
         public bool MultiRowSelect { get; set; }
         public MultiRowSelectLocation MultiRowSelectLocation { get; set; }
         public bool NestedGrid { get; set; } = false;
@@ -31,9 +30,6 @@ namespace DbNetSuiteCore.Models.DbNetGrid
         public string PrimaryKey { get; set; }
         public string ProcedureName { get; set; } = string.Empty;
         public Dictionary<string, object> ProcedureParams { get; set; } = new Dictionary<string, object>();
-        public string QuickSearchToken { get; set; }
-        public string SearchFilterJoin { get; set; }
-        public List<SearchParameter> SearchParams { get; set; } = new List<SearchParameter>();
         public ToolbarButtonStyle ToolbarButtonStyle { get; set; }
         public bool View { get; set; } = false;
     }

@@ -1,6 +1,6 @@
 declare class SearchDialog extends Dialog {
-    parent: DbNetGrid;
-    constructor(id: string, parent: DbNetGrid);
+    parent: DbNetGridEdit;
+    constructor(id: string, parent: DbNetGridEdit);
     private dialogOpened;
     private configureForOperator;
     private pickerSelected;

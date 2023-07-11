@@ -4,5 +4,8 @@
     {
         public bool Error { get; set; } = false;
         public string Message { get; set; }
+        public string Html { get; set; }
+        public string Dialog { get; set; }
+
     }
 }

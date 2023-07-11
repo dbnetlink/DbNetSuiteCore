@@ -13,7 +13,6 @@ interface DbNetGridRequest extends DbNetGridEditRequest {
     frozenHeader: boolean;
     gridGenerationMode: GridGenerationMode;
     groupBy: boolean;
-    lookupColumnIndex?: number | undefined;
     multiRowSelect: boolean;
     multiRowSelectLocation: MultiRowSelectLocation;
     nestedGrid: boolean;
@@ -24,8 +23,6 @@ interface DbNetGridRequest extends DbNetGridEditRequest {
     primaryKey: string | undefined;
     procedureName: string | undefined;
     procedureParams: Dictionary<object>;
-    searchFilterJoin: string;
-    searchParams: Array<SearchParam>;
     toolbarButtonStyle: ToolbarButtonStyle;
     view: boolean;
 }

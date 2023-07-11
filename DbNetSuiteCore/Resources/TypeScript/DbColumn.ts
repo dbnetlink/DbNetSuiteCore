@@ -12,4 +12,5 @@
     display?: boolean;
     primaryKey?: boolean;
     index?: number;
+    dataType?: string;
 }

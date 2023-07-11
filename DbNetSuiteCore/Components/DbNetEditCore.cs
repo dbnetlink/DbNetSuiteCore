@@ -1,18 +1,13 @@
 ﻿using DbNetSuiteCore.Helpers;
-using DbNetSuiteCore.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Html;
-using System.Data;
 using DbNetSuiteCore.Enums.DbNetEdit;
+using System;
 
 namespace DbNetSuiteCore.Components
 {
     public class DbNetEditCore : DbNetGridEditCore
     {
-        private readonly string _fromPart; 
-
         /// <summary>
         /// Specifies the name of the foreign key column in a linked combo
         /// </summary>
@@ -29,9 +24,8 @@ namespace DbNetSuiteCore.Components
         /// Adds/removes a search dialog option to/from the toolbar
         /// </summary>
         public bool? Search { get; set; } = null;
-        public DbNetEditCore(string connection, string fromPart, string id = null) : base(connection, id)
+        public DbNetEditCore(string connection, string fromPart, string id = null) : base(connection, fromPart, id)
         {
-            _fromPart = fromPart;
         }
         /// <summary>
         /// Binds an event to a named client-side JavaScript function
@@ -130,7 +124,12 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
         private string Properties()
         {
             List<string> properties = new List<string>();
-            AddProperty(EncodingHelper.Encode(ForeignKeyColumn), nameof(ForeignKeyColumn), properties);
+            AddProperty(ToolbarButtonStyle, nameof(ToolbarButtonStyle), properties);
+            AddProperty(ToolbarPosition, nameof(ToolbarPosition), properties);
+            AddProperty(QuickSearch, nameof(QuickSearch), properties);
+            AddProperty(Search, nameof(Search), properties);
+            AddProperty(Culture, nameof(Culture), properties);
+            //AddProperty(EncodingHelper.Encode(FixedFilterSql), nameof(FixedFilterSql), properties);
             return string.Join(Environment.NewLine, properties);
         }
     }

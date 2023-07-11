@@ -15,6 +15,11 @@ using static DbNetSuiteCore.Utilities.DbNetDataCore;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using DbNetSuiteCore.Models.DbNetEdit;
+using DbNetSuiteCore.ViewModels.DbNetGrid;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using DbNetSuiteCore.ViewModels;
+using DbNetSuiteCore.Constants;
 
 namespace DbNetSuiteCore.Services
 {
@@ -28,6 +33,7 @@ namespace DbNetSuiteCore.Services
             get => EncodingHelper.Decode(_fromPart);
             set => _fromPart = value;
         }
+        public int LookupColumnIndex { get; set; }
         public bool Navigation { get; set; }
         public bool QuickSearch { get; set; }
         public string QuickSearchToken { get; set; } = string.Empty;
@@ -314,6 +320,81 @@ namespace DbNetSuiteCore.Services
             return string.Join(", ", selectParts.ToArray());
         }
 
+        protected List<string> QuickSearchFilter(List<DbColumn> columns)
+        {
+            List<string> quickSearchFilter = new List<string>();
+            foreach (DbColumn dbColumn in columns.Where(c => c.QuickSearch))
+            {
+                if (string.IsNullOrEmpty(dbColumn.Lookup))
+                {
+                    quickSearchFilter.Add($"{dbColumn.ColumnExpression} like {ParamName(ParamNames.QuickSearchToken)}");
+                }
+                else
+                {
+                    quickSearchFilter.Add($"{dbColumn.ColumnExpression} in ({SearchLookupSql(dbColumn, ParamNames.QuickSearchToken)})");
+                }
+            }
+
+            return quickSearchFilter;
+        }
+
+        protected string SearchLookupSql(DbColumn col, string paramName)
+        {
+            Match m = Regex.Match(col.Lookup, @"select (.*?) from", RegexOptions.IgnoreCase);
+            string columnList = m.Groups[1].ToString();
+
+            string valueColumn = Database.QualifiedDbObjectName(col.LookupValueField);
+
+            if (valueColumn == String.Empty)
+            {
+                valueColumn = GetSelectColumns(col.Lookup).First();
+            }
+
+            string sql = col.Lookup.Replace(columnList, valueColumn);
+            sql = Regex.Replace(sql, " order by .*", "", RegexOptions.IgnoreCase);
+
+            string filter = $"({StripColumnRename(col.LookupTextExpression)} like {ParamName(paramName)})";
+
+            if (Regex.IsMatch(sql, " where ", RegexOptions.IgnoreCase))
+                sql = Regex.Replace(sql, " where ", " where " + filter + " and ", RegexOptions.IgnoreCase);
+            else
+                sql += " where " + filter;
+
+            return sql;
+        }
+
+        protected List<string> SearchDialogFilter(List<DbColumn> columns)
+        {
+            List<string> searchFilterPart = new List<string>();
+            foreach (SearchParameter searchParameter in SearchParams)
+            {
+                DbColumn dbColumn = columns[searchParameter.ColumnIndex];
+
+                searchFilterPart.Add($"{RefineSearchExpression(dbColumn)} {FilterExpression(searchParameter, dbColumn)}");
+            }
+
+            return searchFilterPart;
+        }
+
+        protected void AddSearchDialogParameters(List<DbColumn> columns, ListDictionary parameters)
+        {
+            foreach (SearchParameter searchParameter in SearchParams)
+            {
+                DbColumn dbColumn = columns[searchParameter.ColumnIndex];
+
+                string expression = searchParameter.SearchOperator.GetAttribute<FilterExpressionAttribute>()?.Expression ?? "{0}";
+
+                if (expression.Contains("{0}"))
+                {
+                    AddSearchFilterParams(parameters, dbColumn, searchParameter, ParamNames.SearchFilter1, searchParameter.Value1);
+                }
+                if (expression.Contains("{1}"))
+                {
+                    AddSearchFilterParams(parameters, dbColumn, searchParameter, ParamNames.SearchFilter2, searchParameter.Value2);
+                }
+            }
+        }
+
         private string AggregateExpression(DbColumn c)
         {
             return Regex.Replace(c.ColumnExpression, @" as \w*$", "", RegexOptions.IgnoreCase);
@@ -365,6 +446,7 @@ namespace DbNetSuiteCore.Services
                 switch (row.DataTypeName().ToLower())
                 {
                     case "datetime":
+                    case "date":
                         column.DataType = nameof(DateTime);
                         break;
                     default:
@@ -437,7 +519,7 @@ namespace DbNetSuiteCore.Services
             {
                 match = Regex.Match(columnList, p);
 
-                foreach (Group g in match.Groups)
+                foreach (System.Text.RegularExpressions.Group g in match.Groups)
                     if (!String.IsNullOrEmpty(g.Value))
                         columnList = columnList.Replace(g.Value, g.Value.Replace(",", "~"));
             }
@@ -448,6 +530,54 @@ namespace DbNetSuiteCore.Services
                 columnExpressions[I] = columnExpressions[I].Replace("~", ",");
 
             return columnExpressions;
+        }
+        protected async Task SearchDialog(DbNetSuiteResponse response, List<DbColumn> columns)
+        {
+            var searchDialogViewModel = new SearchDialogViewModel();
+            ReflectionHelper.CopyProperties(this, searchDialogViewModel);
+            searchDialogViewModel.Columns = columns;
+            searchDialogViewModel.LookupTables = _lookupTables;
+            response.Dialog = await HttpContext.RenderToStringAsync("Views/DbNetGrid/SearchDialog.cshtml", searchDialogViewModel);
+        }
+        protected async Task LookupDialog(DbNetSuiteResponse response, List<DbColumn> columns)
+        {
+            var lookupDialogViewModel = new LookupDialogViewModel();
+            ReflectionHelper.CopyProperties(this, lookupDialogViewModel);
+            response.Dialog = await HttpContext.RenderToStringAsync("Views/DbNetGrid/LookupDialog.cshtml", lookupDialogViewModel);
+
+            var dataTable = GetLookupData(this.LookupColumnIndex, columns);
+            string sortColumnName = dataTable.Columns[dataTable.Columns.Count - 1].ColumnName;
+            var sortedDataTable = dataTable.AsEnumerable().OrderBy(x => x.Field<string>(sortColumnName)).ToList();
+            // var dataView = new DataView(dataTable);
+            // dataView.Sort = $"{sortColumnName} ASC";
+            lookupDialogViewModel.LookupData = sortedDataTable;
+
+            response.Html = await HttpContext.RenderToStringAsync("Views/DbNetGrid/LookupDialogContent.cshtml", lookupDialogViewModel);
+        }
+
+
+        protected async Task MessageBox(DbNetGridEditResponse response)
+        {
+            var baseViewModel = new BaseViewModel();
+            ReflectionHelper.CopyProperties(this, baseViewModel);
+            response.Html = await HttpContext.RenderToStringAsync("Views/DbNetSuite/MessageBox.cshtml", baseViewModel);
+        }
+        private DataTable GetLookupData(int columnIndex, List<DbColumn> columns)
+        {
+            DbColumn dbColumn = columns.FirstOrDefault(c => c.Index == columnIndex);
+            DataTable dataTable = new DataTable();
+
+            using (Database)
+            {
+                Database.Open();
+                QueryCommandConfig query = new QueryCommandConfig();
+                query.Sql = Database.UpdateConcatenationOperator(dbColumn!.Lookup);
+                Database.ExecuteQuery(query);
+                dataTable.Load(Database.Reader);
+                Database.Close();
+            }
+
+            return dataTable;
         }
 
         protected bool ValidateRequest<T>(DbNetGridEditResponse response, List<T> columns)
@@ -681,7 +811,7 @@ namespace DbNetSuiteCore.Services
 
             return dataTable;
         }
-        protected Dictionary<string, object> CreateRecord(DataTable dataTable)
+        protected Dictionary<string, object> CreateRecord(DataTable dataTable, List<DbColumn> columns)
         {
             var dictionary = new Dictionary<string, object>();
             foreach (DataColumn column in dataTable.Columns)
@@ -690,8 +820,31 @@ namespace DbNetSuiteCore.Services
                 {
                     continue;
                 }
+                DbColumn dbColumn = columns[column.Ordinal];
                 var columnValue = dataTable.Rows[0][column.ColumnName];
-                dictionary[column.ColumnName.ToLower()] = (columnValue == System.DBNull.Value ? string.Empty : columnValue);
+
+                columnValue = columnValue == System.DBNull.Value ? string.Empty : columnValue;
+
+                try
+                {
+                    switch (dbColumn.DataType)
+                    {
+                        case nameof(DateTime):
+                            columnValue = Convert.ToDateTime(columnValue).ToString(dbColumn.Format);
+                            break;
+                        case nameof(Decimal):
+                        case nameof(Double):
+                        case nameof(Single):
+                        case nameof(Int64):
+                        case nameof(Int32):
+                        case nameof(Int16):
+                            columnValue = Convert.ToDecimal(columnValue).ToString(dbColumn.Format);
+                            break;
+                    }
+                }
+                catch { }
+
+                dictionary[column.ColumnName.ToLower()] = columnValue;
             }
 
             return dictionary;
@@ -801,6 +954,104 @@ namespace DbNetSuiteCore.Services
             return paramValue;
         }
 
+        protected void AddSearchFilterParams(ListDictionary parameters, DbColumn dbColumn, SearchParameter searchParameter, string prefix, string value)
+        {
+            string template = "{0}";
+            switch (searchParameter.SearchOperator)
+            {
+                case SearchOperator.Contains:
+                case SearchOperator.DoesNotContain:
+                    template = "%{0}%";
+                    break;
+                case SearchOperator.StartsWith:
+                case SearchOperator.DoesNotStartWith:
+                    template = "{0}%";
+                    break;
+                case SearchOperator.EndsWith:
+                case SearchOperator.DoesNotEndWith:
+                    template = "%{0}";
+                    break;
+            }
+
+            switch (searchParameter.SearchOperator)
+            {
+                case SearchOperator.In:
+                case SearchOperator.NotIn:
+                    string[] values = value.Split(",");
+                    for (var i = 0; i < values.Length; i++)
+                    {
+                        parameters.Add(ParamName(dbColumn, $"{prefix}{i}", true), ConvertToDbParam(template.Replace("{0}", values[i]), dbColumn));
+                    }
+                    break;
+                default:
+                    parameters.Add(ParamName(dbColumn, prefix, true), ConvertToDbParam(template.Replace("{0}", value), dbColumn));
+                    break;
+            }
+        }
+
+        protected string RefineSearchExpression(DbColumn col)
+        {
+            string columnExpression = StripColumnRename(col.ColumnExpression);
+
+            if (col.DataType != typeof(DateTime).Name)
+            {
+                return columnExpression;
+            }
+
+            switch (Database.Database)
+            {
+                case DatabaseType.SqlServer:
+                case DatabaseType.SqlServerCE:
+                    if (col.DbDataType != "31") // "Date"
+                        columnExpression = $"CONVERT(DATE,{columnExpression})";
+                    break;
+                case DatabaseType.Oracle:
+                    columnExpression = $"trunc({columnExpression})";
+                    break;
+                case DatabaseType.PostgreSql:
+                    columnExpression = $"date_trunc('day',{columnExpression})";
+                    break;
+                case DatabaseType.Firebird:
+                    columnExpression = $"cast({columnExpression} AS DATE)";
+                    break;
+                case DatabaseType.Sybase:
+                    columnExpression = $"convert(datetime, convert(binary(4), {columnExpression}))";
+                    break;
+            }
+
+            return columnExpression;
+        }
+
+        protected string FilterExpression(SearchParameter searchParameter, DbColumn dbColumn)
+        {
+            string template = searchParameter.SearchOperator.GetAttribute<FilterExpressionAttribute>().Expression;
+
+            switch (searchParameter.SearchOperator)
+            {
+                case SearchOperator.In:
+                case SearchOperator.NotIn:
+                    List<string> parameters = new List<string>();
+                    string[] values = searchParameter.Value1.Split(",");
+                    for (var i = 0; i < values.Length; i++)
+                    {
+                        parameters.Add(ParamName(dbColumn, $"{ParamNames.SearchFilter1}{i}"));
+                    }
+                    return template.Replace("{0}", string.Join(",", parameters));
+                default:
+                    string param1 = ParamName(dbColumn, ParamNames.SearchFilter1);
+                    string param2 = ParamName(dbColumn, ParamNames.SearchFilter2);
+                    return template.Replace("{0}", param1).Replace("{1}", param2);
+            }
+        }
+
+        protected string StripColumnRename(string columnExpression)
+        {
+            string[] columnParts = columnExpression.Split(')');
+            columnParts[columnParts.Length - 1] = Regex.Replace(columnParts[columnParts.Length - 1], " as .*", "", RegexOptions.IgnoreCase);
+            columnParts[0] = Regex.Replace(columnParts[0], "unique |distinct ", "", RegexOptions.IgnoreCase);
+
+            return String.Join(")", columnParts);
+        }
         private int ParseBoolean(string boolString)
         {
             switch (boolString.ToLower())

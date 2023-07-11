@@ -7,7 +7,6 @@ class DbNetEdit extends DbNetGridEdit {
         this.search = true;
         this.totalRows = 0;
         this.primaryKey = "";
-        this.columns = [];
     }
     initialize() {
         if (!this.element) {
@@ -22,15 +21,21 @@ class DbNetEdit extends DbNetGridEdit {
             this.toolbarPanel = this.addPanel("toolbar");
         }
         this.addLoadingPanel();
-        this.callServer("initialize");
+        this.post("initialize", this.getRequest())
+            .then((response) => {
+            if (response.error == false) {
+                this.updateColumns(response);
+                this.configureEdit(response);
+            }
+        });
         this.initialised = true;
         this.fireEvent("onInitialized");
     }
     addLinkedControl(control) {
         this.linkedControls.push(control);
     }
-    reload() {
-        this.callServer("page");
+    getRows(callback) {
+        this.callServer("search", callback);
     }
     configureEdit(response) {
         var _a, _b;
@@ -49,7 +54,7 @@ class DbNetEdit extends DbNetGridEdit {
         var _a;
         const record = response.record;
         for (const columnName in record) {
-            const $input = (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(`input[name='${columnName}']`);
+            const $input = (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(`:input[name='${columnName}']`);
             const value = record[columnName].toString();
             $input.val(value).data("value", value);
         }
@@ -58,12 +63,15 @@ class DbNetEdit extends DbNetGridEdit {
             this.message(response.message);
         }
     }
-    callServer(action) {
+    callServer(action, callback) {
         this.post(action, this.getRequest())
             .then((response) => {
             if (response.error == false) {
-                this.updateColumns(response);
-                this.configureEdit(response);
+                this.configureToolbar(response);
+                this.updateForm(response);
+            }
+            if (callback) {
+                callback(response);
             }
         });
     }
@@ -76,8 +84,11 @@ class DbNetEdit extends DbNetGridEdit {
             currentRow: this.currentRow,
             culture: this.culture,
             search: this.search,
+            searchFilterJoin: this.searchFilterJoin,
+            searchParams: this.searchParams,
             navigation: this.navigation,
             quickSearch: this.quickSearch,
+            quickSearchToken: this.quickSearchToken,
             totalRows: this.totalRows,
             primaryKey: this.primaryKey,
             changes: this.changes
@@ -120,7 +131,14 @@ class DbNetEdit extends DbNetGridEdit {
                 columnName: col.columnName,
                 label: col.label,
                 format: col.format,
-                foreignKey: col.foreignKey
+                foreignKey: col.foreignKey,
+                foreignKeyValue: col.foreignKeyValue,
+                lookup: col.lookup,
+                style: col.style,
+                display: col.display,
+                dataType: col.dataType,
+                primaryKey: col.primaryKey,
+                index: col.index
             };
             this.columns.push(new EditColumn(properties));
         });
@@ -130,6 +148,21 @@ class DbNetEdit extends DbNetGridEdit {
     }
     handleClick(event) {
         const id = event.target.id;
+        /*
+        switch (id) {
+            case this.controlElementId("FirstBtn"):
+            case this.controlElementId("NextBtn"):
+            case this.controlElementId("PreviousBtn"):
+            case this.controlElementId("LastBtn"):
+                if (this.hasUnappliedChanges()) {
+                    this.messageBox("There are unapplied changes. Discard ?");
+
+                }
+                break;
+            default:
+                break;
+        }
+        */
         switch (id) {
             case this.controlElementId("FirstBtn"):
                 this.currentRow = 1;
@@ -153,7 +186,7 @@ class DbNetEdit extends DbNetGridEdit {
         event.preventDefault();
         switch (id) {
             case this.controlElementId("SearchBtn"):
-                this.openSearchDialog();
+                this.openSearchDialog(this.getRequest());
                 break;
             case this.controlElementId("ApplyBtn"):
                 this.applyChanges();
@@ -163,40 +196,13 @@ class DbNetEdit extends DbNetGridEdit {
                 break;
         }
     }
-    openSearchDialog() {
-        if (this.searchDialog) {
-            this.searchDialog.open();
-            return;
-        }
-        this.post("search-dialog", this.getRequest())
-            .then((response) => {
-            var _a;
-            (_a = this.element) === null || _a === void 0 ? void 0 : _a.append(response.data);
-            this.searchDialog = new SearchDialog(`${this.id}_search_dialog`, this);
-            this.searchDialog.open();
-        });
-    }
-    quickSearchKeyPress(event) {
-        const el = event.target;
-        window.clearTimeout(this.quickSearchTimerId);
-        if (el.value.length >= this.quickSearchMinChars || el.value.length == 0 || event.key == 'Enter')
-            this.quickSearchTimerId = window.setTimeout(() => { this.runQuickSearch(el.value); }, this.quickSearchDelay);
-    }
-    runQuickSearch(token) {
-        this.quickSearchToken = token;
-        this.currentRow = 1;
-        this.runSearch();
-    }
-    runSearch() {
-        return;
-    }
     getRecord() {
         this.callServer("getrecord");
     }
     applyChanges() {
         var _a;
         const changes = {};
-        (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(':input.dbnetedit').each(function (index) {
+        (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(':input.dbnetedit,select.dbnetedit').each(function (index) {
             const $input = $(this);
             if ($input.val() != $input.data("value")) {
                 changes[$input.attr("name")] = $input.val();

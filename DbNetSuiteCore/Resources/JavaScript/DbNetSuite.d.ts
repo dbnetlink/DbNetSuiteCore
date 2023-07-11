@@ -19,6 +19,12 @@ type EventHandler = {
     sender: DbNetSuite;
     params: object | undefined;
 };
+declare enum MessageBoxType {
+    Error = 0,
+    Warning = 1,
+    Info = 2,
+    Question = 3
+}
 declare class DbNetSuite {
     static DBNull: string;
     datePickerOptions: JQueryUI.DatepickerOptions;
@@ -30,6 +36,7 @@ declare class DbNetSuite {
     protected connectionType: DbConnectionType;
     protected culture: string;
     protected linkedControls: Array<DbNetSuite>;
+    protected messageBox: MessageBox | undefined;
     initialised: boolean;
     constructor(id: string);
     bind(event: EventName, handler: EventHandler): void;
@@ -48,5 +55,6 @@ declare class DbNetSuite {
     protected disable(id: string, disabled: boolean): void;
     protected setInputElement(name: string, value: number): void;
     protected configureLinkedControls(fk: object | null): void;
+    protected showMessageBox(message: string, type: MessageBoxType, callback: Function): void;
     private configureLinkedControl;
 }

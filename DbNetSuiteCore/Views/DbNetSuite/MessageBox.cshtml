@@ -1,0 +1,42 @@
+﻿@namespace DbNetSuiteCore.Views.DbNetGrid
+@using DbNetSuiteCore.ViewModels;
+@using Microsoft.AspNetCore.Html
+@using DbNetSuiteCore.ViewModels.DbNetGrid
+@using DbNetSuiteCore.Enums
+@model BaseViewModel
+
+<div id="@(Model.ComponentId)_message_box" class="message-box" title="" style="display:none">
+     <div class="message-box-panel">
+        <table>
+            <tr>
+                <td class="message-box-icon"></td>
+                <td class="message-box-text"></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    @Button("Yes", ToolbarButtonStyle.ImageAndText)
+                    @Button("No", ToolbarButtonStyle.ImageAndText)
+                </td>
+            </tr>
+            </tr>
+        </table>
+    </div>
+</div>
+
+@functions
+{
+    public HtmlString Button(string type, ToolbarButtonStyle buttonStyle)
+    {
+        return new HtmlString($"<button type=\"button\" class=\"{type.ToLower()}-btn toolbar-button toolbar-button-{buttonStyle.ToString().ToLower()}\" title=\"{@Title(type)}\" button-type=\"{type.ToLower()}\" id=\"{Model.ComponentId}_View_Dialog_{type}Btn\">{ResourceString(type)}</button>");
+    }
+
+    public string Title(string type)
+    {
+        return ResourceString($"{type}Record_Title");
+    }
+
+    public string ResourceString(string key)
+    {
+        return Model.Translate(key) ?? key;
+    }
+}

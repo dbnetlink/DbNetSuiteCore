@@ -2,5 +2,8 @@
 @using DbNetSuiteCore.Components;
 @{
     DbNetEditCore customersEdit = new DbNetEditCore("northwind", "customers");
+    customersEdit.SetColumnLookup("country");
+    customersEdit.SetColumnLookup("region");
+    customersEdit.QuickSearch = true;
     @customersEdit.Render()
 }

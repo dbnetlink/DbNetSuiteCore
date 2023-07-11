@@ -9,28 +9,28 @@
 <div id="@(Model.ComponentId)_search_dialog" class="search-dialog" title="Search">
     <div class="content">
         <table>
-            @foreach (GridColumn gridColumn in Model.Columns)
+            @foreach (DbColumn dbColumn in Model.Columns)
             {
-                if (gridColumn.Search == false)
+                if (dbColumn.Search == false)
                 {
                     continue;
                 }
-                <tr columnname="@gridColumn.ColumnName">
-                    <td class="label">@gridColumn.Label</td>
+                <tr columnname="@dbColumn.ColumnName">
+                    <td class="label">@dbColumn.Label</td>
                     <td>
-                        <select name="searchOperator(@gridColumn.Index)" class="search-operator" datatype="@gridColumn.DataType" columnindex="@gridColumn.Index">
-                            @SearchOperators(gridColumn)
+                        <select name="searchOperator(@dbColumn.Index)" class="search-operator" datatype="@dbColumn.DataType" columnindex="@dbColumn.Index">
+                            @SearchOperators(dbColumn)
                         </select>
                     </td>
                     <td>
                         <table class="layout">
-                            <tr class="search-row" columnindex="@gridColumn.Index" columnkey="@gridColumn.ColumnKey" columnname="@gridColumn.ColumnName">
+                            <tr class="search-row" columnindex="@dbColumn.Index" columnkey="@dbColumn.ColumnKey" columnname="@dbColumn.ColumnName">
                                 <td>
-                                    @AddInputControl(gridColumn)
+                                    @AddInputControl(dbColumn)
                                 </td>
                                 <td class="between" style="display:none;"><span>&nbsp;and&nbsp;</span></td>
                                 <td class="between" style="display:none;">
-                                    @AddInputControl(gridColumn, true)
+                                    @AddInputControl(dbColumn, true)
                                 </td>
                             </tr>
                         </table>
@@ -74,7 +74,7 @@
         return new HtmlString($"<td><button type=\"button\" class=\"{type.ToLower()}-btn toolbar-button toolbar-button-{buttonStyle.ToString().ToLower()}\" title=\"{@Model.Translate(title)}\" button-type=\"{type.ToLower()}\" id=\"{Model.ComponentId}_View_Dialog_{type}Btn\">{(buttonStyle == ToolbarButtonStyle.Image ? string.Empty : Model.Translate(type))}</button></td>");
     }
 
-    private HtmlString SearchOperators(GridColumn column)
+    private HtmlString SearchOperators(DbColumn column)
     {
         string dataType = column.DataType;
 
@@ -109,7 +109,7 @@
         return new HtmlString(string.Join(string.Empty, html));
     }
 
-    private string Description(SearchOperator searchOperator, GridColumn column)
+    private string Description(SearchOperator searchOperator, DbColumn column)
     {
         if (IsBooleanOperator(searchOperator))
         {
@@ -185,7 +185,7 @@
         return false;
     }
 
-    private HtmlString AddInputControl(GridColumn column, bool hidden = false)
+    private HtmlString AddInputControl(DbColumn column, bool hidden = false)
     {
         string type = "input";
          

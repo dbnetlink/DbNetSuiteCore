@@ -3,13 +3,13 @@
 /// <reference types="jqueryui" />
 /// <reference types="bootstrap" />
 declare class LookupDialog extends Dialog {
-    parent: DbNetGrid;
+    parent: DbNetGridEdit;
     $input: JQuery<HTMLInputElement> | undefined;
     $select: JQuery<HTMLSelectElement> | undefined;
     columnIndex: number | undefined;
     title: string;
-    constructor(id: string, parent: DbNetGrid);
+    constructor(id: string, parent: DbNetGridEdit);
     private dialogOpened;
-    update(response: DbNetGridResponse, $input: JQuery<HTMLInputElement>): void;
+    update(response: DbNetSuiteResponse, $input: JQuery<HTMLInputElement>): void;
     private apply;
 }

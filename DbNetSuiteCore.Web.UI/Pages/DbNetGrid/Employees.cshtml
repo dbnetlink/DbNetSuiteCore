@@ -1,0 +1,9 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums.DbNetGrid;
+@{
+    // Configure the grid and render
+    DbNetGridCore employeesGrid = new DbNetGridCore("northwind","employees");
+    employeesGrid.SetColumnProperty("ReportsTo", ColumnPropertyType.Lookup, new Lookup("employees", "employeeid", "lastname"));
+    @employeesGrid.Render()
+}

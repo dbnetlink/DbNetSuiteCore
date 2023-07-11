@@ -53,7 +53,6 @@ class DbNetGrid extends DbNetGridEdit {
         this.rowSelect = true;
         this.totalPages = 0;
         this.view = false;
-        this.columns = [];
     }
     initialize() {
         if (!this.element) {
@@ -78,44 +77,6 @@ class DbNetGrid extends DbNetGridEdit {
             .catch(() => { });
         this.initialised = true;
         this.fireEvent("onInitialized");
-    }
-    setColumnExpressions(...columnExpressions) {
-        columnExpressions.forEach(columnExpression => {
-            const properties = { columnExpression: columnExpression };
-            this.columns.push(new GridColumn(properties));
-        });
-    }
-    setColumnKeys(...columnKeys) {
-        columnKeys.forEach((value, index) => {
-            this.columns[index].columnKey = value;
-        });
-    }
-    setColumnLabels(...labels) {
-        let idx = 0;
-        labels.forEach(label => {
-            if (this.columns.length > idx) {
-                this.columns[idx].label = label;
-                idx++;
-            }
-        });
-    }
-    setColumnProperty(columnName, property, propertyValue) {
-        if (columnName instanceof (Array)) {
-            columnName.forEach(c => this.setColumnProperty(c, property, propertyValue));
-            return;
-        }
-        let matchingColumn = this.columns.find((col) => { return this.matchingColumn(col, columnName); });
-        if (matchingColumn == undefined) {
-            const properties = { columnExpression: columnName };
-            matchingColumn = new GridColumn(properties, true);
-            this.columns.push(matchingColumn);
-        }
-        matchingColumn[property] = propertyValue;
-    }
-    setColumnProperties(columnName, properties) {
-        Object.keys(properties).forEach((key) => {
-            this.setColumnProperty(columnName, key, properties[key]);
-        });
     }
     addNestedGrid(handler) {
         this.bind("onNestedClick", handler);
@@ -179,20 +140,6 @@ class DbNetGrid extends DbNetGridEdit {
             .then((response) => {
             callback(response);
         });
-    }
-    matchingColumn(gridColumn, columnName) {
-        var _a, _b, _c, _d, _e, _f;
-        let match = false;
-        if ((_a = gridColumn.columnKey) === null || _a === void 0 ? void 0 : _a.includes(".")) {
-            match = ((_c = (_b = gridColumn.columnKey) === null || _b === void 0 ? void 0 : _b.split('.').pop()) === null || _c === void 0 ? void 0 : _c.toLowerCase()) == columnName.toLowerCase();
-        }
-        if (((_e = (_d = gridColumn.columnKey) === null || _d === void 0 ? void 0 : _d.split(' ').pop()) === null || _e === void 0 ? void 0 : _e.toLowerCase()) == columnName.toLowerCase()) {
-            match = true;
-        }
-        if (!match) {
-            match = ((_f = gridColumn.columnKey) === null || _f === void 0 ? void 0 : _f.toLowerCase()) == columnName.toLowerCase();
-        }
-        return match;
     }
     configureToolbar(response) {
         if (response.toolbar) {
@@ -511,27 +458,16 @@ class DbNetGrid extends DbNetGridEdit {
                 this.getViewContent();
                 break;
             case this.controlElementId("SearchBtn"):
-                this.openSearchDialog();
+                this.openSearchDialog(this.getRequest());
                 break;
             default:
                 this.getPage();
                 break;
         }
     }
-    quickSearchKeyPress(event) {
-        const el = event.target;
-        window.clearTimeout(this.quickSearchTimerId);
-        if (el.value.length >= this.quickSearchMinChars || el.value.length == 0 || event.key == 'Enter')
-            this.quickSearchTimerId = window.setTimeout(() => { this.runQuickSearch(el.value); }, this.quickSearchDelay);
-    }
     columnFilterKeyPress(event) {
         window.clearTimeout(this.quickSearchTimerId);
         this.quickSearchTimerId = window.setTimeout(() => { this.runColumnFilterSearch(); }, this.quickSearchDelay);
-    }
-    runQuickSearch(token) {
-        this.quickSearchToken = token;
-        this.currentPage = 1;
-        this.getPage();
     }
     runColumnFilterSearch() {
         var _a, _b;
@@ -578,24 +514,6 @@ class DbNetGrid extends DbNetGridEdit {
             if (callback) {
                 callback(response);
             }
-        });
-    }
-    lookup($input) {
-        const request = this.getRequest();
-        request.lookupColumnIndex = parseInt($input.attr("columnIndex"));
-        if (this.lookupDialog && request.lookupColumnIndex == this.lookupDialog.columnIndex) {
-            this.lookupDialog.open();
-            return;
-        }
-        this.post("lookup", request)
-            .then((response) => {
-            var _a;
-            if (!this.lookupDialog) {
-                (_a = this.element) === null || _a === void 0 ? void 0 : _a.append(response.toolbar);
-                this.lookupDialog = new LookupDialog(`${this.id}_lookup_dialog`, this);
-            }
-            this.lookupDialog.update(response, $input);
-            this.lookupDialog.open();
         });
     }
     activeElementId() {
@@ -652,19 +570,6 @@ class DbNetGrid extends DbNetGridEdit {
                 this.viewDialog = new ViewDialog(`${this.id}_view_dialog`, this);
             }
             this.viewDialog.update(response, $row);
-        });
-    }
-    openSearchDialog() {
-        if (this.searchDialog) {
-            this.searchDialog.open();
-            return;
-        }
-        this.post("search-dialog", this.getRequest())
-            .then((response) => {
-            var _a;
-            (_a = this.element) === null || _a === void 0 ? void 0 : _a.append(response.data);
-            this.searchDialog = new SearchDialog(`${this.id}_search_dialog`, this);
-            this.searchDialog.open();
         });
     }
     copyGrid() {

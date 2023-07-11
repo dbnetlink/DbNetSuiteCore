@@ -4,10 +4,8 @@ using System.Collections.Specialized;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Resources;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
@@ -69,7 +67,6 @@ namespace DbNetSuiteCore.Services
        
         public bool IgnorePrimaryKeys { get; set; } = false;
         public bool InsertRow { get; set; } = false;
-        public int LookupColumnIndex { get; set; }
         public bool MultiRowSelect { get; set; } = false;
         public MultiRowSelectLocation MultiRowSelectLocation { get; set; } = MultiRowSelectLocation.Left;
         public bool NestedGrid { get; set; } = false;
@@ -141,10 +138,13 @@ namespace DbNetSuiteCore.Services
                     await ViewDialog(response);
                     break;
                 case RequestAction.SearchDialog:
-                    await SearchDialog(response);
+                    await SearchDialog(response, Columns.Cast<DbColumn>().ToList());
                     break;
                 case RequestAction.Lookup:
-                    await LookupDialog(response);
+                    await LookupDialog(response, Columns.Cast<DbColumn>().ToList());
+                    break;
+                case RequestAction.MessageBox:
+                    await MessageBox(response);
                     break;
                 case RequestAction.DataArray:
                     return DataArray();
@@ -297,19 +297,7 @@ namespace DbNetSuiteCore.Services
 
             if (String.IsNullOrEmpty(QuickSearchToken) == false)
             {
-                List<string> quickSearchFilter = new List<string>();
-                foreach (GridColumn col in Columns.Where(c => c.QuickSearch))
-                {
-                    if (string.IsNullOrEmpty(col.Lookup))
-                    {
-                        quickSearchFilter.Add($"{col.ColumnExpression} like {ParamName(ParamNames.QuickSearchToken)}");
-                    }
-                    else
-                    {
-                        quickSearchFilter.Add($"{col.ColumnExpression} in ({SearchLookupSql(col, ParamNames.QuickSearchToken)})");
-                    }
-                }
-                fp.Add($"({string.Join(" or ", quickSearchFilter.ToArray())})");
+                fp.Add($"({string.Join(" or ", QuickSearchFilter(Columns.Cast<DbColumn>().ToList()).ToArray())})");
             }
 
             if (ColumnFilters.Keys.Any())
@@ -336,41 +324,14 @@ namespace DbNetSuiteCore.Services
 
             if (SearchParams.Any())
             {
-                List<string> searchFilterPart = new List<string>();
-                foreach (SearchParameter searchParameter in SearchParams)
-                {
-                    GridColumn gridColumn = Columns[searchParameter.ColumnIndex];
-
-                    searchFilterPart.Add($"{RefineSearchExpression(gridColumn)} {FilterExpression(searchParameter, gridColumn)}");
-                }
-                fp.Add($"({string.Join($" {SearchFilterJoin} ", searchFilterPart.ToArray())})");
+                fp.Add($"({string.Join($" {SearchFilterJoin} ", SearchDialogFilter(Columns.Cast<DbColumn>().ToList()).ToArray())})");
             }
 
             string filterPart = string.Join(" and ", fp.ToArray());
 
             return filterPart;
         }
-        private string FilterExpression(SearchParameter searchParameter, GridColumn gridColumn)
-        {
-            string template = searchParameter.SearchOperator.GetAttribute<FilterExpressionAttribute>().Expression;
-
-            switch (searchParameter.SearchOperator)
-            {
-                case SearchOperator.In:
-                case SearchOperator.NotIn:
-                    List<string> parameters = new List<string>();
-                    string[] values = searchParameter.Value1.Split(",");
-                    for (var i = 0; i < values.Length; i++)
-                    {
-                        parameters.Add(ParamName(gridColumn, $"{ParamNames.SearchFilter1}{i}"));
-                    }
-                    return template.Replace("{0}", string.Join(",", parameters));
-                default:
-                    string param1 = ParamName(gridColumn, ParamNames.SearchFilter1);
-                    string param2 = ParamName(gridColumn, ParamNames.SearchFilter2);
-                    return template.Replace("{0}", param1).Replace("{1}", param2);
-            }
-        }
+       
         protected string BuildOrderPart(QueryBuildModes buildMode)
         {
             switch (buildMode)
@@ -497,59 +458,12 @@ namespace DbNetSuiteCore.Services
 
             if (SearchParams.Any())
             {
-                foreach (SearchParameter searchParameter in SearchParams)
-                {
-                    GridColumn gridColumn = Columns[searchParameter.ColumnIndex];
-
-                    string expression = searchParameter.SearchOperator.GetAttribute<FilterExpressionAttribute>()?.Expression ?? "{0}";
-
-                    if (expression.Contains("{0}"))
-                    {
-                        AddSearchFilterParams(parameters, gridColumn, searchParameter, ParamNames.SearchFilter1, searchParameter.Value1);
-                    }
-                    if (expression.Contains("{1}"))
-                    {
-                        AddSearchFilterParams(parameters, gridColumn, searchParameter, ParamNames.SearchFilter2, searchParameter.Value2);
-                    }
-                }
+                AddSearchDialogParameters(Columns.Cast<DbColumn>().ToList(), parameters);
             }
 
             return parameters;
         }
-        private void AddSearchFilterParams(ListDictionary parameters, GridColumn gridColumn, SearchParameter searchParameter, string prefix, string value)
-        {
-            string template = "{0}";
-            switch (searchParameter.SearchOperator)
-            {
-                case SearchOperator.Contains:
-                case SearchOperator.DoesNotContain:
-                    template = "%{0}%";
-                    break;
-                case SearchOperator.StartsWith:
-                case SearchOperator.DoesNotStartWith:
-                    template = "{0}%";
-                    break;
-                case SearchOperator.EndsWith:
-                case SearchOperator.DoesNotEndWith:
-                    template = "%{0}";
-                    break;
-            }
-
-            switch (searchParameter.SearchOperator)
-            {
-                case SearchOperator.In:
-                case SearchOperator.NotIn:
-                    string[] values = value.Split(",");
-                    for (var i = 0; i < values.Length; i++)
-                    {
-                        parameters.Add(ParamName(gridColumn, $"{prefix}{i}", true), ConvertToDbParam(template.Replace("{0}", values[i]), gridColumn));
-                    }
-                    break;
-                default:
-                    parameters.Add(ParamName(gridColumn, prefix, true), ConvertToDbParam(template.Replace("{0}", value), gridColumn));
-                    break;
-            }
-        }
+     
         protected QueryCommandConfig BuildSql()
         {
             return BuildSql(QueryBuildModes.Normal);
@@ -612,41 +526,7 @@ namespace DbNetSuiteCore.Services
             return sql;
         }
 
-        protected string SearchLookupSql(DbColumn col, string paramName)
-        {
-            Match m = Regex.Match(col.Lookup, @"select (.*?) from", RegexOptions.IgnoreCase);
-            string columnList = m.Groups[1].ToString();
-
-            string valueColumn = Database.QualifiedDbObjectName(col.LookupValueField);
-
-            if (valueColumn == String.Empty)
-            {
-                valueColumn = GetSelectColumns(col.Lookup).First();
-            }
-
-            string sql = col.Lookup.Replace(columnList, valueColumn);
-            sql = Regex.Replace(sql, " order by .*", "", RegexOptions.IgnoreCase);
-
-            string filter = $"({StripColumnRename(col.LookupTextExpression)} like {paramName})";
-
-            if (Regex.IsMatch(sql, " where ", RegexOptions.IgnoreCase))
-                sql = Regex.Replace(sql, " where ", " where " + filter + " and ", RegexOptions.IgnoreCase);
-            else
-                sql += " where " + filter;
-
-            return sql;
-        }
-
-        protected string StripColumnRename(string columnExpression)
-        {
-            string[] columnParts = columnExpression.Split(')');
-            columnParts[columnParts.Length - 1] = Regex.Replace(columnParts[columnParts.Length - 1], " as .*", "", RegexOptions.IgnoreCase);
-            columnParts[0] = Regex.Replace(columnParts[0], "unique |distinct ", "", RegexOptions.IgnoreCase);
-
-            return String.Join(")", columnParts);
-        }
-
-        private void ConfigureGridColumns()
+          private void ConfigureGridColumns()
         {
             if (!String.IsNullOrEmpty(ProcedureName))
             {
@@ -1226,38 +1106,7 @@ namespace DbNetSuiteCore.Services
             }
         }
 
-        private string RefineSearchExpression(DbColumn col)
-        {
-            string columnExpression = StripColumnRename(col.ColumnExpression);
-
-            if (col.DataType != typeof(DateTime).Name)
-            {
-                return columnExpression;
-            }
-
-            switch (Database.Database)
-            {
-                case DatabaseType.SqlServer:
-                case DatabaseType.SqlServerCE:
-                    if (col.DbDataType != "31") // "Date"
-                        columnExpression = $"CONVERT(DATE,{columnExpression})";
-                    break;
-                case DatabaseType.Oracle:
-                    columnExpression = $"trunc({columnExpression})";
-                    break;
-                case DatabaseType.PostgreSql:
-                    columnExpression = $"date_trunc('day',{columnExpression})";
-                    break;
-                case DatabaseType.Firebird:
-                    columnExpression = $"cast({columnExpression} AS DATE)";
-                    break;
-                case DatabaseType.Sybase:
-                    columnExpression = $"convert(datetime, convert(binary(4), {columnExpression}))";
-                    break;
-            }
-
-            return columnExpression;
-        }
+       
 
         private bool PrimaryKeySupplied()
         {
@@ -1290,30 +1139,8 @@ namespace DbNetSuiteCore.Services
             viewModel.Columns = Columns;
             viewModel.LookupTables = _lookupTables;
 
-            response.Record = CreateRecord(viewModel.ViewData);
+            response.Record = CreateRecord(viewModel.ViewData, Columns.Cast<DbColumn>().ToList());
             response.Data = await HttpContext.RenderToStringAsync("Views/DbNetGrid/ViewDialogContent.cshtml", viewModel);
-        }
-
-        private async Task SearchDialog(DbNetGridResponse response)
-        {
-            var searchDialogViewModel = new SearchDialogViewModel();
-            ReflectionHelper.CopyProperties(this, searchDialogViewModel);
-            searchDialogViewModel.Columns = Columns;
-            searchDialogViewModel.LookupTables = _lookupTables;
-            response.Data = await HttpContext.RenderToStringAsync("Views/DbNetGrid/SearchDialog.cshtml", searchDialogViewModel);
-        }
-        private async Task LookupDialog(DbNetGridResponse response)
-        {
-            var lookupDialogViewModel = new LookupDialogViewModel();
-            ReflectionHelper.CopyProperties(this, lookupDialogViewModel);
-            response.Toolbar = await HttpContext.RenderToStringAsync("Views/DbNetGrid/LookupDialog.cshtml", lookupDialogViewModel);
-
-            var dataTable = GetLookupData(this.LookupColumnIndex);
-            var dataView = new DataView(dataTable);
-            dataView.Sort = $"{dataTable.Columns[dataTable.Columns.Count - 1].ColumnName} ASC";
-            lookupDialogViewModel.LookupData = dataView.ToTable();
-
-            response.Data = await HttpContext.RenderToStringAsync("Views/DbNetGrid/LookupDialogContent.cshtml", lookupDialogViewModel);
         }
 
         private DataTable GetViewData()
@@ -1353,25 +1180,6 @@ namespace DbNetSuiteCore.Services
 
             return dataTable;
         }
-
-        private DataTable GetLookupData(int columnIndex)
-        {
-            GridColumn gridColumn = Columns.FirstOrDefault(c => c.Index == columnIndex);
-            DataTable dataTable = new DataTable();
-
-            using (Database)
-            {
-                Database.Open();
-                QueryCommandConfig query = new QueryCommandConfig();
-                query.Sql = Database.UpdateConcatenationOperator(gridColumn!.Lookup);
-                Database.ExecuteQuery(query);
-                dataTable.Load(Database.Reader);
-                Database.Close();
-            }
-
-            return dataTable;
-        }
-
         private string GetLookupValue(GridColumn column, object dataValue)
         {
             DataTable lookupTable = _lookupTables[column.ColumnKey];
@@ -1384,6 +1192,5 @@ namespace DbNetSuiteCore.Services
             }
             return dataValue.ToString();
         }
- 
-    }
+     }
 }

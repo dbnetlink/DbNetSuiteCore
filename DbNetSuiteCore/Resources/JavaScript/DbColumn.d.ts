@@ -12,4 +12,5 @@ declare class DbColumn {
     display?: boolean;
     primaryKey?: boolean;
     index?: number;
+    dataType?: string;
 }

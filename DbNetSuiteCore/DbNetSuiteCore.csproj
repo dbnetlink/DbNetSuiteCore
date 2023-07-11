@@ -46,6 +46,8 @@
     <None Remove="Resources\CSS\dbnetcombo.min.css" />
     <None Remove="Resources\CSS\dbnetedit.css" />
     <None Remove="Resources\CSS\dbnetedit.min.css" />
+    <None Remove="Resources\CSS\dbnetgrid.css" />
+    <None Remove="Resources\CSS\dbnetgrid.min.css" />
     <None Remove="Resources\CSS\dbnetsuite.css" />
     <None Remove="Resources\CSS\libraries\cleanslate.css" />
     <None Remove="Resources\CSS\libraries\jquery-ui.min.css" />
@@ -92,6 +94,7 @@
     <None Remove="Resources\JavaScript\ViewDialog.min.js" />
     <None Remove="Resources\SCSS\dbnetcombo.scss" />
     <None Remove="Resources\SCSS\dbnetedit.scss" />
+    <None Remove="Resources\SCSS\dbnetgrid.scss" />
     <None Remove="Resources\SCSS\_reboot.scss" />
     <None Remove="Resources\SCSS\_variables.scss" />
     <None Remove="Resources\tsconfig.json" />
@@ -114,6 +117,7 @@
     <None Remove="Views\DbNetGrid\Toolbar.cshtml" />
     <None Remove="Views\DbNetGrid\ViewDialog.cshtml" />
     <None Remove="Views\DbNetGrid\ViewDialogContent.cshtml" />
+    <None Remove="Views\DbNetSuite\MessageBox.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -129,6 +133,8 @@
     <EmbeddedResource Include="Resources\CSS\dbnetcombo.min.css" />
     <EmbeddedResource Include="Resources\CSS\dbnetedit.css" />
     <EmbeddedResource Include="Resources\CSS\dbnetedit.min.css" />
+    <EmbeddedResource Include="Resources\CSS\dbnetgrid.css" />
+    <EmbeddedResource Include="Resources\CSS\dbnetgrid.min.css" />
     <EmbeddedResource Include="Resources\CSS\libraries\cleanslate.css" />
     <EmbeddedResource Include="Resources\CSS\libraries\jquery.timepicker.min.css" />
     <EmbeddedResource Include="Resources\CSS\_reboot.css" />
@@ -156,6 +162,7 @@
     <EmbeddedResource Include="Resources\JavaScript\ViewDialog.js" />
     <EmbeddedResource Include="Resources\JavaScript\ViewDialog.min.js" />
     <EmbeddedResource Include="Resources\SCSS\dbnetedit.scss" />
+    <EmbeddedResource Include="Resources\SCSS\dbnetgrid.scss" />
     <EmbeddedResource Include="Resources\SCSS\_variables.scss" />
     <EmbeddedResource Include="Resources\SCSS\dbnetsuite.scss" />
     <EmbeddedResource Include="Resources\CSS\libraries\jquery-ui.min.css" />
@@ -238,6 +245,10 @@
     <EmbeddedResource Include="Resources\JavaScript\DbNetSuite.js" />
     <EmbeddedResource Include="Resources\TypeScript\DbNetSuite.ts" />
     <EmbeddedResource Include="Resources\TypeScript\DbNetGrid.ts" />
+    <EmbeddedResource Include="Views\DbNetSuite\MessageBox.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -281,6 +292,10 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ViewModels\DbNetSuite\" />
   </ItemGroup>
 
 

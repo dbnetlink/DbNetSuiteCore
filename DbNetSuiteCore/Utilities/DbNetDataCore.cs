@@ -73,9 +73,14 @@ namespace DbNetSuiteCore.Utilities
             {
             }
 
-            public CommandConfig(string Sql)
+            public CommandConfig(string sql)
             {
-                this.Sql = Sql;
+                this.Sql = sql;
+            }
+            public CommandConfig(string sql, ListDictionary parameters)
+            {
+                this.Sql = sql;
+                this.Params = parameters;
             }
         }
         public class QueryCommandConfig : CommandConfig
@@ -86,8 +91,11 @@ namespace DbNetSuiteCore.Utilities
                 : this("")
             {
             }
-            public QueryCommandConfig(string Sql)
-                : base(Sql)
+            public QueryCommandConfig(string sql)
+                : base(sql)
+            {
+            }
+            public QueryCommandConfig(string sql, ListDictionary parameters) : base(sql, parameters)
             {
             }
         }

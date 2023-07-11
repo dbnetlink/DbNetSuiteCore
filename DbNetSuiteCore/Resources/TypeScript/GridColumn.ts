@@ -19,7 +19,6 @@ class GridColumn extends DbColumn {
     download?: boolean;
     image?: boolean;
     view?: boolean;
-    dataType?: string;
     aggregate?: AggregateType
     totalBreak?: boolean;
     clearDuplicateValue?: boolean;

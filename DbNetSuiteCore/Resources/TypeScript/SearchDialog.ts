@@ -1,6 +1,6 @@
 ﻿class SearchDialog extends Dialog {
-    parent: DbNetGrid;
-    constructor(id: string, parent: DbNetGrid) {
+    parent: DbNetGridEdit;
+    constructor(id: string, parent: DbNetGridEdit) {
         super(id);
 
         this.$dialog?.on("dialogopen", (event) => this.dialogOpened(event));
@@ -87,7 +87,17 @@
     private lookup(event: JQuery.TriggeredEvent): void {
         const $button = $(event.target as HTMLInputElement);
         const $input = $button.parent().find("input");
-        this.parent.lookup($input);
+        let request: DbNetGridEditRequest;
+        if (this.parent instanceof DbNetGrid) {
+            request = (this.parent as DbNetGrid).getRequest();
+        }
+        else if (this.parent instanceof DbNetEdit) {
+            request = (this.parent as DbNetEdit).getRequest();
+        }
+        else {
+            return;
+        }
+        this.parent.lookup($input, request);
     }
 
     private selectTime(event: JQuery.TriggeredEvent): void {
@@ -126,13 +136,22 @@
             }
         });
 
-        this.parent.clearColumnFilters();
-        this.parent.searchFilterJoin = this.$dialog?.find("#searchFilterJoin").val() as string;
-        this.parent.currentPage = 1;
-        this.parent.getPage((response: DbNetGridResponse) => this.getPageCallback(response));
+        if (this.parent instanceof DbNetGrid) {
+            const grid = this.parent as DbNetGrid;
+            grid.clearColumnFilters();
+            grid.searchFilterJoin = this.$dialog?.find("#searchFilterJoin").val() as string;
+            grid.currentPage = 1;
+            grid.getPage((response: DbNetGridResponse) => this.getPageCallback(response));
+        }
+        else {
+            const edit = this.parent as DbNetEdit;
+            edit.searchFilterJoin = this.$dialog?.find("#searchFilterJoin").val() as string;
+            edit.currentRow = 1;
+            edit.getRows((response: DbNetEditResponse) => this.getPageCallback(response));
+        }
     }
 
-    private getPageCallback(response: DbNetGridResponse) {
+    private getPageCallback(response: DbNetGridEditResponse) {
         if (response.searchParams) {
             response.searchParams.forEach(sp => {
                 const $row = this.$dialog?.find(`tr[columnIndex='${sp.columnIndex}']`)

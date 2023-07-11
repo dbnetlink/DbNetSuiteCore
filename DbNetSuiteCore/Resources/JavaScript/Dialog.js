@@ -5,11 +5,13 @@ class Dialog {
         this.maxWidth = 800;
         this.$dialog = $(`#${id}`);
         this.$dialog.addClass("dialog");
-        this.$dialog.dialog({
+        const options = {
             autoOpen: false,
             width: this.width,
-            maxWidth: this.maxWidth
-        });
+            maxWidth: this.maxWidth,
+        };
+        //options.modal = true;
+        this.$dialog.dialog(options);
         this.$dialog.find(".message").html("&nbsp;");
     }
     open() {

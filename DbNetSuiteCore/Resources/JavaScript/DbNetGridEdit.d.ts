@@ -3,7 +3,7 @@
 /// <reference types="jqueryui" />
 /// <reference types="bootstrap" />
 declare class DbNetGridEdit extends DbNetSuite {
-    columns: DbColumn[] | undefined;
+    columns: DbColumn[];
     fromPart: string;
     lookupDialog: LookupDialog | undefined;
     navigation: boolean;
@@ -20,4 +20,15 @@ declare class DbNetGridEdit extends DbNetSuite {
     toolbarPanel: JQuery<HTMLElement> | undefined;
     toolbarPosition: ToolbarPosition;
     constructor(id: string);
+    setColumnExpressions(...columnExpressions: string[]): void;
+    setColumnKeys(...columnKeys: string[]): void;
+    setColumnLabels(...labels: string[]): void;
+    setColumnProperty(columnName: string | Array<string>, property: string, propertyValue: object): void;
+    setColumnProperties(columnName: string, properties: object): void;
+    protected openSearchDialog(request: DbNetGridEditRequest): void;
+    protected quickSearchKeyPress(event: JQuery.TriggeredEvent): void;
+    private runQuickSearch;
+    lookup($input: JQuery<HTMLInputElement>, request: DbNetGridEditRequest): void;
+    private newColumn;
+    private matchingColumn;
 }

@@ -79,7 +79,17 @@ class SearchDialog extends Dialog {
     lookup(event) {
         const $button = $(event.target);
         const $input = $button.parent().find("input");
-        this.parent.lookup($input);
+        let request;
+        if (this.parent instanceof DbNetGrid) {
+            request = this.parent.getRequest();
+        }
+        else if (this.parent instanceof DbNetEdit) {
+            request = this.parent.getRequest();
+        }
+        else {
+            return;
+        }
+        this.parent.lookup($input, request);
     }
     selectTime(event) {
         const $button = $(event.target);
@@ -99,7 +109,7 @@ class SearchDialog extends Dialog {
         });
     }
     apply() {
-        var _a, _b;
+        var _a, _b, _c;
         this.parent.searchParams = [];
         (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find(".content").find("select").get().forEach(e => {
             const $select = $(e);
@@ -116,10 +126,19 @@ class SearchDialog extends Dialog {
                 this.parent.searchParams.push(searchParam);
             }
         });
-        this.parent.clearColumnFilters();
-        this.parent.searchFilterJoin = (_b = this.$dialog) === null || _b === void 0 ? void 0 : _b.find("#searchFilterJoin").val();
-        this.parent.currentPage = 1;
-        this.parent.getPage((response) => this.getPageCallback(response));
+        if (this.parent instanceof DbNetGrid) {
+            const grid = this.parent;
+            grid.clearColumnFilters();
+            grid.searchFilterJoin = (_b = this.$dialog) === null || _b === void 0 ? void 0 : _b.find("#searchFilterJoin").val();
+            grid.currentPage = 1;
+            grid.getPage((response) => this.getPageCallback(response));
+        }
+        else {
+            const edit = this.parent;
+            edit.searchFilterJoin = (_c = this.$dialog) === null || _c === void 0 ? void 0 : _c.find("#searchFilterJoin").val();
+            edit.currentRow = 1;
+            edit.getRows((response) => this.getPageCallback(response));
+        }
     }
     getPageCallback(response) {
         if (response.searchParams) {

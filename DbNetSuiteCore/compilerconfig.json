@@ -4,6 +4,10 @@
     "inputFile": "Resources/SCSS/dbnetsuite.scss"
   },
   {
+    "outputFile": "Resources/CSS/dbnetgrid.css",
+    "inputFile": "Resources/SCSS/dbnetgrid.scss"
+  },
+  {
     "outputFile": "Resources/CSS/dbnetcombo.css",
     "inputFile": "Resources/SCSS/dbnetcombo.scss"
   },

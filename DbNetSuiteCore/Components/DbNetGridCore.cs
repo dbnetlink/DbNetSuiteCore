@@ -12,7 +12,6 @@ namespace DbNetSuiteCore.Components
 {
     public class DbNetGridCore : DbNetGridEditCore
     {
-        private readonly string _fromPart;
          /// <summary>
         /// Automatically selects the first row of the grid (default is true)
         /// </summary>
@@ -98,21 +97,12 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public bool? Search { get; set; } = null;
         /// <summary>
-        /// Controls the style of the toolbar button
-        /// </summary>
-        public ToolbarButtonStyle? ToolbarButtonStyle { get; set; } = null;
-        /// <summary>
-        /// Controls the position of the toolbar
-        /// </summary>
-        public ToolbarPosition? ToolbarPosition { get; set; } = null;
-        /// <summary>
         /// Adds/removes a view dialog option to the toolbar
         /// </summary>
         public bool? View { get; set; } = null;
 
-        public DbNetGridCore(string connection, string fromPart, string id = null, DataSourceType dataSourceType = DataSourceType.TableOrView) : base(connection, id)
+        public DbNetGridCore(string connection, string fromPart, string id = null, DataSourceType dataSourceType = DataSourceType.TableOrView) : base(connection, fromPart, id)
         {
-            _fromPart = fromPart;
             if (dataSourceType == DataSourceType.StoredProcedure)
             {
                 ProcedureName = fromPart;

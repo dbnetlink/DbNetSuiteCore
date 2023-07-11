@@ -1,4 +1,11 @@
 "use strict";
+var MessageBoxType;
+(function (MessageBoxType) {
+    MessageBoxType[MessageBoxType["Error"] = 0] = "Error";
+    MessageBoxType[MessageBoxType["Warning"] = 1] = "Warning";
+    MessageBoxType[MessageBoxType["Info"] = 2] = "Info";
+    MessageBoxType[MessageBoxType["Question"] = 3] = "Question";
+})(MessageBoxType || (MessageBoxType = {}));
 class DbNetSuite {
     constructor(id) {
         this.datePickerOptions = {};
@@ -29,7 +36,7 @@ class DbNetSuite {
             return;
         this.eventHandlers[event].forEach((f) => {
             if (f == handler)
-                f = function () { };
+                f = function () { return; };
         });
     }
     checkStyleSheetLoaded() {
@@ -145,6 +152,17 @@ class DbNetSuite {
         this.linkedControls.forEach((control) => {
             control.configureLinkedControl(control, fk);
         });
+    }
+    showMessageBox(message, type, callback) {
+        if (this.messageBox == undefined) {
+            this.post("message-box", {})
+                .then((response) => {
+                var _a;
+                (_a = this.element) === null || _a === void 0 ? void 0 : _a.append(response.dialog);
+                this.messageBox = new MessageBox(`${this.id}_message_box`);
+            });
+        }
+        this.messageBox.show(message, type);
     }
     configureLinkedControl(control, fk) {
         if (control instanceof DbNetGrid) {

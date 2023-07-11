@@ -36,13 +36,12 @@
 </div>
 @functions
 {
-    public string Attributes(EditColumn editColumn, DataColumn dataColumn)
+    public string Attributes(EditColumn editColumn, DataColumn dataColumn, int size = 0)
     {
         List<string> attributes = new List<string>();
         string inputType = null;
         string disabled = editColumn.PrimaryKey ? "disabled" : string.Empty;
-        int size = editColumn.ColumnSize == -1 ? 20 : editColumn.ColumnSize;
-  
+
         switch (editColumn.EditControlType)
         {
             case EditControlType.Auto:
@@ -59,11 +58,21 @@
             attributes.Add(disabled);
         }
         attributes.Add($"name=\"{dataColumn.ColumnName.ToLower()}\"");
-        attributes.Add($"size=\"{size.ToString()}\"");
+        if (size > 0)
+        {
+            attributes.Add($"size=\"{size.ToString()}\"");
+        }
+        attributes.Add($"class=\"dbnetedit\"");
         return string.Join(" ", attributes.ToArray());
     }
+
     public HtmlString FormControl(EditColumn editColumn, DataColumn dataColumn)
     {
+        int size = editColumn.ColumnSize == -1 ? 20 : editColumn.ColumnSize;
+        if (string.IsNullOrEmpty(editColumn.Lookup) == false)
+        {
+            return new HtmlString($"<select {Attributes(editColumn, dataColumn)} >{LookupOptions(Model.LookupTables[editColumn.ColumnName])}</select>");
+        }
         string tagName = "input";
         switch(editColumn.EditControlType)
         {
@@ -72,6 +81,21 @@
                 break;
         }
         
-        return new HtmlString($"<{tagName} {Attributes(editColumn, dataColumn)} class=\"dbnetedit\"></{tagName}>");
+        return new HtmlString($"<{tagName} {Attributes(editColumn, dataColumn, size)}></{tagName}>");
+    }
+
+    public string LookupOptions(DataTable data)
+    {
+        List<string> options = new List<string>();
+
+        int descriptionColumn = data.Columns.Count - 1;
+        options.Add($"<option></option>");
+
+        foreach (DataRow row in data.Rows)
+        {
+            options.Add($"<option value=\"{row[0].ToString()}\">{row[descriptionColumn].ToString()}</option>");
+        }
+
+        return string.Join(string.Empty, options.ToArray());
     }
 }

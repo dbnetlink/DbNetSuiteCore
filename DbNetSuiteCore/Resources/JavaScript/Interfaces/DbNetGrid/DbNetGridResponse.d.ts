@@ -1,10 +1,6 @@
-interface DbNetGridResponse extends DbNetSuiteResponse {
-    toolbar: string;
+interface DbNetGridResponse extends DbNetGridEditResponse {
     data: string;
     currentPage: number;
     totalPages: number;
-    totalRows: number;
     columns?: GridColumn[];
-    record?: Dictionary<string>;
-    searchParams?: Array<SearchParam>;
 }

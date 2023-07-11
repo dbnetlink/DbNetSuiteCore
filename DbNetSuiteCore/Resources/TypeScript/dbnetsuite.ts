@@ -19,6 +19,13 @@ type EventHandler = {
     params: object | undefined;
 };
 
+enum MessageBoxType {
+    Error,
+    Warning,
+    Info,
+    Question
+}
+
 class DbNetSuite {
     public static DBNull = "DBNull";
     public datePickerOptions: JQueryUI.DatepickerOptions = {};
@@ -30,7 +37,7 @@ class DbNetSuite {
     protected connectionType: DbConnectionType = "SqlServer";
     protected culture = "";
     protected linkedControls: Array<DbNetSuite> = [];
-
+    protected messageBox: MessageBox | undefined;
 
     public initialised = false;
 
@@ -59,7 +66,7 @@ class DbNetSuite {
 
         this.eventHandlers[event].forEach((f) => {
             if (f == handler)
-                f = function () { };
+                f = function () { return; };
         })
     }
 
@@ -90,7 +97,7 @@ class DbNetSuite {
         const events = this.eventHandlers[event];
 
         events.forEach((method: EventHandler) => {
-            let args:object[] = [this];
+            let args: object[] = [this];
 
             if (params) {
                 args = args.concat([params]);
@@ -189,6 +196,17 @@ class DbNetSuite {
         this.linkedControls.forEach((control) => {
             control.configureLinkedControl(control, fk);
         });
+    }
+
+    protected showMessageBox(message: string, type: MessageBoxType, callback: Function) {
+        if (this.messageBox == undefined) {
+            this.post<MessageBoxResponse>("message-box", {})
+                .then((response) => {
+                    this.element?.append(response.dialog);
+                    this.messageBox = new MessageBox(`${this.id}_message_box`);
+                });
+        }
+        this.messageBox.show(message, type)
     }
 
     private configureLinkedControl(control: DbNetSuite, fk: object | null) {
