@@ -53,6 +53,9 @@ class DbNetGrid extends DbNetGridEdit {
         this.rowSelect = true;
         this.totalPages = 0;
         this.view = false;
+        if (this.toolbarPosition === undefined) {
+            this.toolbarPosition = "Top";
+        }
     }
     initialize() {
         if (!this.element) {

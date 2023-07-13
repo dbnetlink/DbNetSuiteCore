@@ -6,13 +6,36 @@ table.dbnetedit-form {
         font-size: var(--main-font-size);
     }
 
+    td {
+        display: table-cell;
+        vertical-align: middle;
+    }
+
     input, textarea, select {
         font-family: var(--main-font-family);
         font-size: var(--main-font-size);
     }
 
+    input, select {
+        height: 24px;
+    }
+
+    input[type='checkbox'] {
+        transform: scale(1.5);
+        vertical-align: middle;
+        margin-left: 3px;
+    }
+
+    input[numeric='true'] {
+        text-align: right;
+    }
+
     textarea {
         width: 100%;
+    }
+
+    .toolbar-button {
+        margin-left: 2px;
     }
 }
 
@@ -25,7 +48,8 @@ table.dbnetedit-form {
         font-weight: normal;
         vertical-align: middle;
         padding: 5px;
-        margin-top: 5px;
+        margin: 2px 0px 2px 0px;
+        background-color:whitesmoke;
 
         &.highlight {
             background-color: #FFD54F;

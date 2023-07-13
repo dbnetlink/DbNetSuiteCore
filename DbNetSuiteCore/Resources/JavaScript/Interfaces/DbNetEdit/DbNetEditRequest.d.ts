@@ -4,4 +4,5 @@ interface DbNetEditRequest extends DbNetGridEditRequest {
     currentRow: number | undefined;
     totalRows: number;
     primaryKey: string;
+    layoutColumns: number;
 }

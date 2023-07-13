@@ -2,16 +2,21 @@ class DbNetEdit extends DbNetGridEdit {
     changes: Dictionary<object> = {};
     currentRow = 1;
     formPanel: JQuery<HTMLElement> | undefined;
+    layoutColumns = 1;
+    messagePanel: JQuery<HTMLElement> | undefined;
+    primaryKey = "";
     search = true;
     totalRows = 0;
-    primaryKey = "";
 
     constructor(id: string) {
         super(id);
+        if (this.toolbarPosition == undefined) {
+            this.toolbarPosition = "Bottom";
+        }
     }
 
     initialize(): void {
-        if(!this.element) {
+        if (!this.element) {
             return;
         }
         this.element.empty();
@@ -53,17 +58,46 @@ class DbNetEdit extends DbNetGridEdit {
         }
         if (response.form) {
             this.formPanel?.html(response.form);
+            this.configureForm();
         }
 
         this.updateForm(response);
     }
 
+    private configureForm() {
+        const $inputs = this.formPanel?.find(`:input[name]`) as JQuery<HTMLFormElement>;
+        for (let i = 0; i < $inputs.length; i++) {
+            const $input = $($inputs[i]);
+            this.fireEvent("onFormElementCreated", { formElement: $input[0], columnName: $input.attr("name") });
+        }
+
+        this.formPanel?.find("[button-type='calendar']").on("click", (event) => this.selectDate(event));
+        this.formPanel?.find("[button-type='clock']").on("click", (event) => this.selectTime(event));
+        this.formPanel?.find("[button-type='lookup']").on("click", (event) => this.editLookup(event));
+
+        this.formPanel?.find("input[datatype='DateTime'").get().forEach(e => {
+            const $input = $(e as HTMLInputElement);
+            this.addDatePicker($input, this.datePickerOptions);
+        });
+    }
+
     private updateForm(response: DbNetEditResponse) {
+        if (response.totalRows == 0) {
+            this.formPanel?.find(':input').val('').not("[primarykey='true']").prop('checked', false).prop('selected', false).prop("disabled", true);
+            return;
+        }
+        this.formPanel?.find(':input').not("[primarykey='true']").prop("disabled", false);
         const record = response.record;
         for (const columnName in record) {
             const $input = this.formPanel?.find(`:input[name='${columnName}']`) as JQuery<HTMLFormElement>;
-            const value = record[columnName].toString();
-            $input.val(value).data("value", value);
+            const value = record[columnName];
+            if ($input.attr("type") == "checkbox") {
+                const checked = (value as unknown as boolean === true)
+                $input.prop("checked", checked).data("value", checked);
+            }
+            else {
+                $input.val(value.toString()).data("value", value.toString());
+            }
         }
 
         this.primaryKey = response.primaryKey as string;
@@ -87,21 +121,22 @@ class DbNetEdit extends DbNetGridEdit {
     }
     public getRequest(): DbNetEditRequest {
         const request: DbNetEditRequest = {
+            changes: this.changes,
             componentId: this.id,
             connectionString: this.connectionString,
-            fromPart: this.fromPart,
             columns: this.columns.map((column) => { return column as EditColumnRequest }),
             currentRow: this.currentRow,
             culture: this.culture,
-            search: this.search,
-            searchFilterJoin: this.searchFilterJoin,
-            searchParams: this.searchParams,
+            fromPart: this.fromPart,
+            layoutColumns: this.layoutColumns,
             navigation: this.navigation,
             quickSearch: this.quickSearch,
             quickSearchToken: this.quickSearchToken,
+            search: this.search,
+            searchFilterJoin: this.searchFilterJoin,
+            searchParams: this.searchParams,
             totalRows: this.totalRows,
             primaryKey: this.primaryKey,
-            changes: this.changes
         };
 
         return request;
@@ -157,7 +192,9 @@ class DbNetEdit extends DbNetGridEdit {
                 display: col.display,
                 dataType: col.dataType,
                 primaryKey: col.primaryKey,
-                index: col.index
+                index: col.index,
+                editControlType: col.editControlType,
+                pattern: col.pattern
             } as unknown as EditColumnResponse;
             this.columns.push(new EditColumn(properties));
         });
@@ -201,7 +238,7 @@ class DbNetEdit extends DbNetGridEdit {
             case this.controlElementId("SearchBtn"):
             case this.controlElementId("CancelBtn"):
             case this.controlElementId("ApplyBtn"):
-             break;
+                break;
             default:
                 return;
         }
@@ -225,12 +262,27 @@ class DbNetEdit extends DbNetGridEdit {
     }
 
     private applyChanges() {
-        const changes: Dictionary<object> = {}
+        const changes: Dictionary<object> = {};
+        let validForm = true;
         this.formPanel?.find(':input.dbnetedit,select.dbnetedit').each(
             function (index) {
                 const $input = $(this);
-                if ($input.val() != $input.data("value")) {
-                    changes[$input.attr("name") as string] = $input.val() as object;
+                const name = $input.attr("name") as string;
+                if ($input.attr("type") == "checkbox") {
+                    if ($input.prop("checked") != $input.data("value")) {
+                        changes[name] = $input.prop("checked");
+                    }
+                }
+                else {
+                    if ($input.attr("pattern")) {
+                        const valid = ($input[0] as HTMLInputElement).reportValidity();
+                        if (!valid) {
+                            validForm = false;
+                        }
+                    }
+                    if ($input.val() != $input.data("value")) {
+                        changes[name] = $input.val() as object;
+                    }
                 }
             }
         );
@@ -238,8 +290,10 @@ class DbNetEdit extends DbNetGridEdit {
         if ($.isEmptyObject(changes)) {
             return
         }
-        this.changes = changes;
-        this.callServer("applychanges");
+        if (validForm) {
+            this.changes = changes;
+            this.callServer("applychanges");
+        }
     }
 
     private message(msg: string): void {
@@ -251,4 +305,21 @@ class DbNetEdit extends DbNetGridEdit {
         this.formPanel?.find(".message").html("&nbsp;").removeClass("highlight");
     }
 
- }
+    private selectDate(event: JQuery.TriggeredEvent): void {
+        const $button = $(event.target as HTMLInputElement);
+        $button.parent().find("input").datepicker("show");
+    }
+
+    private editLookup(event: JQuery.TriggeredEvent): void {
+        const $button = $(event.target as HTMLInputElement);
+        const $input = $button.parent().find("input");
+        const request = this.getRequest();
+        this.lookup($input, request);
+    }
+
+    private selectTime(event: JQuery.TriggeredEvent): void {
+        const $button = $(event.target as HTMLInputElement);
+        $button.parent().find("input").timepicker('open');
+        event.stopPropagation();
+    }
+}

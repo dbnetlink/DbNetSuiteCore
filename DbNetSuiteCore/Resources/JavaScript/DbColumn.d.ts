@@ -2,15 +2,16 @@ declare class DbColumn {
     columnExpression?: string;
     columnName?: string;
     columnKey?: string;
-    label?: string;
-    format?: string;
-    lookup?: string;
-    style?: string;
-    unmatched: boolean;
+    dataType?: string;
+    display?: boolean;
     foreignKey?: boolean;
     foreignKeyValue?: object | string;
-    display?: boolean;
-    primaryKey?: boolean;
+    format?: string;
     index?: number;
-    dataType?: string;
+    label?: string;
+    lookup?: string;
+    primaryKey?: boolean;
+    columnSize?: number;
+    style?: string;
+    unmatched: boolean;
 }

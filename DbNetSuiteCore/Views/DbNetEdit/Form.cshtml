@@ -13,20 +13,35 @@
 
 @{
     DataRow row = Model.EditData.Rows[0];
-}
+    List<KeyValuePair<EditColumn, DataColumn>> fields = new List<KeyValuePair<EditColumn, DataColumn>>();
+    @foreach (DataColumn dataColumn in Model.EditData.Columns)
+    {
+        EditColumn editColumn = Model.Columns[dataColumn.Ordinal];
+        if (editColumn.Display == false)
+        {
+            continue;
+        }
+        fields.Add(new KeyValuePair<EditColumn, DataColumn>(editColumn, dataColumn));
+    }
 
+    int rows = Math.Abs(fields.Count / Model.LayoutColumns) + (fields.Count % Model.LayoutColumns == 0 ? 0 : 1);
+}
 <table class="dbnetedit-form">
     <tbody>
-        @foreach (DataColumn dataColumn in Model.EditData.Columns)
+        @for (int r = 0; r < rows; r++)
         {
-            EditColumn editColumn = Model.Columns[dataColumn.Ordinal];
-            if (editColumn.Display == false)
-            {
-                continue;
-            }
             <tr class="form-row">
-                <td class="label">@(editColumn.Label)</td>
-                <td>@FormControl(editColumn,dataColumn)</td>
+                @for (int c = 1; c <= Model.LayoutColumns; c++)
+                {
+                    int i = r + ((c - 1) * rows);
+                    if (i < fields.Count)
+                    {
+                        EditColumn editColumn = fields[i].Key;
+                        DataColumn dataColumn = fields[i].Value;
+                        <td class="label">@(editColumn.Label)</td>
+                        <td class="control">@FormControl(editColumn,dataColumn)</td>
+                    }
+                }
             </tr>
         }
     </tbody>
@@ -36,7 +51,65 @@
 </div>
 @functions
 {
-    public string Attributes(EditColumn editColumn, DataColumn dataColumn, int size = 0)
+    public HtmlString FormControl(EditColumn editColumn, DataColumn dataColumn)
+    {
+        int size = editColumn.ColumnSize == -1 ? editColumn.DefaultColumnSize : editColumn.ColumnSize;
+        if (string.IsNullOrEmpty(editColumn.Lookup) == false)
+        {
+            switch (editColumn.EditControlType)
+            {
+                case EditControlType.SuggestLookup:
+                    if (editColumn.LookupColumns == 1)
+                    {
+                        return DataListLookup(editColumn, dataColumn);
+                    }
+                    break;
+                case EditControlType.DropDownList:
+                    return new HtmlString($"<select {string.Join(" ", Attributes(editColumn, dataColumn))} >{LookupOptions(Model.LookupTables[editColumn.ColumnName])}</select>");
+
+            }
+        }
+        string tagName = "input";
+        switch (editColumn.EditControlType)
+        {
+            case EditControlType.TextArea:
+                tagName = "textarea";
+                break;
+        }
+
+        string button = string.Empty;
+        if (editColumn.DataType.Equals(nameof(DateTime)))
+        {
+            button = AddButton("calendar", "SelectDate");
+        }
+        else if (editColumn.DataType.Equals(nameof(TimeSpan)))
+        {
+            button = AddButton("clock", "SelectTime");
+        }
+        else if (string.IsNullOrEmpty(editColumn.Lookup) == false)
+        {
+            button = AddButton("lookup", "OpenTheLookupWindow");
+        }
+
+        return new HtmlString($"<{tagName} {string.Join(" ", Attributes(editColumn, dataColumn, size))}></{tagName}>{button}");
+    }
+
+    private HtmlString DataListLookup(EditColumn editColumn, DataColumn dataColumn)
+    {
+        var attributes = Attributes(editColumn, dataColumn);
+        string id = $"{Model.ComponentId}_{editColumn.ColumnName}";
+        attributes.Add($"list=\"{id}\"");
+        string datalist = $"<input {string.Join(" ", attributes)}></input><datalist id=\"{id}\">{LookupOptions(Model.LookupTables[editColumn.ColumnName])}</datalist>";
+        return new HtmlString(datalist);
+    }
+
+    private string AddButton(string type, string title)
+    {
+        string button = $"<button type=\"button\" class=\"toolbar-button toolbar-button-image\" title=\"{Model.Translate(title)}\" button-type=\"{type.ToLower()}\" id=\"{Model.ComponentId}_{type}Btn\"></button>";
+        return button;
+    }
+
+    public List<string> Attributes(EditColumn editColumn, DataColumn dataColumn, int size = 0)
     {
         List<string> attributes = new List<string>();
         string inputType = null;
@@ -47,6 +120,24 @@
             case EditControlType.Auto:
                 inputType = "text";
                 break;
+            case EditControlType.CheckBox:
+                inputType = "checkbox";
+                break;
+        }
+
+        if (string.IsNullOrEmpty(editColumn.Pattern) == false)
+        {
+            attributes.Add($"pattern=\"{editColumn.Pattern}\"");
+        }
+
+        if (editColumn.IsNumeric)
+        {
+            attributes.Add($"numeric=\"true\"");
+        }
+
+        if (editColumn.PrimaryKey)
+        {
+            attributes.Add($"primarykey=\"true\"");
         }
 
         if (string.IsNullOrEmpty(inputType) == false)
@@ -62,26 +153,19 @@
         {
             attributes.Add($"size=\"{size.ToString()}\"");
         }
-        attributes.Add($"class=\"dbnetedit\"");
-        return string.Join(" ", attributes.ToArray());
-    }
 
-    public HtmlString FormControl(EditColumn editColumn, DataColumn dataColumn)
-    {
-        int size = editColumn.ColumnSize == -1 ? 20 : editColumn.ColumnSize;
-        if (string.IsNullOrEmpty(editColumn.Lookup) == false)
+        switch (editColumn.EditControlType)
         {
-            return new HtmlString($"<select {Attributes(editColumn, dataColumn)} >{LookupOptions(Model.LookupTables[editColumn.ColumnName])}</select>");
-        }
-        string tagName = "input";
-        switch(editColumn.EditControlType)
-        {
-            case EditControlType.TextArea:
-                tagName = "textarea";
+            case EditControlType.TextBoxLookup:
+                attributes.Add($"readonly");
                 break;
         }
-        
-        return new HtmlString($"<{tagName} {Attributes(editColumn, dataColumn, size)}></{tagName}>");
+
+        attributes.Add($"format=\"{editColumn.Format}\"");
+        attributes.Add($"dataType=\"{editColumn.DataType}\"");
+        attributes.Add($"columnIndex=\"{editColumn.Index}\"");
+        attributes.Add($"class=\"dbnetedit\"");
+        return attributes;
     }
 
     public string LookupOptions(DataTable data)
@@ -98,4 +182,19 @@
 
         return string.Join(string.Empty, options.ToArray());
     }
-}
+
+    public string DataListOptions(DataTable data)
+    {
+        List<string> options = new List<string>();
+
+        int descriptionColumn = data.Columns.Count - 1;
+        options.Add($"<option></option>");
+
+        foreach (DataRow row in data.Rows)
+        {
+            options.Add($"<option value=\"{row[descriptionColumn].ToString()}\"></option>");
+        }
+
+        return string.Join(string.Empty, options.ToArray());
+    }
+    }

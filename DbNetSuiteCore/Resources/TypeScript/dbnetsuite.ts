@@ -1,4 +1,4 @@
-type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded"
+type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated"
 
 interface CellDataDownloadArgs {
     row: HTMLTableRowElement,
@@ -10,8 +10,8 @@ interface CellDataDownloadArgs {
 }
 
 interface ViewRecordSelectedArgs {
-    dialog: JQuery<HTMLElement>,
-    record: Dictionary<string>
+    dialog: JQuery<HTMLElement> | undefined,
+    record: Dictionary<object> | undefined
 }
 
 type EventHandler = {
@@ -41,7 +41,11 @@ class DbNetSuite {
 
     public initialised = false;
 
-    constructor(id: string) {
+    constructor(id: string | null) {
+
+        if (id == null) {
+            return;
+        }
         this.id = id;
         this.element = $(`#${this.id}`) as JQuery<HTMLElement>;
         this.element.addClass("dbnetsuite").addClass("cleanslate").addClass("empty");
@@ -207,6 +211,40 @@ class DbNetSuite {
                 });
         }
         this.messageBox.show(message, type)
+    }
+
+    protected addDatePicker($input: JQuery<HTMLInputElement>, datePickerOptions: JQueryUI.DatepickerOptions) {
+        const options = datePickerOptions;
+        const formats = { D: "DD, MM dd, yy", DDDD: "DD", DDD: "D", MMMM: "MM", MMM: "M", M: "m", MM: "mm", yyyy: "yy" };
+
+        let format: string = $input.attr("format") as string;
+
+        let pattern: keyof typeof formats;
+        for (pattern in formats) {
+            const re = new RegExp(`\\b${pattern}\\b`);
+            format = format.replace(re, formats[pattern]);
+        }
+        if (format != undefined)
+            if (format != $input.attr("format"))
+                options.dateFormat = format;
+
+        options.onSelect = this.pickerSelected;
+
+        $input.datepicker(options);
+    }
+
+    private pickerSelected() {
+        const $row = $(this).closest("tr").parent().closest("tr");
+        const $select = $row.find("select");
+        if ($select.val() == "") {
+            $select.prop("selectedIndex", 1)
+        }
+    }
+
+    protected addTimePicker($input: JQuery<HTMLInputElement>) {
+        const options = { "zindex": 100000 };
+        options.change = this.pickerSelected;
+        $input.timepicker(options);
     }
 
     private configureLinkedControl(control: DbNetSuite, fk: object | null) {

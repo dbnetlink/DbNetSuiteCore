@@ -17,6 +17,9 @@ class DbNetSuite {
         this.culture = "";
         this.linkedControls = [];
         this.initialised = false;
+        if (id == null) {
+            return;
+        }
         this.id = id;
         this.element = $(`#${this.id}`);
         this.element.addClass("dbnetsuite").addClass("cleanslate").addClass("empty");
@@ -163,6 +166,33 @@ class DbNetSuite {
             });
         }
         this.messageBox.show(message, type);
+    }
+    addDatePicker($input, datePickerOptions) {
+        const options = datePickerOptions;
+        const formats = { D: "DD, MM dd, yy", DDDD: "DD", DDD: "D", MMMM: "MM", MMM: "M", M: "m", MM: "mm", yyyy: "yy" };
+        let format = $input.attr("format");
+        let pattern;
+        for (pattern in formats) {
+            const re = new RegExp(`\\b${pattern}\\b`);
+            format = format.replace(re, formats[pattern]);
+        }
+        if (format != undefined)
+            if (format != $input.attr("format"))
+                options.dateFormat = format;
+        options.onSelect = this.pickerSelected;
+        $input.datepicker(options);
+    }
+    pickerSelected() {
+        const $row = $(this).closest("tr").parent().closest("tr");
+        const $select = $row.find("select");
+        if ($select.val() == "") {
+            $select.prop("selectedIndex", 1);
+        }
+    }
+    addTimePicker($input) {
+        const options = { "zindex": 100000 };
+        options.change = this.pickerSelected;
+        $input.timepicker(options);
     }
     configureLinkedControl(control, fk) {
         if (control instanceof DbNetGrid) {

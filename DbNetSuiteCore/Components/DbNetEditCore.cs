@@ -13,17 +13,10 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public string ForeignKeyColumn { get; set; } = null;
         /// <summary>
-        /// Adds/removes a page navigation to/from the toolbar
+        /// Specifies the number of columns over which the edit fields are distributed
         /// </summary>
-        public bool? Navigation { get; set; } = null;
-        /// <summary>
-        /// Displays a search box in the toolbar that allows for searching against all the text based columns
-        /// </summary>
-        public bool? QuickSearch { get; set; } = null;
-        /// <summary>
-        /// Adds/removes a search dialog option to/from the toolbar
-        /// </summary>
-        public bool? Search { get; set; } = null;
+        public int LayoutColumns { get; set; } = 1;
+
         public DbNetEditCore(string connection, string fromPart, string id = null) : base(connection, fromPart, id)
         {
         }
@@ -129,7 +122,10 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             AddProperty(QuickSearch, nameof(QuickSearch), properties);
             AddProperty(Search, nameof(Search), properties);
             AddProperty(Culture, nameof(Culture), properties);
+            AddProperty(LayoutColumns.ToString(), nameof(LayoutColumns), properties);
             //AddProperty(EncodingHelper.Encode(FixedFilterSql), nameof(FixedFilterSql), properties);
+            properties.Add($"datePickerOptions = {DatePickerOptions()};");
+
             return string.Join(Environment.NewLine, properties);
         }
     }

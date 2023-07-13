@@ -47,8 +47,8 @@
                 @NestedGridCell(true)
                 @foreach (DataColumn column in Model.GridData.Columns)
                 {
-                    GridColumn gridColumn = Model.Columns.First( c => c.IsMatch(column.ColumnName));
-                    @ColumnFilter(gridColumn);
+                    GridColumn gridColumn = Model.Columns.First(c => c.IsMatch(column.ColumnName));
+                    @ColumnFilter(gridColumn)
                 }
                 @if (Model.MultiRowSelectLocation == MultiRowSelectLocation.Right)
                 {
@@ -179,25 +179,22 @@
 
         if (column.DataType == nameof(Boolean))
         {
+
             switch (Model.BooleanDisplayMode)
             {
                 case BooleanDisplayMode.Checkbox:
                     return string.Empty;
                 case BooleanDisplayMode.YesNo:
                     return BooleanHelper.YesNo(dataValue.ToString());
+                default:
+                    return $"<input type=\"checkbox\" class=\"boolean-value\" {BooleanHelper.Checked(dataValue.ToString())} onclick=\"return false;\" />";
             }
         }
         try
         {
-            switch (column.DataType)
+            if (column.IsNumeric)
             {
-                case nameof(Decimal):
-                case nameof(Double):
-                case nameof(Single):
-                case nameof(Int64):
-                case nameof(Int32):
-                case nameof(Int16):
-                    return Convert.ToDecimal(dataValue).ToString(column.Format);
+                return Convert.ToDecimal(dataValue).ToString(column.Format);
             }
         }
         catch { }

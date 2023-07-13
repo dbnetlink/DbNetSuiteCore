@@ -61,10 +61,6 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public MultiRowSelectLocation? MultiRowSelectLocation { get; set; } = null;
         /// <summary>
-        /// Adds/removes a page navigation to/from the toolbar
-        /// </summary>
-        public bool? Navigation { get; set; } = null;
-        /// <summary>
         /// The grid component that is nested inside this grid
         /// </summary>
         public DbNetGridCore NestedGrid { get; set; } = null;
@@ -85,17 +81,9 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public Dictionary<string, object> ProcedureParams { get; set; } =  new Dictionary<string, object>();
         /// <summary>
-        /// Displays a search box in the toolbar that allows for searching against all the text based columns
-        /// </summary>
-        public bool? QuickSearch { get; set; } = null;
-        /// <summary>
         /// Highlights the selected row (default is true)
         /// </summary>
         public bool? RowSelect { get; set; } = null;
-        /// <summary>
-        /// Adds/removes a search dialog option to/from the toolbar
-        /// </summary>
-        public bool? Search { get; set; } = null;
         /// <summary>
         /// Adds/removes a view dialog option to the toolbar
         /// </summary>
@@ -280,12 +268,6 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             }
 
             return NestedGrid.NestedRender();
-        }
-
-        private string DatePickerOptions()
-        {
-            DatePickerOptions datePickerOptions = new DatePickerOptions(this.Culture);
-            return Serialize(datePickerOptions);
         }
     }
 }

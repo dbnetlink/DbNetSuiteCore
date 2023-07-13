@@ -16,7 +16,7 @@ class SearchDialog extends Dialog {
         });
         (_g = this.$dialog) === null || _g === void 0 ? void 0 : _g.find("input[datatype='DateTime'").get().forEach(e => {
             const $input = $(e);
-            this.addDatePicker($input);
+            this.addDatePicker($input, this.parent.datePickerOptions);
         });
         (_h = this.$dialog) === null || _h === void 0 ? void 0 : _h.find("input[datatype='TimeSpan'").get().forEach(e => {
             const $input = $(e);
@@ -51,13 +51,6 @@ class SearchDialog extends Dialog {
                 $row.find(".between").hide();
                 $row.find("input").show().width(240);
                 break;
-        }
-    }
-    pickerSelected() {
-        const $row = $(this).closest("tr").parent().closest("tr");
-        const $select = $row.find("select");
-        if ($select.val() == "") {
-            $select.prop("selectedIndex", 1);
         }
     }
     criteriaEntered(input) {
@@ -158,25 +151,5 @@ class SearchDialog extends Dialog {
                 this.message(response.message);
             }
         }
-    }
-    addDatePicker($input) {
-        const options = this.parent.datePickerOptions;
-        const formats = { D: "DD, MM dd, yy", DDDD: "DD", DDD: "D", MMMM: "MM", MMM: "M", M: "m", MM: "mm", yyyy: "yy" };
-        let format = $input.attr("format");
-        let pattern;
-        for (pattern in formats) {
-            const re = new RegExp(`\\b${pattern}\\b`);
-            format = format.replace(re, formats[pattern]);
-        }
-        if (format != undefined)
-            if (format != $input.attr("format"))
-                options.dateFormat = format;
-        options.onSelect = this.pickerSelected;
-        $input.datepicker(options);
-    }
-    addTimePicker($input) {
-        const options = { "zindex": 100000 };
-        options.change = this.pickerSelected;
-        $input.timepicker(options);
     }
 }

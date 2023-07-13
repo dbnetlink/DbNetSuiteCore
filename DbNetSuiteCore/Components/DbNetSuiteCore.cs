@@ -172,7 +172,6 @@ function init_{_id}()
             script = _linkedControls.Select(x => $"addLinkedControl({x.Id});").ToList();
             return string.Join(Environment.NewLine, script);
         }
-
         protected string ConfigureLinkedControls()
         {
             var script = string.Empty;
@@ -195,6 +194,11 @@ function init_{_id}()
             }
 
             return script;
+        }
+        protected string DatePickerOptions()
+        {
+            DatePickerOptions datePickerOptions = new DatePickerOptions(this.Culture);
+            return Serialize(datePickerOptions);
         }
     }
 }

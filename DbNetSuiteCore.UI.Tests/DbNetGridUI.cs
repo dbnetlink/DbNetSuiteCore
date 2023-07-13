@@ -127,6 +127,18 @@ namespace DbNetSuiteCore.UI.Tests
         }
 
         [Fact]
+        public void BooleanSearchDialogTest()
+        {
+            List<SearchTemplate> searchTemplates = new List<SearchTemplate>
+            {
+                new SearchTemplate(SearchOperator.True, 8),
+                new SearchTemplate(SearchOperator.False, 69),
+            };
+
+            ApplySearchTemplates(searchTemplates, "products", "Discontinued");
+        }
+
+        [Fact]
         public void NullSearchDialogTest()
         {
             List<SearchTemplate> searchTemplates = new List<SearchTemplate>
@@ -238,6 +250,8 @@ namespace DbNetSuiteCore.UI.Tests
                             break;
                         case SearchOperator.IsNull:
                         case SearchOperator.IsNotNull:
+                        case SearchOperator.True:
+                        case SearchOperator.False:
                             break;
                         default:
                             inputs.First().SendKeys(searchTemplate.Token1);

@@ -4,7 +4,7 @@
 /// <reference types="bootstrap" />
 type DbConnectionType = "Sqlite" | "SqlServer";
 type ColumnPropertyType = "format" | "lookup" | "style" | "foreignKey" | "filter" | "filterMode" | "download" | "image";
-type ToolbarPosition = "Top" | "Bottom" | "Hidden";
+type ToolbarPosition = "Top" | "Bottom" | "Hidden" | undefined;
 declare enum ToolbarButtonStyle {
     Image = 0,
     Text = 1,

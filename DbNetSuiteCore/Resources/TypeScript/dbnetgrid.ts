@@ -1,6 +1,6 @@
 type DbConnectionType = "Sqlite" | "SqlServer"
 type ColumnPropertyType = "format" | "lookup" | "style" | "foreignKey" | "filter" | "filterMode" | "download" | "image"
-type ToolbarPosition = "Top" | "Bottom" | "Hidden"
+type ToolbarPosition = "Top" | "Bottom" | "Hidden" | undefined
 
 enum ToolbarButtonStyle {
     Image,
@@ -63,6 +63,9 @@ class DbNetGrid extends DbNetGridEdit {
     viewDialog: ViewDialog | undefined;
     constructor(id: string) {
         super(id);
+        if (this.toolbarPosition === undefined) {
+            this.toolbarPosition = "Top";
+        }
     }
 
     initialize(): void {

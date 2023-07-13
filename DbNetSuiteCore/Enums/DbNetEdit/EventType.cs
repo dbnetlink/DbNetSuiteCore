@@ -2,6 +2,7 @@
 {
     public enum EventType
     {
-        OnInitialized
+        OnInitialized,
+        OnFormElementCreated
     }
 }

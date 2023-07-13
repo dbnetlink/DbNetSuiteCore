@@ -1,9 +1,10 @@
-﻿class Dialog {
+﻿class Dialog extends DbNetSuite {
     $dialog: JQuery<HTMLElement> | undefined;
     width = 600;
     maxWidth = 800;
 
-    constructor(id:string) {
+    constructor(id: string) {
+        super(null);
         this.$dialog = $(`#${id}`);
         this.$dialog.addClass("dialog");
 

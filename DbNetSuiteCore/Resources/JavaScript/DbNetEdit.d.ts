@@ -6,14 +6,17 @@ declare class DbNetEdit extends DbNetGridEdit {
     changes: Dictionary<object>;
     currentRow: number;
     formPanel: JQuery<HTMLElement> | undefined;
+    layoutColumns: number;
+    messagePanel: JQuery<HTMLElement> | undefined;
+    primaryKey: string;
     search: boolean;
     totalRows: number;
-    primaryKey: string;
     constructor(id: string);
     initialize(): void;
     addLinkedControl(control: DbNetSuite): void;
     getRows(callback?: Function): void;
     private configureEdit;
+    private configureForm;
     private updateForm;
     private callServer;
     getRequest(): DbNetEditRequest;
@@ -25,4 +28,7 @@ declare class DbNetEdit extends DbNetGridEdit {
     private applyChanges;
     private message;
     private clearMessage;
+    private selectDate;
+    private editLookup;
+    private selectTime;
 }

@@ -3,7 +3,6 @@ declare class SearchDialog extends Dialog {
     constructor(id: string, parent: DbNetGridEdit);
     private dialogOpened;
     private configureForOperator;
-    private pickerSelected;
     private criteriaEntered;
     private selectDate;
     private lookup;
@@ -11,6 +10,4 @@ declare class SearchDialog extends Dialog {
     clear(): void;
     private apply;
     private getPageCallback;
-    private addDatePicker;
-    private addTimePicker;
 }

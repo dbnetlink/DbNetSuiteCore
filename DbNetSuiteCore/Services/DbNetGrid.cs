@@ -306,7 +306,7 @@ namespace DbNetSuiteCore.Services
                 foreach (string columnName in ColumnFilters.Keys)
                 {
                     GridColumn col = Columns.First(c => c.IsMatch(columnName));
-                    if (string.IsNullOrEmpty(col.Lookup) || col.FilterMode == FilterColumnSelectMode.List)
+                    if (string.IsNullOrEmpty(col.Lookup) || col.FilterMode == FilterColumnSelectMode.List || col.LookupColumns < 2)
                     {
                         var columnFilter = ParseFilterColumnValue(ColumnFilters[columnName], col);
                         if (columnFilter != null)
@@ -738,23 +738,24 @@ namespace DbNetSuiteCore.Services
                         cell.Style.Font.Bold = true;
                         worksheet.Column(colIdx).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
 
-                        switch (column.DataType)
+                        if (column.IsNumeric)
                         {
-                            case nameof(Double):
-                            case nameof(Decimal):
-                            case nameof(Int32):
-                            case nameof(Int64):
-                                worksheet.Column(colIdx).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
-                                break;
-                            case nameof(DateTime):
-                            case nameof(TimeSpan):
-                                worksheet.Column(colIdx).Width = 10;
-                                break;
-                            case nameof(Boolean):
-                                break;
-                            default:
-                                columnWidths[column.ColumnName] = 0;
-                                break;
+                            worksheet.Column(colIdx).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+                        }
+                        else
+                        {
+                            switch (column.DataType)
+                            {
+                                case nameof(DateTime):
+                                case nameof(TimeSpan):
+                                    worksheet.Column(colIdx).Width = 10;
+                                    break;
+                                case nameof(Boolean):
+                                    break;
+                                default:
+                                    columnWidths[column.ColumnName] = 0;
+                                    break;
+                            }
                         }
                         colIdx++;
                     }
@@ -1072,15 +1073,12 @@ namespace DbNetSuiteCore.Services
                 filterColumnValue = filterColumnValue.Substring(comparisionOperator.Length);
             }
 
+            if (gridColumn.IsNumeric)
+            {
+                return new KeyValuePair<string, object>(comparisionOperator, filterColumnValue);
+            }
             switch (gridColumn.DataType)
             {
-                case nameof(Int16):
-                case nameof(Int32):
-                case nameof(Int64):
-                case nameof(Decimal):
-                case nameof(Single):
-                case nameof(Double):
-                    return new KeyValuePair<string, object>(comparisionOperator, filterColumnValue);
                 case nameof(Boolean):
                     return new KeyValuePair<string, object>("=", Convert.ToBoolean(filterColumnValue));
                 case nameof(DateTime):
@@ -1105,8 +1103,6 @@ namespace DbNetSuiteCore.Services
                     return new KeyValuePair<string, object>("like", $"%{filterColumnValue}%");
             }
         }
-
-       
 
         private bool PrimaryKeySupplied()
         {

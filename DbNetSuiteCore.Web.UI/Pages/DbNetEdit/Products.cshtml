@@ -1,0 +1,12 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums.DbNetEdit;
+@using DbNetSuiteCore.Enums;
+@{
+    DbNetEditCore productsEdit = new DbNetEditCore("northwind_", "products");
+    productsEdit.SetColumnLookup("categoryid", new Lookup("Categories", "CategoryID", "CategoryName"));
+    productsEdit.SetColumnLookup("SupplierID", new Lookup("Suppliers", "SupplierID", "CompanyName"));
+    productsEdit.SetColumnProperty("UnitPrice", ColumnPropertyType.Format, "c");
+
+    @productsEdit.Render()
+}

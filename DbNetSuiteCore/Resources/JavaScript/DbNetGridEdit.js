@@ -12,7 +12,6 @@ class DbNetGridEdit extends DbNetSuite {
         this.searchFilterJoin = "";
         this.searchParams = [];
         this.toolbarButtonStyle = ToolbarButtonStyle.Image;
-        this.toolbarPosition = "Top";
         this.columns = [];
     }
     setColumnExpressions(...columnExpressions) {
@@ -109,7 +108,7 @@ class DbNetGridEdit extends DbNetSuite {
         }
     }
     matchingColumn(dbColumn, columnName) {
-        var _a, _b, _c, _d, _e, _f;
+        var _a, _b, _c, _d, _e, _f, _g, _h;
         let match = false;
         if ((_a = dbColumn.columnKey) === null || _a === void 0 ? void 0 : _a.includes(".")) {
             match = ((_c = (_b = dbColumn.columnKey) === null || _b === void 0 ? void 0 : _b.split('.').pop()) === null || _c === void 0 ? void 0 : _c.toLowerCase()) == columnName.toLowerCase();
@@ -117,8 +116,11 @@ class DbNetGridEdit extends DbNetSuite {
         if (((_e = (_d = dbColumn.columnKey) === null || _d === void 0 ? void 0 : _d.split(' ').pop()) === null || _e === void 0 ? void 0 : _e.toLowerCase()) == columnName.toLowerCase()) {
             match = true;
         }
+        if (((_g = (_f = dbColumn.columnExpression) === null || _f === void 0 ? void 0 : _f.split(' ').pop()) === null || _g === void 0 ? void 0 : _g.toLowerCase()) == columnName.toLowerCase()) {
+            match = true;
+        }
         if (!match) {
-            match = ((_f = dbColumn.columnKey) === null || _f === void 0 ? void 0 : _f.toLowerCase()) == columnName.toLowerCase();
+            match = ((_h = dbColumn.columnKey) === null || _h === void 0 ? void 0 : _h.toLowerCase()) == columnName.toLowerCase();
         }
         return match;
     }

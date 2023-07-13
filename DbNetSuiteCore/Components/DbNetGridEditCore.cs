@@ -23,6 +23,18 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public List<string> Labels { get; set; } = new List<string>();
         /// <summary>
+        /// Displays a search box in the toolbar that allows for searching against all the text based columns
+        /// </summary>
+        public bool? QuickSearch { get; set; } = null;
+        /// <summary>
+        /// Adds/removes a page navigation to/from the toolbar
+        /// </summary>
+        public bool? Navigation { get; set; } = null;
+        /// <summary>
+        /// Adds/removes a search dialog option to/from the toolbar
+        /// </summary>
+        public bool? Search { get; set; } = null;
+        /// <summary>
         /// Controls the style of the toolbar button
         /// </summary>
         public ToolbarButtonStyle? ToolbarButtonStyle { get; set; } = null;
@@ -30,6 +42,7 @@ namespace DbNetSuiteCore.Components
         /// Controls the position of the toolbar
         /// </summary>
         public ToolbarPosition? ToolbarPosition { get; set; } = null;
+
         public DbNetGridEditCore(string connection, string fromPart, string id = null) : base(connection, id)
         {
             _fromPart = fromPart;

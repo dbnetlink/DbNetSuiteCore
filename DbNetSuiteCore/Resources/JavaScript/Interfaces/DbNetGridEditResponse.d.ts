@@ -1,6 +1,6 @@
 interface DbNetGridEditResponse extends DbNetSuiteResponse {
     toolbar: string;
     totalRows: number;
-    record?: Dictionary<string>;
+    record?: Dictionary<object>;
     searchParams?: Array<SearchParam>;
 }

@@ -2,15 +2,17 @@
 {
     public enum ColumnPropertyType
     {
+        ColumnSize,
         DataType,
         Display,
+        EditControlType,
         ForeignKey,
         Format,
 		Image,
 		Label,
         Lookup,
         PrimaryKey,
-		Style,
-        EditControlType
+        Pattern,
+        Style
 	}
 }

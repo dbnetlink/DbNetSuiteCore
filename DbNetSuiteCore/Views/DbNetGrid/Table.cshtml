@@ -48,7 +48,8 @@
                 @foreach (DataColumn column in Model.GridData.Columns)
                 {
                     GridColumn gridColumn = Model.Columns.First(c => c.IsMatch(column.ColumnName));
-                    @ColumnFilter(gridColumn);
+                    @ColumnFilter(gridColumn)
+                    ;
                 }
                 @if (Model.MultiRowSelectLocation == MultiRowSelectLocation.Right)
                 {
@@ -189,15 +190,9 @@
         }
         try
         {
-            switch (column.DataType)
+            if (column.IsNumeric)
             {
-                case nameof(Decimal):
-                case nameof(Double):
-                case nameof(Single):
-                case nameof(Int64):
-                case nameof(Int32):
-                case nameof(Int16):
-                    return Convert.ToDecimal(dataValue).ToString(column.Format);
+                return Convert.ToDecimal(dataValue).ToString(column.Format);
             }
         }
         catch { }

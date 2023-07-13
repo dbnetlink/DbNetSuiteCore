@@ -15,7 +15,7 @@ class DbNetGridEdit extends DbNetSuite {
     searchParams: Array<SearchParam> = [];
     toolbarButtonStyle: ToolbarButtonStyle = ToolbarButtonStyle.Image;
     toolbarPanel: JQuery<HTMLElement> | undefined;
-    toolbarPosition: ToolbarPosition = "Top";
+    toolbarPosition: ToolbarPosition;
 
     constructor(id: string) {
         super(id);
@@ -135,6 +135,9 @@ class DbNetGridEdit extends DbNetSuite {
             match = dbColumn.columnKey?.split('.').pop()?.toLowerCase() == columnName.toLowerCase();
         }
         if (dbColumn.columnKey?.split(' ').pop()?.toLowerCase() == columnName.toLowerCase()) {
+            match = true;
+        }
+        if (dbColumn.columnExpression?.split(' ').pop()?.toLowerCase() == columnName.toLowerCase()) {
             match = true;
         }
         if (!match) {

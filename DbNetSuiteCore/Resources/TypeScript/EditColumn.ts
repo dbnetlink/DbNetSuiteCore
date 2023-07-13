@@ -1,4 +1,7 @@
 ﻿class EditColumn extends DbColumn{
+    editControlType?: string;
+    pattern?: string;
+
     constructor(properties: EditColumnResponse, unmatched = false) {
         super();
         Object.keys(properties).forEach((key) => {

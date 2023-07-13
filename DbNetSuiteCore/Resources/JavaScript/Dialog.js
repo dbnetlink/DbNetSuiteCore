@@ -1,6 +1,7 @@
 "use strict";
-class Dialog {
+class Dialog extends DbNetSuite {
     constructor(id) {
+        super(null);
         this.width = 600;
         this.maxWidth = 800;
         this.$dialog = $(`#${id}`);

@@ -1,8 +1,23 @@
 ﻿@page
 @using DbNetSuiteCore.Components;
 @using DbNetSuiteCore.Enums.DbNetEdit;
+@using DbNetSuiteCore.Enums;
 @{
     DbNetEditCore employeesEdit = new DbNetEditCore("northwind", "employees");
-    employeesEdit.SetColumnProperty("ReportsTo", ColumnPropertyType.Lookup, new Lookup("employees", "employeeid", "lastname + ',' + firstname"));
+    employeesEdit.SetColumnProperty("ReportsTo", ColumnPropertyType.Lookup, new Lookup("employees", "employeeid", "lastname + ', ' + firstname"));
+    employeesEdit.SetColumnProperty("notes", ColumnPropertyType.EditControlType, EditControlType.TextArea);
+    employeesEdit.SetColumnProperty("titleofcourtesy", ColumnPropertyType.Pattern, "Mr.|Dr.|Ms.|Mr.");
+    employeesEdit.Bind(EventType.OnFormElementCreated, "configureFormElement");
     @employeesEdit.Render()
 }
+
+<script>
+    function configureFormElement(sender, args)
+    {
+        if (args.columnName == "notes")
+        {
+            args.formElement.rows = 4;
+            args.formElement.cols = 50;
+        }
+    }
+</script>

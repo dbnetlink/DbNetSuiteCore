@@ -2,7 +2,7 @@
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
 /// <reference types="bootstrap" />
-type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded";
+type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated";
 interface CellDataDownloadArgs {
     row: HTMLTableRowElement;
     cell: HTMLTableCellElement;
@@ -12,8 +12,8 @@ interface CellDataDownloadArgs {
     image?: HTMLImageElement;
 }
 interface ViewRecordSelectedArgs {
-    dialog: JQuery<HTMLElement>;
-    record: Dictionary<string>;
+    dialog: JQuery<HTMLElement> | undefined;
+    record: Dictionary<object> | undefined;
 }
 type EventHandler = {
     sender: DbNetSuite;
@@ -38,7 +38,7 @@ declare class DbNetSuite {
     protected linkedControls: Array<DbNetSuite>;
     protected messageBox: MessageBox | undefined;
     initialised: boolean;
-    constructor(id: string);
+    constructor(id: string | null);
     bind(event: EventName, handler: EventHandler): void;
     unbind(event: EventName, handler: EventHandler): void;
     checkStyleSheetLoaded(): void;
@@ -56,5 +56,8 @@ declare class DbNetSuite {
     protected setInputElement(name: string, value: number): void;
     protected configureLinkedControls(fk: object | null): void;
     protected showMessageBox(message: string, type: MessageBoxType, callback: Function): void;
+    protected addDatePicker($input: JQuery<HTMLInputElement>, datePickerOptions: JQueryUI.DatepickerOptions): void;
+    private pickerSelected;
+    protected addTimePicker($input: JQuery<HTMLInputElement>): void;
     private configureLinkedControl;
 }

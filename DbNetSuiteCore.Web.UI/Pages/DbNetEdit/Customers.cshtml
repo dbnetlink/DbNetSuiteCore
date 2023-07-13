@@ -1,9 +1,16 @@
 ﻿@page
 @using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums.DbNetEdit;
+@using DbNetSuiteCore.Enums;
 @{
     DbNetEditCore customersEdit = new DbNetEditCore("northwind", "customers");
     customersEdit.SetColumnLookup("country");
     customersEdit.SetColumnLookup("region");
+    customersEdit.SetColumnProperty("region", ColumnPropertyType.EditControlType, EditControlType.SuggestLookup);
+    customersEdit.SetColumnProperty("country", ColumnPropertyType.EditControlType, EditControlType.TextBoxLookup);
+    customersEdit.SetColumnProperty("address", ColumnPropertyType.ColumnSize, 40);
     customersEdit.QuickSearch = true;
+    customersEdit.LayoutColumns = 3;
+
     @customersEdit.Render()
 }

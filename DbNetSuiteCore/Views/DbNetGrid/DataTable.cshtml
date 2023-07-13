@@ -94,19 +94,13 @@
         }
         try
         {
-            switch (column.DataType)
+            if (column.IsNumeric)
             {
-                case nameof(Decimal):
-                case nameof(Double):
-                case nameof(Single):
-                case nameof(Int64):
-                case nameof(Int32):
-                case nameof(Int16):
-                    if (orderValue)
-                    {
-                        return Convert.ToDecimal(dataValue).ToString();
-                    }
-                    return Convert.ToDecimal(dataValue).ToString(column.Format);
+                if (orderValue)
+                {
+                    return Convert.ToDecimal(dataValue).ToString();
+                }
+                return Convert.ToDecimal(dataValue).ToString(column.Format);
             }
         }
         catch { }

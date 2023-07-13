@@ -4,9 +4,13 @@ class DbNetEdit extends DbNetGridEdit {
         super(id);
         this.changes = {};
         this.currentRow = 1;
+        this.layoutColumns = 1;
+        this.primaryKey = "";
         this.search = true;
         this.totalRows = 0;
-        this.primaryKey = "";
+        if (this.toolbarPosition == undefined) {
+            this.toolbarPosition = "Bottom";
+        }
     }
     initialize() {
         if (!this.element) {
@@ -47,16 +51,43 @@ class DbNetEdit extends DbNetGridEdit {
         }
         if (response.form) {
             (_b = this.formPanel) === null || _b === void 0 ? void 0 : _b.html(response.form);
+            this.configureForm();
         }
         this.updateForm(response);
     }
+    configureForm() {
+        var _a, _b, _c, _d, _e;
+        const $inputs = (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(`:input[name]`);
+        for (let i = 0; i < $inputs.length; i++) {
+            const $input = $($inputs[i]);
+            this.fireEvent("onFormElementCreated", { formElement: $input[0], columnName: $input.attr("name") });
+        }
+        (_b = this.formPanel) === null || _b === void 0 ? void 0 : _b.find("[button-type='calendar']").on("click", (event) => this.selectDate(event));
+        (_c = this.formPanel) === null || _c === void 0 ? void 0 : _c.find("[button-type='clock']").on("click", (event) => this.selectTime(event));
+        (_d = this.formPanel) === null || _d === void 0 ? void 0 : _d.find("[button-type='lookup']").on("click", (event) => this.editLookup(event));
+        (_e = this.formPanel) === null || _e === void 0 ? void 0 : _e.find("input[datatype='DateTime'").get().forEach(e => {
+            const $input = $(e);
+            this.addDatePicker($input, this.datePickerOptions);
+        });
+    }
     updateForm(response) {
-        var _a;
+        var _a, _b, _c;
+        if (response.totalRows == 0) {
+            (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(':input').val('').not("[primarykey='true']").prop('checked', false).prop('selected', false).prop("disabled", true);
+            return;
+        }
+        (_b = this.formPanel) === null || _b === void 0 ? void 0 : _b.find(':input').not("[primarykey='true']").prop("disabled", false);
         const record = response.record;
         for (const columnName in record) {
-            const $input = (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(`:input[name='${columnName}']`);
-            const value = record[columnName].toString();
-            $input.val(value).data("value", value);
+            const $input = (_c = this.formPanel) === null || _c === void 0 ? void 0 : _c.find(`:input[name='${columnName}']`);
+            const value = record[columnName];
+            if ($input.attr("type") == "checkbox") {
+                const checked = (value === true);
+                $input.prop("checked", checked).data("value", checked);
+            }
+            else {
+                $input.val(value.toString()).data("value", value.toString());
+            }
         }
         this.primaryKey = response.primaryKey;
         if (response.message) {
@@ -77,21 +108,22 @@ class DbNetEdit extends DbNetGridEdit {
     }
     getRequest() {
         const request = {
+            changes: this.changes,
             componentId: this.id,
             connectionString: this.connectionString,
-            fromPart: this.fromPart,
             columns: this.columns.map((column) => { return column; }),
             currentRow: this.currentRow,
             culture: this.culture,
-            search: this.search,
-            searchFilterJoin: this.searchFilterJoin,
-            searchParams: this.searchParams,
+            fromPart: this.fromPart,
+            layoutColumns: this.layoutColumns,
             navigation: this.navigation,
             quickSearch: this.quickSearch,
             quickSearchToken: this.quickSearchToken,
+            search: this.search,
+            searchFilterJoin: this.searchFilterJoin,
+            searchParams: this.searchParams,
             totalRows: this.totalRows,
             primaryKey: this.primaryKey,
-            changes: this.changes
         };
         return request;
     }
@@ -138,7 +170,9 @@ class DbNetEdit extends DbNetGridEdit {
                 display: col.display,
                 dataType: col.dataType,
                 primaryKey: col.primaryKey,
-                index: col.index
+                index: col.index,
+                editControlType: col.editControlType,
+                pattern: col.pattern
             };
             this.columns.push(new EditColumn(properties));
         });
@@ -202,17 +236,34 @@ class DbNetEdit extends DbNetGridEdit {
     applyChanges() {
         var _a;
         const changes = {};
+        let validForm = true;
         (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(':input.dbnetedit,select.dbnetedit').each(function (index) {
             const $input = $(this);
-            if ($input.val() != $input.data("value")) {
-                changes[$input.attr("name")] = $input.val();
+            const name = $input.attr("name");
+            if ($input.attr("type") == "checkbox") {
+                if ($input.prop("checked") != $input.data("value")) {
+                    changes[name] = $input.prop("checked");
+                }
+            }
+            else {
+                if ($input.attr("pattern")) {
+                    const valid = $input[0].reportValidity();
+                    if (!valid) {
+                        validForm = false;
+                    }
+                }
+                if ($input.val() != $input.data("value")) {
+                    changes[name] = $input.val();
+                }
             }
         });
         if ($.isEmptyObject(changes)) {
             return;
         }
-        this.changes = changes;
-        this.callServer("applychanges");
+        if (validForm) {
+            this.changes = changes;
+            this.callServer("applychanges");
+        }
     }
     message(msg) {
         var _a;
@@ -222,5 +273,20 @@ class DbNetEdit extends DbNetGridEdit {
     clearMessage() {
         var _a;
         (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(".message").html("&nbsp;").removeClass("highlight");
+    }
+    selectDate(event) {
+        const $button = $(event.target);
+        $button.parent().find("input").datepicker("show");
+    }
+    editLookup(event) {
+        const $button = $(event.target);
+        const $input = $button.parent().find("input");
+        const request = this.getRequest();
+        this.lookup($input, request);
+    }
+    selectTime(event) {
+        const $button = $(event.target);
+        $button.parent().find("input").timepicker('open');
+        event.stopPropagation();
     }
 }

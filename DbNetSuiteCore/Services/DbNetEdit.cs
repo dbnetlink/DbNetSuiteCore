@@ -25,14 +25,15 @@ namespace DbNetSuiteCore.Services
         private string _primaryKey;
         private bool _foreignKeySupplied => string.IsNullOrEmpty(ForeignKeyColumn) == false && ForeignKeyValue != null;
         public List<EditColumn> Columns { get; set; } = new List<EditColumn>();
-        public int TotalRows { get; set; }
         public Dictionary<string,object> Changes { get; set; }
         public int CurrentRow { get; set; } = 1;
+        public int LayoutColumns { get; set; } = 1;
         public string PrimaryKey
         {
             get => EncodingHelper.Decode(_primaryKey);
             set => _primaryKey = value;
         }
+        public int TotalRows { get; set; }
 
         public DbNetEdit(AspNetCoreServices services) : base(services)
         {
@@ -57,7 +58,7 @@ namespace DbNetSuiteCore.Services
             {
                 case RequestAction.Initialize:
                     response.Toolbar = await Toolbar();
-                    await Form(response);
+                    await SelectRecords(response, true);
                     break;
                 case RequestAction.SearchDialog:
                     await SearchDialog(response, Columns.Cast<DbColumn>().ToList());
@@ -72,7 +73,7 @@ namespace DbNetSuiteCore.Services
                     ApplyChanges(response);
                     break;
                 case RequestAction.Search:
-                    await Form(response);
+                    await SelectRecords(response);
                     break;
             }
 
@@ -94,7 +95,7 @@ namespace DbNetSuiteCore.Services
             return contents;
         }
 
-        private async Task Form(DbNetEditResponse response)
+        private async Task SelectRecords(DbNetEditResponse response, bool renderForm = false)
         {
             if (ValidateRequest(response, Columns) == false)
             {
@@ -113,11 +114,13 @@ namespace DbNetSuiteCore.Services
                 EditData = dataTable
             };
 
-            ReflectionHelper.CopyProperties(this, viewModel);
-            viewModel.Columns = Columns;
-            viewModel.LookupTables = _lookupTables;
-
-            response.Form = await HttpContext.RenderToStringAsync($"Views/DbNetEdit/Form.cshtml", viewModel);
+            if (renderForm)
+            {
+                ReflectionHelper.CopyProperties(this, viewModel);
+                viewModel.Columns = Columns;
+                viewModel.LookupTables = _lookupTables;
+                response.Form = await HttpContext.RenderToStringAsync($"Views/DbNetEdit/Form.cshtml", viewModel);
+            }
 
             if (dataTable.Rows.Count > 0)
             {
@@ -198,7 +201,7 @@ namespace DbNetSuiteCore.Services
                     searchFilterPart.Add($"{RefineSearchExpression(editColumn)} {FilterExpression(searchParameter, editColumn)}");
                 }
 
-                filterPart.Add($"{string.Join($" {SearchFilterJoin}", searchFilterPart.ToArray())}");
+                filterPart.Add($"{string.Join($" {SearchFilterJoin} ", searchFilterPart.ToArray())}");
                 AddSearchDialogParameters(Columns.Cast<DbColumn>().ToList(), parameters);
             }
 

@@ -2,12 +2,30 @@
   font-family: var(--main-font-family);
   font-size: var(--main-font-size);
 }
+table.dbnetedit-form td {
+  display: table-cell;
+  vertical-align: middle;
+}
 table.dbnetedit-form input, table.dbnetedit-form textarea, table.dbnetedit-form select {
   font-family: var(--main-font-family);
   font-size: var(--main-font-size);
 }
+table.dbnetedit-form input, table.dbnetedit-form select {
+  height: 24px;
+}
+table.dbnetedit-form input[type=checkbox] {
+  transform: scale(1.5);
+  vertical-align: middle;
+  margin-left: 3px;
+}
+table.dbnetedit-form input[numeric=true] {
+  text-align: right;
+}
 table.dbnetedit-form textarea {
   width: 100%;
+}
+table.dbnetedit-form .toolbar-button {
+  margin-left: 2px;
 }
 
 .dbnetedit-form .message {
@@ -18,7 +36,8 @@ table.dbnetedit-form textarea {
   font-weight: normal;
   vertical-align: middle;
   padding: 5px;
-  margin-top: 5px;
+  margin: 2px 0px 2px 0px;
+  background-color: whitesmoke;
 }
 .dbnetedit-form .message.highlight {
   background-color: #FFD54F;

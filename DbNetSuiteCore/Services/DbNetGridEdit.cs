@@ -152,12 +152,26 @@ namespace DbNetSuiteCore.Services
                     if (editColumn.DataType == nameof(String))
                     {
                         if (editColumn.ColumnSize > 100)
-                        { 
+                        {
                             if (editColumn.EditControlType == EditControlType.Auto)
                             {
                                 editColumn.EditControlType = EditControlType.TextArea;
                             }
                         }
+                    }
+
+                    if (string.IsNullOrEmpty(editColumn.Lookup) == false)
+                    {
+                        if (editColumn.EditControlType == EditControlType.Auto)
+                        {
+                            editColumn.EditControlType = EditControlType.DropDownList;
+                        }
+                    }
+
+                    if (editColumn.DataType == nameof(Boolean))
+                    {
+                        editColumn.EditControlType = EditControlType.CheckBox;
+                        editColumn.ColumnSize = 0;
                     }
                 }
             }
@@ -325,7 +339,7 @@ namespace DbNetSuiteCore.Services
             List<string> quickSearchFilter = new List<string>();
             foreach (DbColumn dbColumn in columns.Where(c => c.QuickSearch))
             {
-                if (string.IsNullOrEmpty(dbColumn.Lookup))
+                if (string.IsNullOrEmpty(dbColumn.Lookup) || dbColumn.LookupColumns < 2)
                 {
                     quickSearchFilter.Add($"{dbColumn.ColumnExpression} like {ParamName(ParamNames.QuickSearchToken)}");
                 }
@@ -432,7 +446,11 @@ namespace DbNetSuiteCore.Services
             GetBaseSchemaName(column, row);
 
             column.ColumnName = row.ColumnName();
-            column.ColumnSize = row.ColumnSize();
+
+            if (column.ColumnSize == 0)
+            {
+                column.ColumnSize = row.ColumnSize();
+            }
 
             if (column.Label == "")
             {
@@ -509,8 +527,13 @@ namespace DbNetSuiteCore.Services
             return Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(text);
         }
 
-        protected string[] GetSelectColumns(string sql)
+        internal static string[] GetSelectColumns(string sql)
         {
+            if (string.IsNullOrEmpty(sql))
+            {
+                return new string[] { };
+            }
+
             Match match = Regex.Match(sql, @"select (.*?) from", RegexOptions.IgnoreCase);
             string columnList = match.Groups[1].ToString();
 
@@ -707,7 +730,7 @@ namespace DbNetSuiteCore.Services
             return column;
         }
 
-        protected void GetLookupTables<T>(List<T> columns) 
+        protected void GetLookupTables<T>(List<T> columns)
         {
             _lookupTables.Clear();
 
@@ -827,19 +850,13 @@ namespace DbNetSuiteCore.Services
 
                 try
                 {
-                    switch (dbColumn.DataType)
+                    if (dbColumn.IsNumeric)
                     {
-                        case nameof(DateTime):
-                            columnValue = Convert.ToDateTime(columnValue).ToString(dbColumn.Format);
-                            break;
-                        case nameof(Decimal):
-                        case nameof(Double):
-                        case nameof(Single):
-                        case nameof(Int64):
-                        case nameof(Int32):
-                        case nameof(Int16):
-                            columnValue = Convert.ToDecimal(columnValue).ToString(dbColumn.Format);
-                            break;
+                        columnValue = Convert.ToDecimal(columnValue).ToString(dbColumn.Format);
+                    }
+                    else if (dbColumn.DataType == nameof(DateTime))
+                    {
+                        columnValue = Convert.ToDateTime(columnValue).ToString(dbColumn.Format);
                     }
                 }
                 catch { }
@@ -982,6 +999,10 @@ namespace DbNetSuiteCore.Services
                     {
                         parameters.Add(ParamName(dbColumn, $"{prefix}{i}", true), ConvertToDbParam(template.Replace("{0}", values[i]), dbColumn));
                     }
+                    break;
+                case SearchOperator.True:
+                case SearchOperator.False:
+                    parameters.Add(ParamName(dbColumn, prefix, true), ConvertToDbParam(template.Replace("{0}", searchParameter.SearchOperator.ToString().ToLower()), dbColumn));
                     break;
                 default:
                     parameters.Add(ParamName(dbColumn, prefix, true), ConvertToDbParam(template.Replace("{0}", value), dbColumn));

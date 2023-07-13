@@ -1,11 +1,14 @@
 ﻿using DbNetSuiteCore.Enums;
 using DbNetSuiteCore.Helpers;
+using DbNetSuiteCore.Services;
+using System;
 using System.Collections.Generic;
 
 namespace DbNetSuiteCore.Models
 {
     public class DbColumn : Column
     {
+        private List<string> _numericDataTypes = new List<string>() { nameof(Decimal), nameof(Double), nameof(Single), nameof(Int64), nameof(Int32), nameof(Int16) };
         private bool _search = true;
         private string _lookup;
         private string _columnExpression;
@@ -27,6 +30,8 @@ namespace DbNetSuiteCore.Models
             get => EncodingHelper.Decode(_columnExpression);
             set => _columnExpression = value;
         }
+        public int DefaultColumnSize => DataType == nameof(DateTime) ? 8 : IsNumeric ? 10 : 20;
+
         public bool EditDisplay { get; set; }
         public bool PrimaryKey { get; set; } = false;
         public bool ForeignKey { get; set; }
@@ -42,6 +47,7 @@ namespace DbNetSuiteCore.Models
             get => EncodingHelper.Decode(_lookup);
             set => _lookup = value;
         }
+        public int LookupColumns => DbNetGridEdit.GetSelectColumns(Lookup).Length;
         public string LookupDataType { get; set; }
         public string DbDataType { get; set; }
         public string LookupTable { get; set; }
@@ -50,12 +56,12 @@ namespace DbNetSuiteCore.Models
         public string LookupTextExpression { get; set; }
         public string Culture { get; set; }
         public bool IsBoolean { get; set; }
-        public EditControlType EditControlType { get; set; } = EditControlType.Auto;
         public bool Unmatched { get; set; }
         public bool Binary => DataType == "Byte[]";
         public int Index { get; set; } = -1;
         public bool Display { get; set; } = true;
         public bool QuickSearch { get; set; } = false;
+        public bool IsNumeric => _numericDataTypes.Contains(DataType);
 
 
         public DbColumn()

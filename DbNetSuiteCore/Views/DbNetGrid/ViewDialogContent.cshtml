@@ -85,15 +85,9 @@
             }
         }
 
-        switch (column.DataType)
+        if (column.IsNumeric)
         {
-            case nameof(Decimal):
-            case nameof(Double):
-            case nameof(Single):
-            case nameof(Int64):
-            case nameof(Int32):
-            case nameof(Int16):
-                return new HtmlString(Convert.ToDecimal(dataValue).ToString(column.Format));
+            return new HtmlString(Convert.ToDecimal(dataValue).ToString(column.Format));
         }
 
         return new HtmlString(dataValue.ToString());

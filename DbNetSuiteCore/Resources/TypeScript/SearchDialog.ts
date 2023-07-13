@@ -17,7 +17,7 @@
         });
         this.$dialog?.find("input[datatype='DateTime'").get().forEach(e => {
             const $input = $(e as HTMLInputElement);
-            this.addDatePicker($input);
+            this.addDatePicker($input, this.parent.datePickerOptions);
         });
         this.$dialog?.find("input[datatype='TimeSpan'").get().forEach(e => {
             const $input = $(e as HTMLInputElement);
@@ -54,14 +54,6 @@
                 $row.find(".between").hide();
                 $row.find("input").show().width(240);
                 break;
-        }
-    }
-
-    private pickerSelected() {
-        const $row = $(this).closest("tr").parent().closest("tr");
-        const $select = $row.find("select");
-        if ($select.val() == "") {
-            $select.prop("selectedIndex", 1)
         }
     }
 
@@ -170,29 +162,5 @@
         }
     }
 
-    private addDatePicker($input: JQuery<HTMLInputElement>) {
-        const options = this.parent.datePickerOptions;
-        const formats = { D: "DD, MM dd, yy", DDDD: "DD", DDD: "D", MMMM: "MM", MMM: "M", M: "m", MM: "mm", yyyy: "yy" };
 
-        let format: string = $input.attr("format") as string;
-
-        let pattern: keyof typeof formats;
-        for (pattern in formats) {
-            const re = new RegExp(`\\b${pattern}\\b`);
-            format = format.replace(re, formats[pattern]);
-        }
-        if (format != undefined)
-            if (format != $input.attr("format"))
-                options.dateFormat = format;
-
-        options.onSelect = this.pickerSelected;
-
-        $input.datepicker(options);
-    }
-
-    private addTimePicker($input: JQuery<HTMLInputElement>) {
-        const options = { "zindex": 100000 };
-        options.change = this.pickerSelected;
-        $input.timepicker(options);
-    }
 }

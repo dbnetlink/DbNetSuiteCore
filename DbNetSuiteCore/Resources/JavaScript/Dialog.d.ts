@@ -2,7 +2,7 @@
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
 /// <reference types="bootstrap" />
-declare class Dialog {
+declare class Dialog extends DbNetSuite {
     $dialog: JQuery<HTMLElement> | undefined;
     width: number;
     maxWidth: number;

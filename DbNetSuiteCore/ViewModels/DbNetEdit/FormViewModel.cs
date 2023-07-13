@@ -9,5 +9,6 @@ namespace DbNetSuiteCore.ViewModels.DbNetEdit
         public DataTable EditData { get; set; }
         public List<EditColumn> Columns { get; set; }
         public Dictionary<string, DataTable> LookupTables { get; set; }
+        public int LayoutColumns { get; set; }
     }
 }
