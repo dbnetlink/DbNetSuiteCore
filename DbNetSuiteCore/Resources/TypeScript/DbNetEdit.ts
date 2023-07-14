@@ -7,6 +7,8 @@ class DbNetEdit extends DbNetGridEdit {
     primaryKey = "";
     search = true;
     totalRows = 0;
+    isEditDialog = false;
+
 
     constructor(id: string) {
         super(id);
@@ -137,6 +139,7 @@ class DbNetEdit extends DbNetGridEdit {
             searchParams: this.searchParams,
             totalRows: this.totalRows,
             primaryKey: this.primaryKey,
+            isEditDialog: this.isEditDialog
         };
 
         return request;
@@ -257,7 +260,10 @@ class DbNetEdit extends DbNetGridEdit {
         }
     }
 
-    private getRecord() {
+    public getRecord(primaryKey: string | null = null) {
+        if (primaryKey) {
+            this.primaryKey = primaryKey;
+        }
         this.callServer("getrecord");
     }
 

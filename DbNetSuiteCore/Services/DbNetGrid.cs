@@ -9,7 +9,6 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
-using DbNetSuiteCore.Attributes;
 using DbNetSuiteCore.Constants;
 using DbNetSuiteCore.Enums;
 using DbNetSuiteCore.Extensions;
@@ -25,13 +24,13 @@ using DbNetSuiteCore.Models.DbNetGrid;
 
 namespace DbNetSuiteCore.Services
 {
-    internal class DbNetGrid : DbNetGridEdit
+    public class DbNetGrid : DbNetGridEdit
     {
         private Dictionary<string, object> _columnProperties = new Dictionary<string, object>(StringComparer.CurrentCultureIgnoreCase);
         private Dictionary<string, object> _resp = new Dictionary<string, object>();
         const string NullValueToken = "@@null@@";
 
-        private List<GridColumn> Columns { get; set; } = new List<GridColumn>();
+        public List<GridColumn> Columns { get; set; } = new List<GridColumn>();
         private string _fixedFilterSql;
         private string _procedureName;
         private long _pageSize = 20;
@@ -48,7 +47,7 @@ namespace DbNetSuiteCore.Services
         public bool Copy { get; set; } = true;
         public int CurrentPage { get; set; } = 1;
         public GridColumn DefaultColumn { get; set; }
-        public bool DeleteRow { get; set; } = false;
+        public bool Delete { get; set; } = false;
         public bool Export { get; set; } = true;
         public string Extension { get; set; } = string.Empty;
         public FilterColumnModeValues FilterColumnMode { get; set; } = FilterColumnModeValues.Simple;
@@ -66,7 +65,7 @@ namespace DbNetSuiteCore.Services
         public string Having { get; set; } = string.Empty;
        
         public bool IgnorePrimaryKeys { get; set; } = false;
-        public bool InsertRow { get; set; } = false;
+        public bool Insert { get; set; } = false;
         public bool MultiRowSelect { get; set; } = false;
         public MultiRowSelectLocation MultiRowSelectLocation { get; set; } = MultiRowSelectLocation.Left;
         public bool NestedGrid { get; set; } = false;
@@ -92,7 +91,7 @@ namespace DbNetSuiteCore.Services
         public ToolbarPosition ToolbarPosition { get; set; } = ToolbarPosition.Top;
         public int TotalPages { get; set; } = 0;
         public long TotalRows { get; set; } = 0;
-        public bool UpdateRow { get; set; } = false;
+        public bool Update { get; set; } = false;
         public bool View { get; set; } = false;
 
         public static Type GetNullableType(Type type)
@@ -162,7 +161,6 @@ namespace DbNetSuiteCore.Services
             return JsonSerializer.Serialize(response, serializeOptions);
         }
 
-
         internal static Dictionary<string, object> CaseInsensitiveDictionary(Dictionary<string, object> dictionary)
         {
             Dictionary<string, object> caseInsensitiveDictionary = new Dictionary<string, object>(StringComparer.CurrentCultureIgnoreCase);
@@ -172,7 +170,6 @@ namespace DbNetSuiteCore.Services
 
             return caseInsensitiveDictionary;
         }
-
 
         internal GridColumn ColumnFromKey(string key)
         {
@@ -189,9 +186,9 @@ namespace DbNetSuiteCore.Services
 
         internal void ConfigureStoredProcedure()
         {
-            this.InsertRow = false;
-            this.UpdateRow = false;
-            this.DeleteRow = false;
+            this.Insert = false;
+            this.Update = false;
+            this.Delete = false;
             this.View = false;
 
             QueryCommandConfig queryCommand = BuildSql();

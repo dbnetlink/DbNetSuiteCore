@@ -67,7 +67,8 @@ namespace DbNetSuiteCore.Services
                 "Dialog",
 				"ViewDialog",
 				"SearchDialog",
-				"LookupDialog"
+				"LookupDialog",
+                "EditDialog"
 			};
 
 			List<string> scripts = new List<string>();

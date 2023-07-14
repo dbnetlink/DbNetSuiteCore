@@ -16,6 +16,18 @@
                 {
                     @Button("View", Model, false)
                 }
+                @if (Model.Insert)
+                {
+                    @Button("Insert", Model, false)
+                }
+                @if (Model.Update)
+                {
+                    @Button("Update", Model, false)
+                }
+                @if (Model.Delete)
+                {
+                    @Button("Delete", Model, false)
+                }
                 @if (Model.Navigation)
                 {
                     @Button("First", Model)

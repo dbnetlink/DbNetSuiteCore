@@ -7,31 +7,41 @@
     <table class="dbnetsuite-toolbar" id="@(Model.ComponentId)_dbnetedit-toolbar">
         <tbody>
             <tr>
-                @if (Model.Search)
+                @if (Model.IsEditDialog)
                 {
-                    @Button("Search", Model, false)
-                }
-                @QuickSearch(Model)
-                @if (Model.Navigation)
-                {
-                    @Button("First", Model)
                     @Button("Previous", Model)
-                }
-                @NoRecords(Model)
-                @if (Model.Navigation)
-                {
-                    @Text("Record", Model)
-                    @Input("RowNumber", Model)
-                    @Text("Of", Model)
-                    @Input("RowCount", Model)
-                }
-                @if (Model.Navigation)
-                {
                     @Button("Next", Model)
-                    @Button("Last", Model)
+                    @Button("Apply", Model)
+                    @Button("Cancel", Model)
                 }
-                @Button("Apply", Model)
-                @Button("Cancel", Model)
+                else
+                {
+                    @if (Model.Search)
+                    {
+                        @Button("Search", Model, false)
+                    }
+                    @QuickSearch(Model)
+                    @if (Model.Navigation)
+                    {
+                        @Button("First", Model)
+                        @Button("Previous", Model)
+                    }
+                    @NoRecords(Model)
+                    @if (Model.Navigation)
+                    {
+                        @Text("Record", Model)
+                        @Input("RowNumber", Model)
+                        @Text("Of", Model)
+                        @Input("RowCount", Model)
+                    }
+                    @if (Model.Navigation)
+                    {
+                        @Button("Next", Model)
+                        @Button("Last", Model)
+                    }
+                }
+                @Button("Apply", Model, false)
+                @Button("Cancel", Model, false)
             </tr>
         </tbody>
     </table>
@@ -78,5 +88,4 @@
         string id = "QuickSearch";
         return new HtmlString($"<td><input type=\"input\" class=\"toolbar-info\" id=\"{model.ComponentId}_{id}\" name=\"{id}\" title=\"{@Title(id, model)}\"/></td>");
     }
-
 }

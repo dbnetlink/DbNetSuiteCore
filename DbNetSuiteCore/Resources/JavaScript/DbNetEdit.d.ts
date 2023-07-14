@@ -11,6 +11,7 @@ declare class DbNetEdit extends DbNetGridEdit {
     primaryKey: string;
     search: boolean;
     totalRows: number;
+    isEditDialog: boolean;
     constructor(id: string);
     initialize(): void;
     addLinkedControl(control: DbNetSuite): void;
@@ -24,7 +25,7 @@ declare class DbNetEdit extends DbNetGridEdit {
     private updateColumns;
     private addEventListener;
     private handleClick;
-    private getRecord;
+    getRecord(primaryKey?: string | null): void;
     private applyChanges;
     private message;
     private clearMessage;

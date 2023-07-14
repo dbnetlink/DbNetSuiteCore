@@ -21,7 +21,7 @@ namespace DbNetSuiteCore.Components
         protected List<DbNetSuiteCore> _linkedControls { get; set; } = new List<DbNetSuiteCore>();
 
         private List<EventBinding> _eventBindings { get; set; } = new List<EventBinding>();
-        private string ComponentTypeName => this.GetType().Name.Replace("Core", string.Empty);
+        protected string ComponentTypeName => this.GetType().Name.Replace("Core", string.Empty);
         /// <summary>
         /// Overrides the default culture that controls default date and currency formatting
         /// </summary>

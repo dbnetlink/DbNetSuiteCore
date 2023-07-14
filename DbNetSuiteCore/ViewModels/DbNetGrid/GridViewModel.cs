@@ -4,11 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Resources;
 using DbNetSuiteCore.Extensions;
-using DocumentFormat.OpenXml.Drawing;
-using DocumentFormat.OpenXml.EMMA;
-using DbNetSuiteCore.Models.DbNetGrid;
 
 namespace DbNetSuiteCore.ViewModels.DbNetGrid
 {
@@ -30,6 +26,8 @@ namespace DbNetSuiteCore.ViewModels.DbNetGrid
         public List<GridColumn> TotalBreakColumns => Columns.Where(c => c.TotalBreak).ToList();
         public List<GridColumn> FixedOrderColumns => Columns.Where(c => c.FixedOrder).ToList();
         public DataTable GridTotals { get; set; }
+        public bool Update { get; set; }
+        public bool Delete { get; set; }
 
         public object ColumnTotal(GridColumn changeColumn, int? rowCount, GridColumn aggregateColumn)
         {

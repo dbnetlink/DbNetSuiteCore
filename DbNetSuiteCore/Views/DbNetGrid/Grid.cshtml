@@ -117,6 +117,11 @@
         if (primaryKeyIndex > -1)
         {
             dataAttributes.Add($"data-id={row.ItemArray[primaryKeyIndex]}");
+
+            if (Model.Update || Model.Delete)
+            {
+                dataAttributes.Add($"data-pk={EncodingHelper.Encode((Model.Component as Services.DbNetGrid).SerialisePrimaryKey(row))}");
+            }
         }
 
         foreach (var column in Model.Columns.Where(c => c.DataOnly))

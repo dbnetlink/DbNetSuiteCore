@@ -239,6 +239,7 @@ div.dbnetsuite-toolbar-panel {
     border-radius: 2px;
     border: 1px solid #ccc;
     display: inline-block;
+    width:100%;
 }
 
 table.dbnetsuite-toolbar * {
@@ -553,7 +554,7 @@ table.lookup-dialog-toolbar {
     //    padding: 2px;
     border-radius: 2px;
     background-color: whitesmoke;
-    background-image: svgUrl("drop", "16");
+    background-image: svgUrl("drop", "16", "SteelBlue", "drop");
     background-position: center center;
     background-repeat: no-repeat;
     position: absolute;

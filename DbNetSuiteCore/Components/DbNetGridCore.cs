@@ -1,18 +1,18 @@
 ﻿using DbNetSuiteCore.Enums;
 using DbNetSuiteCore.Helpers;
-using DbNetSuiteCore.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Html;
-using System.Data;
 using DbNetSuiteCore.Enums.DbNetGrid;
+using DocumentFormat.OpenXml.Math;
 
 namespace DbNetSuiteCore.Components
 {
     public class DbNetGridCore : DbNetGridEditCore
     {
-         /// <summary>
+        private string DbNetEditId => this.Id.Replace("dbnetgrid", "dbnetedit");
+        private string _editDialogId;
+        /// <summary>
         /// Automatically selects the first row of the grid (default is true)
         /// </summary>
         public bool? AutoRowSelect { get; set; } = null;
@@ -24,6 +24,15 @@ namespace DbNetSuiteCore.Components
         /// Adds/removes a page copy option to/from the toolbar
         /// </summary>
         public bool? Copy { get; set; } = null;
+        /// <summary>
+        /// Allow deletion of records
+        /// </summary>
+        public bool? Delete { get; set; } = null;
+        public bool Edit => (Insert.HasValue && Insert.Value || Update.HasValue && Update.Value);
+        /// <summary>
+        /// Edit dialog control
+        /// </summary>
+        public DbNetEditCore EditControl { get; set; }
         /// <summary>
         /// Adds/removes a grid export option to/from the toolbar
         /// </summary>
@@ -51,7 +60,11 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Groups the returned data by all the columns not identified as aggregates
         /// </summary>
-        public bool? GroupBy { get; set; } = null; 
+        public bool? GroupBy { get; set; } = null;
+        /// <summary>
+        /// Allow insertion of new records
+        /// </summary>
+        public bool? Insert { get; set; } = null;
         /// <summary>
         /// Enables selection of multiple rows
         /// </summary>
@@ -85,6 +98,10 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public bool? RowSelect { get; set; } = null;
         /// <summary>
+        /// Allow update of records
+        /// </summary>
+        public bool? Update { get; set; } = null;
+        /// <summary>
         /// Adds/removes a view dialog option to the toolbar
         /// </summary>
         public bool? View { get; set; } = null;
@@ -95,6 +112,13 @@ namespace DbNetSuiteCore.Components
             {
                 ProcedureName = fromPart;
             }
+
+            EditControl = new DbNetEditCore(connection, fromPart, DbNetEditId);
+            EditControl.IsEditDialog = true;
+
+            this._linkedControls.Add(EditControl);
+
+            this._editDialogId = $"{this.Id}_edit_dialog";
         }
       
         /// <summary>
@@ -124,6 +148,10 @@ namespace DbNetSuiteCore.Components
         public HtmlString Render()
         {
             string message = ValidateProperties();
+            if (Edit == false)
+            {
+                this._editDialogId = string.Empty;
+            }
 
             if (string.IsNullOrEmpty(message) == false)
             {
@@ -209,7 +237,14 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
 
         private string Markup()
         {
-            return _idSupplied ? string.Empty : $"<section id=\"{_id}\"></section>";
+            var gridMarkup = _idSupplied ? string.Empty : $"<section id=\"{_id}\"></section>";
+
+            if (Edit)
+            {
+                gridMarkup += $"<div id=\"{this._editDialogId}\" class=\"edit-dialog\" title=\"Edit\" style=\"display:none\"><section id=\"{EditControl.Id}\"></section></div>";
+            }
+
+            return gridMarkup;
         }
         private string Properties()
         {
@@ -235,6 +270,10 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             AddProperty(EncodingHelper.Encode(ProcedureName), nameof(ProcedureName), properties);
             AddProperty(GridGenerationMode, nameof(GridGenerationMode), properties);
             AddProperty(Navigation, nameof(Navigation), properties);
+            AddProperty(Insert, nameof(Insert), properties);
+            AddProperty(Update, nameof(Update), properties);
+            AddProperty(Delete, nameof(Delete), properties);
+            AddProperty(_editDialogId, "EditDialogId", properties);
 
             if (FixedFilterParams.Count > 0)
             {

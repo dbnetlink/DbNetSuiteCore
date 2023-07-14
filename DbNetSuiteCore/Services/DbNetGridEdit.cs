@@ -27,7 +27,21 @@ namespace DbNetSuiteCore.Services
     {
         private string _fromPart;
         protected Dictionary<string, DataTable> _lookupTables = new Dictionary<string, DataTable>();
-
+        private List<DbColumn> DbColumns
+        {
+            get
+            {   
+                if (this is DbNetGrid)
+                {
+                    return (this as DbNetGrid).Columns.Cast<DbColumn>().ToList();
+                }
+                else if(this is DbNetEdit)
+                {
+                    return (this as DbNetEdit).Columns.Cast<DbColumn>().ToList();
+                }
+                return null;
+            }
+        }
         public string FromPart
         {
             get => EncodingHelper.Decode(_fromPart);
@@ -175,7 +189,6 @@ namespace DbNetSuiteCore.Services
                     }
                 }
             }
-
 
             columns = columns.OrderBy(c => (c as DbColumn).Index).ToList();
 
@@ -866,7 +879,18 @@ namespace DbNetSuiteCore.Services
 
             return dictionary;
         }
-
+        public string SerialisePrimaryKey(DataRow dataRow)
+        {
+            Dictionary<string, object> primaryKeyValues = new Dictionary<string, object>();
+            foreach (DbColumn dbColumn in DbColumns)
+            {
+                if (dbColumn.PrimaryKey)
+                {
+                    primaryKeyValues.Add(dbColumn.ColumnName, dataRow.ItemArray[dbColumn.Index]);
+                }
+            }
+            return JsonSerializer.Serialize(primaryKeyValues);
+        }
         protected string ParamName(DbColumn column, string suffix = "", bool parameterValue = false)
         {
             return Database.ParameterName($"{column.ColumnName}{suffix}");

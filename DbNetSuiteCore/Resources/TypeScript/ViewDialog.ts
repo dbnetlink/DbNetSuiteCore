@@ -37,12 +37,7 @@
 
     private setHeight() {
         const height = this.$dialog?.find("table").first().height() as number;
-        if (height > 600) {
-            this.$dialog?.find("div.content").height(600);
-        }
-        else {
-            this.$dialog?.find("div.content").height(height);
-        }
+        this.$dialog?.find("div.content").height(height > 600 ? 600 : height);
     }
 
     private viewNextRecord() {

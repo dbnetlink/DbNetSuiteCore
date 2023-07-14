@@ -8,5 +8,6 @@ namespace DbNetSuiteCore.ViewModels.DbNetEdit
         public ToolbarButtonStyle ToolbarButtonStyle { get; set; }
         public bool Search { get; set; }
         public bool Navigation { get; set; }
+        public bool IsEditDialog { get; set; }
     }
 }

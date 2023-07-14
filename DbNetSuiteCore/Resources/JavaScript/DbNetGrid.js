@@ -32,7 +32,9 @@ class DbNetGrid extends DbNetGridEdit {
         this.copy = true;
         this.currentPage = 1;
         this.defaultColumn = undefined;
+        this.delete = false;
         this.dragAndDrop = true;
+        this.editDialogId = "";
         this.export_ = true;
         this.fixedFilterParams = {};
         this.fixedFilterSql = "";
@@ -40,6 +42,7 @@ class DbNetGrid extends DbNetGridEdit {
         this.googleChartOptions = undefined;
         this.gridGenerationMode = GridGenerationMode.Display;
         this.groupBy = false;
+        this.insert = false;
         this.multiRowSelect = false;
         this.multiRowSelectLocation = MultiRowSelectLocation.Left;
         this.nestedGrid = false;
@@ -52,6 +55,7 @@ class DbNetGrid extends DbNetGridEdit {
         this.procedureParams = {};
         this.rowSelect = true;
         this.totalPages = 0;
+        this.update = false;
         this.view = false;
         if (this.toolbarPosition === undefined) {
             this.toolbarPosition = "Top";
@@ -79,6 +83,12 @@ class DbNetGrid extends DbNetGridEdit {
         })
             .catch(() => { });
         this.initialised = true;
+        this.linkedControls.forEach((control) => {
+            if (control.isEditDialog) {
+                this.editDialogControl = control;
+                ;
+            }
+        });
         this.fireEvent("onInitialized");
     }
     addNestedGrid(handler) {
@@ -146,7 +156,7 @@ class DbNetGrid extends DbNetGridEdit {
     }
     configureToolbar(response) {
         if (response.toolbar) {
-            const buttons = ["First", "Next", "Previous", "Last", "Download", "Copy", "View", "Search"];
+            const buttons = ["First", "Next", "Previous", "Last", "Download", "Copy", "View", "Search", "Insert", "Update", "Delete"];
             buttons.forEach(btn => this.addEventListener(`${btn}Btn`));
         }
         const $navigationElements = this.controlElement("dbnetgrid-toolbar").find(".navigation");
@@ -441,13 +451,6 @@ class DbNetGrid extends DbNetGridEdit {
             case this.controlElementId("LastBtn"):
                 this.currentPage = this.totalPages;
                 break;
-            case this.controlElementId("DownloadBtn"):
-            case this.controlElementId("CopyBtn"):
-            case this.controlElementId("ViewBtn"):
-            case this.controlElementId("SearchBtn"):
-                break;
-            default:
-                return;
         }
         event.preventDefault();
         switch (id) {
@@ -462,6 +465,15 @@ class DbNetGrid extends DbNetGridEdit {
                 break;
             case this.controlElementId("SearchBtn"):
                 this.openSearchDialog(this.getRequest());
+                break;
+            case this.controlElementId("UpdateBtn"):
+                this.updateRow();
+                break;
+            case this.controlElementId("InsertBtn"):
+                this.insertRow();
+                break;
+            case this.controlElementId("DeleteBtn"):
+                this.deleteRow();
                 break;
             default:
                 this.getPage();
@@ -575,6 +587,21 @@ class DbNetGrid extends DbNetGridEdit {
             this.viewDialog.update(response, $row);
         });
     }
+    updateRow() {
+        var _a, _b;
+        if (!this.editDialog) {
+            this.editDialog = new EditDialog(this.editDialogId, this);
+            (_a = this.editDialogControl) === null || _a === void 0 ? void 0 : _a.initialize();
+        }
+        (_b = this.editDialogControl) === null || _b === void 0 ? void 0 : _b.getRecord($(this.selectedRow()).data('pk'));
+        this.editDialog.update();
+    }
+    insertRow() {
+        return;
+    }
+    deleteRow() {
+        return;
+    }
     copyGrid() {
         var _a, _b, _c, _d, _e;
         const table = (_a = this.gridPanel) === null || _a === void 0 ? void 0 : _a[0].querySelector('table.dbnetgrid-table');
@@ -652,6 +679,9 @@ class DbNetGrid extends DbNetGridEdit {
             procedureParams: this.procedureParams,
             procedureName: this.procedureName,
             gridGenerationMode: this.gridGenerationMode,
+            insert: this.insert,
+            update: this.update,
+            delete: this.delete
         };
         return request;
     }

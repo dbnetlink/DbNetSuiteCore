@@ -27,6 +27,7 @@ namespace DbNetSuiteCore.Services
         public List<EditColumn> Columns { get; set; } = new List<EditColumn>();
         public Dictionary<string,object> Changes { get; set; }
         public int CurrentRow { get; set; } = 1;
+        public bool IsEditDialog { get; set; } = false;
         public int LayoutColumns { get; set; } = 1;
         public string PrimaryKey
         {
@@ -129,7 +130,7 @@ namespace DbNetSuiteCore.Services
             }
         }
 
-        private DataTable GetDataTable()
+        private DataTable GetDataTable(Dictionary<string, object> primaryKey = null)
         {
             DataTable dataTable = InitialiseDataTable(Columns);
 
@@ -139,7 +140,7 @@ namespace DbNetSuiteCore.Services
                 Database.Open();
                 QueryCommandConfig query;
 
-                query = BuildSql();
+                query = BuildSql(primaryKey);
 
                 Database.Open();
                 Database.ExecuteQuery(query);
@@ -171,7 +172,7 @@ namespace DbNetSuiteCore.Services
         private void GetRecord(DbNetEditResponse response)
         {
             ConfigureEditColumns();
-            DataTable dataTable = GetDataTable();
+            DataTable dataTable = GetDataTable(this.DeserialisePrimaryKey());
             response.CurrentRow = CurrentRow;
             response.TotalRows = TotalRows;
             response.Columns = Columns;
@@ -186,29 +187,47 @@ namespace DbNetSuiteCore.Services
         {
             Columns.Add(InitialiseColumn(new EditColumn(), row) as EditColumn);
         }
-        protected virtual QueryCommandConfig BuildSql()
+        protected virtual QueryCommandConfig BuildSql(Dictionary<string, object> primaryKey = null)
         {
             string sql = $"select {BuildSelectPart(QueryBuildModes.Normal,Columns)} from {FromPart}";
             ListDictionary parameters = new ListDictionary();
             List<string> filterPart = new List<string>();
 
-            if (SearchParams.Any())
+            if (primaryKey != null)
             {
-                List<string> searchFilterPart = new List<string>();
-                foreach (SearchParameter searchParameter in SearchParams)
+                List<string> primaryKeyFilterPart = new List<string>();
+                foreach (string key in primaryKey.Keys)
                 {
-                    EditColumn editColumn = Columns[searchParameter.ColumnIndex];
-                    searchFilterPart.Add($"{RefineSearchExpression(editColumn)} {FilterExpression(searchParameter, editColumn)}");
+                    primaryKeyFilterPart.Add($"{key} = {Database.ParameterName(key)}");
+                    parameters.Add(Database.ParameterName(key), ConvertToDbParam(primaryKey[key]));
+                }
+                filterPart.Add($"{string.Join($" and ", primaryKeyFilterPart)}");
+            }
+            else
+            {
+                if (SearchParams.Any())
+                {
+                    List<string> searchFilterPart = new List<string>();
+                    foreach (SearchParameter searchParameter in SearchParams)
+                    {
+                        EditColumn editColumn = Columns[searchParameter.ColumnIndex];
+                        searchFilterPart.Add($"{RefineSearchExpression(editColumn)} {FilterExpression(searchParameter, editColumn)}");
+                    }
+
+                    filterPart.Add($"{string.Join($" {SearchFilterJoin} ", searchFilterPart)}");
+                    AddSearchDialogParameters(Columns.Cast<DbColumn>().ToList(), parameters);
                 }
 
-                filterPart.Add($"{string.Join($" {SearchFilterJoin} ", searchFilterPart.ToArray())}");
-                AddSearchDialogParameters(Columns.Cast<DbColumn>().ToList(), parameters);
-            }
+                if (String.IsNullOrEmpty(QuickSearchToken) == false)
+                {
+                    filterPart.Add($"({string.Join(" or ", QuickSearchFilter(Columns.Cast<DbColumn>().ToList()).ToArray())})");
+                    parameters.Add(ParamName(ParamNames.QuickSearchToken, true), ConvertToDbParam($"%{QuickSearchToken}%"));
+                }
 
-            if (String.IsNullOrEmpty(QuickSearchToken) == false)
-            {
-                filterPart.Add($"({string.Join(" or ", QuickSearchFilter(Columns.Cast<DbColumn>().ToList()).ToArray())})");
-                parameters.Add(ParamName(ParamNames.QuickSearchToken, true), ConvertToDbParam($"%{QuickSearchToken}%"));
+                if (IsEditDialog)
+                {
+                    filterPart.Add("1=2");
+                }
             }
 
             if (filterPart.Any())
@@ -218,18 +237,7 @@ namespace DbNetSuiteCore.Services
 
             return new QueryCommandConfig(sql, parameters);
         }
-        private string SerialisePrimaryKey(DataRow dataRow)
-        {
-            Dictionary<string,object> primaryKeyValues = new Dictionary<string,object>();
-            foreach(EditColumn editColumn in Columns)
-            {
-                if (editColumn.PrimaryKey)
-                {
-                    primaryKeyValues.Add(editColumn.ColumnName, dataRow.ItemArray[editColumn.Index]);
-                }
-            }
-            return JsonSerializer.Serialize(primaryKeyValues);
-        }
+
         private Dictionary<string, object> DeserialisePrimaryKey()
         {
             return JsonSerializer.Deserialize<Dictionary<string, object>>(PrimaryKey);

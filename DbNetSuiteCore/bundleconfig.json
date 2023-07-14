@@ -70,5 +70,11 @@
     "inputFiles": [
       "Resources/JavaScript/DbNetGridEdit.js"
     ]
+  },
+  {
+    "outputFileName": "Resources/JavaScript/EditDialog.min.js",
+    "inputFiles": [
+      "Resources/JavaScript/EditDialog.js"
+    ]
   }
 ]

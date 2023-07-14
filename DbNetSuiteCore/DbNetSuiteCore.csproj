@@ -80,6 +80,8 @@
     <None Remove="Resources\JavaScript\Dialog.min.js" />
     <None Remove="Resources\JavaScript\EditColumn.js" />
     <None Remove="Resources\JavaScript\EditColumn.min.js" />
+    <None Remove="Resources\JavaScript\EditDialog.js" />
+    <None Remove="Resources\JavaScript\EditDialog.min.js" />
     <None Remove="Resources\JavaScript\GridColumn.js" />
     <None Remove="Resources\JavaScript\GridColumn.min.js" />
     <None Remove="Resources\JavaScript\jquery-3.6.0.js" />
@@ -153,6 +155,8 @@
     <EmbeddedResource Include="Resources\JavaScript\Dialog.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\EditColumn.js" />
     <EmbeddedResource Include="Resources\JavaScript\EditColumn.min.js" />
+    <EmbeddedResource Include="Resources\JavaScript\EditDialog.js" />
+    <EmbeddedResource Include="Resources\JavaScript\EditDialog.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\GridColumn.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\libraries\jquery.timepicker.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\LookupDialog.js" />

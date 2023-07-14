@@ -8,6 +8,7 @@ class DbNetEdit extends DbNetGridEdit {
         this.primaryKey = "";
         this.search = true;
         this.totalRows = 0;
+        this.isEditDialog = false;
         if (this.toolbarPosition == undefined) {
             this.toolbarPosition = "Bottom";
         }
@@ -124,6 +125,7 @@ class DbNetEdit extends DbNetGridEdit {
             searchParams: this.searchParams,
             totalRows: this.totalRows,
             primaryKey: this.primaryKey,
+            isEditDialog: this.isEditDialog
         };
         return request;
     }
@@ -230,7 +232,10 @@ class DbNetEdit extends DbNetGridEdit {
                 break;
         }
     }
-    getRecord() {
+    getRecord(primaryKey = null) {
+        if (primaryKey) {
+            this.primaryKey = primaryKey;
+        }
         this.callServer("getrecord");
     }
     applyChanges() {

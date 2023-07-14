@@ -13,6 +13,7 @@ namespace DbNetSuiteCore.Models.DbNetGrid
         public bool Copy { get; set; } = true;
         public int CurrentPage { get; set; } = 1;
         public GridColumn DefaultColumn { get; set; }
+        public bool Delete { get; set; } = false;
         public string Extension { get; set; }
         public bool Export { get; set; } = true;
         public Dictionary<string, object> FixedFilterParams { get; set; } = new Dictionary<string, object>();
@@ -20,6 +21,7 @@ namespace DbNetSuiteCore.Models.DbNetGrid
         public bool FrozenHeader { get; set; } = false;
         public GridGenerationMode GridGenerationMode { get; set; } = GridGenerationMode.Display;
         public bool GroupBy { get; set; } = false;
+        public bool Insert { get; set; } = false;
         public bool MultiRowSelect { get; set; }
         public MultiRowSelectLocation MultiRowSelectLocation { get; set; }
         public bool NestedGrid { get; set; } = false;
@@ -31,6 +33,7 @@ namespace DbNetSuiteCore.Models.DbNetGrid
         public string ProcedureName { get; set; } = string.Empty;
         public Dictionary<string, object> ProcedureParams { get; set; } = new Dictionary<string, object>();
         public ToolbarButtonStyle ToolbarButtonStyle { get; set; }
+        public bool Update { get; set; } = false;
         public bool View { get; set; } = false;
     }
 }

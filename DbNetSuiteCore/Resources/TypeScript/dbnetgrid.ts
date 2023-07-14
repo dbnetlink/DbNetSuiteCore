@@ -36,9 +36,13 @@ class DbNetGrid extends DbNetGridEdit {
     copy = true;
     currentPage = 1;
     defaultColumn: GridColumn | undefined = undefined;
+    delete = false;
     dragAndDrop = true;
     dropIcon: JQuery<HTMLElement> | undefined;
     dropTarget: JQuery<HTMLElement> | undefined;
+    editDialog: EditDialog | undefined;
+    editDialogControl: DbNetEdit | undefined;
+    editDialogId = "";
     export_ = true;
     fixedFilterParams: Dictionary<object> = {};
     fixedFilterSql = "";
@@ -47,6 +51,7 @@ class DbNetGrid extends DbNetGridEdit {
     gridGenerationMode: GridGenerationMode = GridGenerationMode.Display;
     gridPanel: JQuery<HTMLElement> | undefined;
     groupBy = false;
+    insert = false;
     multiRowSelect = false;
     multiRowSelectLocation: MultiRowSelectLocation = MultiRowSelectLocation.Left;
     nestedGrid = false;
@@ -59,6 +64,7 @@ class DbNetGrid extends DbNetGridEdit {
     procedureParams: Dictionary<object> = {};
     rowSelect = true;
     totalPages = 0;
+    update = false;
     view = false;
     viewDialog: ViewDialog | undefined;
     constructor(id: string) {
@@ -94,6 +100,12 @@ class DbNetGrid extends DbNetGridEdit {
             })
             .catch(() => { });
         this.initialised = true;
+
+        this.linkedControls.forEach((control) => {
+            if ((control as DbNetEdit).isEditDialog) {
+                this.editDialogControl = (control as DbNetEdit);;
+            }
+        });
         this.fireEvent("onInitialized");
     }
 
@@ -176,7 +188,7 @@ class DbNetGrid extends DbNetGridEdit {
    
     private configureToolbar(response: DbNetGridResponse) {
         if (response.toolbar) {
-            const buttons = ["First", "Next", "Previous", "Last", "Download", "Copy", "View", "Search"];
+            const buttons = ["First", "Next", "Previous", "Last", "Download", "Copy", "View", "Search","Insert", "Update", "Delete"];
             buttons.forEach(btn =>
                 this.addEventListener(`${btn}Btn`)
             )
@@ -530,14 +542,8 @@ class DbNetGrid extends DbNetGridEdit {
             case this.controlElementId("LastBtn"):
                 this.currentPage = this.totalPages;
                 break;
-            case this.controlElementId("DownloadBtn"):
-            case this.controlElementId("CopyBtn"):
-            case this.controlElementId("ViewBtn"):
-            case this.controlElementId("SearchBtn"):
-                break;
-            default:
-                return;
         }
+
         event.preventDefault();
 
         switch (id) {
@@ -552,6 +558,15 @@ class DbNetGrid extends DbNetGridEdit {
                 break;
             case this.controlElementId("SearchBtn"):
                 this.openSearchDialog(this.getRequest());
+                break;
+            case this.controlElementId("UpdateBtn"):
+                this.updateRow();
+                break;
+            case this.controlElementId("InsertBtn"):
+                this.insertRow();
+                break;
+            case this.controlElementId("DeleteBtn"):
+                this.deleteRow();
                 break;
             default:
                 this.getPage();
@@ -681,6 +696,24 @@ class DbNetGrid extends DbNetGridEdit {
             });
     }
 
+    private updateRow() {
+        if (!this.editDialog) {
+           
+            this.editDialog = new EditDialog(this.editDialogId as string, this);
+            this.editDialogControl?.initialize();
+        }
+        this.editDialogControl?.getRecord($(this.selectedRow()).data('pk') as string);
+        this.editDialog.update();
+    }
+
+    private insertRow() {
+        return;
+    }
+
+    private deleteRow() {
+        return;
+    }
+
     private copyGrid() {
         const table = this.gridPanel?.[0].querySelector('table.dbnetgrid-table');
 
@@ -762,6 +795,9 @@ class DbNetGrid extends DbNetGridEdit {
             procedureParams: this.procedureParams,
             procedureName: this.procedureName,
             gridGenerationMode: this.gridGenerationMode,
+            insert: this.insert,
+            update: this.update,
+            delete: this.delete
         };
 
         return request;

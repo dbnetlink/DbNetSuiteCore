@@ -11,5 +11,8 @@ namespace DbNetSuiteCore.ViewModels.DbNetGrid
         public bool Navigation { get; set; }
         public bool Export { get; set; }
         public bool Copy { get; set; }
+        public bool Insert { get; set; }
+        public bool Update { get; set; }
+        public bool Delete { get; set; }
     }
 }

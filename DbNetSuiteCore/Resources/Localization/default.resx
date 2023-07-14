@@ -400,11 +400,11 @@
   <data name="Includesub-folders" xml:space="preserve">
     <value>Include sub-folders</value>
   </data>
+  <data name="Insert" xml:space="preserve">
+    <value>Add new record</value>
+  </data>
   <data name="InsertDisabled" xml:space="preserve">
     <value>Inserting of records is not enabled for for this control</value>
-  </data>
-  <data name="Insertrow" xml:space="preserve">
-    <value>Add</value>
   </data>
   <data name="IntegerNotValid" xml:space="preserve">
     <value>Integer value is not valid</value>
@@ -699,8 +699,8 @@
   <data name="UnappliedChanges" xml:space="preserve">
     <value>You have unapplied changes. Discard ?</value>
   </data>
-  <data name="Updaterow" xml:space="preserve">
-    <value>Update</value>
+  <data name="Update" xml:space="preserve">
+    <value>Update selected row</value>
   </data>
   <data name="UpdatesDisabled" xml:space="preserve">
     <value>Updating of records is not enabled for for this control</value>

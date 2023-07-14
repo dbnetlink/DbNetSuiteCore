@@ -6,6 +6,7 @@
     copy: boolean;
     currentPage: number;
     defaultColumn: GridColumn | undefined;
+    delete: boolean;
     export: boolean;
     extension?: string | undefined;
     fixedFilterParams: Dictionary<object>;
@@ -13,6 +14,7 @@
     frozenHeader: boolean;
     gridGenerationMode: GridGenerationMode
     groupBy: boolean;
+    insert: boolean;
     multiRowSelect: boolean;
     multiRowSelectLocation: MultiRowSelectLocation;
     nestedGrid: boolean;
@@ -24,5 +26,6 @@
     procedureName: string | undefined;
     procedureParams: Dictionary<object>;
     toolbarButtonStyle: ToolbarButtonStyle;
+    update: boolean;
     view: boolean;
 }

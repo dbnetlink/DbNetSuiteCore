@@ -12,10 +12,11 @@ namespace DbNetSuiteCore.Components
         /// Specifies the name of the foreign key column in a linked combo
         /// </summary>
         public string ForeignKeyColumn { get; set; } = null;
+        internal bool? IsEditDialog { get; set; } = null;
         /// <summary>
         /// Specifies the number of columns over which the edit fields are distributed
         /// </summary>
-        public int LayoutColumns { get; set; } = 1;
+        public int? LayoutColumns { get; set; }
 
         public DbNetEditCore(string connection, string fromPart, string id = null) : base(connection, fromPart, id)
         {
@@ -122,7 +123,9 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             AddProperty(QuickSearch, nameof(QuickSearch), properties);
             AddProperty(Search, nameof(Search), properties);
             AddProperty(Culture, nameof(Culture), properties);
-            AddProperty(LayoutColumns.ToString(), nameof(LayoutColumns), properties);
+            AddProperty(LayoutColumns, nameof(LayoutColumns), properties);
+            AddProperty(IsEditDialog, nameof(IsEditDialog), properties);
+            
             //AddProperty(EncodingHelper.Encode(FixedFilterSql), nameof(FixedFilterSql), properties);
             properties.Add($"datePickerOptions = {DatePickerOptions()};");
 

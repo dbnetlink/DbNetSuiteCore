@@ -35,9 +35,13 @@ declare class DbNetGrid extends DbNetGridEdit {
     copy: boolean;
     currentPage: number;
     defaultColumn: GridColumn | undefined;
+    delete: boolean;
     dragAndDrop: boolean;
     dropIcon: JQuery<HTMLElement> | undefined;
     dropTarget: JQuery<HTMLElement> | undefined;
+    editDialog: EditDialog | undefined;
+    editDialogControl: DbNetEdit | undefined;
+    editDialogId: string;
     export_: boolean;
     fixedFilterParams: Dictionary<object>;
     fixedFilterSql: string;
@@ -46,6 +50,7 @@ declare class DbNetGrid extends DbNetGridEdit {
     gridGenerationMode: GridGenerationMode;
     gridPanel: JQuery<HTMLElement> | undefined;
     groupBy: boolean;
+    insert: boolean;
     multiRowSelect: boolean;
     multiRowSelectLocation: MultiRowSelectLocation;
     nestedGrid: boolean;
@@ -58,6 +63,7 @@ declare class DbNetGrid extends DbNetGridEdit {
     procedureParams: Dictionary<object>;
     rowSelect: boolean;
     totalPages: number;
+    update: boolean;
     view: boolean;
     viewDialog: ViewDialog | undefined;
     constructor(id: string);
@@ -99,6 +105,9 @@ declare class DbNetGrid extends DbNetGridEdit {
     private htmlExport;
     private downloadSpreadsheet;
     private getViewContent;
+    private updateRow;
+    private insertRow;
+    private deleteRow;
     private copyGrid;
     private message;
     getRequest(): DbNetGridRequest;

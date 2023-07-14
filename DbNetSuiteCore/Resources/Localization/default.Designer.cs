@@ -907,20 +907,20 @@ namespace DbNetSuiteCore.Resources.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add new record.
+        /// </summary>
+        internal static string Insert {
+            get {
+                return ResourceManager.GetString("Insert", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Inserting of records is not enabled for for this control.
         /// </summary>
         internal static string InsertDisabled {
             get {
                 return ResourceManager.GetString("InsertDisabled", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Add.
-        /// </summary>
-        internal static string Insertrow {
-            get {
-                return ResourceManager.GetString("Insertrow", resourceCulture);
             }
         }
         
@@ -1789,11 +1789,11 @@ namespace DbNetSuiteCore.Resources.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Update.
+        ///   Looks up a localized string similar to Update selected row.
         /// </summary>
-        internal static string Updaterow {
+        internal static string Update {
             get {
-                return ResourceManager.GetString("Updaterow", resourceCulture);
+                return ResourceManager.GetString("Update", resourceCulture);
             }
         }
         

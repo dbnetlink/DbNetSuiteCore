@@ -29,14 +29,9 @@ class ViewDialog extends Dialog {
         this.parent.fireEvent("onViewRecordSelected", args);
     }
     setHeight() {
-        var _a, _b, _c;
+        var _a, _b;
         const height = (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find("table").first().height();
-        if (height > 600) {
-            (_b = this.$dialog) === null || _b === void 0 ? void 0 : _b.find("div.content").height(600);
-        }
-        else {
-            (_c = this.$dialog) === null || _c === void 0 ? void 0 : _c.find("div.content").height(height);
-        }
+        (_b = this.$dialog) === null || _b === void 0 ? void 0 : _b.find("div.content").height(height > 600 ? 600 : height);
     }
     viewNextRecord() {
         $(this.parent.selectedRow()).next().trigger("click");

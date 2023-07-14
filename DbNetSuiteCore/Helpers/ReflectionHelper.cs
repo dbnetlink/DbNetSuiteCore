@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DbNetSuiteCore.Services;
+using DbNetSuiteCore.ViewModels;
+using System;
 using System.Reflection;
 
 namespace DbNetSuiteCore.Helpers
@@ -12,6 +14,10 @@ namespace DbNetSuiteCore.Helpers
         /// <param name="destination">The destination.</param>
         public static void CopyProperties(this object source, object destination)
         {
+            if (destination is BaseViewModel && source is DbNetSuite)
+            {
+                (destination as BaseViewModel).Component = (source as DbNetSuite);
+            }
             // If any this null throw an exception
             if (source == null || destination == null)
                 throw new Exception("Source or/and Destination Objects are null");
