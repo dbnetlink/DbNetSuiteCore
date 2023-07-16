@@ -10,40 +10,63 @@
 @model ViewDialogViewModel
 
 <table class="view-content-table">
-    <tbody>
-            @foreach (DataColumn column in Model.ViewData.Columns)
+    
+            @{
+            List<KeyValuePair<GridColumn, DataColumn>> fields = new List<KeyValuePair<GridColumn, DataColumn>>();
+            @foreach (DataColumn dataColumn in Model.ViewData.Columns)
             {
-                DataRow row = Model.ViewData.Rows[0];
-                GridColumn gridColumn = Model.Columns.First(c => c.IsMatch(column.ColumnName));
-
+                GridColumn gridColumn = Model.Columns.First(c => c.IsMatch(dataColumn.ColumnName));
                 if (gridColumn.View == false)
                 {
                     continue;
                 }
+                fields.Add(new KeyValuePair<GridColumn, DataColumn>(gridColumn, dataColumn));
+        }
+        int remainder = fields.Count % Model.LayoutColumns;
+        int rows = Math.Abs(fields.Count / Model.LayoutColumns) + (remainder == 0 ? 0 : 1);
+        DataRow dataRow = Model.ViewData.Rows[0];
+    }
+    <tbody>
+        @for (int r = 0; r < rows; r++)
+        {
+            <tr class="view-content-row">
+                @for (int c = 1; c <= Model.LayoutColumns; c++)
+                {
+                    int i = r + ((c - 1) * rows);
+                    @if (i < fields.Count)
+                    {
+                        GridColumn gridColumn = fields[i].Key;
+                        DataColumn dataColumn = fields[i].Value;
 
-                <tr class="view-content-row" data-columnname="@column.ColumnName" data-dbdatatype="@gridColumn.DbDataType">
-                @{
-                    <td class="view-dialog-label">@gridColumn.Label</td>
-                    <td data-type="@gridColumn.DataType" style="@gridColumn.Style" data-value="@(row.ItemArray[gridColumn.Index])">
-                        <div class="view-dialog-value">
-                            @if (gridColumn.DataType == "Byte[]")
-                            {
-                                if  (gridColumn.Download)
+                        <td class="view-dialog-label">@(gridColumn.Label)</td>
+                        <td data-type="@gridColumn.DataType" style="@gridColumn.Style" data-value="@(dataRow.ItemArray[gridColumn.Index])">
+                            <div class="view-dialog-value" data-columnname="@dataColumn.ColumnName" data-dbdatatype="@gridColumn.DbDataType">
+                                @if (gridColumn.DataType == "Byte[]")
                                 {
-                                    <button type="button" class="download">&nbsp;</button>
-                                } 
-                                else if (gridColumn.Image)
-                                {
-                                    <img class="image" />
+                                    if (gridColumn.Download)
+                                    {
+                                        <button type="button" class="download">&nbsp;</button>
+                                    }
+                                    else if (gridColumn.Image)
+                                    {
+                                        <img class="image" />
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                @CellValue(row.ItemArray[gridColumn.Index], gridColumn)
-                            }
-                        </div>
-                    </td>
-                }                
+                                else
+                                {
+                                    @CellValue(dataRow.ItemArray[gridColumn.Index], gridColumn)
+                                }
+                            </div>
+                        </td>
+                    }
+                }
+                @if (remainder > 0)
+                {
+                    for (int i = 0; i < Model.LayoutColumns - remainder; i++)
+                    {
+                        <td colspan="2"></td>
+                    }
+                }
                 </tr>
             }
     </tbody>
@@ -57,7 +80,7 @@
             return new HtmlString("&nbsp;");
         }
 
-        if (string.IsNullOrEmpty(column.Lookup) == false)
+        if (string.IsNullOrEmpty(column.Lookup) == false && column.LookupColumns > 1)
         {
             DataTable lookupTable = Model.LookupTables[column.ColumnKey];
             foreach (DataRow row in lookupTable.Rows)

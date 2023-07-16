@@ -11,8 +11,9 @@
                 {
                     @Button("Previous", Model)
                     @Button("Next", Model)
-                    @Button("Apply", Model)
-                    @Button("Cancel", Model)
+                    <td style="width:100%">&nbsp;</td>
+                    @Button("Apply", Model, false, Enums.ToolbarButtonStyle.ImageAndText)
+                    @Button("Cancel", Model, false, Enums.ToolbarButtonStyle.ImageAndText)
                 }
                 else
                 {
@@ -39,9 +40,10 @@
                         @Button("Next", Model)
                         @Button("Last", Model)
                     }
+                    @Button("Apply", Model, false)
+                    @Button("Cancel", Model, false)
+
                 }
-                @Button("Apply", Model, false)
-                @Button("Cancel", Model, false)
             </tr>
         </tbody>
     </table>
@@ -49,9 +51,13 @@
 
 @functions
 {
-    public static HtmlString Button(string type, ToolbarViewModel model, bool navigation = true)
+    public static HtmlString Button(string type, ToolbarViewModel model, bool navigation = true, Enums.ToolbarButtonStyle? toolbarButtonStyle = null)
     {
-        return new HtmlString($"<td class=\"{(navigation ? "navigation" : "")}\"><button type=\"button\" class=\"toolbar-button toolbar-button-{model.ToolbarButtonStyle.ToString().ToLower()}\" title=\"{@Title(type, model)}\" button-type=\"{type.ToLower()}\" id=\"{model.ComponentId}_{type}Btn\">{(model.ToolbarButtonStyle == Enums.ToolbarButtonStyle.Image ? string.Empty : ResourceString(type, model))}</button></td>");
+        if (toolbarButtonStyle.HasValue == false)
+        {
+            toolbarButtonStyle = model.ToolbarButtonStyle;
+        }
+        return new HtmlString($"<td class=\"{(navigation ? "navigation" : "")}\"><button type=\"button\" class=\"toolbar-button toolbar-button-{toolbarButtonStyle.ToString().ToLower()}\" title=\"{@Title(type, model)}\" button-type=\"{type.ToLower()}\" id=\"{model.ComponentId}_{type}Btn\">{(toolbarButtonStyle == Enums.ToolbarButtonStyle.Image ? string.Empty : ResourceString(type, model))}</button></td>");
     }
 
     public static HtmlString Input(string name, ToolbarViewModel model)

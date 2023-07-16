@@ -28,10 +28,8 @@ class SearchDialog extends Dialog {
     }
     dialogOpened(event) {
         var _a, _b;
-        const height = (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find("table").first().height();
-        if (height > 400) {
-            (_b = this.$dialog) === null || _b === void 0 ? void 0 : _b.find("div.content").height(400);
-        }
+        const width = ((_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find("table").first().width()) + 10;
+        (_b = this.$dialog) === null || _b === void 0 ? void 0 : _b.dialog("option", "width", width);
     }
     configureForOperator(event) {
         const $select = $(event.target);

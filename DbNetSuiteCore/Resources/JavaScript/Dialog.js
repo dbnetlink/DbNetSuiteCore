@@ -8,8 +8,10 @@ class Dialog extends DbNetSuite {
         this.$dialog.addClass("dialog");
         const options = {
             autoOpen: false,
-            width: this.width,
-            maxWidth: this.maxWidth,
+            width: "auto",
+            autoResize: true
+            //  width: this.width,
+            //   maxWidth: this.maxWidth,
         };
         //options.modal = true;
         this.$dialog.dialog(options);

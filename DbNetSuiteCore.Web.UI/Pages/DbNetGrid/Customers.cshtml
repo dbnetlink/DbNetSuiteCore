@@ -7,5 +7,8 @@
     customersGrid.SetColumnLookup("region");
     customersGrid.QuickSearch = true;
     customersGrid.Update = true;
+    customersGrid.EditControl.LayoutColumns = 2;
+    customersGrid.View = true;
+    customersGrid.ViewLayoutColumns = 3;
     @customersGrid.Render()
 }

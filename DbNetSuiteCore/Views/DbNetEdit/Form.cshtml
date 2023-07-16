@@ -13,9 +13,9 @@
 
 @{
     List<KeyValuePair<EditColumn, DataColumn>> fields = new List<KeyValuePair<EditColumn, DataColumn>>();
-    @foreach (DataColumn dataColumn in Model.EditData.Columns)
+    @foreach (DataColumn dataColumn in Model.DataColumns)
     {
-        EditColumn editColumn = Model.Columns[dataColumn.Ordinal];
+        EditColumn editColumn = Model.EditColumns[dataColumn.Ordinal];
         if (editColumn.Display == false)
         {
             continue;

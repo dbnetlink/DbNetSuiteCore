@@ -1,8 +1,8 @@
 declare class EditDialog extends Dialog {
     parent: DbNetGrid;
-    constructor(id: string, parent: DbNetGrid);
+    editControl: DbNetEdit;
+    constructor(id: string, parent: DbNetGrid, editControl: DbNetEdit);
     update(): void;
-    private setHeight;
     private nextRecord;
     private previousRecord;
 }

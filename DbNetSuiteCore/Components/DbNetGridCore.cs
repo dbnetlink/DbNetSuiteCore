@@ -105,7 +105,10 @@ namespace DbNetSuiteCore.Components
         /// Adds/removes a view dialog option to the toolbar
         /// </summary>
         public bool? View { get; set; } = null;
-
+        /// <summary>
+        /// Specifies the number of columns in the View dialog layout 
+        /// </summary>
+        public int? ViewLayoutColumns { get; set; } = null;
         public DbNetGridCore(string connection, string fromPart, string id = null, DataSourceType dataSourceType = DataSourceType.TableOrView) : base(connection, fromPart, id)
         {
             if (dataSourceType == DataSourceType.StoredProcedure)
@@ -274,6 +277,7 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             AddProperty(Update, nameof(Update), properties);
             AddProperty(Delete, nameof(Delete), properties);
             AddProperty(_editDialogId, "EditDialogId", properties);
+            AddProperty(ViewLayoutColumns, nameof(ViewLayoutColumns), properties);
 
             if (FixedFilterParams.Count > 0)
             {

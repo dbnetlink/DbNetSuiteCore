@@ -28,4 +28,5 @@ interface DbNetGridRequest extends DbNetGridEditRequest {
     toolbarButtonStyle: ToolbarButtonStyle;
     update: boolean;
     view: boolean;
+    viewLayoutColumns: number;
 }

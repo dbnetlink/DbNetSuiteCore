@@ -13,7 +13,7 @@ declare class DbNetEdit extends DbNetGridEdit {
     totalRows: number;
     isEditDialog: boolean;
     constructor(id: string);
-    initialize(): void;
+    initialize(_callback?: Function | undefined): void;
     addLinkedControl(control: DbNetSuite): void;
     getRows(callback?: Function): void;
     private configureEdit;

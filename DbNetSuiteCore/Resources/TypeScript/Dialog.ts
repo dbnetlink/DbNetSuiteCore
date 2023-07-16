@@ -10,8 +10,10 @@
 
         const options = {
             autoOpen: false,
-            width: this.width,
-            maxWidth: this.maxWidth,
+            width: "auto",
+            autoResize: true
+          //  width: this.width,
+         //   maxWidth: this.maxWidth,
         } as JQueryUI.DialogOptions;
 
         //options.modal = true;

@@ -30,10 +30,8 @@
     }
 
     private dialogOpened(event: JQuery.TriggeredEvent): void {
-        const height = this.$dialog?.find("table").first().height() as number;
-        if (height > 400) {
-            this.$dialog?.find("div.content").height(400);
-        }
+        const width = this.$dialog?.find("table").first().width() as number + 10;
+        this.$dialog?.dialog("option", "width", width);
     }
 
     private configureForOperator(event: JQuery.TriggeredEvent): void {

@@ -402,9 +402,13 @@ table.lookup-dialog-toolbar,
         border-collapse: separate;
     }
 
+    .dialog-panel {
+        width: fit-content;
+    }
+
     .content {
-        overflow: auto;
-        height: 600px;
+        //   overflow: auto;
+        //   height: 600px;
     }
 
     .view-dialog-label {
@@ -422,6 +426,7 @@ table.lookup-dialog-toolbar,
         border: 1pt solid silver;
         padding: 2px;
         width: fit-content;
+        white-space: nowrap;
     }
 }
 
@@ -455,7 +460,7 @@ table.lookup-dialog-toolbar,
     }
 
     .content {
-        overflow: auto;
+     //   overflow: auto;
     }
 
     .label {

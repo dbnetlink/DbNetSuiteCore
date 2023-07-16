@@ -67,6 +67,7 @@ class DbNetGrid extends DbNetGridEdit {
     update = false;
     view = false;
     viewDialog: ViewDialog | undefined;
+    viewLayoutColumns = 1;
     constructor(id: string) {
         super(id);
         if (this.toolbarPosition === undefined) {
@@ -97,19 +98,18 @@ class DbNetGrid extends DbNetGridEdit {
             .then((response) => {
                 this.updateColumns(response);
                 this.configureGrid(response);
-            })
-            .catch(() => { });
-        this.initialised = true;
+                this.initialised = true;
+                this.fireEvent("onInitialized");
+            });
 
         this.linkedControls.forEach((control) => {
             if ((control as DbNetEdit).isEditDialog) {
-                this.editDialogControl = (control as DbNetEdit);;
+                this.editDialogControl = (control as DbNetEdit);
             }
         });
-        this.fireEvent("onInitialized");
     }
 
-     addNestedGrid(handler: EventHandler) {
+    addNestedGrid(handler: EventHandler) {
         this.bind("onNestedClick", handler);
         this.nestedGrid = true;
     }
@@ -185,10 +185,10 @@ class DbNetGrid extends DbNetGridEdit {
                 callback(response);
             })
     }
-   
+
     private configureToolbar(response: DbNetGridResponse) {
         if (response.toolbar) {
-            const buttons = ["First", "Next", "Previous", "Last", "Download", "Copy", "View", "Search","Insert", "Update", "Delete"];
+            const buttons = ["First", "Next", "Previous", "Last", "Download", "Copy", "View", "Search", "Insert", "Update", "Delete"];
             buttons.forEach(btn =>
                 this.addEventListener(`${btn}Btn`)
             )
@@ -485,6 +485,11 @@ class DbNetGrid extends DbNetGridEdit {
             this.getViewContent();
         }
 
+        if (this.editDialog && this.editDialog.isOpen()) {
+            this.editDialogControl?.getRecord($(this.selectedRow()).data('pk') as string);
+            this.editDialog.update();
+        }
+
         this.fireEvent("onRowSelected", { row: tr[0] });
     }
 
@@ -560,7 +565,7 @@ class DbNetGrid extends DbNetGridEdit {
                 this.openSearchDialog(this.getRequest());
                 break;
             case this.controlElementId("UpdateBtn"):
-                this.updateRow();
+                this.initEditDialog();
                 break;
             case this.controlElementId("InsertBtn"):
                 this.insertRow();
@@ -696,14 +701,23 @@ class DbNetGrid extends DbNetGridEdit {
             });
     }
 
-    private updateRow() {
-        if (!this.editDialog) {
-           
-            this.editDialog = new EditDialog(this.editDialogId as string, this);
-            this.editDialogControl?.initialize();
+    private initEditDialog() {
+        if (!this.editDialogControl?.initialised) {
+            this.editDialogControl?.initialize(() => this.openEditDialog());
         }
+        else {
+            this.openEditDialog()
+        }
+    }
+
+    private openEditDialog() {
         this.editDialogControl?.getRecord($(this.selectedRow()).data('pk') as string);
-        this.editDialog.update();
+
+        if (!this.editDialog) {
+            this.editDialog = new EditDialog(this.editDialogId as string, this, this.editDialogControl as DbNetEdit);
+        }
+
+        this.editDialog?.update();
     }
 
     private insertRow() {
@@ -797,7 +811,8 @@ class DbNetGrid extends DbNetGridEdit {
             gridGenerationMode: this.gridGenerationMode,
             insert: this.insert,
             update: this.update,
-            delete: this.delete
+            delete: this.delete,
+            viewLayoutColumns: this.viewLayoutColumns
         };
 
         return request;
@@ -905,7 +920,7 @@ class DbNetGrid extends DbNetGridEdit {
         grid.initialised ? grid.getPage() : grid.initialize();
     }
 
-    private assignForeignKey(grid: DbNetGrid, fk: object|null) {
+    private assignForeignKey(grid: DbNetGrid, fk: object | null) {
         const col = grid.columns.find((col) => { return col.foreignKey == true });
 
         if (col == undefined) {

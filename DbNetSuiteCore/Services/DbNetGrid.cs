@@ -93,6 +93,7 @@ namespace DbNetSuiteCore.Services
         public long TotalRows { get; set; } = 0;
         public bool Update { get; set; } = false;
         public bool View { get; set; } = false;
+        public int ViewLayoutColumns { get; set; }
 
         public static Type GetNullableType(Type type)
         {
@@ -703,7 +704,7 @@ namespace DbNetSuiteCore.Services
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
-            return System.Text.Json.JsonSerializer.Serialize(data, serializeOptions);
+            return JsonSerializer.Serialize(data, serializeOptions);
         }
 
         private byte[] GenerateSpreadsheet()
@@ -1131,6 +1132,7 @@ namespace DbNetSuiteCore.Services
             viewModel.ViewData = GetViewData();
             viewModel.Columns = Columns;
             viewModel.LookupTables = _lookupTables;
+            viewModel.LayoutColumns = ViewLayoutColumns;
 
             response.Record = CreateRecord(viewModel.ViewData, Columns.Cast<DbColumn>().ToList());
             response.Data = await HttpContext.RenderToStringAsync("Views/DbNetGrid/ViewDialogContent.cshtml", viewModel);

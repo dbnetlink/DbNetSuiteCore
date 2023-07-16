@@ -180,7 +180,7 @@ class DbNetSuite {
             })
     }
 
-    protected controlElement(name: string): JQuery<HTMLElement> {
+    public controlElement(name: string): JQuery<HTMLElement> {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return $(`#${this.controlElementId(name)}`)!;
     }

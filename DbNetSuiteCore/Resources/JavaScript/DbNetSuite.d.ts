@@ -50,7 +50,7 @@ declare class DbNetSuite {
     protected showLoader(): void;
     protected hideLoader(): void;
     protected post<T>(action: string, request: any, blob?: boolean): Promise<T>;
-    protected controlElement(name: string): JQuery<HTMLElement>;
+    controlElement(name: string): JQuery<HTMLElement>;
     protected controlElementId(name: string): string;
     protected disable(id: string, disabled: boolean): void;
     protected setInputElement(name: string, value: number): void;

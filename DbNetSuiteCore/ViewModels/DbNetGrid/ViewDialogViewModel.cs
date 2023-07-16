@@ -12,5 +12,6 @@ namespace DbNetSuiteCore.ViewModels.DbNetGrid
         public List<GridColumn> Columns { get; set; }
         public DataTable ViewData { get; set; }
         public Dictionary<string, DataTable> LookupTables { get; set; }
+        public int LayoutColumns { get; set; }
     }
 }

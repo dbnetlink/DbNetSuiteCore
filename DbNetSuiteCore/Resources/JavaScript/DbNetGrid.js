@@ -57,6 +57,7 @@ class DbNetGrid extends DbNetGridEdit {
         this.totalPages = 0;
         this.update = false;
         this.view = false;
+        this.viewLayoutColumns = 1;
         if (this.toolbarPosition === undefined) {
             this.toolbarPosition = "Top";
         }
@@ -80,16 +81,14 @@ class DbNetGrid extends DbNetGridEdit {
             .then((response) => {
             this.updateColumns(response);
             this.configureGrid(response);
-        })
-            .catch(() => { });
-        this.initialised = true;
+            this.initialised = true;
+            this.fireEvent("onInitialized");
+        });
         this.linkedControls.forEach((control) => {
             if (control.isEditDialog) {
                 this.editDialogControl = control;
-                ;
             }
         });
-        this.fireEvent("onInitialized");
     }
     addNestedGrid(handler) {
         this.bind("onNestedClick", handler);
@@ -392,6 +391,7 @@ class DbNetGrid extends DbNetGridEdit {
         tr.on("click", () => this.handleRowClick(tr));
     }
     handleRowClick(tr) {
+        var _a;
         if (this.rowSelect) {
             tr.parent().find("tr.data-row").removeClass("selected").find("input.multi-select-checkbox").prop('checked', false);
             tr.addClass("selected").find("input.multi-select-checkbox").prop('checked', true);
@@ -399,6 +399,10 @@ class DbNetGrid extends DbNetGridEdit {
         this.configureLinkedControls(tr.data("id"));
         if (this.viewDialog && this.viewDialog.isOpen()) {
             this.getViewContent();
+        }
+        if (this.editDialog && this.editDialog.isOpen()) {
+            (_a = this.editDialogControl) === null || _a === void 0 ? void 0 : _a.getRecord($(this.selectedRow()).data('pk'));
+            this.editDialog.update();
         }
         this.fireEvent("onRowSelected", { row: tr[0] });
     }
@@ -467,7 +471,7 @@ class DbNetGrid extends DbNetGridEdit {
                 this.openSearchDialog(this.getRequest());
                 break;
             case this.controlElementId("UpdateBtn"):
-                this.updateRow();
+                this.initEditDialog();
                 break;
             case this.controlElementId("InsertBtn"):
                 this.insertRow();
@@ -587,14 +591,22 @@ class DbNetGrid extends DbNetGridEdit {
             this.viewDialog.update(response, $row);
         });
     }
-    updateRow() {
+    initEditDialog() {
         var _a, _b;
-        if (!this.editDialog) {
-            this.editDialog = new EditDialog(this.editDialogId, this);
-            (_a = this.editDialogControl) === null || _a === void 0 ? void 0 : _a.initialize();
+        if (!((_a = this.editDialogControl) === null || _a === void 0 ? void 0 : _a.initialised)) {
+            (_b = this.editDialogControl) === null || _b === void 0 ? void 0 : _b.initialize(() => this.openEditDialog());
         }
-        (_b = this.editDialogControl) === null || _b === void 0 ? void 0 : _b.getRecord($(this.selectedRow()).data('pk'));
-        this.editDialog.update();
+        else {
+            this.openEditDialog();
+        }
+    }
+    openEditDialog() {
+        var _a, _b;
+        (_a = this.editDialogControl) === null || _a === void 0 ? void 0 : _a.getRecord($(this.selectedRow()).data('pk'));
+        if (!this.editDialog) {
+            this.editDialog = new EditDialog(this.editDialogId, this, this.editDialogControl);
+        }
+        (_b = this.editDialog) === null || _b === void 0 ? void 0 : _b.update();
     }
     insertRow() {
         return;
@@ -681,7 +693,8 @@ class DbNetGrid extends DbNetGridEdit {
             gridGenerationMode: this.gridGenerationMode,
             insert: this.insert,
             update: this.update,
-            delete: this.delete
+            delete: this.delete,
+            viewLayoutColumns: this.viewLayoutColumns
         };
         return request;
     }

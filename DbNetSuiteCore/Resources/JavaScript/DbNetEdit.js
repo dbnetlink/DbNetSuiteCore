@@ -13,7 +13,7 @@ class DbNetEdit extends DbNetGridEdit {
             this.toolbarPosition = "Bottom";
         }
     }
-    initialize() {
+    initialize(_callback) {
         if (!this.element) {
             return;
         }
@@ -31,10 +31,13 @@ class DbNetEdit extends DbNetGridEdit {
             if (response.error == false) {
                 this.updateColumns(response);
                 this.configureEdit(response);
+                if (_callback) {
+                    _callback();
+                }
+                this.initialised = true;
+                this.fireEvent("onInitialized");
             }
         });
-        this.initialised = true;
-        this.fireEvent("onInitialized");
     }
     addLinkedControl(control) {
         this.linkedControls.push(control);
@@ -131,7 +134,7 @@ class DbNetEdit extends DbNetGridEdit {
     }
     configureToolbar(response) {
         if (response.toolbar) {
-            const buttons = ["First", "Next", "Previous", "Last", "Cancel", "Apply", "Search"];
+            const buttons = this.isEditDialog ? ["Cancel", "Apply"] : ["First", "Next", "Previous", "Last", "Cancel", "Apply", "Search"];
             buttons.forEach(btn => this.addEventListener(`${btn}Btn`));
         }
         const $navigationElements = this.controlElement("dbnetedit-toolbar").find(".navigation");
@@ -141,7 +144,7 @@ class DbNetEdit extends DbNetGridEdit {
             $navigationElements.hide();
             $noRecordsCell.show();
         }
-        else {
+        else if (this.isEditDialog == false) {
             $navigationElements.show();
             $noRecordsCell.hide();
             this.controlElement("dbnetgrid-toolbar").find(".navigation").show();

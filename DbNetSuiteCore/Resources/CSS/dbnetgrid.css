@@ -488,7 +488,7 @@ table.search-dialog-toolbar td .toolbar-button[button-type=view],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=view],
 .search-dialog td .toolbar-button[button-type=view],
 .dbnetedit-form td .toolbar-button[button-type=view] {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='steelblue'><path d='M160-136q-45 0-75.5-30.5T54-242v-476q0-45 30.5-75.5T160-824h640q45 0 75.5 30.5T906-718v476q0 45-30.5 75.5T800-136H160Zm0-106h640v-476H160v476Zm0 0v-476 476Zm478 0 74-74-66-66q15-25 23.5-51.919Q678-460.838 678-490q0-86.667-60.735-147.333Q556.529-698 469.765-698 383-698 322.5-637.265q-60.5 60.736-60.5 147.5Q262-403 322.667-342.5 383.333-282 470-282q27 0 53-6.5t49-19.5l66 66ZM470-388q-42 0-72-30t-30-72q0-42 30-72t72-30q42 0 72 30t30 72q0 42-30 72t-72 30Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='steelblue'><path d='M266.942-373q25.058 0 45.405-15.508Q332.695-404.015 341-429l15-46q14-45-2-78.5T302-587H175l16 142q4 31 25.421 51.5t50.521 20.5Zm424.633 0q29.7 0 51.563-20.5Q765-414 769-445l16-142H659q-36 0-52 34t-2 79l14 45q7.966 24.985 27.483 40.492Q666-373 691.575-373ZM268.274-267q-69.157 0-121.024-46.627Q95.383-360.255 87-431L68-587H27v-106h275q46.632 0 85.316 22.5Q426-648 440-613h81q14-35 52.684-57.5Q612.367-693 659-693h274v106h-41l-19 156q-8.383 70.745-60.25 117.373Q760.883-267 691.726-267 632-267 585-302.5T519-395l-24-72h-30l-24 71q-18.661 58.05-65.83 93.525Q328-267 268.274-267Z'/></svg>");
 }
 table.dbnetsuite-toolbar td .toolbar-button[button-type=view].toolbar-button-text,
 table.view-dialog-toolbar td .toolbar-button[button-type=view].toolbar-button-text,
@@ -512,7 +512,7 @@ table.search-dialog-toolbar td .toolbar-button[button-type=view]:disabled,
 table.lookup-dialog-toolbar td .toolbar-button[button-type=view]:disabled,
 .search-dialog td .toolbar-button[button-type=view]:disabled,
 .dbnetedit-form td .toolbar-button[button-type=view]:disabled {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='gainsboro'><path d='M160-136q-45 0-75.5-30.5T54-242v-476q0-45 30.5-75.5T160-824h640q45 0 75.5 30.5T906-718v476q0 45-30.5 75.5T800-136H160Zm0-106h640v-476H160v476Zm0 0v-476 476Zm478 0 74-74-66-66q15-25 23.5-51.919Q678-460.838 678-490q0-86.667-60.735-147.333Q556.529-698 469.765-698 383-698 322.5-637.265q-60.5 60.736-60.5 147.5Q262-403 322.667-342.5 383.333-282 470-282q27 0 53-6.5t49-19.5l66 66ZM470-388q-42 0-72-30t-30-72q0-42 30-72t72-30q42 0 72 30t30 72q0 42-30 72t-72 30Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='gainsboro'><path d='M266.942-373q25.058 0 45.405-15.508Q332.695-404.015 341-429l15-46q14-45-2-78.5T302-587H175l16 142q4 31 25.421 51.5t50.521 20.5Zm424.633 0q29.7 0 51.563-20.5Q765-414 769-445l16-142H659q-36 0-52 34t-2 79l14 45q7.966 24.985 27.483 40.492Q666-373 691.575-373ZM268.274-267q-69.157 0-121.024-46.627Q95.383-360.255 87-431L68-587H27v-106h275q46.632 0 85.316 22.5Q426-648 440-613h81q14-35 52.684-57.5Q612.367-693 659-693h274v106h-41l-19 156q-8.383 70.745-60.25 117.373Q760.883-267 691.726-267 632-267 585-302.5T519-395l-24-72h-30l-24 71q-18.661 58.05-65.83 93.525Q328-267 268.274-267Z'/></svg>");
 }
 table.dbnetsuite-toolbar td .toolbar-button[button-type=close],
 table.view-dialog-toolbar td .toolbar-button[button-type=close],
@@ -960,9 +960,8 @@ table.lookup-dialog-toolbar td.no-records span,
 .view-dialog .view-content-table {
   border-collapse: separate;
 }
-.view-dialog .content {
-  overflow: auto;
-  height: 600px;
+.view-dialog .dialog-panel {
+  width: fit-content;
 }
 .view-dialog .view-dialog-label {
   font-weight: bold;
@@ -978,6 +977,7 @@ table.lookup-dialog-toolbar td.no-records span,
   border: 1pt solid silver;
   padding: 2px;
   width: fit-content;
+  white-space: nowrap;
 }
 
 .lookup-dialog select {
@@ -1001,9 +1001,6 @@ table.lookup-dialog-toolbar td.no-records span,
 }
 .search-dialog table.layout {
   border-spacing: 0px;
-}
-.search-dialog .content {
-  overflow: auto;
 }
 .search-dialog .label {
   font-weight: bold;

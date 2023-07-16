@@ -9,7 +9,6 @@ class DbNetEdit extends DbNetGridEdit {
     totalRows = 0;
     isEditDialog = false;
 
-
     constructor(id: string) {
         super(id);
         if (this.toolbarPosition == undefined) {
@@ -17,7 +16,7 @@ class DbNetEdit extends DbNetGridEdit {
         }
     }
 
-    initialize(): void {
+    initialize(_callback?:Function |undefined): void {
         if (!this.element) {
             return;
         }
@@ -37,10 +36,13 @@ class DbNetEdit extends DbNetGridEdit {
                 if (response.error == false) {
                     this.updateColumns(response);
                     this.configureEdit(response);
+                    if (_callback) {
+                        _callback();
+                    }
+                    this.initialised = true;
+                    this.fireEvent("onInitialized");
                 }
             })
-        this.initialised = true;
-        this.fireEvent("onInitialized");
     }
 
     addLinkedControl(control: DbNetSuite) {
@@ -147,7 +149,7 @@ class DbNetEdit extends DbNetGridEdit {
 
     private configureToolbar(response: DbNetEditResponse) {
         if (response.toolbar) {
-            const buttons = ["First", "Next", "Previous", "Last", "Cancel", "Apply", "Search"];
+            const buttons = this.isEditDialog ? ["Cancel", "Apply"] : ["First", "Next", "Previous", "Last", "Cancel", "Apply", "Search"];
             buttons.forEach(btn =>
                 this.addEventListener(`${btn}Btn`)
             )
@@ -161,7 +163,7 @@ class DbNetEdit extends DbNetGridEdit {
             $navigationElements.hide();
             $noRecordsCell.show();
         }
-        else {
+        else if (this.isEditDialog == false){
             $navigationElements.show();
             $noRecordsCell.hide();
             this.controlElement("dbnetgrid-toolbar").find(".navigation").show();

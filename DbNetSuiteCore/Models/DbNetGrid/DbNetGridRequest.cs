@@ -35,5 +35,6 @@ namespace DbNetSuiteCore.Models.DbNetGrid
         public ToolbarButtonStyle ToolbarButtonStyle { get; set; }
         public bool Update { get; set; } = false;
         public bool View { get; set; } = false;
+        public int ViewLayoutColumns { get; set; }
     }
 }
