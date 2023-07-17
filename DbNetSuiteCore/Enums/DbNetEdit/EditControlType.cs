@@ -1,4 +1,4 @@
-﻿namespace DbNetSuiteCore.Enums
+﻿namespace DbNetSuiteCore.Enums.DbNetEdit
 {
     public enum EditControlType
     {

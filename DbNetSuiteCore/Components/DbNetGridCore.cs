@@ -119,9 +119,7 @@ namespace DbNetSuiteCore.Components
             EditControl = new DbNetEditCore(connection, fromPart, DbNetEditId);
             EditControl.IsEditDialog = true;
 
-            this._linkedControls.Add(EditControl);
-
-            this._editDialogId = $"{this.Id}_edit_dialog";
+             this._editDialogId = $"{this.Id}_edit_dialog";
         }
       
         /// <summary>
@@ -154,6 +152,10 @@ namespace DbNetSuiteCore.Components
             if (Edit == false)
             {
                 this._editDialogId = string.Empty;
+            }
+            else
+            {
+                this._linkedControls.Add(EditControl);
             }
 
             if (string.IsNullOrEmpty(message) == false)

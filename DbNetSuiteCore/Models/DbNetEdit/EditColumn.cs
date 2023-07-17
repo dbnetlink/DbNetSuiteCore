@@ -1,4 +1,4 @@
-﻿using DbNetSuiteCore.Enums;
+﻿using DbNetSuiteCore.Enums.DbNetEdit;
 
 namespace DbNetSuiteCore.Models.DbNetEdit
 {

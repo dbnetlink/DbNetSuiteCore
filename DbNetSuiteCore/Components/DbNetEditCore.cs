@@ -45,6 +45,14 @@ namespace DbNetSuiteCore.Components
         {
             base.SetColumnProperty(columnName, propertyType, (object)propertyValue);
         }
+
+        /// <summary>
+        /// Sets the edit control type for the specified column
+        /// </summary>
+        public void SetControlType(string columnName, object propertyValue)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.EditControlType, (object)propertyValue);
+        }
         public HtmlString Render()
         {
             string message = ValidateProperties();

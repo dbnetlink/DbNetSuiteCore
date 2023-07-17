@@ -2,6 +2,7 @@
 class DbNetEdit extends DbNetGridEdit {
     constructor(id) {
         super(id);
+        this.applychanges = "applychanges";
         this.changes = {};
         this.currentRow = 1;
         this.layoutColumns = 1;
@@ -13,7 +14,7 @@ class DbNetEdit extends DbNetGridEdit {
             this.toolbarPosition = "Bottom";
         }
     }
-    initialize(_callback) {
+    initialize() {
         if (!this.element) {
             return;
         }
@@ -31,9 +32,6 @@ class DbNetEdit extends DbNetGridEdit {
             if (response.error == false) {
                 this.updateColumns(response);
                 this.configureEdit(response);
-                if (_callback) {
-                    _callback();
-                }
                 this.initialised = true;
                 this.fireEvent("onInitialized");
             }
@@ -157,6 +155,10 @@ class DbNetEdit extends DbNetGridEdit {
             this.disable("NextBtn", response.currentRow == response.totalRows);
             this.disable("LastBtn", response.currentRow == response.totalRows);
         }
+        else {
+            $navigationElements.show();
+            $noRecordsCell.hide();
+        }
         this.controlElement("QuickSearch").on("keyup", (event) => this.quickSearchKeyPress(event));
     }
     updateColumns(response) {
@@ -270,7 +272,14 @@ class DbNetEdit extends DbNetGridEdit {
         }
         if (validForm) {
             this.changes = changes;
-            this.callServer("applychanges");
+            this.callServer(this.applychanges, (response) => this.applyChangesCallback(response));
+        }
+    }
+    applyChangesCallback(response) {
+        if (response.validationMessage) {
+            this.message(response.validationMessage.value);
+            this.highlightField(response.validationMessage.key.toLowerCase());
+            return;
         }
     }
     message(msg) {
@@ -281,6 +290,14 @@ class DbNetEdit extends DbNetGridEdit {
     clearMessage() {
         var _a;
         (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(".message").html("&nbsp;").removeClass("highlight");
+    }
+    highlightField(columnName) {
+        var _a;
+        const element = (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(`[name='${columnName}']`).addClass("highlight");
+        setInterval(() => this.clearHighlightField(element), 5000);
+    }
+    clearHighlightField(element) {
+        element.removeClass("highlight");
     }
     selectDate(event) {
         const $button = $(event.target);

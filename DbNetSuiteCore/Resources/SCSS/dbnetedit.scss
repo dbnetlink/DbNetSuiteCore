@@ -14,6 +14,10 @@ table.dbnetedit-form {
     input, textarea, select {
         font-family: var(--main-font-family);
         font-size: var(--main-font-size);
+
+        &.highlight{
+            background-color:gold;
+        }
     }
 
     input, select {

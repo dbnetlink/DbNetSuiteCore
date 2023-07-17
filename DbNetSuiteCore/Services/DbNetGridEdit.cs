@@ -20,12 +20,18 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using DbNetSuiteCore.ViewModels;
 using DbNetSuiteCore.Constants;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
+using DbNetSuiteCore.Enums.DbNetEdit;
+using DocumentFormat.OpenXml.Office.Excel;
 
 namespace DbNetSuiteCore.Services
 {
     public class DbNetGridEdit : DbNetSuite
     {
         private string _fromPart;
+        private string _primaryKey;
+
         protected Dictionary<string, DataTable> _lookupTables = new Dictionary<string, DataTable>();
         private List<DbColumn> DbColumns
         {
@@ -49,6 +55,15 @@ namespace DbNetSuiteCore.Services
         }
         public int LookupColumnIndex { get; set; }
         public bool Navigation { get; set; }
+        public string PrimaryKey
+        {
+            get => EncodingHelper.Decode(_primaryKey);
+            set => _primaryKey = value;
+        }
+        public Dictionary<string, object> PrimaryKeyValues
+        {
+            get => JsonSerializer.Deserialize<Dictionary<string, object>>(PrimaryKey);
+        }
         public bool QuickSearch { get; set; }
         public string QuickSearchToken { get; set; } = string.Empty;
         public bool Search { get; set; }
@@ -117,6 +132,8 @@ namespace DbNetSuiteCore.Services
                     column.PrimaryKey = row.IsKey() || row.IsAutoIncrement();
                     column.AutoIncrement = row.IsAutoIncrement();
                 }
+
+                column.Required = row.IsRequired();
 
                 if (column is GridColumn)
                 {
@@ -636,7 +653,7 @@ namespace DbNetSuiteCore.Services
                         case SearchOperator.NotIn:
                             foreach (string value in searchParameter.Value1.Split(','))
                             {
-                                searchParameter.Value1Valid = ConvertSearchValue(gridColumn.DataType, value, ref convertedValue);
+                                searchParameter.Value1Valid = ConvertUserValue(gridColumn.DataType, value, ref convertedValue);
                                 if (searchParameter.Value1Valid == false)
                                 {
                                     break;
@@ -646,15 +663,14 @@ namespace DbNetSuiteCore.Services
                         default:
                             if (expression.Contains("{0}"))
                             {
-                                searchParameter.Value1Valid = ConvertSearchValue(gridColumn.DataType, searchParameter.Value1, ref convertedValue);
+                                searchParameter.Value1Valid = ConvertUserValue(gridColumn.DataType, searchParameter.Value1, ref convertedValue);
                             }
                             if (expression.Contains("{1}"))
                             {
-                                searchParameter.Value2Valid = ConvertSearchValue(gridColumn.DataType, searchParameter.Value2, ref convertedValue);
+                                searchParameter.Value2Valid = ConvertUserValue(gridColumn.DataType, searchParameter.Value2, ref convertedValue);
                             }
                             break;
                     }
-
                 }
 
                 response.SearchParams = SearchParams;
@@ -670,7 +686,7 @@ namespace DbNetSuiteCore.Services
             return true;
         }
 
-        private bool ConvertSearchValue(string dataType, string value, ref object convertedValue)
+        protected bool ConvertUserValue(string dataType, string value, ref object convertedValue)
         {
             if (string.IsNullOrEmpty(value))
             {
@@ -1034,6 +1050,16 @@ namespace DbNetSuiteCore.Services
             }
         }
 
+        protected string PrimaryKeyFilter(ListDictionary parameters)
+        {
+            List<string> primaryKeyFilterPart = new List<string>();
+            foreach (string key in PrimaryKeyValues.Keys)
+            {
+                primaryKeyFilterPart.Add($"{key} = {Database.ParameterName(key)}");
+                parameters.Add(Database.ParameterName(key), ConvertToDbParam(PrimaryKeyValues[key]));
+            }
+            return $"{string.Join($" and ", primaryKeyFilterPart)}";
+        }
         protected string RefineSearchExpression(DbColumn col)
         {
             string columnExpression = StripColumnRename(col.ColumnExpression);

@@ -62,7 +62,7 @@ namespace DbNetSuiteCore.Models
         public bool Display { get; set; } = true;
         public bool QuickSearch { get; set; } = false;
         public bool IsNumeric => _numericDataTypes.Contains(DataType);
-
+        public bool Required { get; set; }
 
         public DbColumn()
         {

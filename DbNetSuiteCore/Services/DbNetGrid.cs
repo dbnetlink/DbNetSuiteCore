@@ -79,7 +79,6 @@ namespace DbNetSuiteCore.Services
         }
         public Dictionary<string, object> ParentFilterParams { get; set; } = new Dictionary<string, object>();
         public List<string> ParentFilterSql { get; set; } = new List<string> { };
-        public string PrimaryKey { get; set; } = String.Empty;
         public string ProcedureName
         {
             get => EncodingHelper.Decode(_procedureName);
@@ -152,6 +151,9 @@ namespace DbNetSuiteCore.Services
                     response.Toolbar = await Toolbar();
                     GridGenerationMode = GridGenerationMode.DataTable;
                     await Grid(response);
+                    break;
+                case RequestAction.GridRow:
+                    await GridRow(response);
                     break;
             }
 
@@ -1021,6 +1023,39 @@ namespace DbNetSuiteCore.Services
             response.Data = await HttpContext.RenderToStringAsync($"Views/DbNetGrid/{viewName}.cshtml", viewModel);
         }
 
+        private async Task GridRow(DbNetGridResponse response)
+        {
+            ConfigureGridColumns();
+
+            DataTable dataTable = InitialiseDataTable(Columns);
+
+            using (Database)
+            {
+                Database.Open();
+
+                QueryCommandConfig query = new QueryCommandConfig();
+                query.Sql = $"select {BuildSelectPart<GridColumn>(QueryBuildModes.Normal, Columns)} from {FromPart} where {PrimaryKeyFilter(query.Params)}"; ;
+
+                Database.Open();
+                Database.ExecuteQuery(query);
+                Database.Reader.Read();
+                object[] values = new object[Database.Reader.FieldCount];
+                Database.Reader.GetValues(values);
+                dataTable.Rows.Add(values);
+                PageSize = 1;
+                TotalPages = 1;
+                Database.Close();
+            }
+            var viewModel = new GridViewModel
+            {
+                GridData = dataTable
+            };
+            ReflectionHelper.CopyProperties(this, viewModel);
+            viewModel.Columns = Columns;
+            viewModel.LookupTables = _lookupTables;
+            response.Html = await HttpContext.RenderToStringAsync($"Views/DbNetGrid/Grid.cshtml", viewModel);
+        }
+
         private DataTable GetTotalsDataTable()
         {
             DataTable totalsDataTable = new DataTable();
@@ -1150,9 +1185,7 @@ namespace DbNetSuiteCore.Services
                 dataTable.Columns.Add(dataColumn);
             }
 
-            GridColumn primaryKeyColumn = this.Columns.Where(c => c.PrimaryKey).FirstOrDefault();
-
-            if (primaryKeyColumn == null)
+            if (string.IsNullOrEmpty(this.PrimaryKey))
             {
                 throw new Exception("A primary key column must be specified");
             }
@@ -1162,8 +1195,7 @@ namespace DbNetSuiteCore.Services
                 Database.Open();
                 QueryCommandConfig query = new QueryCommandConfig();
 
-                query.Sql = $"select {BuildSelectPart(QueryBuildModes.View, Columns)} from {FromPart} where {primaryKeyColumn.ColumnExpression} = {ParamName(primaryKeyColumn, false)}";
-                query.Params.Add(ParamName(primaryKeyColumn, true), ConvertToDbParam(this.PrimaryKey, primaryKeyColumn));
+                query.Sql = $"select {BuildSelectPart(QueryBuildModes.View, Columns)} from {FromPart} where {PrimaryKeyFilter(query.Params)}";
                 Database.ExecuteQuery(query);
                 Database.Reader.Read();
                 object[] values = new object[Database.Reader.FieldCount];

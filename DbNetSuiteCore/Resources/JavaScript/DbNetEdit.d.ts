@@ -2,7 +2,9 @@
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
 /// <reference types="bootstrap" />
+type DbNetEditResponseCallback = (response: DbNetEditResponse) => void;
 declare class DbNetEdit extends DbNetGridEdit {
+    private applychanges;
     changes: Dictionary<object>;
     currentRow: number;
     formPanel: JQuery<HTMLElement> | undefined;
@@ -13,9 +15,9 @@ declare class DbNetEdit extends DbNetGridEdit {
     totalRows: number;
     isEditDialog: boolean;
     constructor(id: string);
-    initialize(_callback?: Function | undefined): void;
+    initialize(): void;
     addLinkedControl(control: DbNetSuite): void;
-    getRows(callback?: Function): void;
+    getRows(callback?: DbNetEditResponseCallback): void;
     private configureEdit;
     private configureForm;
     private updateForm;
@@ -27,8 +29,11 @@ declare class DbNetEdit extends DbNetGridEdit {
     private handleClick;
     getRecord(primaryKey?: string | null): void;
     private applyChanges;
+    private applyChangesCallback;
     private message;
     private clearMessage;
+    private highlightField;
+    private clearHighlightField;
     private selectDate;
     private editLookup;
     private selectTime;

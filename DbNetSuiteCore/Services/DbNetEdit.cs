@@ -16,6 +16,7 @@ using System.Linq;
 using DbNetSuiteCore.Attributes;
 using DbNetSuiteCore.Constants;
 using DocumentFormat.OpenXml.Office.Word;
+using System.Diagnostics.Metrics;
 
 namespace DbNetSuiteCore.Services
 {
@@ -23,22 +24,12 @@ namespace DbNetSuiteCore.Services
     {
         private Dictionary<string, object> _resp = new Dictionary<string, object>();
         private string _foreignKeyColumn;
-        private string _primaryKey;
         private bool _foreignKeySupplied => string.IsNullOrEmpty(ForeignKeyColumn) == false && ForeignKeyValue != null;
         public List<EditColumn> Columns { get; set; } = new List<EditColumn>();
         public Dictionary<string, object> Changes { get; set; }
         public int CurrentRow { get; set; } = 1;
         public bool IsEditDialog { get; set; } = false;
         public int LayoutColumns { get; set; } = 1;
-        public string PrimaryKey
-        {
-            get => EncodingHelper.Decode(_primaryKey);
-            set => _primaryKey = value;
-        }
-        public Dictionary<string, object> PrimaryKeyValues
-        {
-            get => JsonSerializer.Deserialize<Dictionary<string, object>>(PrimaryKey);
-        }
         public int TotalRows { get; set; }
 
         public DbNetEdit(AspNetCoreServices services) : base(services)
@@ -117,12 +108,12 @@ namespace DbNetSuiteCore.Services
             ReflectionHelper.CopyProperties(this, viewModel);
             response.Form = await HttpContext.RenderToStringAsync($"Views/DbNetEdit/Form.cshtml", viewModel);
 
-            if (string.IsNullOrEmpty(PrimaryKey))
+            if (IsEditDialog == false)
             {
-                response.TotalRows = 1;
                 response.CurrentRow = 1;
                 query = BuildSql();
                 dataTable = LoadDataTable(query);
+                response.TotalRows = dataTable.Rows.Count;
                 response.Record = CreateRecord(dataTable, Columns.Cast<DbColumn>().ToList());
             }
             response.Columns = Columns;
@@ -167,7 +158,6 @@ namespace DbNetSuiteCore.Services
         {
             DataTable dataTable = InitialiseDataTable(Columns);
 
-            TotalRows = -1;
             using (Database)
             {
                 Database.Open();
@@ -191,37 +181,33 @@ namespace DbNetSuiteCore.Services
                         dataTable.Rows.Add(values);
                     }
                 }
-
-                if (TotalRows == -1)
-                {
-                    TotalRows = counter;
-                }
-
                 Database.Close();
+                TotalRows = counter;
             }
 
             return dataTable;
         }
         private void GetRecord(DbNetEditResponse response)
         {
-            if (string.IsNullOrEmpty(PrimaryKey) == false)
+            DataTable dataTable;
+
+            if (IsEditDialog)
             {
                 response.TotalRows = 1;
                 response.CurrentRow = 1;
                 QueryCommandConfig query = BuildSql();
-                DataTable dataTable = LoadDataTable(query);
-                response.Record = CreateRecord(dataTable, Columns.Cast<DbColumn>().ToList());
+                dataTable = LoadDataTable(query);
             }
             else
             {
                 ConfigureEditColumns();
-                DataTable dataTable = GetDataTable();
+                dataTable = GetDataTable();
                 response.CurrentRow = CurrentRow;
                 response.TotalRows = TotalRows;
                 response.Columns = Columns;
-                response.Record = CreateRecord(dataTable, Columns.Cast<DbColumn>().ToList());
-                response.PrimaryKey = SerialisePrimaryKey(dataTable.Rows[0]);
             }
+            response.Record = CreateRecord(dataTable, Columns.Cast<DbColumn>().ToList());
+            response.PrimaryKey = SerialisePrimaryKey(dataTable.Rows[0]);
         }
         private void ConfigureEditColumns()
         {
@@ -239,13 +225,7 @@ namespace DbNetSuiteCore.Services
 
             if (string.IsNullOrEmpty(PrimaryKey) == false)
             {
-                List<string> primaryKeyFilterPart = new List<string>();
-                foreach (string key in PrimaryKeyValues.Keys)
-                {
-                    primaryKeyFilterPart.Add($"{key} = {Database.ParameterName(key)}");
-                    parameters.Add(Database.ParameterName(key), ConvertToDbParam(PrimaryKeyValues[key]));
-                }
-                filterPart.Add($"{string.Join($" and ", primaryKeyFilterPart)}");
+                filterPart.Add(PrimaryKeyFilter(parameters));
             }
             else
             {
@@ -283,6 +263,33 @@ namespace DbNetSuiteCore.Services
             List<string> filterPart = new List<string>();
             CommandConfig updateCommand = new CommandConfig();
 
+            object convertedValue = new object();
+            foreach (string key in Changes.Keys)
+            {
+                DbColumn dbColumn = this.Columns.FirstOrDefault(c => c.IsMatch(key));
+
+                if (dbColumn.Required && Changes[key].ToString() == string.Empty)
+                {
+                    response.ValidationMessage = new KeyValuePair<string, string>(dbColumn.ColumnName, $"{dbColumn.Label} is required.");
+                    break;
+                }
+               
+                bool isValid = ConvertUserValue(dbColumn.DataType, Changes[key].ToString(), ref convertedValue);
+
+                if (!isValid)
+                {
+                    response.ValidationMessage = new KeyValuePair<string, string>(dbColumn.ColumnName, $"Value for {dbColumn.Label} is not in the correct format.");
+                     break;
+                }
+                updateCommand.Params[Database.ParameterName(key)] = ConvertToDbParam(Changes[key]);
+            }
+
+            if (response.ValidationMessage != null)
+            {
+                response.Error = true;
+                return;
+            }
+
             foreach (string key in Changes.Keys)
             {
                 DbColumn C = this.Columns.FirstOrDefault(c => c.IsMatch(key));
@@ -291,14 +298,7 @@ namespace DbNetSuiteCore.Services
                 updateCommand.Params[Database.ParameterName(key)] = ConvertToDbParam(Changes[key]);
             }
 
-            foreach (string key in PrimaryKeyValues.Keys)
-            {
-                DbColumn C = this.Columns.FirstOrDefault(c => c.IsMatch(key));
-
-                filterPart.Add(Database.QualifiedDbObjectName(C.ColumnName) + " = " + Database.ParameterName(key));
-                updateCommand.Params[Database.ParameterName(key)] = ConvertToDbParam(PrimaryKeyValues[key]);
-            }
-
+            filterPart.Add(PrimaryKeyFilter(updateCommand.Params));
             updateCommand.Sql = $"update {FromPart} set {string.Join(", ", updatePart)} where {string.Join(" and ", filterPart)}";
 
             try

@@ -5,7 +5,7 @@
 @{
     DbNetEditCore employeesEdit = new DbNetEditCore("northwind", "employees");
     employeesEdit.SetColumnProperty("ReportsTo", ColumnPropertyType.Lookup, new Lookup("employees", "employeeid", "lastname + ', ' + firstname"));
-    employeesEdit.SetColumnProperty("notes", ColumnPropertyType.EditControlType, EditControlType.TextArea);
+    employeesEdit.SetControlType("notes", EditControlType.TextArea);
     employeesEdit.SetColumnProperty("titleofcourtesy", ColumnPropertyType.Pattern, "Mr.|Dr.|Ms.|Mr.");
     employeesEdit.Bind(EventType.OnFormElementCreated, "configureFormElement");
     @employeesEdit.Render()

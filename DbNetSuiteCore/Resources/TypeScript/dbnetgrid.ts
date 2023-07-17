@@ -221,6 +221,7 @@ class DbNetGrid extends DbNetGridEdit {
         this.disable("ViewBtn", response.totalRows == 0);
         this.disable("DownloadBtn", response.totalRows == 0);
         this.disable("CopyBtn", response.totalRows == 0);
+        this.disable("UpdateBtn", response.totalRows == 0);
 
         this.controlElement("QuickSearch").on("keyup", (event) => this.quickSearchKeyPress(event));
     }
@@ -689,7 +690,7 @@ class DbNetGrid extends DbNetGridEdit {
 
     private getViewContent() {
         const $row = $(this.selectedRow());
-        this.primaryKey = $row.data("id");
+        this.primaryKey = $row.data("pk");
 
         this.post<DbNetGridResponse>("view-content", this.getRequest())
             .then((response) => {
@@ -701,9 +702,29 @@ class DbNetGrid extends DbNetGridEdit {
             });
     }
 
+    private refreshRow() {
+        const $row = $(this.selectedRow());
+        this.primaryKey = $row.data("pk");
+
+        this.post<DbNetGridResponse>("grid-row", this.getRequest())
+            .then((response) => {
+                const $table = $(response.html);
+                const $newRow = $table.find("tr.data-row")
+                $newRow.removeClass("odd").removeClass("even");
+                $row.hasClass("odd") ? $newRow.addClass("odd") : $newRow.addClass("even");
+                $row.replaceWith($newRow);
+                this.addRowEventHandlers($newRow);
+                this.fireEvent("onRowTransform", { row: $newRow.get(0) });
+                this.handleRowClick($newRow);
+            });
+    }
+
     private initEditDialog() {
         if (!this.editDialogControl?.initialised) {
-            this.editDialogControl?.initialize(() => this.openEditDialog());
+            this.editDialogControl?.internalBind("onInitialized", () => this.openEditDialog());
+            this.editDialogControl?.internalBind("onRecordUpdated", () => this.refreshRow());
+          
+            this.editDialogControl?.initialize();
         }
         else {
             this.openEditDialog()

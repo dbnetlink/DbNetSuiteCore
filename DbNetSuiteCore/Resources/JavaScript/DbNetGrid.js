@@ -181,6 +181,7 @@ class DbNetGrid extends DbNetGridEdit {
         this.disable("ViewBtn", response.totalRows == 0);
         this.disable("DownloadBtn", response.totalRows == 0);
         this.disable("CopyBtn", response.totalRows == 0);
+        this.disable("UpdateBtn", response.totalRows == 0);
         this.controlElement("QuickSearch").on("keyup", (event) => this.quickSearchKeyPress(event));
     }
     configureGrid(response) {
@@ -580,7 +581,7 @@ class DbNetGrid extends DbNetGridEdit {
     }
     getViewContent() {
         const $row = $(this.selectedRow());
-        this.primaryKey = $row.data("id");
+        this.primaryKey = $row.data("pk");
         this.post("view-content", this.getRequest())
             .then((response) => {
             var _a;
@@ -591,10 +592,27 @@ class DbNetGrid extends DbNetGridEdit {
             this.viewDialog.update(response, $row);
         });
     }
+    refreshRow() {
+        const $row = $(this.selectedRow());
+        this.primaryKey = $row.data("pk");
+        this.post("grid-row", this.getRequest())
+            .then((response) => {
+            const $table = $(response.html);
+            const $newRow = $table.find("tr.data-row");
+            $newRow.removeClass("odd").removeClass("even");
+            $row.hasClass("odd") ? $newRow.addClass("odd") : $newRow.addClass("even");
+            $row.replaceWith($newRow);
+            this.addRowEventHandlers($newRow);
+            this.fireEvent("onRowTransform", { row: $newRow.get(0) });
+            this.handleRowClick($newRow);
+        });
+    }
     initEditDialog() {
-        var _a, _b;
+        var _a, _b, _c, _d;
         if (!((_a = this.editDialogControl) === null || _a === void 0 ? void 0 : _a.initialised)) {
-            (_b = this.editDialogControl) === null || _b === void 0 ? void 0 : _b.initialize(() => this.openEditDialog());
+            (_b = this.editDialogControl) === null || _b === void 0 ? void 0 : _b.internalBind("onInitialized", () => this.openEditDialog());
+            (_c = this.editDialogControl) === null || _c === void 0 ? void 0 : _c.internalBind("onRecordUpdated", () => this.refreshRow());
+            (_d = this.editDialogControl) === null || _d === void 0 ? void 0 : _d.initialize();
         }
         else {
             this.openEditDialog();

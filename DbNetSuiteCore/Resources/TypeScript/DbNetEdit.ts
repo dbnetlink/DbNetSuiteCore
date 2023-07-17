@@ -1,4 +1,6 @@
+type DbNetEditResponseCallback = (response:DbNetEditResponse) => void;
 class DbNetEdit extends DbNetGridEdit {
+    private applychanges = "applychanges";
     changes: Dictionary<object> = {};
     currentRow = 1;
     formPanel: JQuery<HTMLElement> | undefined;
@@ -16,7 +18,7 @@ class DbNetEdit extends DbNetGridEdit {
         }
     }
 
-    initialize(_callback?:Function |undefined): void {
+    initialize(): void {
         if (!this.element) {
             return;
         }
@@ -36,9 +38,6 @@ class DbNetEdit extends DbNetGridEdit {
                 if (response.error == false) {
                     this.updateColumns(response);
                     this.configureEdit(response);
-                    if (_callback) {
-                        _callback();
-                    }
                     this.initialised = true;
                     this.fireEvent("onInitialized");
                 }
@@ -49,7 +48,7 @@ class DbNetEdit extends DbNetGridEdit {
         this.linkedControls.push(control);
     }
 
-    getRows(callback?: Function) {
+    getRows(callback?: DbNetEditResponseCallback) {
         this.callServer("search", callback);
     }
 
@@ -111,18 +110,20 @@ class DbNetEdit extends DbNetGridEdit {
         }
     }
 
-    private callServer(action: string, callback?: Function) {
+    private callServer(action: string, callback?: DbNetEditResponseCallback) {
         this.post<DbNetEditResponse>(action, this.getRequest())
             .then((response) => {
                 if (response.error == false) {
                     this.configureToolbar(response);
                     this.updateForm(response);
                 }
+
                 if (callback) {
                     callback(response);
                 }
             })
     }
+
     public getRequest(): DbNetEditRequest {
         const request: DbNetEditRequest = {
             changes: this.changes,
@@ -163,7 +164,7 @@ class DbNetEdit extends DbNetGridEdit {
             $navigationElements.hide();
             $noRecordsCell.show();
         }
-        else if (this.isEditDialog == false){
+        else if (this.isEditDialog == false) {
             $navigationElements.show();
             $noRecordsCell.hide();
             this.controlElement("dbnetgrid-toolbar").find(".navigation").show();
@@ -177,6 +178,10 @@ class DbNetEdit extends DbNetGridEdit {
             this.disable("PreviousBtn", response.currentRow == 1);
             this.disable("NextBtn", response.currentRow == response.totalRows);
             this.disable("LastBtn", response.currentRow == response.totalRows);
+        }
+        else {
+            $navigationElements.show();
+            $noRecordsCell.hide();
         }
 
         this.controlElement("QuickSearch").on("keyup", (event) => this.quickSearchKeyPress(event));
@@ -300,7 +305,15 @@ class DbNetEdit extends DbNetGridEdit {
         }
         if (validForm) {
             this.changes = changes;
-            this.callServer("applychanges");
+            this.callServer(this.applychanges, (response: DbNetEditResponse) => this.applyChangesCallback(response));
+        }
+    }
+
+    private applyChangesCallback(response: DbNetEditResponse): void {
+        if (response.validationMessage) {
+            this.message(response.validationMessage.value);
+            this.highlightField(response.validationMessage.key.toLowerCase())
+            return;
         }
     }
 
@@ -313,6 +326,14 @@ class DbNetEdit extends DbNetGridEdit {
         this.formPanel?.find(".message").html("&nbsp;").removeClass("highlight");
     }
 
+    private highlightField(columnName: string): void {
+        const element = this.formPanel?.find(`[name='${columnName}']`).addClass("highlight") as JQuery<HTMLElement>;
+        setInterval(() => this.clearHighlightField(element), 5000);
+    }
+
+    private clearHighlightField(element: JQuery<HTMLElement>): void {
+        element.removeClass("highlight");
+    }
     private selectDate(event: JQuery.TriggeredEvent): void {
         const $button = $(event.target as HTMLInputElement);
         $button.parent().find("input").datepicker("show");

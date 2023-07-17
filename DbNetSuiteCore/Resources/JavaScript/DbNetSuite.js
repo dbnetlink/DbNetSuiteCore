@@ -11,6 +11,7 @@ class DbNetSuite {
         this.datePickerOptions = {};
         this.element = undefined;
         this.eventHandlers = {};
+        this.internalEventHandlers = {};
         this.id = "";
         this.connectionString = "";
         this.connectionType = "SqlServer";
@@ -33,6 +34,11 @@ class DbNetSuite {
         if (!this.eventHandlers[event])
             this.eventHandlers[event] = [];
         this.eventHandlers[event].push(handler);
+    }
+    internalBind(event, callback) {
+        if (!this.internalEventHandlers[event])
+            this.internalEventHandlers[event] = [];
+        this.internalEventHandlers[event].push({ context: this, method: callback });
     }
     unbind(event, handler) {
         if (this.eventHandlers[event] == null)
@@ -61,16 +67,26 @@ class DbNetSuite {
         this.linkedControls.push(control);
     }
     fireEvent(event, params = undefined) {
-        if (!this.eventHandlers[event])
-            return false;
-        const events = this.eventHandlers[event];
-        events.forEach((method) => {
-            let args = [this];
-            if (params) {
-                args = args.concat([params]);
-            }
-            method.apply(window, args);
-        });
+        if (this.eventHandlers[event]) {
+            const events = this.eventHandlers[event];
+            events.forEach((handler) => {
+                let args = [this];
+                if (params) {
+                    args = args.concat([params]);
+                }
+                handler.apply(window, args);
+            });
+        }
+        if (this.internalEventHandlers[event]) {
+            const events = this.internalEventHandlers[event];
+            events.forEach((handler) => {
+                let args = [this];
+                if (params) {
+                    args = args.concat([params]);
+                }
+                handler.method.apply(handler.context, args);
+            });
+        }
     }
     addPanel(panelId, parent = undefined) {
         const id = `${this.id}_${panelId}Panel`;

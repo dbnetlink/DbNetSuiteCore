@@ -1,4 +1,4 @@
-type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated"
+type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated"
 
 interface CellDataDownloadArgs {
     row: HTMLTableRowElement,
@@ -19,6 +19,11 @@ type EventHandler = {
     params: object | undefined;
 };
 
+type InternalEventHandler = {
+    context: DbNetSuite;
+    method: EmptyCallback;
+};
+
 enum MessageBoxType {
     Error,
     Warning,
@@ -26,11 +31,14 @@ enum MessageBoxType {
     Question
 }
 
+type EmptyCallback = () => any;
+
 class DbNetSuite {
     public static DBNull = "DBNull";
     public datePickerOptions: JQueryUI.DatepickerOptions = {};
     protected element: JQuery<HTMLElement> | undefined = undefined;
     protected eventHandlers: Dictionary<Array<EventHandler>> = {};
+    protected internalEventHandlers: Dictionary<Array<InternalEventHandler>> = {};
     protected id = "";
     protected loadingPanel: JQuery<HTMLElement> | undefined;
     protected connectionString = "";
@@ -58,10 +66,16 @@ class DbNetSuite {
         }
     }
 
-    bind(event: EventName, handler: EventHandler) {
+    bind(event: EventName, handler: EventHandler ) {
         if (!this.eventHandlers[event])
             this.eventHandlers[event] = [];
         this.eventHandlers[event].push(handler);
+    }
+
+    internalBind(event: EventName, callback: EmptyCallback) {
+        if (!this.internalEventHandlers[event])
+            this.internalEventHandlers[event] = [];
+        this.internalEventHandlers[event].push({ context:this, method:callback } as InternalEventHandler);
     }
 
     unbind(event: EventName, handler: EventHandler) {
@@ -95,19 +109,31 @@ class DbNetSuite {
     }
 
     fireEvent(event: EventName, params: object | undefined = undefined) {
-        if (!this.eventHandlers[event])
-            return false;
+        if (this.eventHandlers[event]) {
+            const events = this.eventHandlers[event];
 
-        const events = this.eventHandlers[event];
+            events.forEach((handler: EventHandler) => {
+                let args: object[] = [this];
 
-        events.forEach((method: EventHandler) => {
-            let args: object[] = [this];
+                if (params) {
+                    args = args.concat([params]);
+                }
+                handler.apply(window, args);
+            })
+        }
 
-            if (params) {
-                args = args.concat([params]);
-            }
-            method.apply(window, args);
-        })
+        if (this.internalEventHandlers[event]) {
+            const events = this.internalEventHandlers[event];
+
+            events.forEach((handler: ) => {
+                let args: object[] = [this];
+
+                if (params) {
+                    args = args.concat([params]);
+                }
+                handler.method.apply(handler.context, args);
+            })
+        }
     }
 
     protected addPanel(panelId: string, parent: JQuery<HTMLElement> | undefined = undefined): JQuery<HTMLElement> {
