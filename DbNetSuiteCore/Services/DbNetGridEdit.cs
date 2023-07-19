@@ -48,11 +48,13 @@ namespace DbNetSuiteCore.Services
                 return null;
             }
         }
+        public bool Delete { get; set; } = false;
         public string FromPart
         {
             get => EncodingHelper.Decode(_fromPart);
             set => _fromPart = value;
         }
+        public bool Insert { get; set; } = false;
         public int LookupColumnIndex { get; set; }
         public bool Navigation { get; set; }
         public string PrimaryKey
@@ -608,13 +610,6 @@ namespace DbNetSuiteCore.Services
             response.Html = await HttpContext.RenderToStringAsync("Views/DbNetGrid/LookupDialogContent.cshtml", lookupDialogViewModel);
         }
 
-
-        protected async Task MessageBox(DbNetGridEditResponse response)
-        {
-            var baseViewModel = new BaseViewModel();
-            ReflectionHelper.CopyProperties(this, baseViewModel);
-            response.Html = await HttpContext.RenderToStringAsync("Views/DbNetSuite/MessageBox.cshtml", baseViewModel);
-        }
         private DataTable GetLookupData(int columnIndex, List<DbColumn> columns)
         {
             DbColumn dbColumn = columns.FirstOrDefault(c => c.Index == columnIndex);

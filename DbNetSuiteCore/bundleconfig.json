@@ -76,5 +76,11 @@
     "inputFiles": [
       "Resources/JavaScript/EditDialog.js"
     ]
+  },
+  {
+    "outputFileName": "Resources/JavaScript/MessageBox.min.js",
+    "inputFiles": [
+      "Resources/JavaScript/MessageBox.js"
+    ]
   }
 ]

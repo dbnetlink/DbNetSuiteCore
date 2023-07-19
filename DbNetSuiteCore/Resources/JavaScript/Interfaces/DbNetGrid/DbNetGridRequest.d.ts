@@ -6,7 +6,6 @@ interface DbNetGridRequest extends DbNetGridEditRequest {
     copy: boolean;
     currentPage: number;
     defaultColumn: GridColumn | undefined;
-    delete: boolean;
     export: boolean;
     extension?: string | undefined;
     fixedFilterParams: Dictionary<object>;
@@ -14,7 +13,6 @@ interface DbNetGridRequest extends DbNetGridEditRequest {
     frozenHeader: boolean;
     gridGenerationMode: GridGenerationMode;
     groupBy: boolean;
-    insert: boolean;
     multiRowSelect: boolean;
     multiRowSelectLocation: MultiRowSelectLocation;
     nestedGrid: boolean;

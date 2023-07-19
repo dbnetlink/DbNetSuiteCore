@@ -126,14 +126,11 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
         private string Properties()
         {
             List<string> properties = new List<string>();
-            AddProperty(ToolbarButtonStyle, nameof(ToolbarButtonStyle), properties);
-            AddProperty(ToolbarPosition, nameof(ToolbarPosition), properties);
-            AddProperty(QuickSearch, nameof(QuickSearch), properties);
-            AddProperty(Search, nameof(Search), properties);
-            AddProperty(Culture, nameof(Culture), properties);
             AddProperty(LayoutColumns, nameof(LayoutColumns), properties);
             AddProperty(IsEditDialog, nameof(IsEditDialog), properties);
-            
+
+            AddProperties(properties);
+
             //AddProperty(EncodingHelper.Encode(FixedFilterSql), nameof(FixedFilterSql), properties);
             properties.Add($"datePickerOptions = {DatePickerOptions()};");
 

@@ -7,7 +7,9 @@ declare class DbNetEdit extends DbNetGridEdit {
     private applychanges;
     changes: Dictionary<object>;
     currentRow: number;
+    delete: boolean;
     formPanel: JQuery<HTMLElement> | undefined;
+    insert: boolean;
     layoutColumns: number;
     messagePanel: JQuery<HTMLElement> | undefined;
     primaryKey: string;
@@ -25,10 +27,12 @@ declare class DbNetEdit extends DbNetGridEdit {
     getRequest(): DbNetEditRequest;
     private configureToolbar;
     private updateColumns;
-    private addEventListener;
     private handleClick;
     getRecord(primaryKey?: string | null): void;
+    insertRecord(): void;
+    deleteRecord(primaryKey?: string | null): void;
     private applyChanges;
+    private editMode;
     private applyChangesCallback;
     private message;
     private clearMessage;

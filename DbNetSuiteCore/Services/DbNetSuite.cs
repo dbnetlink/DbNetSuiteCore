@@ -17,11 +17,9 @@ using System.Text.Json.Serialization;
 using DbNetSuiteCore.Utilities;
 using System.Globalization;
 using System.Threading;
-using DbNetSuiteCore.Enums;
-using DbNetSuiteCore.Models.DbNetGrid;
-using System.Collections.Specialized;
-using System.Data;
-using System.Text.RegularExpressions;
+using DbNetSuiteCore.ViewModels;
+using Microsoft.AspNetCore.Mvc;
+using DbNetSuiteCore.Constants.DbNetSuite;
 
 namespace DbNetSuiteCore.Services
 {
@@ -56,9 +54,39 @@ namespace DbNetSuiteCore.Services
             Configuration = services.configuration;
             Settings = services.configuration.GetSection("DbNetSuiteCore").Get<DbNetSuiteCoreSettings>() ?? new DbNetSuiteCoreSettings();
         }
+
+        public async Task<object> Process()
+        {
+            DbNetSuiteResponse response = new DbNetSuiteResponse();
+            ResourceManager = new ResourceManager("DbNetSuiteCore.Resources.Localization.default", typeof(DbNetSuite).Assembly);
+
+            switch (Action.ToLower())
+            {
+                case RequestAction.MessageBox:
+                    await MessageBox(response);
+                    break;
+            }
+
+            return SerialisedResponse(response);
+        }
+        protected string SerialisedResponse(DbNetSuiteResponse response)
+        {
+            var serializeOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            return System.Text.Json.JsonSerializer.Serialize(response, serializeOptions);
+        }
         protected string QueryParam(string name)
         {
             return HttpContext.Request.Query[name];
+        }
+
+        protected async Task MessageBox(DbNetSuiteResponse response)
+        {
+            var baseViewModel = new BaseViewModel();
+            ReflectionHelper.CopyProperties(this, baseViewModel);
+            response.Html = await HttpContext.RenderToStringAsync("Views/DbNetSuite/MessageBox.cshtml", baseViewModel);
         }
 
         protected void ThrowException(string Msg, string Info = null)
@@ -99,7 +127,6 @@ namespace DbNetSuiteCore.Services
         protected void Initialise()
         {
             Database = new DbNetDataCore(ConnectionString, Env, Configuration);
-
             ResourceManager = new ResourceManager("DbNetSuiteCore.Resources.Localization.default", typeof(DbNetSuite).Assembly);
 
             if (string.IsNullOrEmpty(Culture) == false)

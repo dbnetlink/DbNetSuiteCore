@@ -13,6 +13,8 @@ namespace DbNetSuiteCore.Models
         private string _lookup;
         private string _columnExpression;
         private object _foreignKeyValue;
+        private bool _required;
+
         public string BaseTableName { get; set; }
         public string BaseSchemaName { get; set; }
         public string DataType { get; set; }
@@ -62,7 +64,11 @@ namespace DbNetSuiteCore.Models
         public bool Display { get; set; } = true;
         public bool QuickSearch { get; set; } = false;
         public bool IsNumeric => _numericDataTypes.Contains(DataType);
-        public bool Required { get; set; }
+        public bool Required
+        {
+            get => _required;
+            set => _required = value;
+        }
 
         public DbColumn()
         {

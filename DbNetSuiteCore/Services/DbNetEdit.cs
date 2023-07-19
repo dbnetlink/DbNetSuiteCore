@@ -13,10 +13,8 @@ using DbNetSuiteCore.ViewModels.DbNetEdit;
 using System.Collections.Specialized;
 using System;
 using System.Linq;
-using DbNetSuiteCore.Attributes;
 using DbNetSuiteCore.Constants;
-using DocumentFormat.OpenXml.Office.Word;
-using System.Diagnostics.Metrics;
+
 
 namespace DbNetSuiteCore.Services
 {
@@ -66,8 +64,11 @@ namespace DbNetSuiteCore.Services
                 case RequestAction.GetRecord:
                     GetRecord(response);
                     break;
-                case RequestAction.ApplyChanges:
-                    ApplyChanges(response);
+                case RequestAction.UpdateRecord:
+                    UpdateRecord(response);
+                    break;
+                case RequestAction.InsertRecord:
+                    InsertRecord(response);
                     break;
                 case RequestAction.Search:
                     SelectRecords(response);
@@ -84,10 +85,9 @@ namespace DbNetSuiteCore.Services
 
         private async Task<string> Toolbar()
         {
-            var viewModel = new ViewModels.DbNetEdit.ToolbarViewModel();
+            var viewModel = new ToolbarViewModel();
             ReflectionHelper.CopyProperties(this, viewModel);
-            var contents = await HttpContext.RenderToStringAsync("Views/DbNetEdit/Toolbar.cshtml", viewModel);
-            return contents;
+            return await HttpContext.RenderToStringAsync("Views/DbNetEdit/Toolbar.cshtml", viewModel);
         }
 
         private async Task CreateForm(DbNetEditResponse response)
@@ -223,7 +223,7 @@ namespace DbNetSuiteCore.Services
             ListDictionary parameters = new ListDictionary();
             List<string> filterPart = new List<string>();
 
-            if (string.IsNullOrEmpty(PrimaryKey) == false)
+            if (string.IsNullOrEmpty(PrimaryKey) == false && IsEditDialog)
             {
                 filterPart.Add(PrimaryKeyFilter(parameters));
             }
@@ -257,36 +257,16 @@ namespace DbNetSuiteCore.Services
             return new QueryCommandConfig(sql, parameters);
         }
 
-        private void ApplyChanges(DbNetEditResponse response)
+        private void UpdateRecord(DbNetEditResponse response)
         {
             List<string> updatePart = new List<string>();
             List<string> filterPart = new List<string>();
             CommandConfig updateCommand = new CommandConfig();
 
-            object convertedValue = new object();
-            foreach (string key in Changes.Keys)
+            ValidateUserInput(response);
+
+            if (response.Error)
             {
-                DbColumn dbColumn = this.Columns.FirstOrDefault(c => c.IsMatch(key));
-
-                if (dbColumn.Required && Changes[key].ToString() == string.Empty)
-                {
-                    response.ValidationMessage = new KeyValuePair<string, string>(dbColumn.ColumnName, $"{dbColumn.Label} is required.");
-                    break;
-                }
-               
-                bool isValid = ConvertUserValue(dbColumn.DataType, Changes[key].ToString(), ref convertedValue);
-
-                if (!isValid)
-                {
-                    response.ValidationMessage = new KeyValuePair<string, string>(dbColumn.ColumnName, $"Value for {dbColumn.Label} is not in the correct format.");
-                     break;
-                }
-                updateCommand.Params[Database.ParameterName(key)] = ConvertToDbParam(Changes[key]);
-            }
-
-            if (response.ValidationMessage != null)
-            {
-                response.Error = true;
                 return;
             }
 
@@ -313,10 +293,79 @@ namespace DbNetSuiteCore.Services
             }
             catch (Exception ex)
             {
-                response.Message = $"An error has occurred ({ex.Message})";
+                response.Message = $"Update failed ({ex.Message})";
             }
 
             GetRecord(response);
+        }
+
+        private void InsertRecord(DbNetEditResponse response)
+        {
+            List<string> columnNames = new List<string>();
+            List<string> paramNames = new List<string>();
+            CommandConfig updateCommand = new CommandConfig();
+
+            ValidateUserInput(response);
+
+            if (response.Error)
+            {
+                return;
+            }
+
+            foreach (string key in Changes.Keys)
+            {
+                DbColumn C = this.Columns.FirstOrDefault(c => c.IsMatch(key));
+
+                columnNames.Add(Database.QualifiedDbObjectName(C.ColumnName));
+                paramNames.Add(Database.ParameterName(key));
+                updateCommand.Params[Database.ParameterName(key)] = ConvertToDbParam(Changes[key]);
+            }
+
+            updateCommand.Sql = $"insert into {FromPart} ({string.Join(",",columnNames)}) values ({string.Join(",", paramNames)})";
+
+            string autoIncrementColumnName = this.Columns.FirstOrDefault(c => c.AutoIncrement)?.ColumnName;
+
+            try
+            {
+                using (Database)
+                {
+                    Database.Open();
+                    response.PrimaryKey = Database.ExecuteInsert(updateCommand, autoIncrementColumnName).ToString();
+                }
+
+                response.Message = "Record added";
+            }
+            catch (Exception ex)
+            {
+                response.Message = $"Insert failed ({ex.Message})";
+            }
+
+           // GetRecord(response);
+        }
+
+        private void ValidateUserInput(DbNetEditResponse response)
+        {
+            object convertedValue = new object();
+            foreach (string key in Changes.Keys)
+            {
+                DbColumn dbColumn = this.Columns.FirstOrDefault(c => c.IsMatch(key));
+
+                if (dbColumn.Required && Changes[key].ToString() == string.Empty)
+                {
+                    response.ValidationMessage = new KeyValuePair<string, string>(dbColumn.ColumnName, $"{dbColumn.Label} is required.");
+                    break;
+                }
+
+                bool isValid = ConvertUserValue(dbColumn.DataType, Changes[key].ToString(), ref convertedValue);
+
+                if (!isValid)
+                {
+                    response.ValidationMessage = new KeyValuePair<string, string>(dbColumn.ColumnName, $"Value for {dbColumn.Label} is not in the correct format.");
+                    break;
+                }
+            }
+
+            response.Error = response.ValidationMessage != null;
         }
     }
 }

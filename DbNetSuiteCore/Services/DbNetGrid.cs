@@ -47,7 +47,6 @@ namespace DbNetSuiteCore.Services
         public bool Copy { get; set; } = true;
         public int CurrentPage { get; set; } = 1;
         public GridColumn DefaultColumn { get; set; }
-        public bool Delete { get; set; } = false;
         public bool Export { get; set; } = true;
         public string Extension { get; set; } = string.Empty;
         public FilterColumnModeValues FilterColumnMode { get; set; } = FilterColumnModeValues.Simple;
@@ -63,9 +62,7 @@ namespace DbNetSuiteCore.Services
         public GridGenerationMode GridGenerationMode { get; set; } = GridGenerationMode.Display;
         public bool GroupBy { get; set; } = false;
         public string Having { get; set; } = string.Empty;
-       
         public bool IgnorePrimaryKeys { get; set; } = false;
-        public bool Insert { get; set; } = false;
         public bool MultiRowSelect { get; set; } = false;
         public MultiRowSelectLocation MultiRowSelectLocation { get; set; } = MultiRowSelectLocation.Left;
         public bool NestedGrid { get; set; } = false;
@@ -141,9 +138,6 @@ namespace DbNetSuiteCore.Services
                     break;
                 case RequestAction.Lookup:
                     await LookupDialog(response, Columns.Cast<DbColumn>().ToList());
-                    break;
-                case RequestAction.MessageBox:
-                    await MessageBox(response);
                     break;
                 case RequestAction.DataArray:
                     return DataArray();

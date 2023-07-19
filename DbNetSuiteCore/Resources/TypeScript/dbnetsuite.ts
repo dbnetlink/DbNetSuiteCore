@@ -1,4 +1,4 @@
-type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated"
+type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted"
 
 interface CellDataDownloadArgs {
     row: HTMLTableRowElement,
@@ -173,7 +173,7 @@ class DbNetSuite {
         this.loadingPanel?.removeClass("display");
     }
 
-    protected post<T>(action: string, request: any, blob = false): Promise<T> {
+    protected post<T>(action: string, request: any, blob = false, page:string|null = null): Promise<T> {
         this.showLoader();
         const options = {
             method: "POST",
@@ -184,7 +184,11 @@ class DbNetSuite {
             body: JSON.stringify(request)
         };
 
-        return fetch(`~/${this.constructor.name.toLowerCase()}.dbnetsuite?action=${action}`, options)
+        if (page == null) {
+            page = this.constructor.name.toLowerCase()
+        }
+
+        return fetch(`~/${page}.dbnetsuite?action=${action}`, options)
             .then(response => {
                 this.hideLoader();
 
@@ -228,15 +232,16 @@ class DbNetSuite {
         });
     }
 
-    protected showMessageBox(message: string, type: MessageBoxType, callback: Function) {
+    protected info(text:string) {
         if (this.messageBox == undefined) {
-            this.post<MessageBoxResponse>("message-box", {})
+            this.post<DbNetSuiteResponse>("message-box", {}, false, "dbnetsuite")
                 .then((response) => {
-                    this.element?.append(response.dialog);
-                    this.messageBox = new MessageBox(`${this.id}_message_box`);
+                    this.element?.append(response.html);
+                    this.messageBox = new MessageBox(`dbnetsuite_message_box`);
+                    this.messageBox?.show(text)
                 });
         }
-        this.messageBox.show(message, type)
+        this.messageBox?.show(text)
     }
 
     protected addDatePicker($input: JQuery<HTMLInputElement>, datePickerOptions: JQueryUI.DatepickerOptions) {

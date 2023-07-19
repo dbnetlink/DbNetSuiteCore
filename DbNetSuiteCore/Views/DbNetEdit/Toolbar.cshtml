@@ -9,40 +9,48 @@
             <tr>
                 @if (Model.IsEditDialog)
                 {
-                    @Button("Previous", Model)
-                    @Button("Next", Model)
+                    @Button("Previous")
+                    @Button("Next")
                     <td style="width:100%">&nbsp;</td>
-                    @Button("Apply", Model, false, Enums.ToolbarButtonStyle.ImageAndText)
-                    @Button("Cancel", Model, false, Enums.ToolbarButtonStyle.ImageAndText)
+                    @Button("Apply", false, Enums.ToolbarButtonStyle.ImageAndText)
+                    @Button("Cancel", false, Enums.ToolbarButtonStyle.ImageAndText)
                 }
                 else
                 {
                     @if (Model.Search)
                     {
-                        @Button("Search", Model, false)
+                        @Button("Search", false)
                     }
-                    @QuickSearch(Model)
+                    @QuickSearch()
                     @if (Model.Navigation)
                     {
-                        @Button("First", Model)
-                        @Button("Previous", Model)
+                        @Button("First")
+                        @Button("Previous")
                     }
-                    @NoRecords(Model)
+                    @if (Model.Insert)
+                    {
+                        @Button("Insert", false)
+                    }
+                    @if (Model.Delete)
+                    {
+                        @Button("Delete", false)
+                    }
+                    @NoRecords()
                     @if (Model.Navigation)
                     {
-                        @Text("Record", Model)
-                        @Input("RowNumber", Model)
-                        @Text("Of", Model)
-                        @Input("RowCount", Model)
+                        @Text("Record")
+                        @Input("RowNumber")
+                        @Text("Of")
+                        @Input("RowCount")
                     }
                     @if (Model.Navigation)
                     {
-                        @Button("Next", Model)
-                        @Button("Last", Model)
+                        @Button("Next")
+                        @Button("Last")
                     }
-                    @Button("Apply", Model, false)
-                    @Button("Cancel", Model, false)
-
+                    <td style="width:100%"></td>
+                    @Button("Apply", false)
+                    @Button("Cancel", false)
                 }
             </tr>
         </tbody>
@@ -51,47 +59,47 @@
 
 @functions
 {
-    public static HtmlString Button(string type, ToolbarViewModel model, bool navigation = true, Enums.ToolbarButtonStyle? toolbarButtonStyle = null)
+    public HtmlString Button(string type, bool navigation = true, Enums.ToolbarButtonStyle? toolbarButtonStyle = null)
     {
         if (toolbarButtonStyle.HasValue == false)
         {
-            toolbarButtonStyle = model.ToolbarButtonStyle;
+            toolbarButtonStyle = Model.ToolbarButtonStyle;
         }
-        return new HtmlString($"<td class=\"{(navigation ? "navigation" : "")}\"><button type=\"button\" class=\"toolbar-button toolbar-button-{toolbarButtonStyle.ToString().ToLower()}\" title=\"{@Title(type, model)}\" button-type=\"{type.ToLower()}\" id=\"{model.ComponentId}_{type}Btn\">{(toolbarButtonStyle == Enums.ToolbarButtonStyle.Image ? string.Empty : ResourceString(type, model))}</button></td>");
+        return new HtmlString($"<td class=\"{(navigation ? "navigation" : "")}\"><button type=\"button\" class=\"toolbar-button toolbar-button-{toolbarButtonStyle.ToString().ToLower()}\" title=\"{@Title(type)}\" button-type=\"{type.ToLower()}\" id=\"{Model.ComponentId}_{type}Btn\">{(toolbarButtonStyle == Enums.ToolbarButtonStyle.Image ? string.Empty : ResourceString(type))}</button></td>");
     }
 
-    public static HtmlString Input(string name, ToolbarViewModel model)
+    public HtmlString Input(string name)
     {
-        return new HtmlString($"<td class=\"navigation\"><input type=\"input\" class=\"toolbar-info\" readonly id=\"{model.ComponentId}_{name}\" name=\"{name}\"/></td>");
+        return new HtmlString($"<td class=\"navigation\"><input type=\"input\" class=\"toolbar-info\" readonly id=\"{Model.ComponentId}_{name}\" name=\"{name}\"/></td>");
     }
 
-    public static HtmlString Text(string text, ToolbarViewModel model)
+    public HtmlString Text(string text)
     {
-        return new HtmlString($"<td class=\"navigation\"><span class=\"toolbar-text\">{ResourceString(text, model)}</span></td>");
+        return new HtmlString($"<td class=\"navigation\"><span class=\"toolbar-text\">{ResourceString(text)}</span></td>");
     }
 
-    public static HtmlString NoRecords(ToolbarViewModel model)
+    public HtmlString NoRecords()
     {
-        return new HtmlString($"<td id=\"{model.ComponentId}_no-records-cell\" class=\"no-records\"><span class=\"toolbar-text\">{ResourceString("No_Records_Found", model)}</span></td>");
+        return new HtmlString($"<td id=\"{Model.ComponentId}_no-records-cell\" class=\"no-records\"><span class=\"toolbar-text\">{ResourceString("No_Records_Found")}</span></td>");
     }
 
-    public static string Title(string type, ToolbarViewModel model)
+    public string Title(string type)
     {
-        return ResourceString($"{type}_Title", model);
+        return ResourceString($"{type}_Title");
     }
 
-    public static string ResourceString(string key, ToolbarViewModel model)
+    public string ResourceString(string key)
     {
-        return model.ResourceManager.GetString(key) ?? key;
+        return Model.ResourceManager.GetString(key) ?? key;
     }
 
-    public static HtmlString QuickSearch(ToolbarViewModel model)
+    public HtmlString QuickSearch()
     {
-        @if (model.QuickSearch == false)
+        @if (Model.QuickSearch == false)
         {
             return new HtmlString(string.Empty);
         }
         string id = "QuickSearch";
-        return new HtmlString($"<td><input type=\"input\" class=\"toolbar-info\" id=\"{model.ComponentId}_{id}\" name=\"{id}\" title=\"{@Title(id, model)}\"/></td>");
+        return new HtmlString($"<td><input type=\"input\" class=\"toolbar-info\" id=\"{Model.ComponentId}_{id}\" name=\"{id}\" title=\"{@Title(id)}\"/></td>");
     }
 }

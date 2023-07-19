@@ -2,7 +2,7 @@
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
 /// <reference types="bootstrap" />
-type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated";
+type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted";
 interface CellDataDownloadArgs {
     row: HTMLTableRowElement;
     cell: HTMLTableCellElement;
@@ -56,13 +56,13 @@ declare class DbNetSuite {
     protected error(text: string): void;
     protected showLoader(): void;
     protected hideLoader(): void;
-    protected post<T>(action: string, request: any, blob?: boolean): Promise<T>;
+    protected post<T>(action: string, request: any, blob?: boolean, page?: string | null): Promise<T>;
     controlElement(name: string): JQuery<HTMLElement>;
     protected controlElementId(name: string): string;
     protected disable(id: string, disabled: boolean): void;
     protected setInputElement(name: string, value: number): void;
     protected configureLinkedControls(fk: object | null): void;
-    protected showMessageBox(message: string, type: MessageBoxType, callback: Function): void;
+    protected info(text: string): void;
     protected addDatePicker($input: JQuery<HTMLInputElement>, datePickerOptions: JQueryUI.DatepickerOptions): void;
     private pickerSelected;
     protected addTimePicker($input: JQuery<HTMLInputElement>): void;

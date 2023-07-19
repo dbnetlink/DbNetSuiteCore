@@ -9,5 +9,7 @@ namespace DbNetSuiteCore.ViewModels.DbNetEdit
         public bool Search { get; set; }
         public bool Navigation { get; set; }
         public bool IsEditDialog { get; set; }
+        public bool Insert { get; set; }
+        public bool Delete { get; set; }
     }
 }

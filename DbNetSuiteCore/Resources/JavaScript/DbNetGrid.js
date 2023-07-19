@@ -32,7 +32,6 @@ class DbNetGrid extends DbNetGridEdit {
         this.copy = true;
         this.currentPage = 1;
         this.defaultColumn = undefined;
-        this.delete = false;
         this.dragAndDrop = true;
         this.editDialogId = "";
         this.export_ = true;
@@ -42,7 +41,6 @@ class DbNetGrid extends DbNetGridEdit {
         this.googleChartOptions = undefined;
         this.gridGenerationMode = GridGenerationMode.Display;
         this.groupBy = false;
-        this.insert = false;
         this.multiRowSelect = false;
         this.multiRowSelectLocation = MultiRowSelectLocation.Left;
         this.nestedGrid = false;
@@ -608,11 +606,12 @@ class DbNetGrid extends DbNetGridEdit {
         });
     }
     initEditDialog() {
-        var _a, _b, _c, _d;
+        var _a, _b, _c, _d, _e;
         if (!((_a = this.editDialogControl) === null || _a === void 0 ? void 0 : _a.initialised)) {
             (_b = this.editDialogControl) === null || _b === void 0 ? void 0 : _b.internalBind("onInitialized", () => this.openEditDialog());
             (_c = this.editDialogControl) === null || _c === void 0 ? void 0 : _c.internalBind("onRecordUpdated", () => this.refreshRow());
-            (_d = this.editDialogControl) === null || _d === void 0 ? void 0 : _d.initialize();
+            (_d = this.editDialogControl) === null || _d === void 0 ? void 0 : _d.internalBind("onRecordInserted", () => this.reload());
+            (_e = this.editDialogControl) === null || _e === void 0 ? void 0 : _e.initialize();
         }
         else {
             this.openEditDialog();
@@ -656,17 +655,7 @@ class DbNetGrid extends DbNetGridEdit {
             }
         }
         (_e = this.gridPanel) === null || _e === void 0 ? void 0 : _e.find("tr.data-row.unselected").addClass("selected").removeClass("unselected");
-        this.message("Copied");
-    }
-    message(text) {
-        const dialogId = `${this.id}_message_dialog`;
-        const $dialog = $(`#${dialogId}`);
-        $dialog.text(text);
-        $dialog.attr("title", "Copy");
-        $dialog.dialog({
-            autoOpen: false
-        });
-        $dialog.dialog("open");
+        this.info("Copied");
     }
     getRequest() {
         this.defaultColumn = this.columns.find((col) => { return col.columnExpression == "*"; });
@@ -711,7 +700,7 @@ class DbNetGrid extends DbNetGridEdit {
             gridGenerationMode: this.gridGenerationMode,
             insert: this.insert,
             update: this.update,
-            delete: this.delete,
+            delete: this._delete,
             viewLayoutColumns: this.viewLayoutColumns
         };
         return request;

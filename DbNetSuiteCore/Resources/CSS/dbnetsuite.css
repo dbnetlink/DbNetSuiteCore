@@ -92,6 +92,21 @@ div.dbnetsuite-error {
   padding: 10px;
 }
 
+.message-box [button-type=yes],
+.message-box [button-type=ok] {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='limegreen'><path d='m382-368 338-338q15.733-16 37.367-16Q779-722 795-706.211q16 15.79 16 37.5Q811-647 795-631L419-255q-15.818 16-36.909 16T345-255L167-433q-16-15.733-15.5-37.367Q152-492 167.789-508q15.79-16 37.5-16Q227-524 243-508l139 140Z'/></svg>");
+}
+.message-box [button-type=no] {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='indianred'><path d='M266-182v-106h302q59 0 102.5-36.5T714-418q0-57-43.5-93.5T568-548H340l94 94-74 72-220-219 220-220 74 73-94 94h228q103 0 177.5 68T820-418q0 100-74.5 168T568-182H266Z'/></svg>");
+}
+.message-box .message-box-icon {
+  border-radius: 24px;
+  height: 48px;
+  width: 48px;
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='48' width='48' viewBox='0 -960 960 960' fill='SteelBlue'><path d='M479.911-703q-32.273 0-54.092-21.907Q404-746.815 404-779.589q0-32.773 21.907-54.592Q447.815-856 480.089-856q32.273 0 54.592 21.907Q557-812.185 557-779.411q0 32.773-22.645 54.592Q511.71-703 479.911-703ZM424-104v-499h113v499H424Z'/></svg>");
+  border: 1px solid #eee;
+}
+
 .ui-widget-content .ui-icon {
   background-image: url("/resource.dbnetsuite?action=image&name=ui-icons_444444_256x240.png");
 }

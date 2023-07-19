@@ -140,10 +140,17 @@
         {
             attributes.Add($"numeric=\"true\"");
         }
-
+        if (editColumn.Required)
+        {
+            attributes.Add($"required=\"true\"");
+        }
         if (editColumn.PrimaryKey)
         {
             attributes.Add($"primarykey=\"true\"");
+            if (editColumn.AutoIncrement)
+            {
+                attributes.Add($"autoincrement=\"true\"");
+            }
         }
 
         if (string.IsNullOrEmpty(inputType) == false)

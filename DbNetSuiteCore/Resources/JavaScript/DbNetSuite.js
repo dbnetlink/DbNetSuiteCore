@@ -123,7 +123,7 @@ class DbNetSuite {
         (_a = this.element) === null || _a === void 0 ? void 0 : _a.removeClass("empty");
         (_b = this.loadingPanel) === null || _b === void 0 ? void 0 : _b.removeClass("display");
     }
-    post(action, request, blob = false) {
+    post(action, request, blob = false, page = null) {
         this.showLoader();
         const options = {
             method: "POST",
@@ -133,7 +133,10 @@ class DbNetSuite {
             },
             body: JSON.stringify(request)
         };
-        return fetch(`~/${this.constructor.name.toLowerCase()}.dbnetsuite?action=${action}`, options)
+        if (page == null) {
+            page = this.constructor.name.toLowerCase();
+        }
+        return fetch(`~/${page}.dbnetsuite?action=${action}`, options)
             .then(response => {
             this.hideLoader();
             if (!response.ok) {
@@ -172,16 +175,18 @@ class DbNetSuite {
             control.configureLinkedControl(control, fk);
         });
     }
-    showMessageBox(message, type, callback) {
+    info(text) {
+        var _a;
         if (this.messageBox == undefined) {
-            this.post("message-box", {})
+            this.post("message-box", {}, false, "dbnetsuite")
                 .then((response) => {
-                var _a;
-                (_a = this.element) === null || _a === void 0 ? void 0 : _a.append(response.dialog);
-                this.messageBox = new MessageBox(`${this.id}_message_box`);
+                var _a, _b;
+                (_a = this.element) === null || _a === void 0 ? void 0 : _a.append(response.html);
+                this.messageBox = new MessageBox(`dbnetsuite_message_box`);
+                (_b = this.messageBox) === null || _b === void 0 ? void 0 : _b.show(text);
             });
         }
-        this.messageBox.show(message, type);
+        (_a = this.messageBox) === null || _a === void 0 ? void 0 : _a.show(text);
     }
     addDatePicker($input, datePickerOptions) {
         const options = datePickerOptions;

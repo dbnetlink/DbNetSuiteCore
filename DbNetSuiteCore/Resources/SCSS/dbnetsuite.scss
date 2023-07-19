@@ -102,6 +102,25 @@ div.dbnetsuite-error {
     padding: 10px;
 }
 
+.message-box {
+    [button-type=yes],
+    [button-type=ok] {
+        background-image: svgUrl("apply", "24", "limegreen");
+    }
+
+    [button-type=no] {
+        background-image: svgUrl("cancel", "24", "indianred");
+    }
+
+    .message-box-icon {
+        border-radius:24px;
+        height:48px;
+        width:48px;
+        background-image: svgUrl("info", "48");
+        border:1px solid #eee;
+    }
+}
+
 .ui-widget-content .ui-icon {
     background-image: url("/resource.dbnetsuite?action=image&name=ui-icons_444444_256x240.png")
 }

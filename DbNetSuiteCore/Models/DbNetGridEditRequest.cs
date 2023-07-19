@@ -4,8 +4,10 @@ namespace DbNetSuiteCore.Models.DbNetEdit
 {
     public class DbNetGridEditRequest : DbNetSuiteRequest
     {
+        public bool Delete { get; set; } = false;
         public string FromPart { get; set; }
         public int LookupColumnIndex { get; set; }
+        public bool Insert { get; set; } = false;
         public bool Navigation { get; set; } = true;
         public bool QuickSearch { get; set; } = false;
         public string QuickSearchToken { get; set; }

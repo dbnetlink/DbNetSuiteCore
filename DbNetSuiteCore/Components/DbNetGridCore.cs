@@ -24,10 +24,6 @@ namespace DbNetSuiteCore.Components
         /// Adds/removes a page copy option to/from the toolbar
         /// </summary>
         public bool? Copy { get; set; } = null;
-        /// <summary>
-        /// Allow deletion of records
-        /// </summary>
-        public bool? Delete { get; set; } = null;
         public bool Edit => (Insert.HasValue && Insert.Value || Update.HasValue && Update.Value);
         /// <summary>
         /// Edit dialog control
@@ -61,10 +57,6 @@ namespace DbNetSuiteCore.Components
         /// Groups the returned data by all the columns not identified as aggregates
         /// </summary>
         public bool? GroupBy { get; set; } = null;
-        /// <summary>
-        /// Allow insertion of new records
-        /// </summary>
-        public bool? Insert { get; set; } = null;
         /// <summary>
         /// Enables selection of multiple rows
         /// </summary>
@@ -256,10 +248,7 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             List<string> properties = new List<string>();
             AddProperty(FrozenHeader, nameof(FrozenHeader), properties);
             AddProperty(PageSize, nameof(PageSize), properties);
-            AddProperty(ToolbarButtonStyle, nameof(ToolbarButtonStyle), properties);
-            AddProperty(ToolbarPosition, nameof(ToolbarPosition), properties);
             AddProperty(MultiRowSelect, nameof(MultiRowSelect), properties);
-            AddProperty(QuickSearch, nameof(QuickSearch), properties);
             AddProperty(BooleanDisplayMode, nameof(BooleanDisplayMode), properties);
             AddProperty(View, nameof(View), properties);
             AddProperty(OptimizeForLargeDataset, nameof(OptimizeForLargeDataset), properties);
@@ -267,19 +256,16 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             AddProperty(MultiRowSelectLocation, nameof(MultiRowSelectLocation), properties);
             AddProperty(GroupBy, nameof(GroupBy), properties);
             AddProperty(Copy, nameof(Copy), properties);
-            AddProperty(Search, nameof(Search), properties);
             AddProperty(Export, $"{nameof(Export)}_", properties);
-            AddProperty(Culture, nameof(Culture), properties);
             AddProperty(EncodingHelper.Encode(FixedFilterSql), nameof(FixedFilterSql), properties);
             AddProperty(RowSelect, nameof(RowSelect), properties);
             AddProperty(EncodingHelper.Encode(ProcedureName), nameof(ProcedureName), properties);
             AddProperty(GridGenerationMode, nameof(GridGenerationMode), properties);
-            AddProperty(Navigation, nameof(Navigation), properties);
-            AddProperty(Insert, nameof(Insert), properties);
             AddProperty(Update, nameof(Update), properties);
-            AddProperty(Delete, nameof(Delete), properties);
             AddProperty(_editDialogId, "EditDialogId", properties);
             AddProperty(ViewLayoutColumns, nameof(ViewLayoutColumns), properties);
+
+            AddProperties(properties);
 
             if (FixedFilterParams.Count > 0)
             {

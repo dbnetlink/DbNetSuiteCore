@@ -90,6 +90,8 @@
     <None Remove="Resources\JavaScript\libraries\jquery.timepicker.min.js" />
     <None Remove="Resources\JavaScript\LookupDialog.js" />
     <None Remove="Resources\JavaScript\LookupDialog.min.js" />
+    <None Remove="Resources\JavaScript\MessageBox.js" />
+    <None Remove="Resources\JavaScript\MessageBox.min.js" />
     <None Remove="Resources\JavaScript\SearchDialog.js" />
     <None Remove="Resources\JavaScript\SearchDialog.min.js" />
     <None Remove="Resources\JavaScript\ViewDialog.js" />
@@ -108,6 +110,7 @@
     <None Remove="Views\DbNetCombo\Combo.cshtml" />
     <None Remove="Views\DbNetCombo\Options.cshtml" />
     <None Remove="Views\DbNetEdit\Form.cshtml" />
+    <None Remove="Views\DbNetEdit\HtmlEditor.cshtml" />
     <None Remove="Views\DbNetEdit\Toolbar.cshtml" />
     <None Remove="Views\DbNetGrid\DataTable.cshtml" />
     <None Remove="Views\DbNetGrid\Grid.cshtml" />
@@ -161,6 +164,8 @@
     <EmbeddedResource Include="Resources\JavaScript\libraries\jquery.timepicker.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\LookupDialog.js" />
     <EmbeddedResource Include="Resources\JavaScript\LookupDialog.min.js" />
+    <EmbeddedResource Include="Resources\JavaScript\MessageBox.js" />
+    <EmbeddedResource Include="Resources\JavaScript\MessageBox.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\SearchDialog.js" />
     <EmbeddedResource Include="Resources\JavaScript\SearchDialog.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\ViewDialog.js" />
@@ -190,6 +195,10 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\DbNetCombo\Combo.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\DbNetEdit\HtmlEditor.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </EmbeddedResource>

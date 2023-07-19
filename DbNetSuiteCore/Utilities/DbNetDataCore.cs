@@ -13,12 +13,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
 using DbNetSuiteCore.Enums;
+using System.Security.Principal;
+using DocumentFormat.OpenXml.VariantTypes;
 
 namespace DbNetSuiteCore.Utilities
 {
     public class DbNetDataCore : IDisposable
     {
-        private readonly Hashtable _reservedWords = new Hashtable(); 
+        private readonly Hashtable _reservedWords = new Hashtable();
         public enum DatabaseType
         {
             Access,
@@ -285,8 +287,8 @@ namespace DbNetSuiteCore.Utilities
         }
 
 
-         public int ExecuteNonQuery(CommandConfig commandConfig)
-         {
+        public int ExecuteNonQuery(CommandConfig commandConfig)
+        {
             if (Regex.Match(commandConfig.Sql, "^(delete|update) ", RegexOptions.IgnoreCase).Success)
                 if (!Regex.Match(commandConfig.Sql, " where ", RegexOptions.IgnoreCase).Success)
                     throw new Exception("Unqualified updates and deletes are not allowed.");
@@ -306,6 +308,67 @@ namespace DbNetSuiteCore.Utilities
             return RetVal;
         }
 
+        public long ExecuteScalar(CommandConfig commandConfig)
+        {
+            ConfigureCommand(commandConfig.Sql, commandConfig.Params);
+            long id = -1;
+
+            try
+            {
+                id = Int64.Parse(Command.ExecuteScalar().ToString());
+            }
+            catch (Exception Ex)
+            {
+                HandleError(Ex);
+            }
+
+            return id;
+        }
+        public long ExecuteInsert(CommandConfig commandConfig, string autoIncrementColumnName)
+        {
+            long identity = -1;
+            try
+            {
+                if (this.Database == DatabaseType.PostgreSql && autoIncrementColumnName != null)
+                {
+                    commandConfig.Sql = $"{commandConfig.Sql} returning {autoIncrementColumnName}";
+                    identity = this.ExecuteScalar(commandConfig);
+                }
+                else
+                {
+                    this.ExecuteNonQuery(commandConfig);
+                    identity = GetAutoIncrementValue();
+                }
+            }
+            catch (Exception Ex)
+            {
+                HandleError(Ex);
+            }
+
+            return identity;
+        }
+
+        private long GetAutoIncrementValue()
+        {
+            long id = -1;
+
+            string Sql = "";
+            switch (this.Database)
+            {
+                case DatabaseType.MySql:
+                case DatabaseType.SqlServer:
+                    Sql = "SELECT @@IDENTITY";
+                    break;
+                case DatabaseType.SQLite:
+                    Sql = "SELECT last_insert_rowid()";
+                    break;
+            }
+
+            Command.CommandText = Sql;
+            id = Int64.Parse(Command.ExecuteScalar().ToString());
+
+            return id;
+        }
         public string UpdateConcatenationOperator(string expr)
         {
             switch (Database)
@@ -347,7 +410,7 @@ namespace DbNetSuiteCore.Utilities
                 case DataProvider.Npgsql:
                     typeName = "NpgsqlCommandBuilder";
                     break;
-                    
+
                 default:
                     throw new Exception("DeriveParameters not supported by this provider");
             }
@@ -595,14 +658,14 @@ namespace DbNetSuiteCore.Utilities
         {
             List<DbObject> dbObjects = new List<DbObject>();
 
-            switch(collectionType)
+            switch (collectionType)
             {
                 case MetaDataType.Tables:
                     switch (Database)
                     {
                         case DatabaseType.SQLite:
-                             dbObjects = SqliteMasterQuery("table");
-                             break;
+                            dbObjects = SqliteMasterQuery("table");
+                            break;
                         case DatabaseType.MySql:
                             dbObjects = MySqlInformationSchemaQuery("BASE TABLE");
                             break;
@@ -815,7 +878,7 @@ namespace DbNetSuiteCore.Utilities
         }
 
         private void AddCommandParameters(IDictionary @params)
-         {
+        {
             if (@params == null)
                 return;
 
@@ -841,7 +904,7 @@ namespace DbNetSuiteCore.Utilities
 
                 Command.Parameters.Add(dbParam);
             }
-         }
+        }
 
         private bool StartsWithNumeric(string token)
         {

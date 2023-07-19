@@ -11,12 +11,14 @@ using DbNetSuiteCore.Models;
 using DbNetSuiteCore.Services;
 using DocumentFormat.OpenXml.InkML;
 using System.Net;
+using DbNetSuiteCore.Constants.DbNetGrid;
 
 namespace DbNetLink.Middleware
 {
     public class DbNetSuiteCore
     {
         private RequestDelegate _next;
+
 
         public DbNetSuiteCore(RequestDelegate next)
         {
@@ -38,6 +40,7 @@ namespace DbNetLink.Middleware
         private async Task GenerateResponse(AspNetCoreServices services)
         {
             string page = services.httpContext.Request.Path.ToString().Split('/').Last().Split('.').First();
+            string action = services.httpContext.Request.Query["name"];
             object response = null;
 
             switch (page.ToLower())
@@ -57,6 +60,10 @@ namespace DbNetLink.Middleware
                 case "dbnetedit":
                     var dbnetedit = new DbNetEdit(services);
                     response = await dbnetedit.Process();
+                    break;
+                case "dbnetsuite":
+                    var dbnetsuite = new DbNetSuite(services);
+                    response = await dbnetsuite.Process();
                     break;
             }
 

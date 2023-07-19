@@ -12,7 +12,6 @@
         public const string Lookup = "lookup";
         public const string DataArray = "data-array";
         public const string DataTable = "data-table";
-        public const string MessageBox = "message-box";
         public const string GridRow = "grid-row";
     }
 }

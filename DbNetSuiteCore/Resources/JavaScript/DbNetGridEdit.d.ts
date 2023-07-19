@@ -4,7 +4,9 @@
 /// <reference types="bootstrap" />
 declare class DbNetGridEdit extends DbNetSuite {
     columns: DbColumn[];
+    _delete: boolean;
     fromPart: string;
+    insert: boolean;
     lookupDialog: LookupDialog | undefined;
     navigation: boolean;
     quickSearch: boolean;

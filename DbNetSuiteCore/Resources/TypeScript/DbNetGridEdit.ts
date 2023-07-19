@@ -1,7 +1,9 @@
 
 class DbNetGridEdit extends DbNetSuite {
     columns: DbColumn[];
+    _delete = false;
     fromPart = "";
+    insert = false;
     lookupDialog: LookupDialog | undefined;
     navigation = true;
     quickSearch = false;

@@ -26,6 +26,7 @@ declare enum GridGenerationMode {
 interface Dictionary<T> {
     [Key: string]: T;
 }
+type DbNetGridResponseCallback = (response: DbNetGridResponse) => void;
 declare class DbNetGrid extends DbNetGridEdit {
     autoRowSelect: boolean;
     booleanDisplayMode: BooleanDisplayMode;
@@ -35,7 +36,6 @@ declare class DbNetGrid extends DbNetGridEdit {
     copy: boolean;
     currentPage: number;
     defaultColumn: GridColumn | undefined;
-    delete: boolean;
     dragAndDrop: boolean;
     dropIcon: JQuery<HTMLElement> | undefined;
     dropTarget: JQuery<HTMLElement> | undefined;
@@ -50,7 +50,6 @@ declare class DbNetGrid extends DbNetGridEdit {
     gridGenerationMode: GridGenerationMode;
     gridPanel: JQuery<HTMLElement> | undefined;
     groupBy: boolean;
-    insert: boolean;
     multiRowSelect: boolean;
     multiRowSelectLocation: MultiRowSelectLocation;
     nestedGrid: boolean;
@@ -99,7 +98,7 @@ declare class DbNetGrid extends DbNetGridEdit {
     private columnFilterKeyPress;
     private runColumnFilterSearch;
     clearColumnFilters(): void;
-    getPage(callback?: Function): void;
+    getPage(callback?: DbNetGridResponseCallback): void;
     private activeElementId;
     private focusActiveElement;
     private download;
@@ -112,7 +111,6 @@ declare class DbNetGrid extends DbNetGridEdit {
     private insertRow;
     private deleteRow;
     private copyGrid;
-    private message;
     getRequest(): DbNetGridRequest;
     private addEventListener;
     downloadCellData(element: HTMLElement, image: boolean): void;

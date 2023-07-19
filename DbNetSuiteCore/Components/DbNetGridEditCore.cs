@@ -4,6 +4,7 @@ using DbNetSuiteCore.Helpers;
 using DbNetSuiteCore.Models;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 
 namespace DbNetSuiteCore.Components
@@ -18,6 +19,14 @@ namespace DbNetSuiteCore.Components
         /// Selects the columns to be displayed in the grid
         /// </summary>
         public List<string> Columns { get; set; } = new List<string>();
+        /// <summary>
+        /// Allow deletion of records
+        /// </summary>
+        public bool? Delete { get; set; } = null;
+        /// <summary>
+        /// Allow insertion of new records
+        /// </summary>
+        public bool? Insert { get; set; } = null;
         /// <summary>
         /// Labels for the columns specified in the Columns property
         /// </summary>
@@ -134,6 +143,18 @@ namespace DbNetSuiteCore.Components
                 }
                 return $"\"{value}\"";
             }
+        }
+
+        protected void AddProperties(List<string> properties)
+        {
+            AddProperty(ToolbarButtonStyle, nameof(ToolbarButtonStyle), properties);
+            AddProperty(ToolbarPosition, nameof(ToolbarPosition), properties);
+            AddProperty(Search, nameof(Search), properties);
+            AddProperty(Culture, nameof(Culture), properties);
+            AddProperty(QuickSearch, nameof(QuickSearch), properties);
+            AddProperty(Navigation, nameof(Navigation), properties);
+            AddProperty(Insert, nameof(Insert), properties);
+            AddProperty(Delete, "_delete", properties);
         }
     }
 }
