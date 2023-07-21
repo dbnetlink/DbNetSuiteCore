@@ -13,6 +13,7 @@
         public const string DataArray = "data-array";
         public const string DataTable = "data-table";
         public const string GridRow = "grid-row";
+        public const string DeleteRecord = "delete-record";
     }
 }
 

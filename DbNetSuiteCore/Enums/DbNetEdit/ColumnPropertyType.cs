@@ -13,6 +13,8 @@
         Lookup,
         PrimaryKey,
         Pattern,
-        Style
+        Style,
+        Required,
+        Browse
 	}
 }

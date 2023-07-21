@@ -4,7 +4,9 @@
 /// <reference types="bootstrap" />
 type DbNetEditResponseCallback = (response: DbNetEditResponse) => void;
 declare class DbNetEdit extends DbNetGridEdit {
-    private applychanges;
+    browseDialog: BrowseDialog | undefined;
+    browseDialogControl: DbNetGrid | undefined;
+    browseDialogId: string;
     changes: Dictionary<object>;
     currentRow: number;
     delete: boolean;
@@ -30,10 +32,16 @@ declare class DbNetEdit extends DbNetGridEdit {
     private handleClick;
     getRecord(primaryKey?: string | null): void;
     insertRecord(): void;
-    deleteRecord(primaryKey?: string | null): void;
+    private formElements;
+    deleteRecord(): void;
+    deletionConfirmed(buttonPressed: MessageBoxButtonType): void;
+    private recordDeleted;
     private applyChanges;
     private editMode;
     private applyChangesCallback;
+    private initBrowseDialog;
+    private openBrowseDialog;
+    private browseDialogRowSelected;
     private message;
     private clearMessage;
     private highlightField;

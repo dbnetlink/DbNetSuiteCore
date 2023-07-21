@@ -23,23 +23,11 @@ namespace DbNetSuiteCore.Utilities
         private readonly Hashtable _reservedWords = new Hashtable();
         public enum DatabaseType
         {
-            Access,
-            Access2007,
-            Advantage,
-            DB2,
-            Firebird,
-            InterSystemsCache,
             MySql,
             Oracle,
-            Paradox,
-            Pervasive,
             PostgreSql,
-            Progress,
             SQLite,
-            SqlServer,
-            SqlServerCE,
-            Sybase,
-            VisualFoxPro
+            SqlServer
         }
         public enum MetaDataType
         {
@@ -191,21 +179,11 @@ namespace DbNetSuiteCore.Utilities
                     NameDelimiterTemplate = "[{0}]";
                     break;
                 case DatabaseType.PostgreSql:
-                case DatabaseType.DB2:
                 case DatabaseType.Oracle:
-                case DatabaseType.InterSystemsCache:
-                case DatabaseType.Advantage:
-                case DatabaseType.Firebird:
-                case DatabaseType.Progress:
-                case DatabaseType.Pervasive:
-                case DatabaseType.Paradox:
                     NameDelimiterTemplate = "\"{0}\"";
                     break;
                 case DatabaseType.MySql:
                     NameDelimiterTemplate = "`{0}`";
-                    break;
-                case DatabaseType.VisualFoxPro:
-                    NameDelimiterTemplate = "{0}";
                     break;
             }
 
@@ -613,33 +591,7 @@ namespace DbNetSuiteCore.Utilities
                         }
                     }
                     break;
-                case DatabaseType.Pervasive:
-                    dataTable.Columns["ColumnSize"].ReadOnly = false;
-
-                    foreach (DataRow Row in dataTable.Rows)
-                    {
-
-                        switch (Row["ProviderType"].ToString())
-                        {
-                            case "20":
-                                Row["ColumnSize"] = 2;
-                                break;
-                        }
-                    }
-                    break;
-
-                case DatabaseType.Firebird:
-                    dataTable.Columns["NumericPrecision"].ReadOnly = false;
-                    dataTable.Columns["NumericScale"].ReadOnly = false;
-
-                    foreach (DataRow Row in dataTable.Rows)
-                    {
-                        if (Row["NumericPrecision"] == DBNull.Value)
-                            Row["NumericPrecision"] = 0;
-                        if (Row["NumericScale"] == DBNull.Value)
-                            Row["NumericScale"] = 0;
-                    }
-                    break;
+              
                 case DatabaseType.PostgreSql:
                     dataTable.Columns["ColumnSize"].ReadOnly = false;
 
@@ -869,10 +821,6 @@ namespace DbNetSuiteCore.Utilities
             Command.CommandText = sql.Trim();
             Command.CommandType = GetCommandType(Command.CommandText);
 
-            if (CommandTimeout > -1)
-                if (Database != DatabaseType.SqlServerCE)
-                    Command.CommandTimeout = CommandTimeout;
-
             Command.Parameters.Clear();
             AddCommandParameters(@params);
         }
@@ -915,7 +863,6 @@ namespace DbNetSuiteCore.Utilities
             switch (Database)
             {
                 case DatabaseType.Oracle:
-                case DatabaseType.Pervasive:
                 case DatabaseType.MySql:
                     foreach (DataRow row in schema.Rows)
                     {

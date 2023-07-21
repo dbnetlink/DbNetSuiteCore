@@ -1,4 +1,4 @@
-type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted"
+type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted" | "onRecordDeleted"
 
 interface CellDataDownloadArgs {
     row: HTMLTableRowElement,
@@ -24,15 +24,7 @@ type InternalEventHandler = {
     method: EmptyCallback;
 };
 
-enum MessageBoxType {
-    Error,
-    Warning,
-    Info,
-    Question
-}
-
-type EmptyCallback = () => any;
-
+type EmptyCallback = (sender: DbNetSuite, args: any) => void;
 class DbNetSuite {
     public static DBNull = "DBNull";
     public datePickerOptions: JQueryUI.DatepickerOptions = {};
@@ -154,16 +146,6 @@ class DbNetSuite {
         this.loadingPanel.children().first().addClass("icon");
     }
 
-    protected error(text: string) {
-        if (this.element?.length == 0) {
-            alert(text);
-            return;
-        }
-        const errorPanel = this.addPanel("error");
-        errorPanel.addClass("dbnetsuite-error");
-        errorPanel.html(text);
-    }
-
     protected showLoader() {
         this.loadingPanel?.addClass("display");
     }
@@ -232,16 +214,28 @@ class DbNetSuite {
         });
     }
 
-    protected info(text:string) {
+    protected info(text:string, element:JQuery<HTMLElement>) {
+        this.showMessageBox(MessageBoxType.Info, text, element);
+    }
+
+    protected confirm(text: string, element: JQuery<HTMLElement>, callback: MessageBoxCallback) {
+        this.showMessageBox(MessageBoxType.Confirm, text, element, callback);
+    }
+
+    protected error(text: string, element: JQuery<HTMLElement>) {
+        this.showMessageBox(MessageBoxType.Error, text, element);
+    }
+
+    private showMessageBox(messageBoxType: MessageBoxType, text: string, element: JQuery<HTMLElement> | undefined = undefined, callback: MessageBoxCallback | undefined = undefined) {
         if (this.messageBox == undefined) {
             this.post<DbNetSuiteResponse>("message-box", {}, false, "dbnetsuite")
                 .then((response) => {
                     this.element?.append(response.html);
                     this.messageBox = new MessageBox(`dbnetsuite_message_box`);
-                    this.messageBox?.show(text)
+                    this.messageBox?.show(messageBoxType, text, element, callback);
                 });
         }
-        this.messageBox?.show(text)
+        this.messageBox?.show(messageBoxType, text, element, callback);
     }
 
     protected addDatePicker($input: JQuery<HTMLInputElement>, datePickerOptions: JQueryUI.DatepickerOptions) {

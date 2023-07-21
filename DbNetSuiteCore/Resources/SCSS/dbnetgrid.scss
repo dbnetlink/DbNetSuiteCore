@@ -252,8 +252,7 @@ table.search-dialog-toolbar,
 table.lookup-dialog-toolbar,
 .search-dialog,
 .dbnetedit-form,
-.message-box
-{
+.message-box {
     border-collapse: inherit;
 
     td.navigation {
@@ -265,6 +264,14 @@ table.lookup-dialog-toolbar,
     td {
         vertical-align: middle;
         border: 0px;
+
+        &.separator {
+            width: 10px !important;
+        }
+
+        &.push-right {
+            width: 100%;
+        }
 
         .toolbar-button {
             background-color: #ededed;
@@ -352,6 +359,7 @@ table.lookup-dialog-toolbar,
             padding-right: 3px;
             font-family: var(--main-font-family);
             font-size: var(--main-font-size);
+            white-space:nowrap;
         }
 
         .toolbar-info[name=QuickSearch] {
@@ -386,16 +394,6 @@ table.lookup-dialog-toolbar,
         .toolbar-button {
             margin-left:2px;
         }
-    }
-}
-
-.dialog {
-    background: whitesmoke !important;
-
-    hr {
-        margin: 2px 0px;
-        border: 1px;
-        color: #ccc;
     }
 }
 

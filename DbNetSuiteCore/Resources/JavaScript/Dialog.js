@@ -1,21 +1,24 @@
 "use strict";
 class Dialog extends DbNetSuite {
     constructor(id) {
+        var _a;
         super(null);
         this.width = 600;
         this.maxWidth = 800;
         this.$dialog = $(`#${id}`);
         this.$dialog.addClass("dialog");
+        const windowWidth = $(window).width();
+        const windowHeight = $(window).height();
         const options = {
             autoOpen: false,
             width: "auto",
-            autoResize: true
-            //  width: this.width,
-            //   maxWidth: this.maxWidth,
+            autoResize: true,
+            maxWidth: windowWidth - 100,
+            maxHeight: windowHeight - 100
         };
         //options.modal = true;
         this.$dialog.dialog(options);
-        this.$dialog.find(".message").html("&nbsp;");
+        (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find(".message").html("&nbsp;");
     }
     open() {
         if (this.$dialog) {
@@ -34,10 +37,12 @@ class Dialog extends DbNetSuite {
         }
     }
     message(msg) {
-        this.$dialog.find(".message").html(msg).addClass("highlight");
+        var _a;
+        (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find(".message").html(msg).addClass("highlight");
         setInterval(() => this.clearMessage(), 5000);
     }
     clearMessage() {
-        this.$dialog.find(".message").html("&nbsp;").removeClass("highlight");
+        var _a;
+        (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find(".message").html("&nbsp;").removeClass("highlight");
     }
 }

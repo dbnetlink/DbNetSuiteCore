@@ -10,8 +10,8 @@ namespace DbNetSuiteCore.Components
 {
     public class DbNetGridCore : DbNetGridEditCore
     {
-        private string DbNetEditId => this.Id.Replace("dbnetgrid", "dbnetedit");
         private string _editDialogId;
+        internal bool? IsBrowseDialog { get; set; } = null;
         /// <summary>
         /// Automatically selects the first row of the grid (default is true)
         /// </summary>
@@ -108,12 +108,17 @@ namespace DbNetSuiteCore.Components
                 ProcedureName = fromPart;
             }
 
-            EditControl = new DbNetEditCore(connection, fromPart, DbNetEditId);
+            EditControl = new DbNetEditCore(connection, fromPart, true);
             EditControl.IsEditDialog = true;
 
-             this._editDialogId = $"{this.Id}_edit_dialog";
+            this._editDialogId = $"{this.Id}_edit_dialog";
         }
-      
+
+        internal DbNetGridCore(string connection, string fromPart, bool browseControl) : base(connection, fromPart)
+        {
+
+        }
+
         /// <summary>
         /// Assigns a grid column property to multiple columns
         /// </summary>
@@ -264,7 +269,8 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             AddProperty(Update, nameof(Update), properties);
             AddProperty(_editDialogId, "EditDialogId", properties);
             AddProperty(ViewLayoutColumns, nameof(ViewLayoutColumns), properties);
-
+            AddProperty(IsBrowseDialog, nameof(IsBrowseDialog), properties);
+          
             AddProperties(properties);
 
             if (FixedFilterParams.Count > 0)

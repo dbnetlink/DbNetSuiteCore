@@ -102,22 +102,60 @@ div.dbnetsuite-error {
     padding: 10px;
 }
 
+.dialog {
+    background: whitesmoke !important;
+
+    hr {
+        border: none;
+        height: 1px;
+        background-color: gainsboro
+    }
+}
+
 .message-box {
-    [button-type=yes],
+    [button-type=confirm],
     [button-type=ok] {
         background-image: svgUrl("apply", "24", "limegreen");
+        margin: 0px 5px;
     }
 
-    [button-type=no] {
-        background-image: svgUrl("cancel", "24", "indianred");
+    [button-type=cancel] {
+        background-image: svgUrl("cancel", "24", "indianred") !important;
+        margin: 0px 5px;
     }
 
     .message-box-icon {
-        border-radius:24px;
-        height:48px;
-        width:48px;
-        background-image: svgUrl("info", "48");
-        border:1px solid #eee;
+        margin: 10px;
+        border-radius: 50%;
+        height: 48px;
+        width: 48px;
+        background-color: #fff;
+        border: 5px solid steelblue;
+
+        &.info {
+            background-image: svgUrl("info", "48");
+        }
+
+        &.confirm {
+            background-image: svgUrl("question", "48");
+        }
+
+        &.error {
+            background-image: svgUrl("error", "48", "%23D13438");
+            border: 5px solid #D13438;
+        }
+    }
+
+    .toolbar {
+        text-align: center;
+    }
+
+    .message-box-text {
+        margin: 10px;
+        padding: 10px;
+        font-family: var(--main-font-family);
+        font-size: var(--main-font-size);
+        color: dimgray;
     }
 }
 

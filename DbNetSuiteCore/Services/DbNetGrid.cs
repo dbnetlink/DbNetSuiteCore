@@ -149,6 +149,9 @@ namespace DbNetSuiteCore.Services
                 case RequestAction.GridRow:
                     await GridRow(response);
                     break;
+                case RequestAction.DeleteRecord:
+                    DeleteRecord(response);
+                    break;
             }
 
             var serializeOptions = new JsonSerializerOptions

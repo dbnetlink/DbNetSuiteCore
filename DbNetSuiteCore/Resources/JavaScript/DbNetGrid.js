@@ -41,6 +41,7 @@ class DbNetGrid extends DbNetGridEdit {
         this.googleChartOptions = undefined;
         this.gridGenerationMode = GridGenerationMode.Display;
         this.groupBy = false;
+        this.isBrowseDialog = false;
         this.multiRowSelect = false;
         this.multiRowSelectLocation = MultiRowSelectLocation.Left;
         this.nestedGrid = false;
@@ -180,10 +181,11 @@ class DbNetGrid extends DbNetGridEdit {
         this.disable("DownloadBtn", response.totalRows == 0);
         this.disable("CopyBtn", response.totalRows == 0);
         this.disable("UpdateBtn", response.totalRows == 0);
+        this.disable("DeleteBtn", response.totalRows == 0);
         this.controlElement("QuickSearch").on("keyup", (event) => this.quickSearchKeyPress(event));
     }
     configureGrid(response) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
         if (this.toolbarPanel) {
             if (response.toolbar) {
                 (_a = this.toolbarPanel) === null || _a === void 0 ? void 0 : _a.html(response.toolbar);
@@ -210,11 +212,11 @@ class DbNetGrid extends DbNetGridEdit {
             this.addRowEventHandlers($(tr));
             this.fireEvent("onRowTransform", { row: tr });
         });
-        if (this.dragAndDrop && this.procedureName == "") {
+        if (this.dragAndDrop && this.procedureName == "" && this.isBrowseDialog == false) {
             (_e = this.gridPanel) === null || _e === void 0 ? void 0 : _e.find("tr.header-row th").draggable({ helper: "clone", cursor: "move" }).on("dragstart", (event, ui) => this.columnDragStarted(event, ui)).on("dragstop", (event, ui) => this.columnDragStopped(event, ui)).on("drag", (event, ui) => this.columnDrag(event, ui));
             (_f = this.gridPanel) === null || _f === void 0 ? void 0 : _f.find("tr.header-row th").droppable().on("dropover", (event, ui) => this.dragDropOver(event, ui)).on("dropout", (event, ui) => this.dragDropOut(event, ui)).on("drop", (event, ui) => this.dragDropped(event, ui));
         }
-        if (this.procedureName == "") {
+        if (this.procedureName == "" && this.isBrowseDialog == false) {
             (_g = this.gridPanel) === null || _g === void 0 ? void 0 : _g.find("tr.header-row th").get().forEach(th => {
                 $(th).on("click", () => this.handleHeaderClick($(th)));
             });
@@ -247,11 +249,11 @@ class DbNetGrid extends DbNetGridEdit {
             (_p = this.gridPanel) === null || _p === void 0 ? void 0 : _p.find("tr.data-row").first().trigger("click");
         }
         const rowCount = (_q = this.gridPanel) === null || _q === void 0 ? void 0 : _q.find("tr.data-row").length;
-        this.fireEvent("onPageLoaded", { table: (_r = this.gridPanel) === null || _r === void 0 ? void 0 : _r.find("table.dbnetgrid-table")[0], rowCount: rowCount });
+        this.fireEvent("onPageLoaded", { table: this.table(), rowCount: rowCount });
         this.renderChart();
         if (this.frozenHeader) {
-            const h = (_s = this.gridPanel) === null || _s === void 0 ? void 0 : _s.find("tr.header-row").height();
-            const $filterRow = (_t = this.gridPanel) === null || _t === void 0 ? void 0 : _t.find("tr.filter-row");
+            const h = (_r = this.gridPanel) === null || _r === void 0 ? void 0 : _r.find("tr.header-row").height();
+            const $filterRow = (_s = this.gridPanel) === null || _s === void 0 ? void 0 : _s.find("tr.filter-row");
             $filterRow.find("th").css("top", h);
         }
         if (rowCount === 0) {
@@ -389,11 +391,14 @@ class DbNetGrid extends DbNetGridEdit {
         tr.on("mouseout", () => tr.removeClass("highlight"));
         tr.on("click", () => this.handleRowClick(tr));
     }
+    selectRow(tr) {
+        tr.parent().find("tr.data-row").removeClass("selected").find("input.multi-select-checkbox").prop('checked', false);
+        tr.addClass("selected").find("input.multi-select-checkbox").prop('checked', true);
+    }
     handleRowClick(tr) {
         var _a;
         if (this.rowSelect) {
-            tr.parent().find("tr.data-row").removeClass("selected").find("input.multi-select-checkbox").prop('checked', false);
-            tr.addClass("selected").find("input.multi-select-checkbox").prop('checked', true);
+            this.selectRow(tr);
         }
         this.configureLinkedControls(tr.data("id"));
         if (this.viewDialog && this.viewDialog.isOpen()) {
@@ -470,7 +475,7 @@ class DbNetGrid extends DbNetGridEdit {
                 this.openSearchDialog(this.getRequest());
                 break;
             case this.controlElementId("UpdateBtn"):
-                this.initEditDialog();
+                this.updateRow();
                 break;
             case this.controlElementId("InsertBtn"):
                 this.insertRow();
@@ -578,8 +583,7 @@ class DbNetGrid extends DbNetGridEdit {
         });
     }
     getViewContent() {
-        const $row = $(this.selectedRow());
-        this.primaryKey = $row.data("pk");
+        const $row = this.assignPrimaryKey();
         this.post("view-content", this.getRequest())
             .then((response) => {
             var _a;
@@ -590,9 +594,13 @@ class DbNetGrid extends DbNetGridEdit {
             this.viewDialog.update(response, $row);
         });
     }
-    refreshRow() {
+    assignPrimaryKey() {
         const $row = $(this.selectedRow());
         this.primaryKey = $row.data("pk");
+        return $row;
+    }
+    refreshRow() {
+        const $row = this.assignPrimaryKey();
         this.post("grid-row", this.getRequest())
             .then((response) => {
             const $table = $(response.html);
@@ -605,42 +613,69 @@ class DbNetGrid extends DbNetGridEdit {
             this.handleRowClick($newRow);
         });
     }
-    initEditDialog() {
+    initEditDialog(update) {
         var _a, _b, _c, _d, _e;
         if (!((_a = this.editDialogControl) === null || _a === void 0 ? void 0 : _a.initialised)) {
-            (_b = this.editDialogControl) === null || _b === void 0 ? void 0 : _b.internalBind("onInitialized", () => this.openEditDialog());
+            (_b = this.editDialogControl) === null || _b === void 0 ? void 0 : _b.internalBind("onInitialized", () => this.openEditDialog(update));
             (_c = this.editDialogControl) === null || _c === void 0 ? void 0 : _c.internalBind("onRecordUpdated", () => this.refreshRow());
             (_d = this.editDialogControl) === null || _d === void 0 ? void 0 : _d.internalBind("onRecordInserted", () => this.reload());
             (_e = this.editDialogControl) === null || _e === void 0 ? void 0 : _e.initialize();
         }
         else {
-            this.openEditDialog();
+            this.openEditDialog(update);
         }
     }
-    openEditDialog() {
+    openEditDialog(update) {
         var _a, _b;
-        (_a = this.editDialogControl) === null || _a === void 0 ? void 0 : _a.getRecord($(this.selectedRow()).data('pk'));
         if (!this.editDialog) {
             this.editDialog = new EditDialog(this.editDialogId, this, this.editDialogControl);
         }
-        (_b = this.editDialog) === null || _b === void 0 ? void 0 : _b.update();
+        if (update) {
+            (_a = this.editDialog) === null || _a === void 0 ? void 0 : _a.update();
+        }
+        else {
+            (_b = this.editDialog) === null || _b === void 0 ? void 0 : _b.insert();
+        }
+    }
+    updateRow() {
+        this.initEditDialog(true);
     }
     insertRow() {
-        return;
+        this.initEditDialog(false);
     }
     deleteRow() {
-        return;
+        this.confirm("Please confirm deletion of the selected row", this.gridPanel, (buttonPressed) => this.deletionConfirmed(buttonPressed));
+    }
+    deletionConfirmed(buttonPressed) {
+        if (buttonPressed != MessageBoxButtonType.Confirm) {
+            return;
+        }
+        this.assignPrimaryKey();
+        this.post("delete-record", this.getRequest())
+            .then((response) => {
+            if (response.error == false) {
+                this.recordDeleted();
+            }
+        });
+    }
+    recordDeleted() {
+        this.reload();
+        this.fireEvent("onRecordDeleted");
+    }
+    table() {
+        var _a;
+        return (_a = this.gridPanel) === null || _a === void 0 ? void 0 : _a[0].querySelector('table.dbnetgrid-table');
     }
     copyGrid() {
-        var _a, _b, _c, _d, _e;
-        const table = (_a = this.gridPanel) === null || _a === void 0 ? void 0 : _a[0].querySelector('table.dbnetgrid-table');
-        (_b = this.gridPanel) === null || _b === void 0 ? void 0 : _b.find("tr.data-row.selected").addClass("unselected").removeClass("selected");
+        var _a, _b, _c, _d;
+        const table = this.table();
+        (_a = this.gridPanel) === null || _a === void 0 ? void 0 : _a.find("tr.data-row.selected").addClass("unselected").removeClass("selected");
         try {
             const range = document.createRange();
             range.selectNode(table);
-            (_c = window.getSelection()) === null || _c === void 0 ? void 0 : _c.addRange(range);
+            (_b = window.getSelection()) === null || _b === void 0 ? void 0 : _b.addRange(range);
             document.execCommand('copy');
-            (_d = window.getSelection()) === null || _d === void 0 ? void 0 : _d.removeRange(range);
+            (_c = window.getSelection()) === null || _c === void 0 ? void 0 : _c.removeRange(range);
         }
         catch (e) {
             try {
@@ -654,8 +689,8 @@ class DbNetGrid extends DbNetGridEdit {
                 return;
             }
         }
-        (_e = this.gridPanel) === null || _e === void 0 ? void 0 : _e.find("tr.data-row.unselected").addClass("selected").removeClass("unselected");
-        this.info("Copied");
+        (_d = this.gridPanel) === null || _d === void 0 ? void 0 : _d.find("tr.data-row.unselected").addClass("selected").removeClass("unselected");
+        this.info("Grid copied to clipboard", this.gridPanel);
     }
     getRequest() {
         this.defaultColumn = this.columns.find((col) => { return col.columnExpression == "*"; });

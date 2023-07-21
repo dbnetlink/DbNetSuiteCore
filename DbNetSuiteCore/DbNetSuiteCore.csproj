@@ -64,6 +64,8 @@
     <None Remove="Resources\Images\ui-icons_cc0000_256x240.png" />
     <None Remove="Resources\Images\ui-icons_ffffff_256x240.png" />
     <None Remove="Resources\JavaScript\axios.js" />
+    <None Remove="Resources\JavaScript\BrowseDialog.js" />
+    <None Remove="Resources\JavaScript\BrowseDialog.min.js" />
     <None Remove="Resources\JavaScript\DbColumn.js" />
     <None Remove="Resources\JavaScript\DbColumn.min.js" />
     <None Remove="Resources\JavaScript\DbNetCombo.js" />
@@ -144,6 +146,8 @@
     <EmbeddedResource Include="Resources\CSS\libraries\jquery.timepicker.min.css" />
     <EmbeddedResource Include="Resources\CSS\_reboot.css" />
     <EmbeddedResource Include="Resources\CSS\_reboot.min.css" />
+    <EmbeddedResource Include="Resources\JavaScript\BrowseDialog.js" />
+    <EmbeddedResource Include="Resources\JavaScript\BrowseDialog.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbColumn.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbColumn.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetCombo.js" />

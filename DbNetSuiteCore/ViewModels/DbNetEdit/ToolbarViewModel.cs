@@ -11,5 +11,6 @@ namespace DbNetSuiteCore.ViewModels.DbNetEdit
         public bool IsEditDialog { get; set; }
         public bool Insert { get; set; }
         public bool Delete { get; set; }
+        public bool Browse { get; set; }
     }
 }

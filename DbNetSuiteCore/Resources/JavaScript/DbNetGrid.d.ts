@@ -50,6 +50,7 @@ declare class DbNetGrid extends DbNetGridEdit {
     gridGenerationMode: GridGenerationMode;
     gridPanel: JQuery<HTMLElement> | undefined;
     groupBy: boolean;
+    isBrowseDialog: boolean;
     multiRowSelect: boolean;
     multiRowSelectLocation: MultiRowSelectLocation;
     nestedGrid: boolean;
@@ -91,6 +92,7 @@ declare class DbNetGrid extends DbNetGridEdit {
     private dragDropOut;
     private dragDropped;
     private addRowEventHandlers;
+    selectRow(tr: JQuery<HTMLElement>): void;
     private handleRowClick;
     private handleHeaderClick;
     private handleRowSelectClick;
@@ -105,11 +107,16 @@ declare class DbNetGrid extends DbNetGridEdit {
     private htmlExport;
     private downloadSpreadsheet;
     private getViewContent;
+    private assignPrimaryKey;
     private refreshRow;
     private initEditDialog;
     private openEditDialog;
+    private updateRow;
     private insertRow;
-    private deleteRow;
+    deleteRow(): void;
+    deletionConfirmed(buttonPressed: MessageBoxButtonType): void;
+    private recordDeleted;
+    table(): HTMLTableElement;
     private copyGrid;
     getRequest(): DbNetGridRequest;
     private addEventListener;

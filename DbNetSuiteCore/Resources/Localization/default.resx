@@ -166,8 +166,8 @@
   <data name="Between" xml:space="preserve">
     <value>Between</value>
   </data>
-  <data name="Browse" xml:space="preserve">
-    <value>Browse</value>
+  <data name="BrowseRow" xml:space="preserve">
+    <value>Browse the selected records</value>
   </data>
   <data name="Bytes" xml:space="preserve">
     <value>Bytes</value>
@@ -205,6 +205,9 @@
   <data name="Config" xml:space="preserve">
     <value>Runtime Configuration Dialog</value>
   </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
   <data name="ConfirmDelete" xml:space="preserve">
     <value>Are you sure you want to delete the selected record(s) ?</value>
   </data>
@@ -212,15 +215,6 @@
     <value>Contains</value>
   </data>
   <data name="Copy" xml:space="preserve">
-    <value>Copy</value>
-  </data>
-  <data name="CopyGridToClipboard" xml:space="preserve">
-    <value>Copy grid to clipboard</value>
-  </data>
-  <data name="CopyToClipboard" xml:space="preserve">
-    <value>Copy To Clipboard</value>
-  </data>
-  <data name="Copy_Title" xml:space="preserve">
     <value>Copy page to clipboard</value>
   </data>
   <data name="CreateFolder" xml:space="preserve">
@@ -239,7 +233,7 @@
     <value>Date value is not valid</value>
   </data>
   <data name="Delete" xml:space="preserve">
-    <value>Delete</value>
+    <value>Delete the selected row</value>
   </data>
   <data name="DeleteDisabled" xml:space="preserve">
     <value>Deleting of records is not enabled for for this control</value>
@@ -284,9 +278,6 @@
     <value>Does not start with</value>
   </data>
   <data name="Download" xml:space="preserve">
-    <value>Export</value>
-  </data>
-  <data name="Download_Title" xml:space="preserve">
     <value>Export data in selected format</value>
   </data>
   <data name="DragYourFileHere" xml:space="preserve">
@@ -358,17 +349,11 @@
   <data name="FileUploaded" xml:space="preserve">
     <value>File uploaded</value>
   </data>
-  <data name="First" xml:space="preserve">
-    <value>First</value>
-  </data>
   <data name="FirstPage" xml:space="preserve">
-    <value>First page</value>
+    <value>Go to first page</value>
   </data>
   <data name="FirstRow" xml:space="preserve">
-    <value>First Row</value>
-  </data>
-  <data name="First_Title" xml:space="preserve">
-    <value>Go to first page</value>
+    <value>Go to first row</value>
   </data>
   <data name="FolderName" xml:space="preserve">
     <value>Folder Name</value>
@@ -427,20 +412,14 @@
   <data name="KB" xml:space="preserve">
     <value>Kilobytes</value>
   </data>
-  <data name="Last" xml:space="preserve">
-    <value>Last</value>
-  </data>
   <data name="LastModified" xml:space="preserve">
     <value>Last Modified</value>
   </data>
   <data name="LastPage" xml:space="preserve">
-    <value>Last page</value>
+    <value>Go to last page</value>
   </data>
   <data name="LastRow" xml:space="preserve">
-    <value>Last Row</value>
-  </data>
-  <data name="Last_Title" xml:space="preserve">
-    <value>Go to last page</value>
+    <value>Go to last row</value>
   </data>
   <data name="LessThan" xml:space="preserve">
     <value>Less than</value>
@@ -469,24 +448,14 @@
   <data name="NewFolder" xml:space="preserve">
     <value>New Folder</value>
   </data>
-  <data name="Next" xml:space="preserve">
-    <value>Next</value>
-  </data>
   <data name="NextMonth" xml:space="preserve">
     <value>Next month</value>
   </data>
   <data name="NextPage" xml:space="preserve">
-    <value>Next page</value>
-  </data>
-  <data name="NextRecord_Title" xml:space="preserve">
-    <value>Next record</value>
-    <comment>View/Edit dialog</comment>
+    <value>Go to next page</value>
   </data>
   <data name="NextRow" xml:space="preserve">
-    <value>Next Row</value>
-  </data>
-  <data name="Next_Title" xml:space="preserve">
-    <value>Go to next page</value>
+    <value>Go to next row</value>
   </data>
   <data name="No" xml:space="preserve">
     <value>No</value>
@@ -577,24 +546,14 @@
   <data name="Prev" xml:space="preserve">
     <value>Prev</value>
   </data>
-  <data name="Previous" xml:space="preserve">
-    <value>Previous</value>
-  </data>
   <data name="PreviousMonth" xml:space="preserve">
     <value>Previous month</value>
   </data>
   <data name="PreviousPage" xml:space="preserve">
-    <value>Previous page</value>
-  </data>
-  <data name="PreviousRecord_Title" xml:space="preserve">
-    <value>Previous record</value>
-    <comment>View/Edit dialog</comment>
+    <value>Go to previous page</value>
   </data>
   <data name="PreviousRow" xml:space="preserve">
-    <value>Previous Row</value>
-  </data>
-  <data name="Previous_Title" xml:space="preserve">
-    <value>Go to previous page</value>
+    <value>Go to previous row</value>
   </data>
   <data name="Print" xml:space="preserve">
     <value>Print</value>
@@ -605,7 +564,7 @@
   <data name="PrintTheCurrentRecord" xml:space="preserve">
     <value>Print the current record</value>
   </data>
-  <data name="QuickSearch_Title" xml:space="preserve">
+  <data name="QuickSearch" xml:space="preserve">
     <value>Search records</value>
   </data>
   <data name="Record" xml:space="preserve">
@@ -637,7 +596,7 @@
     <value>Save the grid in the selected format</value>
   </data>
   <data name="Search" xml:space="preserve">
-    <value>Search</value>
+    <value>Open the search dialog</value>
   </data>
   <data name="Searchfilesonly" xml:space="preserve">
     <value>Search files only</value>
@@ -700,7 +659,7 @@
     <value>You have unapplied changes. Discard ?</value>
   </data>
   <data name="Update" xml:space="preserve">
-    <value>Update selected row</value>
+    <value>Update the selected row in the edit dialog</value>
   </data>
   <data name="UpdatesDisabled" xml:space="preserve">
     <value>Updating of records is not enabled for for this control</value>
@@ -730,16 +689,10 @@
     <value>A value is required in this field</value>
   </data>
   <data name="View" xml:space="preserve">
-    <value>View</value>
+    <value>View the selected row in the view dialog</value>
   </data>
   <data name="ViewDialogTitle" xml:space="preserve">
     <value>View Dialog</value>
-  </data>
-  <data name="ViewTheSelectedRecord" xml:space="preserve">
-    <value>View the selected record</value>
-  </data>
-  <data name="View_Title" xml:space="preserve">
-    <value>View the selected record</value>
   </data>
   <data name="Yes" xml:space="preserve">
     <value>Yes</value>

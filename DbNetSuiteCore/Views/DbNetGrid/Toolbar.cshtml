@@ -1,61 +1,89 @@
 ﻿@namespace DbNetSuiteCore.Views.DbNetGrid
+@using DbNetSuiteCore.Enums;
 @using DbNetSuiteCore.ViewModels.DbNetGrid
 @using Microsoft.AspNetCore.Html
 @model ToolbarViewModel
 
+@{
+    Dictionary<ToolbarSection, List<HtmlString>> ToolbarSections = new Dictionary<ToolbarSection, List<HtmlString>>();
+    bool elementRendered = false;
+    foreach (ToolbarSection toolbarSection in Enum.GetValues<ToolbarSection>())
+    {
+        ToolbarSections.Add(toolbarSection, new List<HtmlString>());
+    }
+
+    if (Model.Search)
+    {
+        ToolbarSections[ToolbarSection.Search].Add(Button("Search", ToolbarSection.Search));
+    }
+    if (Model.QuickSearch)
+    {
+        ToolbarSections[ToolbarSection.Search].Add(QuickSearch());
+    }
+    if (Model.View)
+    {
+        ToolbarSections[ToolbarSection.View].Add(Button("View", ToolbarSection.View));
+    }
+    if (Model.Insert)
+    {
+        ToolbarSections[ToolbarSection.Edit].Add(Button("Insert", ToolbarSection.Edit));
+    }
+    if (Model.Update)
+    {
+        ToolbarSections[ToolbarSection.Edit].Add(Button("Update", ToolbarSection.Edit));
+    }
+    if (Model.Delete)
+    {
+        ToolbarSections[ToolbarSection.Edit].Add(Button("Delete", ToolbarSection.Edit));
+    }
+    if (Model.Navigation)
+    {
+        ToolbarSections[ToolbarSection.Navigation].Add(Button("First", ToolbarSection.Navigation));
+        ToolbarSections[ToolbarSection.Navigation].Add(Button("Previous", ToolbarSection.Navigation));
+    }
+    ToolbarSections[ToolbarSection.Navigation].Add(NoRecords());
+    if (Model.Navigation)
+    {
+        ToolbarSections[ToolbarSection.Navigation].Add(Text("Page"));
+        ToolbarSections[ToolbarSection.Navigation].Add(Input("PageNumber"));
+        ToolbarSections[ToolbarSection.Navigation].Add(Text("Of"));
+        ToolbarSections[ToolbarSection.Navigation].Add(Input("PageCount"));
+    }
+    ToolbarSections[ToolbarSection.Navigation].Add(Text("Rows"));
+    ToolbarSections[ToolbarSection.Navigation].Add(Input("Rows"));
+    if (Model.Navigation)
+    {
+        ToolbarSections[ToolbarSection.Navigation].Add(Button("Next", ToolbarSection.Navigation));
+        ToolbarSections[ToolbarSection.Navigation].Add(Button("Last", ToolbarSection.Navigation));
+    }
+    if (Model.Export)
+    {
+        ToolbarSections[ToolbarSection.Output].Add(Button("Download", ToolbarSection.Output));
+        ToolbarSections[ToolbarSection.Output].Add(DownloadSelect());
+    }
+    if (Model.Copy)
+    {
+        ToolbarSections[ToolbarSection.Output].Add(Button("Copy", ToolbarSection.Output));
+    }
+}
 <div class="dbnetsuite-toolbar-panel">
     <table class="dbnetsuite-toolbar" id="@(Model.ComponentId)_dbnetgrid-toolbar">
         <tbody>
             <tr>
-                @if (Model.Search)
+                @foreach (ToolbarSection section in ToolbarSections.Keys)
                 {
-                    @Button("Search", Model, false)
-                }
-                @QuickSearch(Model)
-                @if (Model.View)
-                {
-                    @Button("View", Model, false)
-                }
-                @if (Model.Insert)
-                {
-                    @Button("Insert", Model, false)
-                }
-                @if (Model.Update)
-                {
-                    @Button("Update", Model, false)
-                }
-                @if (Model.Delete)
-                {
-                    @Button("Delete", Model, false)
-                }
-                @if (Model.Navigation)
-                {
-                    @Button("First", Model)
-                    @Button("Previous", Model)
-                }
-                @NoRecords(Model)
-                @if (Model.Navigation)
-                {
-                    @Text("Page", Model)
-                    @Input("PageNumber", Model)
-                    @Text("Of", Model)
-                    @Input("PageCount", Model)
-                }
-                @Text("Rows", Model)
-                @Input("Rows", Model)
-                @if (Model.Navigation)
-                {
-                    @Button("Next", Model)
-                    @Button("Last", Model)
-                }
-                @if (Model.Export)
-                {
-                    @Button("Download", Model, false)
-                    @DownloadSelect(Model)
-                }
-                @if (Model.Copy)
-                {
-                    @Button("Copy", Model, false)
+                    if (ToolbarSections[section].Any())
+                    {
+                        if (elementRendered)
+                        {
+                            <td class="separator"></td>
+                        }
+                        foreach (HtmlString cell in ToolbarSections[section])
+                        {
+                            @cell
+                            elementRendered = true;
+                        }
+                    }
                 }
             </tr>
         </tbody>
@@ -64,48 +92,44 @@
 
 @functions
 {
-    public static HtmlString Button(string type, ToolbarViewModel model, bool navigation = true)
+    public HtmlString Button(string type, ToolbarSection toolbarSection)
     {
-        return new HtmlString($"<td class=\"{(navigation ? "navigation" : "")}\"><button type=\"button\" class=\"toolbar-button toolbar-button-{model.ToolbarButtonStyle.ToString().ToLower()}\" title=\"{@Title(type, model)}\" button-type=\"{type.ToLower()}\" id=\"{model.ComponentId}_{type}Btn\">{(model.ToolbarButtonStyle == Enums.ToolbarButtonStyle.Image ? string.Empty : ResourceString(type, model))}</button></td>");
+        return new HtmlString($"<td class=\"{(toolbarSection == ToolbarSection.Navigation ? "navigation" : "")}\"><button type=\"button\" class=\"toolbar-button toolbar-button-{Model.ToolbarButtonStyle.ToString().ToLower()}\" title=\"{@Title(type, toolbarSection)}\" button-type=\"{type.ToLower()}\" id=\"{Model.ComponentId}_{type}Btn\">{(Model.ToolbarButtonStyle == Enums.ToolbarButtonStyle.Image ? string.Empty : ResourceString(type))}</button></td>");
     }
 
-    public static HtmlString Input(string name, ToolbarViewModel model)
+    public HtmlString Input(string name)
     {
-        return new HtmlString($"<td class=\"navigation\"><input type=\"input\" class=\"toolbar-info\" readonly id=\"{model.ComponentId}_{name}\" name=\"{name}\"/></td>");
+        return new HtmlString($"<td class=\"navigation\"><input type=\"input\" class=\"toolbar-info\" readonly id=\"{Model.ComponentId}_{name}\" name=\"{name}\"/></td>");
     }
 
-    public static HtmlString Text(string text, ToolbarViewModel model)
+    public HtmlString Text(string text)
     {
-        return new HtmlString($"<td class=\"navigation\"><span class=\"toolbar-text\">{ResourceString(text, model)}</span></td>");
+        return new HtmlString($"<td class=\"navigation\"><span class=\"toolbar-text\">{ResourceString(text)}</span></td>");
     }
 
-    public static HtmlString NoRecords(ToolbarViewModel model)
+    public HtmlString NoRecords()
     {
-        return new HtmlString($"<td id=\"{model.ComponentId}_no-records-cell\" class=\"no-records\"><span class=\"toolbar-text\">{ResourceString("No_Records_Found", model)}</span></td>");
+        return new HtmlString($"<td id=\"{Model.ComponentId}_no-records-cell\" class=\"no-records\"><span class=\"toolbar-text\">{ResourceString("No_Records_Found")}</span></td>");
     }
 
-    public static string Title(string type, ToolbarViewModel model)
+    public string Title(string type, ToolbarSection? toolbarSection = null)
     {
-        return ResourceString($"{type}_Title", model);
+        return ResourceString($"{type}{(toolbarSection.HasValue && toolbarSection.Value == ToolbarSection.Navigation ? "Row" : string.Empty)}");
     }
 
-    public static string ResourceString(string key, ToolbarViewModel model)
+    public string ResourceString(string key)
     {
-        return model.ResourceManager.GetString(key) ?? key;
+        return Model.ResourceManager.GetString(key) ?? key;
     }
 
-    public static HtmlString QuickSearch(ToolbarViewModel model)
+    public HtmlString QuickSearch()
     {
-        @if (model.QuickSearch == false)
-        {
-            return new HtmlString(string.Empty);
-        }
         string id = "QuickSearch";
-        return new HtmlString($"<td><input type=\"input\" class=\"toolbar-info\" id=\"{model.ComponentId}_{id}\" name=\"{id}\" title=\"{@Title(id, model)}\"/></td>");
+        return new HtmlString($"<td><input type=\"input\" class=\"toolbar-info\" id=\"{Model.ComponentId}_{id}\" name=\"{id}\" title=\"{@Title(id)}\"/></td>");
     }
 
-    public static HtmlString DownloadSelect(ToolbarViewModel model)
+    public HtmlString DownloadSelect()
     {
-        return new HtmlString($"<td><select class=\"toolbar-select\" id=\"{model.ComponentId}_DownloadSelect\"/><option value=\"html\">HTML</option><option value=\"excel\">Excel</option></select</td>");
+        return new HtmlString($"<td><select class=\"toolbar-select\" id=\"{Model.ComponentId}_DownloadSelect\"/><option value=\"html\">HTML</option><option value=\"excel\">Excel</option></select</td>");
     }
 }

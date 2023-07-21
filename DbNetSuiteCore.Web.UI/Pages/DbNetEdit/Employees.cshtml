@@ -8,6 +8,8 @@
     employeesEdit.SetControlType("notes", EditControlType.TextArea);
     employeesEdit.SetColumnProperty("titleofcourtesy", ColumnPropertyType.Pattern, "Mr.|Dr.|Ms.|Mr.");
     employeesEdit.Bind(EventType.OnFormElementCreated, "configureFormElement");
+    employeesEdit.SetColumnProperty(new string[] { "lastname", "firstname", "titleofcourtesy" }, ColumnPropertyType.Browse, true);
+
     employeesEdit.Insert = true;
     employeesEdit.Delete = true;
     @employeesEdit.Render()

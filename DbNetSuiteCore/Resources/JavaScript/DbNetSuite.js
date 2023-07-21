@@ -1,11 +1,4 @@
 "use strict";
-var MessageBoxType;
-(function (MessageBoxType) {
-    MessageBoxType[MessageBoxType["Error"] = 0] = "Error";
-    MessageBoxType[MessageBoxType["Warning"] = 1] = "Warning";
-    MessageBoxType[MessageBoxType["Info"] = 2] = "Info";
-    MessageBoxType[MessageBoxType["Question"] = 3] = "Question";
-})(MessageBoxType || (MessageBoxType = {}));
 class DbNetSuite {
     constructor(id) {
         this.datePickerOptions = {};
@@ -104,16 +97,6 @@ class DbNetSuite {
         this.loadingPanel.addClass("dbnetsuite-loading");
         this.loadingPanel.children().first().addClass("icon");
     }
-    error(text) {
-        var _a;
-        if (((_a = this.element) === null || _a === void 0 ? void 0 : _a.length) == 0) {
-            alert(text);
-            return;
-        }
-        const errorPanel = this.addPanel("error");
-        errorPanel.addClass("dbnetsuite-error");
-        errorPanel.html(text);
-    }
     showLoader() {
         var _a;
         (_a = this.loadingPanel) === null || _a === void 0 ? void 0 : _a.addClass("display");
@@ -175,7 +158,16 @@ class DbNetSuite {
             control.configureLinkedControl(control, fk);
         });
     }
-    info(text) {
+    info(text, element) {
+        this.showMessageBox(MessageBoxType.Info, text, element);
+    }
+    confirm(text, element, callback) {
+        this.showMessageBox(MessageBoxType.Confirm, text, element, callback);
+    }
+    error(text, element) {
+        this.showMessageBox(MessageBoxType.Error, text, element);
+    }
+    showMessageBox(messageBoxType, text, element = undefined, callback = undefined) {
         var _a;
         if (this.messageBox == undefined) {
             this.post("message-box", {}, false, "dbnetsuite")
@@ -183,10 +175,10 @@ class DbNetSuite {
                 var _a, _b;
                 (_a = this.element) === null || _a === void 0 ? void 0 : _a.append(response.html);
                 this.messageBox = new MessageBox(`dbnetsuite_message_box`);
-                (_b = this.messageBox) === null || _b === void 0 ? void 0 : _b.show(text);
+                (_b = this.messageBox) === null || _b === void 0 ? void 0 : _b.show(messageBoxType, text, element, callback);
             });
         }
-        (_a = this.messageBox) === null || _a === void 0 ? void 0 : _a.show(text);
+        (_a = this.messageBox) === null || _a === void 0 ? void 0 : _a.show(messageBoxType, text, element, callback);
     }
     addDatePicker($input, datePickerOptions) {
         const options = datePickerOptions;

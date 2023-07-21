@@ -52,6 +52,7 @@ class DbNetGrid extends DbNetGridEdit {
     gridGenerationMode: GridGenerationMode = GridGenerationMode.Display;
     gridPanel: JQuery<HTMLElement> | undefined;
     groupBy = false;
+    isBrowseDialog = false;
     multiRowSelect = false;
     multiRowSelectLocation: MultiRowSelectLocation = MultiRowSelectLocation.Left;
     nestedGrid = false;
@@ -222,6 +223,7 @@ class DbNetGrid extends DbNetGridEdit {
         this.disable("DownloadBtn", response.totalRows == 0);
         this.disable("CopyBtn", response.totalRows == 0);
         this.disable("UpdateBtn", response.totalRows == 0);
+        this.disable("DeleteBtn", response.totalRows == 0);
 
         this.controlElement("QuickSearch").on("keyup", (event) => this.quickSearchKeyPress(event));
     }
@@ -259,7 +261,7 @@ class DbNetGrid extends DbNetGridEdit {
         }
         );
 
-        if (this.dragAndDrop && this.procedureName == "") {
+        if (this.dragAndDrop && this.procedureName == "" && this.isBrowseDialog == false) {
             this.gridPanel?.find("tr.header-row th")
                 .draggable({ helper: "clone", cursor: "move" })
                 .on("dragstart", (event: JQuery.TriggeredEvent<HTMLElement>, ui: JQueryUI.DraggableEventUIParams) => this.columnDragStarted(event, ui))
@@ -273,7 +275,7 @@ class DbNetGrid extends DbNetGridEdit {
                 .on("drop", (event: JQuery.TriggeredEvent<HTMLElement>, ui: JQueryUI.DroppableEventUIParam) => this.dragDropped(event, ui));
         }
 
-        if (this.procedureName == "") {
+        if (this.procedureName == "" && this.isBrowseDialog == false) {
             this.gridPanel?.find("tr.header-row th").get().forEach(th => {
                 $(th).on("click", () => this.handleHeaderClick($(th)));
             });
@@ -313,7 +315,7 @@ class DbNetGrid extends DbNetGridEdit {
 
         const rowCount = this.gridPanel?.find("tr.data-row").length;
 
-        this.fireEvent("onPageLoaded", { table: this.gridPanel?.find("table.dbnetgrid-table")[0], rowCount: rowCount });
+        this.fireEvent("onPageLoaded", { table: this.table(), rowCount: rowCount });
         this.renderChart();
 
         if (this.frozenHeader) {
@@ -474,10 +476,14 @@ class DbNetGrid extends DbNetGridEdit {
         tr.on("click", () => this.handleRowClick(tr));
     }
 
+    public selectRow(tr: JQuery<HTMLElement>) {
+        tr.parent().find("tr.data-row").removeClass("selected").find("input.multi-select-checkbox").prop('checked', false);
+        tr.addClass("selected").find("input.multi-select-checkbox").prop('checked', true);
+    }
+
     private handleRowClick(tr: JQuery<HTMLElement>) {
         if (this.rowSelect) {
-            tr.parent().find("tr.data-row").removeClass("selected").find("input.multi-select-checkbox").prop('checked', false);
-            tr.addClass("selected").find("input.multi-select-checkbox").prop('checked', true);
+            this.selectRow(tr);
         }
 
         this.configureLinkedControls(tr.data("id"));
@@ -566,7 +572,7 @@ class DbNetGrid extends DbNetGridEdit {
                 this.openSearchDialog(this.getRequest());
                 break;
             case this.controlElementId("UpdateBtn"):
-                this.initEditDialog();
+                this.updateRow();
                 break;
             case this.controlElementId("InsertBtn"):
                 this.insertRow();
@@ -689,8 +695,7 @@ class DbNetGrid extends DbNetGridEdit {
     }
 
     private getViewContent() {
-        const $row = $(this.selectedRow());
-        this.primaryKey = $row.data("pk");
+        const $row = this.assignPrimaryKey();
 
         this.post<DbNetGridResponse>("view-content", this.getRequest())
             .then((response) => {
@@ -702,9 +707,14 @@ class DbNetGrid extends DbNetGridEdit {
             });
     }
 
-    private refreshRow() {
+    private assignPrimaryKey() : JQuery<HTMLTableRowElement> {
         const $row = $(this.selectedRow());
         this.primaryKey = $row.data("pk");
+        return $row;
+    }
+
+    private refreshRow() {
+        const $row = this.assignPrimaryKey();
 
         this.post<DbNetGridResponse>("grid-row", this.getRequest())
             .then((response) => {
@@ -719,39 +729,69 @@ class DbNetGrid extends DbNetGridEdit {
             });
     }
 
-    private initEditDialog() {
+    private initEditDialog(update: boolean) {
         if (!this.editDialogControl?.initialised) {
-            this.editDialogControl?.internalBind("onInitialized", () => this.openEditDialog());
+            this.editDialogControl?.internalBind("onInitialized", () => this.openEditDialog(update));
             this.editDialogControl?.internalBind("onRecordUpdated", () => this.refreshRow());
             this.editDialogControl?.internalBind("onRecordInserted", () => this.reload());
          
             this.editDialogControl?.initialize();
         }
         else {
-            this.openEditDialog()
+            this.openEditDialog(update)
         }
     }
 
-    private openEditDialog() {
-        this.editDialogControl?.getRecord($(this.selectedRow()).data('pk') as string);
-
+    private openEditDialog(update: boolean) {
         if (!this.editDialog) {
             this.editDialog = new EditDialog(this.editDialogId as string, this, this.editDialogControl as DbNetEdit);
         }
+        if (update) {
+            this.editDialog?.update();
+        }
+        else {
+            this.editDialog?.insert();
+        }
+    }
 
-        this.editDialog?.update();
+    private updateRow() {
+        this.initEditDialog(true);
     }
 
     private insertRow() {
-        return;
+        this.initEditDialog(false);
     }
 
-    private deleteRow() {
-        return;
+    public deleteRow() {
+        this.confirm("Please confirm deletion of the selected row", this.gridPanel as JQuery<HTMLElement>, (buttonPressed: MessageBoxButtonType) => this.deletionConfirmed(buttonPressed));
+    }
+
+    public deletionConfirmed(buttonPressed: MessageBoxButtonType) {
+        if (buttonPressed != MessageBoxButtonType.Confirm) {
+            return;
+        }
+
+        this.assignPrimaryKey();
+
+        this.post<DbNetSuiteResponse>("delete-record", this.getRequest())
+            .then((response) => {
+                if (response.error == false) {
+                    this.recordDeleted();
+                }
+            })
+    }
+
+    private recordDeleted(): void {
+        this.reload();
+        this.fireEvent("onRecordDeleted");
+    }
+
+    public table(): HTMLTableElement {
+        return this.gridPanel?.[0].querySelector('table.dbnetgrid-table') as HTMLTableElement;
     }
 
     private copyGrid() {
-        const table = this.gridPanel?.[0].querySelector('table.dbnetgrid-table');
+        const table = this.table();
 
         this.gridPanel?.find("tr.data-row.selected").addClass("unselected").removeClass("selected")
 
@@ -775,7 +815,7 @@ class DbNetGrid extends DbNetGridEdit {
         }
         this.gridPanel?.find("tr.data-row.unselected").addClass("selected").removeClass("unselected")
 
-        this.info("Copied")
+        this.info("Grid copied to clipboard", this.gridPanel as JQuery<HTMLElement>)
     }
 
    

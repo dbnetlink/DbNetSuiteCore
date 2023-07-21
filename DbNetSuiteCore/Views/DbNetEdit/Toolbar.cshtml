@@ -1,7 +1,56 @@
 ﻿@namespace DbNetSuiteCore.Views.DbNetEdit
+@using DbNetSuiteCore.Enums;
 @using DbNetSuiteCore.ViewModels.DbNetEdit
 @using Microsoft.AspNetCore.Html
 @model ToolbarViewModel
+
+@{
+    Dictionary<ToolbarSection, List<HtmlString>> ToolbarSections = new Dictionary<ToolbarSection, List<HtmlString>>();
+    bool elementRendered = false;
+    foreach (ToolbarSection toolbarSection in Enum.GetValues<ToolbarSection>())
+    {
+        ToolbarSections.Add(toolbarSection, new List<HtmlString>());
+    }
+
+    if (Model.Search)
+    {
+        ToolbarSections[ToolbarSection.Search].Add(Button("Search", ToolbarSection.Search));
+    }
+    if (Model.QuickSearch)
+    {
+        ToolbarSections[ToolbarSection.Search].Add(QuickSearch());
+    }
+    if (Model.Insert)
+    {
+        ToolbarSections[ToolbarSection.Edit].Add(Button("Insert", ToolbarSection.Edit));
+    }
+    if (Model.Delete)
+    {
+        ToolbarSections[ToolbarSection.Edit].Add(Button("Delete", ToolbarSection.Edit));
+    }
+    if (Model.Navigation)
+    {
+        ToolbarSections[ToolbarSection.Navigation].Add(Button("First", ToolbarSection.Navigation));
+        ToolbarSections[ToolbarSection.Navigation].Add(Button("Previous", ToolbarSection.Navigation));
+    }
+    ToolbarSections[ToolbarSection.Navigation].Add(NoRecords());
+    if (Model.Navigation)
+    {
+        ToolbarSections[ToolbarSection.Navigation].Add(Text("Record"));
+        ToolbarSections[ToolbarSection.Navigation].Add(Input("RowNumber"));
+        ToolbarSections[ToolbarSection.Navigation].Add(Text("Of"));
+        ToolbarSections[ToolbarSection.Navigation].Add(Input("RowCount"));
+    }
+    if (Model.Navigation)
+    {
+        ToolbarSections[ToolbarSection.Navigation].Add(Button("Next", ToolbarSection.Navigation));
+        ToolbarSections[ToolbarSection.Navigation].Add(Button("Last", ToolbarSection.Navigation));
+    }
+    if (Model.Browse)
+    {
+        ToolbarSections[ToolbarSection.Navigation].Add(Button("Browse", ToolbarSection.Navigation));
+    }
+}
 
 <div class="dbnetsuite-toolbar-panel">
     <table class="dbnetsuite-toolbar" id="@(Model.ComponentId)_dbnetedit-toolbar">
@@ -9,48 +58,31 @@
             <tr>
                 @if (Model.IsEditDialog)
                 {
-                    @Button("Previous")
-                    @Button("Next")
-                    <td style="width:100%">&nbsp;</td>
-                    @Button("Apply", false, Enums.ToolbarButtonStyle.ImageAndText)
-                    @Button("Cancel", false, Enums.ToolbarButtonStyle.ImageAndText)
+                    @Button("Previous", ToolbarSection.Navigation)
+                    @Button("Next", ToolbarSection.Navigation)
+                    <td class="push-right"></td>
+                    @Button("Apply", ToolbarSection.Save, Enums.ToolbarButtonStyle.ImageAndText)
+                    @Button("Cancel", ToolbarSection.Save, Enums.ToolbarButtonStyle.ImageAndText)
                 }
                 else
-                {
-                    @if (Model.Search)
+                {   @foreach (ToolbarSection section in ToolbarSections.Keys)
                     {
-                        @Button("Search", false)
+                        if (ToolbarSections[section].Any())
+                        {
+                            if (elementRendered)
+                            {
+                                <td class="separator">&nbsp;&nbsp;</td>
+                            }
+                            foreach (HtmlString cell in ToolbarSections[section])
+                            {
+                                @cell
+                                elementRendered = true;
+                            }
+                        }
                     }
-                    @QuickSearch()
-                    @if (Model.Navigation)
-                    {
-                        @Button("First")
-                        @Button("Previous")
-                    }
-                    @if (Model.Insert)
-                    {
-                        @Button("Insert", false)
-                    }
-                    @if (Model.Delete)
-                    {
-                        @Button("Delete", false)
-                    }
-                    @NoRecords()
-                    @if (Model.Navigation)
-                    {
-                        @Text("Record")
-                        @Input("RowNumber")
-                        @Text("Of")
-                        @Input("RowCount")
-                    }
-                    @if (Model.Navigation)
-                    {
-                        @Button("Next")
-                        @Button("Last")
-                    }
-                    <td style="width:100%"></td>
-                    @Button("Apply", false)
-                    @Button("Cancel", false)
+                    <td class="push-right"></td>
+                    @Button("Apply", ToolbarSection.Save)
+                    @Button("Cancel", ToolbarSection.Save)
                 }
             </tr>
         </tbody>
@@ -59,13 +91,13 @@
 
 @functions
 {
-    public HtmlString Button(string type, bool navigation = true, Enums.ToolbarButtonStyle? toolbarButtonStyle = null)
+    public HtmlString Button(string type, ToolbarSection toolbarSection, Enums.ToolbarButtonStyle? toolbarButtonStyle = null)
     {
         if (toolbarButtonStyle.HasValue == false)
         {
             toolbarButtonStyle = Model.ToolbarButtonStyle;
         }
-        return new HtmlString($"<td class=\"{(navigation ? "navigation" : "")}\"><button type=\"button\" class=\"toolbar-button toolbar-button-{toolbarButtonStyle.ToString().ToLower()}\" title=\"{@Title(type)}\" button-type=\"{type.ToLower()}\" id=\"{Model.ComponentId}_{type}Btn\">{(toolbarButtonStyle == Enums.ToolbarButtonStyle.Image ? string.Empty : ResourceString(type))}</button></td>");
+        return new HtmlString($"<td class=\"{(toolbarSection == ToolbarSection.Navigation ? "navigation" : "")}\"><button type=\"button\" class=\"toolbar-button toolbar-button-{toolbarButtonStyle.ToString().ToLower()}\" title=\"{@Title(type, toolbarSection)}\" button-type=\"{type.ToLower()}\" id=\"{Model.ComponentId}_{type}Btn\">{(toolbarButtonStyle == Enums.ToolbarButtonStyle.Image ? string.Empty : ResourceString(type))}</button></td>");
     }
 
     public HtmlString Input(string name)
@@ -83,9 +115,9 @@
         return new HtmlString($"<td id=\"{Model.ComponentId}_no-records-cell\" class=\"no-records\"><span class=\"toolbar-text\">{ResourceString("No_Records_Found")}</span></td>");
     }
 
-    public string Title(string type)
+    public string Title(string type, ToolbarSection? toolbarSection = null)
     {
-        return ResourceString($"{type}_Title");
+        return ResourceString($"{type}{(toolbarSection.HasValue && toolbarSection.Value == ToolbarSection.Navigation ? "Row" : string.Empty)}");
     }
 
     public string ResourceString(string key)
@@ -95,10 +127,6 @@
 
     public HtmlString QuickSearch()
     {
-        @if (Model.QuickSearch == false)
-        {
-            return new HtmlString(string.Empty);
-        }
         string id = "QuickSearch";
         return new HtmlString($"<td><input type=\"input\" class=\"toolbar-info\" id=\"{Model.ComponentId}_{id}\" name=\"{id}\" title=\"{@Title(id)}\"/></td>");
     }

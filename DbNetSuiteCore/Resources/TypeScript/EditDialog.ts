@@ -15,6 +15,13 @@
         const $row = $(this.parent.selectedRow());
         this.$dialog?.find("[button-type='next']").prop("disabled", $row.next('.data-row').length == 0);
         this.$dialog?.find("[button-type='previous']").prop("disabled", $row.prev('.data-row').length == 0);
+        this.editControl?.getRecord($row.data('pk') as string);
+
+    }
+
+    insert(): void {
+        this.open();
+        this.editControl?.insertRecord()
     }
 
     private nextRecord() {

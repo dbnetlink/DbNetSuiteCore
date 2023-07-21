@@ -6,19 +6,27 @@
 @model BaseViewModel
 
 <div id="dbnetsuite_message_box" class="message-box" title="Information" style="display:none">
-     <div class="message-box-panel">
+    <div class="message-box-panel">
         <table>
             <tr>
-                <td class="message-box-icon"></td>
-                <td class="message-box-text"></td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    @Button("Yes", ToolbarButtonStyle.ImageAndText)
-                    @Button("No", ToolbarButtonStyle.ImageAndText)
-                    @Button("Ok", ToolbarButtonStyle.ImageAndText)
+                <td>
+                    <div class="message-box-icon info"></div>
+                </td>
+                <td>
+                    <div class="message-box-text"></div>
                 </td>
             </tr>
+        </table>
+        <hr />
+        <table style="width:100%">
+            <tr>
+                <td>
+                    <div class="toolbar">
+                        @Button("Confirm", ToolbarButtonStyle.ImageAndText)
+                        @Button("Cancel", ToolbarButtonStyle.ImageAndText)
+                        @Button("Ok", ToolbarButtonStyle.ImageAndText)
+                    </div>
+                </td>
             </tr>
         </table>
     </div>

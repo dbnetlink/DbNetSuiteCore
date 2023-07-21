@@ -2,4 +2,6 @@
 {
     editControlType?: string;
     pattern?: string;
+    browse?: boolean;
+    required?: boolean;
 }

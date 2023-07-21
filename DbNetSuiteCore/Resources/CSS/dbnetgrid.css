@@ -231,6 +231,24 @@ table.lookup-dialog-toolbar td,
   vertical-align: middle;
   border: 0px;
 }
+table.dbnetsuite-toolbar td.separator,
+table.view-dialog-toolbar td.separator,
+table.search-dialog-toolbar td.separator,
+table.lookup-dialog-toolbar td.separator,
+.search-dialog td.separator,
+.dbnetedit-form td.separator,
+.message-box td.separator {
+  width: 10px !important;
+}
+table.dbnetsuite-toolbar td.push-right,
+table.view-dialog-toolbar td.push-right,
+table.search-dialog-toolbar td.push-right,
+table.lookup-dialog-toolbar td.push-right,
+.search-dialog td.push-right,
+.dbnetedit-form td.push-right,
+.message-box td.push-right {
+  width: 100%;
+}
 table.dbnetsuite-toolbar td .toolbar-button,
 table.view-dialog-toolbar td .toolbar-button,
 table.search-dialog-toolbar td .toolbar-button,
@@ -946,6 +964,42 @@ table.lookup-dialog-toolbar td .toolbar-button[button-type=delete]:disabled,
 .message-box td .toolbar-button[button-type=delete]:disabled {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='gainsboro'><path d='M276-88q-45 0-75.5-30.5T170-194v-530q-22 0-37.5-15.5T117-777q0-22 15.5-37.5T170-830h188q0-20 13.8-34t34.2-14h150q20.4 0 34.2 13.8Q604-850.4 604-830h188q22 0 37.5 15.5T845-777q0 22-15.5 37.5T792-724v530q0 45-30.5 75.5T686-88H276Zm410-636H276v530h410v-530ZM339-275h106v-368H339v368Zm178 0h106v-368H517v368ZM276-724v530-530Z'/></svg>");
 }
+table.dbnetsuite-toolbar td .toolbar-button[button-type=browse],
+table.view-dialog-toolbar td .toolbar-button[button-type=browse],
+table.search-dialog-toolbar td .toolbar-button[button-type=browse],
+table.lookup-dialog-toolbar td .toolbar-button[button-type=browse],
+.search-dialog td .toolbar-button[button-type=browse],
+.dbnetedit-form td .toolbar-button[button-type=browse],
+.message-box td .toolbar-button[button-type=browse] {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='steelblue'><path d='M383-242h417v-92H383v92ZM160-626h117v-92H160v92Zm0 187h117v-81H160v81Zm0 197h117v-92H160v92Zm223-197h417v-81H383v81Zm0-187h417v-92H383v92ZM160-136q-43.725 0-74.862-31.137Q54-198.275 54-242v-476q0-43.725 31.138-74.862Q116.275-824 160-824h640q43.725 0 74.862 31.138Q906-761.725 906-718v476q0 43.725-31.138 74.863Q843.725-136 800-136H160Z'/></svg>");
+}
+table.dbnetsuite-toolbar td .toolbar-button[button-type=browse].toolbar-button-text,
+table.view-dialog-toolbar td .toolbar-button[button-type=browse].toolbar-button-text,
+table.search-dialog-toolbar td .toolbar-button[button-type=browse].toolbar-button-text,
+table.lookup-dialog-toolbar td .toolbar-button[button-type=browse].toolbar-button-text,
+.search-dialog td .toolbar-button[button-type=browse].toolbar-button-text,
+.dbnetedit-form td .toolbar-button[button-type=browse].toolbar-button-text,
+.message-box td .toolbar-button[button-type=browse].toolbar-button-text {
+  background-image: none;
+}
+table.dbnetsuite-toolbar td .toolbar-button[button-type=browse].toolbar-button-text:disabled,
+table.view-dialog-toolbar td .toolbar-button[button-type=browse].toolbar-button-text:disabled,
+table.search-dialog-toolbar td .toolbar-button[button-type=browse].toolbar-button-text:disabled,
+table.lookup-dialog-toolbar td .toolbar-button[button-type=browse].toolbar-button-text:disabled,
+.search-dialog td .toolbar-button[button-type=browse].toolbar-button-text:disabled,
+.dbnetedit-form td .toolbar-button[button-type=browse].toolbar-button-text:disabled,
+.message-box td .toolbar-button[button-type=browse].toolbar-button-text:disabled {
+  background-image: none;
+}
+table.dbnetsuite-toolbar td .toolbar-button[button-type=browse]:disabled,
+table.view-dialog-toolbar td .toolbar-button[button-type=browse]:disabled,
+table.search-dialog-toolbar td .toolbar-button[button-type=browse]:disabled,
+table.lookup-dialog-toolbar td .toolbar-button[button-type=browse]:disabled,
+.search-dialog td .toolbar-button[button-type=browse]:disabled,
+.dbnetedit-form td .toolbar-button[button-type=browse]:disabled,
+.message-box td .toolbar-button[button-type=browse]:disabled {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='gainsboro'><path d='M383-242h417v-92H383v92ZM160-626h117v-92H160v92Zm0 187h117v-81H160v81Zm0 197h117v-92H160v92Zm223-197h417v-81H383v81Zm0-187h417v-92H383v92ZM160-136q-43.725 0-74.862-31.137Q54-198.275 54-242v-476q0-43.725 31.138-74.862Q116.275-824 160-824h640q43.725 0 74.862 31.138Q906-761.725 906-718v476q0 43.725-31.138 74.863Q843.725-136 800-136H160Z'/></svg>");
+}
 table.dbnetsuite-toolbar td .toolbar-info,
 table.view-dialog-toolbar td .toolbar-info,
 table.search-dialog-toolbar td .toolbar-info,
@@ -988,6 +1042,7 @@ table.lookup-dialog-toolbar td .toolbar-text,
   padding-right: 3px;
   font-family: var(--main-font-family);
   font-size: var(--main-font-size);
+  white-space: nowrap;
 }
 table.dbnetsuite-toolbar td .toolbar-info[name=QuickSearch],
 table.view-dialog-toolbar td .toolbar-info[name=QuickSearch],
@@ -1032,15 +1087,6 @@ table.lookup-dialog-toolbar td.no-records span,
 
 .search-dialog .layout .toolbar-button {
   margin-left: 2px;
-}
-
-.dialog {
-  background: whitesmoke !important;
-}
-.dialog hr {
-  margin: 2px 0px;
-  border: 1px;
-  color: #ccc;
 }
 
 .view-dialog .view-content-table {

@@ -3,6 +3,7 @@ declare class EditDialog extends Dialog {
     editControl: DbNetEdit;
     constructor(id: string, parent: DbNetGrid, editControl: DbNetEdit);
     update(): void;
+    insert(): void;
     private nextRecord;
     private previousRecord;
 }

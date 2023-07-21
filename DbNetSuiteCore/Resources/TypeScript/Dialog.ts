@@ -7,18 +7,21 @@
         super(null);
         this.$dialog = $(`#${id}`);
         this.$dialog.addClass("dialog");
+        const windowWidth = $(window).width() as number;
+        const windowHeight = $(window).height() as number;
 
         const options = {
             autoOpen: false,
             width: "auto",
-            autoResize: true
-          //  width: this.width,
-         //   maxWidth: this.maxWidth,
+            autoResize: true,
+            maxWidth: windowWidth - 100,
+            maxHeight: windowHeight - 100
+
         } as JQueryUI.DialogOptions;
 
         //options.modal = true;
         this.$dialog.dialog(options);
-        this.$dialog!.find(".message").html("&nbsp;")
+        this.$dialog?.find(".message").html("&nbsp;")
     }
 
     open(): void {
@@ -41,11 +44,11 @@
     }
 
     message(msg: string): void {
-        this.$dialog!.find(".message").html(msg).addClass("highlight");
+        this.$dialog?.find(".message").html(msg).addClass("highlight");
         setInterval(() => this.clearMessage(), 5000);
     }
 
     clearMessage(): void {
-        this.$dialog!.find(".message").html("&nbsp;").removeClass("highlight");
+        this.$dialog?.find(".message").html("&nbsp;").removeClass("highlight");
     }
 }

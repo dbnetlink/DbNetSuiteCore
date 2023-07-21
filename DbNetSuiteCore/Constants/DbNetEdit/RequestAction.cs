@@ -8,7 +8,8 @@
         public const string SearchDialog = "search-dialog";
         public const string Lookup = "lookup";
         public const string Search = "search";
-        public const string InsertRecord = "insert-record";
+        public const string InsertRecord = "insert-record"; 
+        public const string DeleteRecord = "delete-record";
     }
 }
 

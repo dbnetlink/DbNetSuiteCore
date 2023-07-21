@@ -530,6 +530,30 @@ namespace DbNetSuiteCore.Services
 
         }
 
+        protected void DeleteRecord(DbNetSuiteResponse response)
+        {
+            List<string> filterPart = new List<string>();
+            CommandConfig deleteCommand = new CommandConfig();
+
+            filterPart.Add(PrimaryKeyFilter(deleteCommand.Params));
+            deleteCommand.Sql = $"delete from {FromPart} where {string.Join(" and ", filterPart)}";
+
+            try
+            {
+                using (Database)
+                {
+                    Database.Open();
+                    Database.ExecuteNonQuery(deleteCommand);
+                }
+
+                response.Message = "Record deleted";
+            }
+            catch (Exception ex)
+            {
+                response.Message = $"Delete failed ({ex.Message})";
+            }
+        }
+
         internal void GetBaseSchemaName(DbColumn column, DataRow row)
         {
             if (column.BaseSchemaName == "")
@@ -1067,7 +1091,6 @@ namespace DbNetSuiteCore.Services
             switch (Database.Database)
             {
                 case DatabaseType.SqlServer:
-                case DatabaseType.SqlServerCE:
                     if (col.DbDataType != "31") // "Date"
                         columnExpression = $"CONVERT(DATE,{columnExpression})";
                     break;
@@ -1076,12 +1099,6 @@ namespace DbNetSuiteCore.Services
                     break;
                 case DatabaseType.PostgreSql:
                     columnExpression = $"date_trunc('day',{columnExpression})";
-                    break;
-                case DatabaseType.Firebird:
-                    columnExpression = $"cast({columnExpression} AS DATE)";
-                    break;
-                case DatabaseType.Sybase:
-                    columnExpression = $"convert(datetime, convert(binary(4), {columnExpression}))";
                     break;
             }
 

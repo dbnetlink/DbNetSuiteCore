@@ -13,6 +13,8 @@
     customersEdit.LayoutColumns = 3;
     customersEdit.Insert = true;
     customersEdit.Delete = true;
+    customersEdit.SetColumnProperty(new string[] { "companyname", "city", "country", "region" }, ColumnPropertyType.Browse, true);
+
 
     @customersEdit.Render()
 }

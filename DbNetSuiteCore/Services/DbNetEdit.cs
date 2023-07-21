@@ -29,6 +29,7 @@ namespace DbNetSuiteCore.Services
         public bool IsEditDialog { get; set; } = false;
         public int LayoutColumns { get; set; } = 1;
         public int TotalRows { get; set; }
+        public bool Browse => Columns.Any(c => c.Browse);
 
         public DbNetEdit(AspNetCoreServices services) : base(services)
         {
@@ -69,6 +70,9 @@ namespace DbNetSuiteCore.Services
                     break;
                 case RequestAction.InsertRecord:
                     InsertRecord(response);
+                    break;
+                case RequestAction.DeleteRecord:
+                    DeleteRecord(response);
                     break;
                 case RequestAction.Search:
                     SelectRecords(response);
@@ -169,20 +173,27 @@ namespace DbNetSuiteCore.Services
                 Database.ExecuteQuery(query);
 
                 int counter = 0;
+                object[] values = new object[0];
 
                 while (Database.Reader.Read())
                 {
                     counter++;
+                    values = new object[Database.Reader.FieldCount];
+                    Database.Reader.GetValues(values);
 
                     if (counter == CurrentRow)
                     {
-                        object[] values = new object[Database.Reader.FieldCount];
-                        Database.Reader.GetValues(values);
                         dataTable.Rows.Add(values);
                     }
                 }
-                Database.Close();
                 TotalRows = counter;
+
+                if (TotalRows < CurrentRow)
+                {
+                    CurrentRow = TotalRows;
+                    dataTable.Rows.Add(values);
+                }
+                Database.Close();
             }
 
             return dataTable;
@@ -254,6 +265,11 @@ namespace DbNetSuiteCore.Services
                 sql += $" where {string.Join(" or ", filterPart)}";
             }
 
+            if (IsEditDialog == false)
+            {
+                sql += $" order by {Columns.FirstOrDefault(c => c.Browse).ColumnExpression ?? "1"}";
+            }
+
             return new QueryCommandConfig(sql, parameters);
         }
 
@@ -299,6 +315,7 @@ namespace DbNetSuiteCore.Services
             GetRecord(response);
         }
 
+
         private void InsertRecord(DbNetEditResponse response)
         {
             List<string> columnNames = new List<string>();
@@ -339,8 +356,6 @@ namespace DbNetSuiteCore.Services
             {
                 response.Message = $"Insert failed ({ex.Message})";
             }
-
-           // GetRecord(response);
         }
 
         private void ValidateUserInput(DbNetEditResponse response)

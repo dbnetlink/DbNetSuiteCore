@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Html;
 using DbNetSuiteCore.Enums.DbNetEdit;
 using System;
+using DbNetSuiteCore.Services;
+using System.Linq;
 
 namespace DbNetSuiteCore.Components
 {
     public class DbNetEditCore : DbNetGridEditCore
     {
+        private bool _browse => _columnProperties.Any(c => c.PropertyType is ColumnPropertyType.Browse);
+        private string _browseDialogId;
         /// <summary>
         /// Specifies the name of the foreign key column in a linked combo
         /// </summary>
@@ -20,6 +24,15 @@ namespace DbNetSuiteCore.Components
 
         public DbNetEditCore(string connection, string fromPart, string id = null) : base(connection, fromPart, id)
         {
+            BrowseControl = new DbNetGridCore(connection, fromPart, true);
+            BrowseControl.IsBrowseDialog = true;
+
+            this._browseDialogId = $"{this.Id}_browse_dialog";
+        }
+
+        internal DbNetEditCore(string connection, string fromPart, bool editControl) : base(connection, fromPart)
+        {
+ 
         }
         /// <summary>
         /// Binds an event to a named client-side JavaScript function
@@ -28,6 +41,10 @@ namespace DbNetSuiteCore.Components
         {
             base.Bind(eventType, functionName);
         }
+        /// <summary>
+        /// Browse control
+        /// </summary>
+        public DbNetGridCore BrowseControl { get; set; }
         /// <summary>
         /// Assigns a grid column property to multiple columns
         /// </summary>
@@ -56,6 +73,18 @@ namespace DbNetSuiteCore.Components
         public HtmlString Render()
         {
             string message = ValidateProperties();
+
+            if (_browse)
+            {
+                BrowseControl.PageSize = -1;
+                BrowseControl.ToolbarPosition = Enums.ToolbarPosition.Hidden;
+                BrowseControl.Columns = this._columnProperties.Where(c => c.PropertyType is ColumnPropertyType.Browse).Select(c => c.ColumnName).ToList();
+                this._linkedControls.Add(BrowseControl);
+            }
+            else 
+            {
+                BrowseControl = null;
+            }
 
             if (string.IsNullOrEmpty(message) == false)
             {
@@ -121,14 +150,21 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
 
         private string Markup()
         {
-            return _idSupplied ? string.Empty : $"<section id=\"{_id}\"></section>";
+            string editMarkup = _idSupplied ? string.Empty : $"<section id=\"{_id}\"></section>";
+
+            if (_browse)
+            {
+                editMarkup += $"<div id=\"{this._browseDialogId}\" class=\"browse-dialog\" title=\"Browse\" style=\"display:none\"><section id=\"{BrowseControl.Id}\"></section></div>";
+            }
+
+            return editMarkup;
         }
         private string Properties()
         {
             List<string> properties = new List<string>();
             AddProperty(LayoutColumns, nameof(LayoutColumns), properties);
             AddProperty(IsEditDialog, nameof(IsEditDialog), properties);
-
+            AddProperty(_browseDialogId, "BrowseDialogId", properties);
             AddProperties(properties);
 
             //AddProperty(EncodingHelper.Encode(FixedFilterSql), nameof(FixedFilterSql), properties);
