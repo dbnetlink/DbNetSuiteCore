@@ -5,12 +5,13 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Html;
 using DbNetSuiteCore.Enums.DbNetGrid;
 using DocumentFormat.OpenXml.Math;
+using System.Linq;
 
 namespace DbNetSuiteCore.Components
 {
     public class DbNetGridCore : DbNetGridEditCore
     {
-        private string _editDialogId;
+        internal string _editDialogId;
         internal bool? IsBrowseDialog { get; set; } = null;
         /// <summary>
         /// Automatically selects the first row of the grid (default is true)
@@ -146,9 +147,10 @@ namespace DbNetSuiteCore.Components
         public HtmlString Render()
         {
             string message = ValidateProperties();
-            if (Edit == false)
+            if (Edit == false || this._linkedControls.Any(control => control is DbNetEditCore))
             {
                 this._editDialogId = string.Empty;
+                this.Update = false;
             }
             else
             {
@@ -237,17 +239,6 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             return script;
         }
 
-        private string Markup()
-        {
-            var gridMarkup = _idSupplied ? string.Empty : $"<section id=\"{_id}\"></section>";
-
-            if (Edit)
-            {
-                gridMarkup += $"<div id=\"{this._editDialogId}\" class=\"edit-dialog\" title=\"Edit\" style=\"display:none\"><section id=\"{EditControl.Id}\"></section></div>";
-            }
-
-            return gridMarkup;
-        }
         private string Properties()
         {
             List<string> properties = new List<string>();

@@ -20,6 +20,7 @@ using System.Threading;
 using DbNetSuiteCore.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using DbNetSuiteCore.Constants.DbNetSuite;
+using DbNetSuiteCore.Models.DbNetGrid;
 
 namespace DbNetSuiteCore.Services
 {
@@ -30,7 +31,6 @@ namespace DbNetSuiteCore.Services
         protected readonly HttpContext HttpContext;
         protected readonly IWebHostEnvironment Env;
         protected readonly IConfiguration Configuration;
-
         protected readonly DbNetSuiteCoreSettings Settings;
 
         private string _connectionString;
@@ -45,6 +45,7 @@ namespace DbNetSuiteCore.Services
         protected DbNetDataCore Database { get; set; }
 
         public string Id => ComponentId;
+        public string ParentControlType { get; set; } = String.Empty;
         public ResourceManager ResourceManager { get; set; }
 
         public DbNetSuite(AspNetCoreServices services)
@@ -57,6 +58,7 @@ namespace DbNetSuiteCore.Services
 
         public async Task<object> Process()
         {
+            await DeserialiseRequest<DbNetSuiteRequest>();
             DbNetSuiteResponse response = new DbNetSuiteResponse();
             ResourceManager = new ResourceManager("DbNetSuiteCore.Resources.Localization.default", typeof(DbNetSuite).Assembly);
 

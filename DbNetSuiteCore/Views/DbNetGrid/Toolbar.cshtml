@@ -114,7 +114,7 @@
 
     public string Title(string type, ToolbarSection? toolbarSection = null)
     {
-        return ResourceString($"{type}{(toolbarSection.HasValue && toolbarSection.Value == ToolbarSection.Navigation ? "Row" : string.Empty)}");
+        return ResourceString($"{type}{(toolbarSection.HasValue && toolbarSection.Value == ToolbarSection.Navigation ? "Row" : string.Empty)}_tooltip");
     }
 
     public string ResourceString(string key)

@@ -9,6 +9,7 @@
     employeesEdit.SetColumnProperty("titleofcourtesy", ColumnPropertyType.Pattern, "Mr.|Dr.|Ms.|Mr.");
     employeesEdit.Bind(EventType.OnFormElementCreated, "configureFormElement");
     employeesEdit.SetColumnProperty(new string[] { "lastname", "firstname", "titleofcourtesy" }, ColumnPropertyType.Browse, true);
+    employeesEdit.SetColumnProperty(new string[] { "lastname", "firstname", "titleofcourtesy" }, ColumnPropertyType.Required, true);
 
     employeesEdit.Insert = true;
     employeesEdit.Delete = true;

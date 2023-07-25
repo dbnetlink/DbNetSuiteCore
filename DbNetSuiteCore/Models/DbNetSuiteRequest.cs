@@ -6,6 +6,6 @@
         public string ConnectionString { get; set; }
         public string ConnectionType { get; set; }
         public string Culture { get; set; }
-
+        public string ParentControlType { get; set; }
     }
 }

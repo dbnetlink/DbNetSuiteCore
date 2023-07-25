@@ -76,7 +76,7 @@ class DbNetCombo extends DbNetSuite {
         const selectedOptions = this.getSelectedOptions();
 
         this.fireEvent("onOptionSelected", { selectedValues: selectedValues, selectedOptions: selectedOptions });
-        this.configureLinkedControls(selectedValues);
+        this.configureLinkedControls(selectedValues, selectedOptions[0].dataset["pk"]);
     }
 
     private getSelectedValues() {
@@ -109,12 +109,26 @@ class DbNetCombo extends DbNetSuite {
         return options;
     }
 
-    public configureLinkedCombo(combo: DbNetCombo, fk: Array<string>) {
-        if (combo.connectionString == "") {
-            combo.connectionString = this.connectionString;
+    public configureLinkedControl(control: DbNetSuite, fk: Array<string>, pk: string | null) {
+        if (control instanceof DbNetCombo) {
+            const combo = control as DbNetCombo
+            if (control.connectionString == "") {
+                control.connectionString = this.connectionString;
+            }
+            combo.foreignKeyValue = fk;
+            combo.initialised ? combo.reload() : combo.initialize();
         }
-        combo.foreignKeyValue = fk;
-        combo.initialised ? combo.reload() : combo.initialize();
+        if (control instanceof DbNetGrid) {
+            const grid = control as DbNetGrid
+            grid.assignForeignKey(grid, fk);
+            grid.currentPage = 1;
+            grid.initialised ? grid.getPage() : grid.initialize();
+        }
+        if (control instanceof DbNetEdit) {
+            const edit = control as DbNetEdit
+            edit.currentRow = 1;
+            edit.initialised ? edit.getRecord(pk) : edit.initialize(pk);
+        }
     }
 
     private filterKeyPress(event: JQuery.TriggeredEvent): void {
@@ -143,7 +157,9 @@ class DbNetCombo extends DbNetSuite {
         const request: DbNetComboRequest = {
             componentId: this.id,
             connectionString: this.connectionString,
+            culture: this.culture,
             dataOnlyColumns: this.dataOnlyColumns,
+            parentControlType: this.parentControlType,
             fromPart: this.fromPart,
             valueColumn: this.valueColumn,
             textColumn: this.textColumn,

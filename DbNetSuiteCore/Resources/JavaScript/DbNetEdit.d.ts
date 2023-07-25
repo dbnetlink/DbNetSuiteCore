@@ -3,6 +3,7 @@
 /// <reference types="jqueryui" />
 /// <reference types="bootstrap" />
 type DbNetEditResponseCallback = (response: DbNetEditResponse) => void;
+type EditMode = "update" | "insert";
 declare class DbNetEdit extends DbNetGridEdit {
     browseDialog: BrowseDialog | undefined;
     browseDialogControl: DbNetGrid | undefined;
@@ -10,6 +11,7 @@ declare class DbNetEdit extends DbNetGridEdit {
     changes: Dictionary<object>;
     currentRow: number;
     delete: boolean;
+    editMode: EditMode;
     formPanel: JQuery<HTMLElement> | undefined;
     insert: boolean;
     layoutColumns: number;
@@ -19,9 +21,11 @@ declare class DbNetEdit extends DbNetGridEdit {
     totalRows: number;
     isEditDialog: boolean;
     constructor(id: string);
-    initialize(): void;
+    initialize(primaryKey?: string | null): void;
     addLinkedControl(control: DbNetSuite): void;
     getRows(callback?: DbNetEditResponseCallback): void;
+    private clearForm;
+    disableForm(disable: boolean): void;
     private configureEdit;
     private configureForm;
     private updateForm;
@@ -32,12 +36,13 @@ declare class DbNetEdit extends DbNetGridEdit {
     private handleClick;
     getRecord(primaryKey?: string | null): void;
     insertRecord(): void;
+    private configureToolbarButtons;
     private formElements;
     deleteRecord(): void;
     deletionConfirmed(buttonPressed: MessageBoxButtonType): void;
     private recordDeleted;
     private applyChanges;
-    private editMode;
+    private cancelChanges;
     private applyChangesCallback;
     private initBrowseDialog;
     private openBrowseDialog;
@@ -45,7 +50,7 @@ declare class DbNetEdit extends DbNetGridEdit {
     private message;
     private clearMessage;
     private highlightField;
-    private clearHighlightField;
+    private clearHighlightedFields;
     private selectDate;
     private editLookup;
     private selectTime;

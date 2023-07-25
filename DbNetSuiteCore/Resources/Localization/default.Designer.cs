@@ -205,11 +205,20 @@ namespace DbNetSuiteCore.Resources.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Browse.
+        /// </summary>
+        internal static string Browse {
+            get {
+                return ResourceManager.GetString("Browse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Browse the selected records.
         /// </summary>
-        internal static string BrowseRow {
+        internal static string BrowseRow_tooltip {
             get {
-                return ResourceManager.GetString("BrowseRow", resourceCulture);
+                return ResourceManager.GetString("BrowseRow_tooltip", resourceCulture);
             }
         }
         
@@ -349,11 +358,20 @@ namespace DbNetSuiteCore.Resources.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Copy page to clipboard.
+        ///   Looks up a localized string similar to Copy.
         /// </summary>
         internal static string Copy {
             get {
                 return ResourceManager.GetString("Copy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Copy page to clipboard.
+        /// </summary>
+        internal static string Copy_tooltip {
+            get {
+                return ResourceManager.GetString("Copy_tooltip", resourceCulture);
             }
         }
         
@@ -403,11 +421,20 @@ namespace DbNetSuiteCore.Resources.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Delete the selected row.
+        ///   Looks up a localized string similar to Delete.
         /// </summary>
         internal static string Delete {
             get {
                 return ResourceManager.GetString("Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete the selected row.
+        /// </summary>
+        internal static string Delete_tooltip {
+            get {
+                return ResourceManager.GetString("Delete_tooltip", resourceCulture);
             }
         }
         
@@ -538,11 +565,20 @@ namespace DbNetSuiteCore.Resources.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Export data in selected format.
+        ///   Looks up a localized string similar to Export.
         /// </summary>
         internal static string Download {
             get {
                 return ResourceManager.GetString("Download", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export data in selected format.
+        /// </summary>
+        internal static string Download_tooltip {
+            get {
+                return ResourceManager.GetString("Download_tooltip", resourceCulture);
             }
         }
         
@@ -754,20 +790,29 @@ namespace DbNetSuiteCore.Resources.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to First.
+        /// </summary>
+        internal static string First {
+            get {
+                return ResourceManager.GetString("First", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Go to first page.
         /// </summary>
-        internal static string FirstPage {
+        internal static string FirstPage_tooltip {
             get {
-                return ResourceManager.GetString("FirstPage", resourceCulture);
+                return ResourceManager.GetString("FirstPage_tooltip", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Go to first row.
         /// </summary>
-        internal static string FirstRow {
+        internal static string FirstRow_tooltip {
             get {
-                return ResourceManager.GetString("FirstRow", resourceCulture);
+                return ResourceManager.GetString("FirstRow_tooltip", resourceCulture);
             }
         }
         
@@ -862,11 +907,20 @@ namespace DbNetSuiteCore.Resources.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add new record.
+        ///   Looks up a localized string similar to Insert.
         /// </summary>
         internal static string Insert {
             get {
                 return ResourceManager.GetString("Insert", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add new record.
+        /// </summary>
+        internal static string Insert_tooltip {
+            get {
+                return ResourceManager.GetString("Insert_tooltip", resourceCulture);
             }
         }
         
@@ -943,6 +997,15 @@ namespace DbNetSuiteCore.Resources.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Last.
+        /// </summary>
+        internal static string Last {
+            get {
+                return ResourceManager.GetString("Last", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Last Modified.
         /// </summary>
         internal static string LastModified {
@@ -954,18 +1017,18 @@ namespace DbNetSuiteCore.Resources.Localization {
         /// <summary>
         ///   Looks up a localized string similar to Go to last page.
         /// </summary>
-        internal static string LastPage {
+        internal static string LastPage_tooltip {
             get {
-                return ResourceManager.GetString("LastPage", resourceCulture);
+                return ResourceManager.GetString("LastPage_tooltip", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Go to last row.
         /// </summary>
-        internal static string LastRow {
+        internal static string LastRow_tooltip {
             get {
-                return ResourceManager.GetString("LastRow", resourceCulture);
+                return ResourceManager.GetString("LastRow_tooltip", resourceCulture);
             }
         }
         
@@ -1051,6 +1114,15 @@ namespace DbNetSuiteCore.Resources.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Next.
+        /// </summary>
+        internal static string Next {
+            get {
+                return ResourceManager.GetString("Next", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Next month.
         /// </summary>
         internal static string NextMonth {
@@ -1062,18 +1134,18 @@ namespace DbNetSuiteCore.Resources.Localization {
         /// <summary>
         ///   Looks up a localized string similar to Go to next page.
         /// </summary>
-        internal static string NextPage {
+        internal static string NextPage_tooltip {
             get {
-                return ResourceManager.GetString("NextPage", resourceCulture);
+                return ResourceManager.GetString("NextPage_tooltip", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Go to next row.
         /// </summary>
-        internal static string NextRow {
+        internal static string NextRow_tooltip {
             get {
-                return ResourceManager.GetString("NextRow", resourceCulture);
+                return ResourceManager.GetString("NextRow_tooltip", resourceCulture);
             }
         }
         
@@ -1339,6 +1411,15 @@ namespace DbNetSuiteCore.Resources.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Previous.
+        /// </summary>
+        internal static string Previous {
+            get {
+                return ResourceManager.GetString("Previous", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Previous month.
         /// </summary>
         internal static string PreviousMonth {
@@ -1350,18 +1431,18 @@ namespace DbNetSuiteCore.Resources.Localization {
         /// <summary>
         ///   Looks up a localized string similar to Go to previous page.
         /// </summary>
-        internal static string PreviousPage {
+        internal static string PreviousPage_tooltip {
             get {
-                return ResourceManager.GetString("PreviousPage", resourceCulture);
+                return ResourceManager.GetString("PreviousPage_tooltip", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Go to previous row.
         /// </summary>
-        internal static string PreviousRow {
+        internal static string PreviousRow_tooltip {
             get {
-                return ResourceManager.GetString("PreviousRow", resourceCulture);
+                return ResourceManager.GetString("PreviousRow_tooltip", resourceCulture);
             }
         }
         
@@ -1483,11 +1564,20 @@ namespace DbNetSuiteCore.Resources.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Open the search dialog.
+        ///   Looks up a localized string similar to Search.
         /// </summary>
         internal static string Search {
             get {
                 return ResourceManager.GetString("Search", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open the search dialog.
+        /// </summary>
+        internal static string Search_tooltip {
+            get {
+                return ResourceManager.GetString("Search_tooltip", resourceCulture);
             }
         }
         
@@ -1672,11 +1762,20 @@ namespace DbNetSuiteCore.Resources.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Update the selected row in the edit dialog.
+        ///   Looks up a localized string similar to Update.
         /// </summary>
         internal static string Update {
             get {
                 return ResourceManager.GetString("Update", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update the selected row in the edit dialog.
+        /// </summary>
+        internal static string Update_tooltip {
+            get {
+                return ResourceManager.GetString("Update_tooltip", resourceCulture);
             }
         }
         
@@ -1762,11 +1861,20 @@ namespace DbNetSuiteCore.Resources.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to View the selected row in the view dialog.
+        ///   Looks up a localized string similar to View.
         /// </summary>
         internal static string View {
             get {
                 return ResourceManager.GetString("View", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to View the selected row in the view dialog.
+        /// </summary>
+        internal static string View_tooltip {
+            get {
+                return ResourceManager.GetString("View_tooltip", resourceCulture);
             }
         }
         

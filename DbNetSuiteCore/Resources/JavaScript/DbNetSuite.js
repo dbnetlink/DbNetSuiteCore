@@ -10,6 +10,7 @@ class DbNetSuite {
         this.connectionType = "SqlServer";
         this.culture = "";
         this.linkedControls = [];
+        this.parentControlType = "";
         this.initialised = false;
         if (id == null) {
             return;
@@ -31,7 +32,7 @@ class DbNetSuite {
     internalBind(event, callback) {
         if (!this.internalEventHandlers[event])
             this.internalEventHandlers[event] = [];
-        this.internalEventHandlers[event].push({ context: this, method: callback });
+        this.internalEventHandlers[event].push({ sender: this, method: callback });
     }
     unbind(event, handler) {
         if (this.eventHandlers[event] == null)
@@ -57,6 +58,7 @@ class DbNetSuite {
         }
     }
     addLinkedControl(control) {
+        control.parentControlType = this.constructor.name;
         this.linkedControls.push(control);
     }
     fireEvent(event, params = undefined) {
@@ -153,9 +155,9 @@ class DbNetSuite {
         el.val(value.toString());
         el.width(`${value.toString().length}em`);
     }
-    configureLinkedControls(fk) {
+    configureLinkedControls(id, pk = null) {
         this.linkedControls.forEach((control) => {
-            control.configureLinkedControl(control, fk);
+            this._configureLinkedControl(control, id, pk);
         });
     }
     info(text, element) {
@@ -164,17 +166,17 @@ class DbNetSuite {
     confirm(text, element, callback) {
         this.showMessageBox(MessageBoxType.Confirm, text, element, callback);
     }
-    error(text, element) {
+    error(text, element = null) {
         this.showMessageBox(MessageBoxType.Error, text, element);
     }
-    showMessageBox(messageBoxType, text, element = undefined, callback = undefined) {
+    showMessageBox(messageBoxType, text, element = null, callback = undefined) {
         var _a;
         if (this.messageBox == undefined) {
-            this.post("message-box", {}, false, "dbnetsuite")
+            this.post("message-box", this._getRequest(), false, "dbnetsuite")
                 .then((response) => {
                 var _a, _b;
                 (_a = this.element) === null || _a === void 0 ? void 0 : _a.append(response.html);
-                this.messageBox = new MessageBox(`dbnetsuite_message_box`);
+                this.messageBox = new MessageBox(`${this.id}_message_box`);
                 (_b = this.messageBox) === null || _b === void 0 ? void 0 : _b.show(messageBoxType, text, element, callback);
             });
         }
@@ -207,15 +209,22 @@ class DbNetSuite {
         options.change = this.pickerSelected;
         $input.timepicker(options);
     }
-    configureLinkedControl(control, fk) {
-        if (control instanceof DbNetGrid) {
-            const grid = control;
-            grid.configureLinkedGrid(grid, fk);
+    _configureLinkedControl(control, id, pk) {
+        if (this instanceof DbNetGrid) {
+            this.configureLinkedControl(control, id, pk);
         }
-        if (control instanceof DbNetCombo) {
-            const combo = control;
-            combo.configureLinkedCombo(combo, fk);
+        if (this instanceof DbNetCombo) {
+            this.configureLinkedControl(control, id, pk);
         }
+    }
+    _getRequest() {
+        const request = {
+            componentId: this.id,
+            connectionString: this.connectionString,
+            culture: this.culture,
+            parentControlType: this.parentControlType
+        };
+        return request;
     }
 }
 DbNetSuite.DBNull = "DBNull";

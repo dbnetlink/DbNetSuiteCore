@@ -41,7 +41,7 @@ namespace DbNetSuiteCore.Services
             set => _foreignKeyColumn = value;
         }
         public List<object> ForeignKeyValue { get; set; } = null;
-        public async Task<object> Process()
+        public new async Task<object> Process()
         {
             var request = await DeserialiseRequest<DbNetEditRequest>();
             Columns = request.Columns;
@@ -112,14 +112,15 @@ namespace DbNetSuiteCore.Services
             ReflectionHelper.CopyProperties(this, viewModel);
             response.Form = await HttpContext.RenderToStringAsync($"Views/DbNetEdit/Form.cshtml", viewModel);
 
-            if (IsEditDialog == false)
-            {
+         //   if (string.IsNullOrEmpty(ParentControlType) == false)
+          //  {
                 response.CurrentRow = 1;
                 query = BuildSql();
                 dataTable = LoadDataTable(query);
                 response.TotalRows = dataTable.Rows.Count;
                 response.Record = CreateRecord(dataTable, Columns.Cast<DbColumn>().ToList());
-            }
+                response.PrimaryKey = SerialisePrimaryKey(dataTable.Rows[0]);
+            //   }
             response.Columns = Columns;
         }
         private DataTable LoadDataTable(QueryCommandConfig query)
@@ -202,7 +203,7 @@ namespace DbNetSuiteCore.Services
         {
             DataTable dataTable;
 
-            if (IsEditDialog)
+            if (string.IsNullOrEmpty(ParentControlType) == false)
             {
                 response.TotalRows = 1;
                 response.CurrentRow = 1;
@@ -234,7 +235,7 @@ namespace DbNetSuiteCore.Services
             ListDictionary parameters = new ListDictionary();
             List<string> filterPart = new List<string>();
 
-            if (string.IsNullOrEmpty(PrimaryKey) == false && IsEditDialog)
+            if (string.IsNullOrEmpty(PrimaryKey) == false && string.IsNullOrEmpty(ParentControlType) == false)
             {
                 filterPart.Add(PrimaryKeyFilter(parameters));
             }
@@ -265,7 +266,7 @@ namespace DbNetSuiteCore.Services
                 sql += $" where {string.Join(" or ", filterPart)}";
             }
 
-            if (IsEditDialog == false)
+            if (string.IsNullOrEmpty(ParentControlType) && string.IsNullOrEmpty(PrimaryKey))
             {
                 sql += $" order by {Columns.FirstOrDefault(c => c.Browse).ColumnExpression ?? "1"}";
             }
@@ -309,6 +310,7 @@ namespace DbNetSuiteCore.Services
             }
             catch (Exception ex)
             {
+                response.Error = true;
                 response.Message = $"Update failed ({ex.Message})";
             }
 
@@ -354,6 +356,7 @@ namespace DbNetSuiteCore.Services
             }
             catch (Exception ex)
             {
+                response.Error = true;
                 response.Message = $"Insert failed ({ex.Message})";
             }
         }

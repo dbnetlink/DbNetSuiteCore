@@ -3,4 +3,5 @@ interface DbNetSuiteRequest {
     connectionString: string;
     connectionType?: string;
     culture: string;
+    parentControlType: string;
 }

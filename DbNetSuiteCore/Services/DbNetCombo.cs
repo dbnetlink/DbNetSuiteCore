@@ -72,7 +72,7 @@ namespace DbNetSuiteCore.Services
             set => _procedureName = value;
         }
         public Dictionary<string, object> ProcedureParams { get; set; } = new Dictionary<string, object>();
-        public async Task<object> Process()
+        public new async Task<object> Process()
         {
             await DeserialiseRequest<DbNetComboRequest>();
             Initialise();

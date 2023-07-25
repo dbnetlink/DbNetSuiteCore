@@ -1,7 +1,9 @@
 ﻿@namespace DbNetSuiteCore.Views.DbNetGrid
+@using DbNetSuiteCore.Helpers;
 @using DbNetSuiteCore.ViewModels.DbNetCombo;
 @using System.Data
 @using Microsoft.AspNetCore.Html;
+@using System.Text.Json;
 @model ComboViewModel
 @{
     if (Model.AddEmptyOption && Model.DataView.Count > 0)
@@ -11,7 +13,9 @@
 
     foreach (DataRowView dataViewRow in Model.DataView)
     {
-        <option value="@dataViewRow.Row[Model.ValueIndex].ToString()" @DataAttributes(Model.TextIndex,dataViewRow)>@dataViewRow.Row[Model.TextIndex].ToString()</option>
+        string columnName = dataViewRow.Row.Table.Columns[Model.ValueIndex].ToString();
+        string value = dataViewRow.Row[Model.ValueIndex].ToString();
+        <option value="@value" data-pk="@EncodeValue(value,columnName)" @DataAttributes(Model.TextIndex,dataViewRow)>@dataViewRow.Row[Model.TextIndex].ToString()</option>
     }
 }
 @functions
@@ -37,5 +41,12 @@
          }
 
         return new HtmlString(string.Join(" ", dataAttributes.ToArray()));
+    }
+
+    public string EncodeValue(string value, string columnName)
+    {
+        Dictionary<string, object> primaryKeyValues = new Dictionary<string, object>();
+        primaryKeyValues.Add(columnName, value);
+        return EncodingHelper.Encode(JsonSerializer.Serialize(primaryKeyValues));
     }
 }

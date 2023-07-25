@@ -135,7 +135,10 @@ namespace DbNetSuiteCore.Services
                     column.AutoIncrement = row.IsAutoIncrement();
                 }
 
-                column.Required = row.IsRequired();
+                if (column.Required == false)
+                {
+                    column.Required = row.IsRequired();
+                }
 
                 if (column is GridColumn)
                 {

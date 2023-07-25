@@ -140,10 +140,15 @@
         {
             attributes.Add($"numeric=\"true\"");
         }
-        if (editColumn.Required)
+
+        if (editColumn.EditControlType != EditControlType.CheckBox)
         {
-            attributes.Add($"required=\"true\"");
+            if (editColumn.Required)
+            {
+                attributes.Add($"required=\"true\"");
+            }
         }
+
         if (editColumn.PrimaryKey)
         {
             attributes.Add($"primarykey=\"true\"");

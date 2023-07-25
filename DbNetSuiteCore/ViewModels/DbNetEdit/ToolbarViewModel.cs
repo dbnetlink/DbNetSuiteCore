@@ -12,5 +12,6 @@ namespace DbNetSuiteCore.ViewModels.DbNetEdit
         public bool Insert { get; set; }
         public bool Delete { get; set; }
         public bool Browse { get; set; }
+        public string ParentControlType { get; set; }
     }
 }

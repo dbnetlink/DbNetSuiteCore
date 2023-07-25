@@ -99,7 +99,7 @@ namespace DbNetSuiteCore.Services
                 return Nullable.GetUnderlyingType(type);
         }
 
-        public async Task<object> Process()
+        public new async Task<object> Process()
         {
             var request = await DeserialiseRequest<DbNetGridRequest>();
             Columns = request.Columns;
@@ -882,20 +882,12 @@ namespace DbNetSuiteCore.Services
         {
             byte[] byteData = new byte[0];
 
-            GridColumn primaryKeyColumn = this.Columns.FirstOrDefault(c => c.PrimaryKey);
-
-            if (primaryKeyColumn == null)
-            {
-                throw new Exception("A primary key column must be specified");
-            }
-
             using (Database)
             {
                 Database.Open();
                 QueryCommandConfig query = new QueryCommandConfig();
 
-                query.Sql = $"select {this.ColumnName} from {FromPart} where {primaryKeyColumn.ColumnExpression} = {ParamName(primaryKeyColumn, false)}";
-                query.Params.Add(ParamName(primaryKeyColumn, true), ConvertToDbParam(this.PrimaryKey, primaryKeyColumn));
+                query.Sql = $"select {this.ColumnName} from {FromPart} where {PrimaryKeyFilter(query.Params)}";
                 Database.ExecuteQuery(query);
 
                 if (Database.Reader.Read())

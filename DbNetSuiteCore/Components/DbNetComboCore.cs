@@ -135,17 +135,12 @@ with ({_id})
 connectionString = '{EncodingHelper.Encode(_connection)}';
 fromPart = '{EncodingHelper.Encode(_fromPart)}';
 valueColumn = '{EncodingHelper.Encode(_valueColumn)}';
-
 {EventBindings()}
 {Properties()}
 {LinkedControls()}";
             return script;
         }
 
-        private string Markup()
-        {
-            return _idSupplied ? string.Empty : $"<section id=\"{_id}\"></section>";
-        }
         private string Properties()
         {
             List<string> properties = new List<string>();

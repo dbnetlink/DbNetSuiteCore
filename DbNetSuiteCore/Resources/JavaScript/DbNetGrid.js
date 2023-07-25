@@ -33,6 +33,7 @@ class DbNetGrid extends DbNetGridEdit {
         this.currentPage = 1;
         this.defaultColumn = undefined;
         this.dragAndDrop = true;
+        this.editControl = undefined;
         this.editDialogId = "";
         this.export_ = true;
         this.fixedFilterParams = {};
@@ -54,6 +55,7 @@ class DbNetGrid extends DbNetGridEdit {
         this.procedureParams = {};
         this.rowSelect = true;
         this.totalPages = 0;
+        this.totalRows = 0;
         this.update = false;
         this.view = false;
         this.viewLayoutColumns = 1;
@@ -82,11 +84,6 @@ class DbNetGrid extends DbNetGridEdit {
             this.configureGrid(response);
             this.initialised = true;
             this.fireEvent("onInitialized");
-        });
-        this.linkedControls.forEach((control) => {
-            if (control.isEditDialog) {
-                this.editDialogControl = control;
-            }
         });
     }
     addNestedGrid(handler) {
@@ -160,9 +157,11 @@ class DbNetGrid extends DbNetGridEdit {
         const $navigationElements = this.controlElement("dbnetgrid-toolbar").find(".navigation");
         const $noRecordsCell = this.controlElement("no-records-cell");
         this.setInputElement("Rows", response.totalRows);
+        this.totalRows = response.totalRows;
         if (response.totalRows == 0) {
             $navigationElements.hide();
             $noRecordsCell.show();
+            this.configureLinkedControls(null);
         }
         else {
             $navigationElements.show();
@@ -396,17 +395,12 @@ class DbNetGrid extends DbNetGridEdit {
         tr.addClass("selected").find("input.multi-select-checkbox").prop('checked', true);
     }
     handleRowClick(tr) {
-        var _a;
         if (this.rowSelect) {
             this.selectRow(tr);
         }
-        this.configureLinkedControls(tr.data("id"));
+        this.configureLinkedControls(tr.data("id"), tr.data("pk"));
         if (this.viewDialog && this.viewDialog.isOpen()) {
             this.getViewContent();
-        }
-        if (this.editDialog && this.editDialog.isOpen()) {
-            (_a = this.editDialogControl) === null || _a === void 0 ? void 0 : _a.getRecord($(this.selectedRow()).data('pk'));
-            this.editDialog.update();
         }
         this.fireEvent("onRowSelected", { row: tr[0] });
     }
@@ -613,35 +607,30 @@ class DbNetGrid extends DbNetGridEdit {
             this.handleRowClick($newRow);
         });
     }
-    initEditDialog(update) {
-        var _a, _b, _c, _d, _e;
-        if (!((_a = this.editDialogControl) === null || _a === void 0 ? void 0 : _a.initialised)) {
-            (_b = this.editDialogControl) === null || _b === void 0 ? void 0 : _b.internalBind("onInitialized", () => this.openEditDialog(update));
-            (_c = this.editDialogControl) === null || _c === void 0 ? void 0 : _c.internalBind("onRecordUpdated", () => this.refreshRow());
-            (_d = this.editDialogControl) === null || _d === void 0 ? void 0 : _d.internalBind("onRecordInserted", () => this.reload());
-            (_e = this.editDialogControl) === null || _e === void 0 ? void 0 : _e.initialize();
-        }
-        else {
-            this.openEditDialog(update);
-        }
-    }
-    openEditDialog(update) {
-        var _a, _b;
+    openEditDialog(insert) {
+        var _a, _b, _c;
         if (!this.editDialog) {
-            this.editDialog = new EditDialog(this.editDialogId, this, this.editDialogControl);
+            this.editDialog = new EditDialog(this.editDialogId);
         }
-        if (update) {
-            (_a = this.editDialog) === null || _a === void 0 ? void 0 : _a.update();
+        (_a = this.editDialog) === null || _a === void 0 ? void 0 : _a.open();
+        if (insert) {
+            (_b = this.editControl) === null || _b === void 0 ? void 0 : _b.insertRecord();
         }
         else {
-            (_b = this.editDialog) === null || _b === void 0 ? void 0 : _b.insert();
+            (_c = this.editControl) === null || _c === void 0 ? void 0 : _c.getRecord($(this.selectedRow()).data('pk'));
         }
     }
     updateRow() {
-        this.initEditDialog(true);
+        this.openEditDialog(false);
     }
     insertRow() {
-        this.initEditDialog(false);
+        var _a;
+        if (this.editDialogId) {
+            this.openEditDialog(true);
+        }
+        else {
+            (_a = this.editControl) === null || _a === void 0 ? void 0 : _a.insertRecord();
+        }
     }
     deleteRow() {
         this.confirm("Please confirm deletion of the selected row", this.gridPanel, (buttonPressed) => this.deletionConfirmed(buttonPressed));
@@ -685,7 +674,7 @@ class DbNetGrid extends DbNetGridEdit {
                 navigator.clipboard.write([clipboardItemInput]);
             }
             catch (e) {
-                alert("Copy failed");
+                this.error("Copy failed");
                 return;
             }
         }
@@ -699,6 +688,7 @@ class DbNetGrid extends DbNetGridEdit {
         }
         const request = {
             componentId: this.id,
+            parentControlType: this.parentControlType,
             connectionString: this.connectionString,
             fromPart: this.fromPart,
             currentPage: this.currentPage,
@@ -745,15 +735,15 @@ class DbNetGrid extends DbNetGridEdit {
     }
     downloadCellData(element, image) {
         var _a, _b;
-        const $viewContentRow = $(element).closest("tr.view-content-row");
+        const $viewContentContainer = $(element).closest(".view-dialog-value");
         const $button = $(element);
         const $cell = $button.closest("td");
         const $row = $button.closest("tr");
-        if ($viewContentRow.length) {
-            this.columnName = $viewContentRow.data("columnname");
+        if ($viewContentContainer.length) {
+            this.columnName = $viewContentContainer.data("columnname");
         }
         else {
-            this.primaryKey = $row.data("id");
+            this.primaryKey = $row.data("pk");
             this.columnName = (_b = (_a = this.gridPanel) === null || _a === void 0 ? void 0 : _a.find("th[data-columnname]").get($cell.prop("cellIndex"))) === null || _b === void 0 ? void 0 : _b.getAttribute("data-columnname");
         }
         const args = {
@@ -817,21 +807,71 @@ class DbNetGrid extends DbNetGridEdit {
         this.assignForeignKey(grid, pk);
         grid.initialize();
     }
-    configureLinkedGrid(control, fk) {
-        const grid = control;
-        this.assignForeignKey(grid, fk);
-        if (grid.connectionString == "") {
-            grid.connectionString = this.connectionString;
+    configureLinkedControl(control, id, pk) {
+        var _a;
+        if (control instanceof DbNetGrid) {
+            const grid = control;
+            this.assignForeignKey(grid, id);
+            grid.currentPage = 1;
+            grid.initialised ? grid.getPage() : grid.initialize();
         }
-        grid.currentPage = 1;
-        grid.initialised ? grid.getPage() : grid.initialize();
+        if (control instanceof DbNetEdit) {
+            const edit = control;
+            if (this.editControl == undefined) {
+                this.editControl = edit;
+            }
+            if (id == null) {
+                edit.disableForm(true);
+                if (this.editDialog) {
+                    this.editDialog.close();
+                }
+                return;
+            }
+            edit.currentRow = 1;
+            if (edit.initialised) {
+                edit.disableForm(false);
+                if (((_a = this.editDialog) === null || _a === void 0 ? void 0 : _a.isOpen()) === false) {
+                    return;
+                }
+                edit.getRecord(pk);
+                this.configureEditButtons(edit);
+            }
+            else {
+                edit.internalBind("onInitialized", (sender) => this.initialiseEdit(sender));
+                edit.internalBind("onRecordUpdated", () => this.refreshRow());
+                edit.internalBind("onRecordInserted", () => this.reload());
+                edit.initialize(pk);
+            }
+        }
     }
-    assignForeignKey(grid, fk) {
-        const col = grid.columns.find((col) => { return col.foreignKey == true; });
-        if (col == undefined) {
-            alert('No foreign key defined for nested grid');
-            return;
+    configureEditButtons(edit) {
+        const $row = $(this.selectedRow());
+        edit.controlElement("NextBtn").prop("disabled", $row.next('.data-row').length == 0);
+        edit.controlElement("PreviousBtn").prop("disabled", $row.prev('.data-row').length == 0);
+    }
+    initialiseEdit(sender) {
+        sender.controlElement("NextBtn").off().on("click", () => this.nextRecord());
+        sender.controlElement("PreviousBtn").off().on("click", () => this.previousRecord());
+        if (this.editDialogId) {
+            sender.controlElement("CancelBtn").off().on("click", () => { var _a; return (_a = this.editDialog) === null || _a === void 0 ? void 0 : _a.close(); });
         }
-        col.foreignKeyValue = fk ? fk : DbNetSuite.DBNull;
+        this.configureEditButtons(sender);
+    }
+    nextRecord() {
+        $(this.selectedRow()).next().trigger("click");
+    }
+    previousRecord() {
+        $(this.selectedRow()).prev().trigger("click");
+    }
+    assignForeignKey(control, id, pk = null) {
+        if (control instanceof DbNetGrid) {
+            const grid = control;
+            const col = grid.columns.find((col) => { return col.foreignKey == true; });
+            if (col == undefined) {
+                alert('No foreign key defined for nested grid');
+                return;
+            }
+            col.foreignKeyValue = id ? id : DbNetSuite.DBNull;
+        }
     }
 }

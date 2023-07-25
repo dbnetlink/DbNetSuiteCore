@@ -1,4 +1,4 @@
-type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted" | "onRecordDeleted"
+type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted" | "onRecordDeleted" | "onInsertInitalize" | "onFormUpdated"
 
 interface CellDataDownloadArgs {
     row: HTMLTableRowElement,
@@ -21,10 +21,10 @@ type EventHandler = {
 
 type InternalEventHandler = {
     context: DbNetSuite;
-    method: EmptyCallback;
+    method: EventHandler;
 };
 
-type EmptyCallback = (sender: DbNetSuite, args: any) => void;
+type EmptyCallback = (sender: DbNetSuite, args?: object) => void;
 class DbNetSuite {
     public static DBNull = "DBNull";
     public datePickerOptions: JQueryUI.DatepickerOptions = {};
@@ -38,6 +38,7 @@ class DbNetSuite {
     protected culture = "";
     protected linkedControls: Array<DbNetSuite> = [];
     protected messageBox: MessageBox | undefined;
+    protected parentControlType = "";
 
     public initialised = false;
 
@@ -67,7 +68,7 @@ class DbNetSuite {
     internalBind(event: EventName, callback: EmptyCallback) {
         if (!this.internalEventHandlers[event])
             this.internalEventHandlers[event] = [];
-        this.internalEventHandlers[event].push({ context:this, method:callback } as InternalEventHandler);
+        this.internalEventHandlers[event].push({ sender: this, method: callback } as unknown as InternalEventHandler);
     }
 
     unbind(event: EventName, handler: EventHandler) {
@@ -97,6 +98,7 @@ class DbNetSuite {
     }
 
     addLinkedControl(control: DbNetSuite) {
+        control.parentControlType = this.constructor.name;
         this.linkedControls.push(control);
     }
 
@@ -117,7 +119,7 @@ class DbNetSuite {
         if (this.internalEventHandlers[event]) {
             const events = this.internalEventHandlers[event];
 
-            events.forEach((handler: ) => {
+            events.forEach((handler: InternalEventHandler) => {
                 let args: object[] = [this];
 
                 if (params) {
@@ -208,9 +210,9 @@ class DbNetSuite {
         el.width(`${value.toString().length}em`);
     }
 
-    protected configureLinkedControls(fk: object | null) {
+    protected configureLinkedControls(id: object | null, pk:string | null = null) {
         this.linkedControls.forEach((control) => {
-            control.configureLinkedControl(control, fk);
+            this._configureLinkedControl(control, id, pk);
         });
     }
 
@@ -222,16 +224,16 @@ class DbNetSuite {
         this.showMessageBox(MessageBoxType.Confirm, text, element, callback);
     }
 
-    protected error(text: string, element: JQuery<HTMLElement>) {
+    protected error(text: string, element: JQuery<HTMLElement> | null = null) {
         this.showMessageBox(MessageBoxType.Error, text, element);
     }
 
-    private showMessageBox(messageBoxType: MessageBoxType, text: string, element: JQuery<HTMLElement> | undefined = undefined, callback: MessageBoxCallback | undefined = undefined) {
+    private showMessageBox(messageBoxType: MessageBoxType, text: string, element: JQuery<HTMLElement> | null = null, callback: MessageBoxCallback | undefined = undefined) {
         if (this.messageBox == undefined) {
-            this.post<DbNetSuiteResponse>("message-box", {}, false, "dbnetsuite")
+            this.post<DbNetSuiteResponse>("message-box", this._getRequest(), false, "dbnetsuite")
                 .then((response) => {
                     this.element?.append(response.html);
-                    this.messageBox = new MessageBox(`dbnetsuite_message_box`);
+                    this.messageBox = new MessageBox(`${this.id}_message_box`);
                     this.messageBox?.show(messageBoxType, text, element, callback);
                 });
         }
@@ -272,15 +274,24 @@ class DbNetSuite {
         $input.timepicker(options);
     }
 
-    private configureLinkedControl(control: DbNetSuite, fk: object | null) {
-        if (control instanceof DbNetGrid) {
-            const grid = control as DbNetGrid;
-            grid.configureLinkedGrid(grid, fk);
+    private _configureLinkedControl(control: DbNetSuite, id: object | null, pk: string | null) {
+        if (this instanceof DbNetGrid) {
+            (this as DbNetGrid).configureLinkedControl(control, id, pk);
         }
-        if (control instanceof DbNetCombo) {
-            const combo = control as DbNetCombo;
-            combo.configureLinkedCombo(combo, fk as string[]);
+        if (this instanceof DbNetCombo) {
+            (this as DbNetCombo).configureLinkedControl(control, id as string[], pk);
         }
+    }
+
+    private _getRequest(): DbNetSuiteRequest {
+        const request: DbNetSuiteRequest = {
+            componentId: this.id,
+            connectionString: this.connectionString,
+            culture: this.culture,
+            parentControlType: this.parentControlType
+        };
+
+        return request;
     }
 }
 

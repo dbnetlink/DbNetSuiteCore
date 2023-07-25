@@ -56,7 +56,7 @@
     <table class="dbnetsuite-toolbar" id="@(Model.ComponentId)_dbnetedit-toolbar">
         <tbody>
             <tr>
-                @if (Model.IsEditDialog)
+                @if (string.IsNullOrEmpty(Model.ParentControlType) == false)
                 {
                     @Button("Previous", ToolbarSection.Navigation)
                     @Button("Next", ToolbarSection.Navigation)
@@ -117,7 +117,7 @@
 
     public string Title(string type, ToolbarSection? toolbarSection = null)
     {
-        return ResourceString($"{type}{(toolbarSection.HasValue && toolbarSection.Value == ToolbarSection.Navigation ? "Row" : string.Empty)}");
+        return ResourceString($"{type}{(toolbarSection.HasValue && toolbarSection.Value == ToolbarSection.Navigation ? "Row" : string.Empty)}_tooltip");
     }
 
     public string ResourceString(string key)

@@ -67,10 +67,10 @@ table.dbnetgrid-table th[orderby] {
   background-size: 12px;
 }
 table.dbnetgrid-table th[orderby=asc] {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='16' width='16' viewBox='0 -960 960 960' fill='SteelBlue'><path d='m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='16' width='16' viewBox='' fill='SteelBlue'><path d='m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z'/></svg>");
 }
 table.dbnetgrid-table th[orderby=desc] {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='16' width='16' viewBox='0 -960 960 960' fill='SteelBlue'><path d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='16' width='16' viewBox='' fill='SteelBlue'><path d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/></svg>");
 }
 table.dbnetgrid-table tr.odd {
   background-color: #F5F5F5;
@@ -1199,13 +1199,25 @@ table.dbnetsuite-toolbar td .toolbar-button[button-type=apply],
 table.view-dialog-toolbar td .toolbar-button[button-type=apply],
 table.search-dialog-toolbar td .toolbar-button[button-type=apply],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=apply] {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='LimeGreen'><path d='m382-368 338-338q15.733-16 37.367-16Q779-722 795-706.211q16 15.79 16 37.5Q811-647 795-631L419-255q-15.818 16-36.909 16T345-255L167-433q-16-15.733-15.5-37.367Q152-492 167.789-508q15.79-16 37.5-16Q227-524 243-508l139 140Z'/></svg>") !important;
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='%23388E3C'><path d='m382-368 338-338q15.733-16 37.367-16Q779-722 795-706.211q16 15.79 16 37.5Q811-647 795-631L419-255q-15.818 16-36.909 16T345-255L167-433q-16-15.733-15.5-37.367Q152-492 167.789-508q15.79-16 37.5-16Q227-524 243-508l139 140Z'/></svg>") !important;
+}
+table.dbnetsuite-toolbar td .toolbar-button[button-type=apply]:disabled,
+table.view-dialog-toolbar td .toolbar-button[button-type=apply]:disabled,
+table.search-dialog-toolbar td .toolbar-button[button-type=apply]:disabled,
+table.lookup-dialog-toolbar td .toolbar-button[button-type=apply]:disabled {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='gainsboro'><path d='m382-368 338-338q15.733-16 37.367-16Q779-722 795-706.211q16 15.79 16 37.5Q811-647 795-631L419-255q-15.818 16-36.909 16T345-255L167-433q-16-15.733-15.5-37.367Q152-492 167.789-508q15.79-16 37.5-16Q227-524 243-508l139 140Z'/></svg>") !important;
 }
 table.dbnetsuite-toolbar td .toolbar-button[button-type=cancel],
 table.view-dialog-toolbar td .toolbar-button[button-type=cancel],
 table.search-dialog-toolbar td .toolbar-button[button-type=cancel],
 table.lookup-dialog-toolbar td .toolbar-button[button-type=cancel] {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='IndianRed'><path d='M266-182v-106h302q59 0 102.5-36.5T714-418q0-57-43.5-93.5T568-548H340l94 94-74 72-220-219 220-220 74 73-94 94h228q103 0 177.5 68T820-418q0 100-74.5 168T568-182H266Z'/></svg>") !important;
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='%23D32F2F'><path d='M266-182v-106h302q59 0 102.5-36.5T714-418q0-57-43.5-93.5T568-548H340l94 94-74 72-220-219 220-220 74 73-94 94h228q103 0 177.5 68T820-418q0 100-74.5 168T568-182H266Z'/></svg>") !important;
+}
+table.dbnetsuite-toolbar td .toolbar-button[button-type=cancel]:disabled,
+table.view-dialog-toolbar td .toolbar-button[button-type=cancel]:disabled,
+table.search-dialog-toolbar td .toolbar-button[button-type=cancel]:disabled,
+table.lookup-dialog-toolbar td .toolbar-button[button-type=cancel]:disabled {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='gainsboro'><path d='M266-182v-106h302q59 0 102.5-36.5T714-418q0-57-43.5-93.5T568-548H340l94 94-74 72-220-219 220-220 74 73-94 94h228q103 0 177.5 68T820-418q0 100-74.5 168T568-182H266Z'/></svg>") !important;
 }
 table.dbnetsuite-toolbar td .toolbar-button[button-type=clear],
 table.view-dialog-toolbar td .toolbar-button[button-type=clear],

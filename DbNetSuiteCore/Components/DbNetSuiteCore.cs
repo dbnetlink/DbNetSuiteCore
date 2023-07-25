@@ -200,6 +200,36 @@ function init_{_id}()
             DatePickerOptions datePickerOptions = new DatePickerOptions(this.Culture);
             return Serialize(datePickerOptions);
         }
+
+        internal string Markup()
+        {
+            string markup = _idSupplied ? string.Empty : $"<section id=\"{_id}\"></section>";
+
+            if (this is DbNetEditCore)
+            {
+                DbNetEditCore dbNetEditCore = (DbNetEditCore)this;
+                if (dbNetEditCore._browse)
+                {
+                    markup += $"<div id=\"{dbNetEditCore._browseDialogId}\" class=\"browse-dialog\" title=\"Browse\" style=\"display:none\"><section id=\"{dbNetEditCore.BrowseControl.Id}\"></section></div>";
+                }
+            }
+
+            if (this is DbNetGridCore)
+            {
+                DbNetGridCore dbNetGridCore = (DbNetGridCore)this;
+                if (dbNetGridCore.Edit)
+                {
+                    markup += $"<div id=\"{dbNetGridCore._editDialogId}\" class=\"edit-dialog\" title=\"Edit\" style=\"display:none\"><section id=\"{dbNetGridCore.EditControl.Id}\"></section></div>";
+                }
+            }
+
+            foreach (var linkedControl in _linkedControls)
+            {
+                markup += linkedControl.Markup();
+            }
+
+            return markup;
+        }
     }
 }
 

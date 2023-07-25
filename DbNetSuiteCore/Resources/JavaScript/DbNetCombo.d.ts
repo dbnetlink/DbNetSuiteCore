@@ -36,7 +36,7 @@ declare class DbNetCombo extends DbNetSuite {
     private getSelectedValues;
     private getSelectedOptions;
     private getOptions;
-    configureLinkedCombo(combo: DbNetCombo, fk: Array<string>): void;
+    configureLinkedControl(control: DbNetSuite, fk: Array<string>, pk: string | null): void;
     private filterKeyPress;
     private applyFilter;
     callServer(action: string): void;

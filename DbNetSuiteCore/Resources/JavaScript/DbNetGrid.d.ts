@@ -40,7 +40,7 @@ declare class DbNetGrid extends DbNetGridEdit {
     dropIcon: JQuery<HTMLElement> | undefined;
     dropTarget: JQuery<HTMLElement> | undefined;
     editDialog: EditDialog | undefined;
-    editDialogControl: DbNetEdit | undefined;
+    editControl: DbNetEdit | undefined;
     editDialogId: string;
     export_: boolean;
     fixedFilterParams: Dictionary<object>;
@@ -63,6 +63,7 @@ declare class DbNetGrid extends DbNetGridEdit {
     procedureParams: Dictionary<object>;
     rowSelect: boolean;
     totalPages: number;
+    totalRows: number;
     update: boolean;
     view: boolean;
     viewDialog: ViewDialog | undefined;
@@ -109,7 +110,6 @@ declare class DbNetGrid extends DbNetGridEdit {
     private getViewContent;
     private assignPrimaryKey;
     private refreshRow;
-    private initEditDialog;
     private openEditDialog;
     private updateRow;
     private insertRow;
@@ -123,6 +123,10 @@ declare class DbNetGrid extends DbNetGridEdit {
     downloadCellData(element: HTMLElement, image: boolean): void;
     private openNestedGrid;
     private configureNestedGrid;
-    configureLinkedGrid(control: DbNetSuite, fk: object | null): void;
-    private assignForeignKey;
+    configureLinkedControl(control: DbNetSuite, id: object | null, pk: string | null): void;
+    configureEditButtons(edit: DbNetEdit): void;
+    initialiseEdit(sender: DbNetEdit): void;
+    private nextRecord;
+    private previousRecord;
+    assignForeignKey(control: DbNetSuite, id: object | null, pk?: string | null): void;
 }

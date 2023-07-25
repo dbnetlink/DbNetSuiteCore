@@ -177,8 +177,8 @@ namespace DbNetSuiteCore.UI.Tests
                 var viewDialog = WaitForViewDialog(driver);
                 Assert.NotNull(viewDialog);
 
-                IWebElement row = viewDialog.FindElements(By.CssSelector($"tr[data-columnname='CompanyName']")).First();
-                IWebElement div = row.FindElement(By.CssSelector("div.view-dialog-value"));
+                IWebElement div = viewDialog.FindElements(By.CssSelector($"div[data-columnname='CompanyName']")).First();
+ //               IWebElement div = row.FindElement(By.CssSelector("div.view-dialog-value"));
                 Assert.Equal("Alfreds Futterkiste", div.Text);
                 var parentCell = div.FindElement(By.XPath("./.."));
                 Assert.Equal("Alfreds Futterkiste", parentCell.GetAttribute("data-value"));

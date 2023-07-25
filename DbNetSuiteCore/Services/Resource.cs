@@ -22,7 +22,7 @@ namespace DbNetSuiteCore.Services
 		{
 		}
 
-        public async Task<object> Process()
+        public new async Task<object> Process()
 		{
             object result;
             switch (Action.ToLower())

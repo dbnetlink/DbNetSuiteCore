@@ -42,7 +42,7 @@ class DbNetGrid extends DbNetGridEdit {
     dropIcon: JQuery<HTMLElement> | undefined;
     dropTarget: JQuery<HTMLElement> | undefined;
     editDialog: EditDialog | undefined;
-    editDialogControl: DbNetEdit | undefined;
+    editControl: DbNetEdit | undefined = undefined;
     editDialogId = "";
     export_ = true;
     fixedFilterParams: Dictionary<object> = {};
@@ -65,6 +65,7 @@ class DbNetGrid extends DbNetGridEdit {
     procedureParams: Dictionary<object> = {};
     rowSelect = true;
     totalPages = 0;
+    totalRows = 0;
     update = false;
     view = false;
     viewDialog: ViewDialog | undefined;
@@ -102,12 +103,6 @@ class DbNetGrid extends DbNetGridEdit {
                 this.initialised = true;
                 this.fireEvent("onInitialized");
             });
-
-        this.linkedControls.forEach((control) => {
-            if ((control as DbNetEdit).isEditDialog) {
-                this.editDialogControl = (control as DbNetEdit);
-            }
-        });
     }
 
     addNestedGrid(handler: EventHandler) {
@@ -198,10 +193,11 @@ class DbNetGrid extends DbNetGridEdit {
         const $navigationElements = this.controlElement("dbnetgrid-toolbar").find(".navigation");
         const $noRecordsCell = this.controlElement("no-records-cell");
         this.setInputElement("Rows", response.totalRows);
-
+        this.totalRows = response.totalRows;
         if (response.totalRows == 0) {
             $navigationElements.hide();
             $noRecordsCell.show();
+            this.configureLinkedControls(null);
         }
         else {
             $navigationElements.show();
@@ -486,15 +482,10 @@ class DbNetGrid extends DbNetGridEdit {
             this.selectRow(tr);
         }
 
-        this.configureLinkedControls(tr.data("id"));
+        this.configureLinkedControls(tr.data("id"), tr.data("pk"));
 
         if (this.viewDialog && this.viewDialog.isOpen()) {
             this.getViewContent();
-        }
-
-        if (this.editDialog && this.editDialog.isOpen()) {
-            this.editDialogControl?.getRecord($(this.selectedRow()).data('pk') as string);
-            this.editDialog.update();
         }
 
         this.fireEvent("onRowSelected", { row: tr[0] });
@@ -707,7 +698,7 @@ class DbNetGrid extends DbNetGridEdit {
             });
     }
 
-    private assignPrimaryKey() : JQuery<HTMLTableRowElement> {
+    private assignPrimaryKey(): JQuery<HTMLTableRowElement> {
         const $row = $(this.selectedRow());
         this.primaryKey = $row.data("pk");
         return $row;
@@ -729,37 +720,30 @@ class DbNetGrid extends DbNetGridEdit {
             });
     }
 
-    private initEditDialog(update: boolean) {
-        if (!this.editDialogControl?.initialised) {
-            this.editDialogControl?.internalBind("onInitialized", () => this.openEditDialog(update));
-            this.editDialogControl?.internalBind("onRecordUpdated", () => this.refreshRow());
-            this.editDialogControl?.internalBind("onRecordInserted", () => this.reload());
-         
-            this.editDialogControl?.initialize();
-        }
-        else {
-            this.openEditDialog(update)
-        }
-    }
-
-    private openEditDialog(update: boolean) {
+    private openEditDialog(insert: boolean) {
         if (!this.editDialog) {
-            this.editDialog = new EditDialog(this.editDialogId as string, this, this.editDialogControl as DbNetEdit);
+            this.editDialog = new EditDialog(this.editDialogId as string);
         }
-        if (update) {
-            this.editDialog?.update();
+        this.editDialog?.open();
+        if (insert) {
+            this.editControl?.insertRecord();
         }
         else {
-            this.editDialog?.insert();
+            this.editControl?.getRecord($(this.selectedRow()).data('pk') as string);
         }
     }
 
     private updateRow() {
-        this.initEditDialog(true);
+        this.openEditDialog(false);
     }
 
     private insertRow() {
-        this.initEditDialog(false);
+        if (this.editDialogId) {
+            this.openEditDialog(true);
+        }
+        else {
+            this.editControl?.insertRecord();
+        }
     }
 
     public deleteRow() {
@@ -809,16 +793,14 @@ class DbNetGrid extends DbNetGridEdit {
                 navigator.clipboard.write([clipboardItemInput]);
             }
             catch (e) {
-                alert("Copy failed")
+                this.error("Copy failed")
                 return
             }
         }
         this.gridPanel?.find("tr.data-row.unselected").addClass("selected").removeClass("unselected")
-
         this.info("Grid copied to clipboard", this.gridPanel as JQuery<HTMLElement>)
     }
 
-   
     public getRequest(): DbNetGridRequest {
         this.defaultColumn = this.columns.find((col) => { return col.columnExpression! == "*" });
         if (this.defaultColumn) {
@@ -826,6 +808,7 @@ class DbNetGrid extends DbNetGridEdit {
         }
         const request: DbNetGridRequest = {
             componentId: this.id,
+            parentControlType: this.parentControlType,
             connectionString: this.connectionString,
             fromPart: this.fromPart,
             currentPage: this.currentPage,
@@ -874,16 +857,16 @@ class DbNetGrid extends DbNetGridEdit {
     }
 
     public downloadCellData(element: HTMLElement, image: boolean) {
-        const $viewContentRow = $(element).closest("tr.view-content-row");
+        const $viewContentContainer = $(element).closest(".view-dialog-value");
         const $button = $(element);
         const $cell = $button.closest("td");
         const $row = $button.closest("tr");
 
-        if ($viewContentRow.length) {
-            this.columnName = $viewContentRow.data("columnname") as string;
+        if ($viewContentContainer.length) {
+            this.columnName = $viewContentContainer.data("columnname") as string;
         }
         else {
-            this.primaryKey = $row.data("id")
+            this.primaryKey = $row.data("pk")
             this.columnName = this.gridPanel?.find("th[data-columnname]").get($cell.prop("cellIndex"))?.getAttribute("data-columnname") as string;
         }
 
@@ -961,24 +944,81 @@ class DbNetGrid extends DbNetGridEdit {
         grid.initialize();
     }
 
-    public configureLinkedGrid(control: DbNetSuite, fk: object | null) {
-        const grid = control as DbNetGrid;
-        this.assignForeignKey(grid, fk);
-        if (grid.connectionString == "") {
-            grid.connectionString = this.connectionString;
+    public configureLinkedControl(control: DbNetSuite, id: object | null, pk: string | null) {
+        if (control instanceof DbNetGrid) {
+            const grid = control as DbNetGrid;
+            this.assignForeignKey(grid, id);
+            grid.currentPage = 1;
+            grid.initialised ? grid.getPage() : grid.initialize();
         }
-        grid.currentPage = 1;
-        grid.initialised ? grid.getPage() : grid.initialize();
+
+        if (control instanceof DbNetEdit) {
+            const edit = control as DbNetEdit;
+            if (this.editControl == undefined) {
+                this.editControl = edit;
+            }
+            if (id == null) {
+                edit.disableForm(true);
+                if (this.editDialog) {
+                    this.editDialog.close();
+                }
+                return;
+            }
+            edit.currentRow = 1;
+
+            if (edit.initialised) {
+                edit.disableForm(false);
+                if (this.editDialog?.isOpen() === false) {
+                    return;
+                }
+                edit.getRecord(pk);
+                this.configureEditButtons(edit)
+            }
+            else {
+                edit.internalBind("onInitialized", (sender: DbNetSuite) => this.initialiseEdit(sender as DbNetEdit));
+                edit.internalBind("onRecordUpdated", () => this.refreshRow());
+                edit.internalBind("onRecordInserted", () => this.reload());
+
+                edit.initialize(pk);
+            }
+        }
     }
 
-    private assignForeignKey(grid: DbNetGrid, fk: object | null) {
-        const col = grid.columns.find((col) => { return col.foreignKey == true });
+    public configureEditButtons(edit: DbNetEdit) {
+        const $row = $(this.selectedRow());
+        edit.controlElement("NextBtn").prop("disabled", $row.next('.data-row').length == 0);
+        edit.controlElement("PreviousBtn").prop("disabled", $row.prev('.data-row').length == 0);
+    }
 
-        if (col == undefined) {
-            alert('No foreign key defined for nested grid')
-            return;
+    public initialiseEdit(sender: DbNetEdit) {
+        sender.controlElement("NextBtn").off().on("click", () => this.nextRecord());
+        sender.controlElement("PreviousBtn").off().on("click", () => this.previousRecord());
+        if (this.editDialogId) {
+            sender.controlElement("CancelBtn").off().on("click", () => this.editDialog?.close());
+        }
+        this.configureEditButtons(sender);
+    }
+
+    private nextRecord() {
+        $(this.selectedRow()).next().trigger("click")
+    }
+
+    private previousRecord() {
+        $(this.selectedRow()).prev().trigger("click")
+    }
+
+    public assignForeignKey(control: DbNetSuite, id: object | null, pk: string | null = null) {
+        if (control instanceof DbNetGrid) {
+            const grid = control as DbNetGrid;
+            const col = grid.columns.find((col) => { return col.foreignKey == true });
+
+            if (col == undefined) {
+                alert('No foreign key defined for nested grid')
+                return;
+            }
+
+            col.foreignKeyValue = id ? id : DbNetSuite.DBNull;
         }
 
-        col.foreignKeyValue = fk ? fk : DbNetSuite.DBNull;
     }
 }

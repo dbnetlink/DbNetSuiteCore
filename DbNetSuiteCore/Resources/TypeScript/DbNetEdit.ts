@@ -1,4 +1,6 @@
 type DbNetEditResponseCallback = (response: DbNetEditResponse) => void;
+type EditMode = "update" | "insert"
+
 class DbNetEdit extends DbNetGridEdit {
     browseDialog: BrowseDialog | undefined;
     browseDialogControl: DbNetGrid | undefined;
@@ -6,6 +8,7 @@ class DbNetEdit extends DbNetGridEdit {
     changes: Dictionary<object> = {};
     currentRow = 1;
     delete = false;
+    editMode: EditMode = "update";
     formPanel: JQuery<HTMLElement> | undefined;
     insert = false;
     layoutColumns = 1;
@@ -22,7 +25,7 @@ class DbNetEdit extends DbNetGridEdit {
         }
     }
 
-    initialize(): void {
+    initialize(primaryKey: string | null = null): void {
         if (!this.element) {
             return;
         }
@@ -37,6 +40,9 @@ class DbNetEdit extends DbNetGridEdit {
         }
 
         this.addLoadingPanel();
+        if (primaryKey) {
+            this.primaryKey = primaryKey;
+        }
         this.post<DbNetEditResponse>("initialize", this.getRequest())
             .then((response) => {
                 if (response.error == false) {
@@ -60,6 +66,29 @@ class DbNetEdit extends DbNetGridEdit {
 
     getRows(callback?: DbNetEditResponseCallback) {
         this.callServer("search", callback);
+    }
+
+    private clearForm() {
+        this.formElements().each(
+            function () {
+                const $input = $(this);
+                if ($input.attr("type") == "checkbox") {
+                    $input.prop("checked", false).data("value", false);
+                }
+                else {
+                    $input.val('').data("value", '');
+                }
+        });
+    }
+
+    disableForm(disable: boolean) {
+        if (this.initialised) {
+            this.clearForm();
+            this.formElements().not("[primarykey='true']").prop("disabled", disable);
+            this.toolbarPanel?.find("button").prop("disabled", disable);
+            this.disable("SearchBtn", false);
+            this.disable("InsertBtn", false);
+        }
     }
 
     private configureEdit(response: DbNetEditResponse) {
@@ -96,7 +125,7 @@ class DbNetEdit extends DbNetGridEdit {
 
     private updateForm(response: DbNetEditResponse) {
         if (response.totalRows == 0) {
-            this.formPanel?.find(':input').val('').not("[primarykey='true']").prop('checked', false).prop('selected', false).prop("disabled", true);
+            this.disableForm(true);
             return;
         }
         this.formPanel?.find(':input').not("[primarykey='true']").prop("disabled", false);
@@ -120,7 +149,7 @@ class DbNetEdit extends DbNetGridEdit {
         const $firstElement = this.formElements().filter(':not(:disabled):first') as JQuery<HTMLFormElement>;
         $firstElement.trigger("focus");
 
-        this.editMode("update");
+        this.editMode = "update";
         this.primaryKey = response.primaryKey as string;
 
         if (this.browseDialog) {
@@ -132,6 +161,8 @@ class DbNetEdit extends DbNetGridEdit {
         if (response.message) {
             this.message(response.message);
         }
+
+        this.fireEvent("onFormUpdated", { formElements: this.formElements() });
     }
 
     private callServer(action: string, callback?: DbNetEditResponseCallback) {
@@ -153,6 +184,7 @@ class DbNetEdit extends DbNetGridEdit {
             changes: this.changes,
             componentId: this.id,
             connectionString: this.connectionString,
+            parentControlType: this.parentControlType,
             columns: this.columns.map((column) => { return column as EditColumnRequest }),
             currentRow: this.currentRow,
             culture: this.culture,
@@ -177,9 +209,9 @@ class DbNetEdit extends DbNetGridEdit {
     private configureToolbar(response: DbNetEditResponse) {
         const $navigationElements = this.controlElement("dbnetedit-toolbar").find(".navigation");
         const $noRecordsCell = this.controlElement("no-records-cell");
+        const buttons = this.isEditDialog ? ["Cancel", "Apply"] : ["First", "Next", "Previous", "Last", "Cancel", "Apply", "Search", "Insert", "Delete", "Browse"];
 
         if (response.toolbar) {
-            const buttons = this.isEditDialog ? ["Cancel", "Apply"] : ["First", "Next", "Previous", "Last", "Cancel", "Apply", "Search", "Insert", "Delete", "Browse"];
             buttons.forEach(btn =>
                 this.controlElement(`${btn}Btn`).on("click", (event) => this.handleClick(event))
             );
@@ -187,14 +219,9 @@ class DbNetEdit extends DbNetGridEdit {
         }
 
         this.setInputElement("Rows", response.totalRows);
+        this.configureToolbarButtons(false);
 
-        this.controlElement("SearchBtn").show();
-        this.controlElement("QuickSearch").show();
-        this.controlElement("InsertBtn").show();
-        this.controlElement("BrowseBtn").show();
-        this.controlElement("DeleteBtn").show();
-
-        if (this.isEditDialog) {
+        if (this.parentControlType) {
             $navigationElements.show();
             $noRecordsCell.hide();
             return;
@@ -224,7 +251,7 @@ class DbNetEdit extends DbNetGridEdit {
         this.disable("DeleteBtn", response.totalRows == 0);
         this.disable("ApplyBtn", response.totalRows == 0);
         this.disable("CancelBtn", response.totalRows == 0);
-  }
+    }
 
     private updateColumns(response: DbNetEditResponse) {
         this.columns = new Array<EditColumn>();
@@ -294,6 +321,9 @@ class DbNetEdit extends DbNetGridEdit {
             case this.controlElementId("ApplyBtn"):
                 this.applyChanges();
                 break;
+            case this.controlElementId("CancelBtn"):
+                this.cancelChanges();
+                break;
             case this.controlElementId("InsertBtn"):
                 this.insertRecord();
                 break;
@@ -314,33 +344,42 @@ class DbNetEdit extends DbNetGridEdit {
     }
 
     public insertRecord() {
+        this.clearForm();
         this.formElements().each(
             function () {
                 const $input = $(this);
-                if ($input.attr("type") == "checkbox") {
-                    $input.prop("checked", false).data("value", false);
-                }
-                else {
-                    $input.val('').data("value", '');
-                }
                 $input.prop("disabled", false);
-
                 if ($input.attr("primarykey")) {
                     if ($input.attr("autoincrement") != null) {
                         $input.prop("disabled", true);
                     }
                 }
-            })
+            });
 
         const $firstElement = this.formElements().filter(':not(:disabled):first') as JQuery<HTMLFormElement>;
         $firstElement.trigger("focus");
-        this.editMode("insert");
-        this.controlElement("dbnetedit-toolbar").find(".navigation").hide();
-        this.controlElement("SearchBtn").hide();
-        this.controlElement("QuickSearch").hide();
-        this.controlElement("InsertBtn").hide();
-        this.controlElement("DeleteBtn").hide();
-        this.controlElement("BrowseBtn").hide();
+        this.editMode = "insert";
+        this.configureToolbarButtons(true);
+        this.fireEvent("onInsertInitalize", { formElements: this.formElements() });
+    }
+
+    private configureToolbarButtons(insert: boolean) {
+        const elements = this.controlElement("dbnetedit-toolbar").find(".navigation");
+        const buttons = ["SearchBtn", "QuickSearch", "InsertBtn", "DeleteBtn", "BrowseBtn",]
+        const noRecords = this.controlElement("no-records-cell");
+
+        insert ? elements.hide() : elements.show();
+        insert ? noRecords.hide() : noRecords.show();
+
+        for (let i = 0; i < buttons.length; i++) {
+            const $btn = this.controlElement(buttons[i]);
+            insert ? $btn.hide() : $btn.show();
+        }
+
+        if (insert) {
+            this.controlElement("ApplyBtn").prop("disabled", false);
+            this.controlElement("CancelBtn").prop("disabled", false);
+       }
     }
 
     private formElements(): JQuery<HTMLFormElement> {
@@ -365,9 +404,8 @@ class DbNetEdit extends DbNetGridEdit {
     }
 
     private recordDeleted(): void {
-        if (this.isEditDialog == false) {
-            this.getRows();
-        }
+        this.message("Record deleted");
+        this.getRows();
         this.fireEvent("onRecordDeleted");
     }
 
@@ -375,33 +413,29 @@ class DbNetEdit extends DbNetGridEdit {
         const changes: Dictionary<object> = {};
         let validationMessage: ValidationMessage | null = null;
 
-        this.formPanel?.find(':input.dbnetedit,select.dbnetedit').each(
+        const $formElements = this.formElements();
+        $formElements.filter('[required]').each(
+            function () {
+                const $input = $(this) as JQuery<HTMLFormElement>;
+                const value = $input.val()?.toString().trim()
+                if (value == '') {
+                    $input.addClass("highlight");
+                }
+            });
+
+        if ($formElements.filter('.highlight').length > 0) {
+            this.message('An entry in the highlighted field(s) is required');
+            setInterval(() => this.clearHighlightedFields(), 3000);
+            return;
+        }
+
+        $formElements.filter('[pattern]').each(
             function () {
                 const $input = $(this) as JQuery<HTMLFormElement>;
                 const name = $input.attr("name") as string;
-                if ($input.attr("type") == "checkbox") {
-                    if ($input.prop("checked") != $input.data("value")) {
-                        changes[name] = $input.prop("checked");
-                    }
-                }
-                else {
-                    const value = $input.val()?.toString().trim()
-                    if ($input.attr("required")) {
-                        if (value == '') {
-                            validationMessage = { key: name, value: `An entry in this field is required)` } as ValidationMessage;
-                            return false;
-                        }
-                    }
-                    if ($input.attr("pattern")) {
-                        const valid = ($input[0] as HTMLFormElement).reportValidity();
-                        if (!valid) {
-                            validationMessage = { key: name, value: `Entry does not match the input pattern (${$input.attr("pattern")})` } as ValidationMessage;
-                            return false;
-                        }
-                    }
-                    if ($input.val() != $input.data("value")) {
-                        changes[name] = $input.val() as object;
-                    }
+                if (!(this as HTMLFormElement).reportValidity()) {
+                    validationMessage = { key: name, value: `Entry does not match the input pattern (${$input.attr("pattern")})` } as ValidationMessage;
+                    return false;
                 }
             }
         );
@@ -412,36 +446,58 @@ class DbNetEdit extends DbNetGridEdit {
             return;
         }
 
+        $formElements.each(
+            function () {
+                const $input = $(this) as JQuery<HTMLFormElement>;
+                const name = $input.attr("name") as string;
+
+                if ($input.attr("type") == "checkbox") {
+                    if ($input.prop("checked") != $input.data("value")) {
+                        changes[name] = $input.prop("checked");
+                    }
+                }
+                else {
+                    if ($input.val() != $input.data("value")) {
+                        changes[name] = $input.val() as object;
+                    }
+                }
+            });
+
         if ($.isEmptyObject(changes) == true) {
             return;
         }
+
         this.changes = changes;
 
-        this.post<DbNetEditResponse>(`${this.editMode()}-record`, this.getRequest())
+        this.post<DbNetEditResponse>(`${this.editMode}-record`, this.getRequest())
             .then((response) => {
-                if (response.error == false) {
-                    this.applyChangesCallback(response);
-                }
+                this.applyChangesCallback(response);
             })
     }
 
-    private editMode(mode: string | null = null): string {
-        if (mode) {
-            this.formPanel?.attr("mode", mode)
-            return '';
+    private cancelChanges() {
+        if (this.editMode == "insert") {
+            this.getRows();
         }
-        else
-            return this.formPanel?.attr("mode") as string;
+        else {
+            this.getRecord();
+        }
     }
 
-    private applyChangesCallback(response: DbNetEditResponse): void {
+     private applyChangesCallback(response: DbNetEditResponse): void {
         if (response.validationMessage) {
             this.message(response.validationMessage.value);
             this.highlightField(response.validationMessage.key.toLowerCase())
             return;
         }
 
-        if (this.editMode() == "update") {
+        if (response.error) {
+            this.error(response.message);
+            return;
+        }
+        this.message(response.message);
+
+        if (this.editMode == "update") {
             this.updateForm(response);
             this.fireEvent("onRecordUpdated");
         }
@@ -468,7 +524,7 @@ class DbNetEdit extends DbNetGridEdit {
         if (!this.browseDialog) {
             this.browseDialog = new BrowseDialog(this.browseDialogId as string, this, this.browseDialogControl as DbNetGrid);
         }
-        this.browseDialog?.show();
+        this.browseDialog?.show(this.currentRow);
     }
 
     private browseDialogRowSelected(sender: DbNetSuite, args: any) {
@@ -488,12 +544,12 @@ class DbNetEdit extends DbNetGridEdit {
     }
 
     private highlightField(columnName: string): void {
-        const element = this.formPanel?.find(`[name='${columnName}']`).addClass("highlight") as JQuery<HTMLElement>;
-        setInterval(() => this.clearHighlightField(element), 3000);
+        this.formPanel?.find(`[name='${columnName}']`).addClass("highlight");
+        setInterval(() => this.clearHighlightedFields(), 3000);
     }
 
-    private clearHighlightField(element: JQuery<HTMLElement>): void {
-        element.removeClass("highlight");
+    private clearHighlightedFields(): void {
+        this.formElements().filter(".highlight").removeClass("highlight");
     }
     private selectDate(event: JQuery.TriggeredEvent): void {
         const $button = $(event.target as HTMLInputElement);

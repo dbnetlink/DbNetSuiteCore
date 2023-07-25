@@ -5,7 +5,7 @@
 @using DbNetSuiteCore.Enums
 @model BaseViewModel
 
-<div id="dbnetsuite_message_box" class="message-box" title="Information" style="display:none">
+<div id="@(Model.ComponentId)_message_box" class="message-box" title="Information" style="display:none">
     <div class="message-box-panel">
         <table>
             <tr>

@@ -25,6 +25,13 @@ class MessageBox extends Dialog {
     }
 
     public show(messageBoxType: MessageBoxType, text: string, element: JQuery<HTMLElement> | null = null, callback: MessageBoxCallback | undefined) {
+
+        this.$dialog?.dialog("option", "width", "auto");
+
+        if (text.length > 200) {
+            this.$dialog?.dialog("option", "width", 600);
+        }
+
         this.$text.html(text)
         if (element) {
             this.$dialog?.dialog("option", "position", { of: element.get(0) });

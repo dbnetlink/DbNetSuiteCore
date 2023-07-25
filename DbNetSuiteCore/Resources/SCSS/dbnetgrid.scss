@@ -81,11 +81,11 @@ table.dbnetgrid-table {
     }
 
     th[orderby=asc] {
-        background-image: svgUrl("up", "16");
+        background-image: svgUrl("up", "16","SteelBlue","");
     }
 
     th[orderby=desc] {
-        background-image: svgUrl("down", "16");
+        background-image: svgUrl("down", "16","SteelBlue","");
     }
 
     tr.odd {
@@ -541,11 +541,19 @@ table.search-dialog-toolbar,
 table.lookup-dialog-toolbar {
     td {
         .toolbar-button[button-type=apply] {
-            background-image: svgUrl("apply", "24", "LimeGreen") !important;
+            background-image: svgUrl("apply", "24", "%23388E3C") !important;
+
+            &:disabled {
+                background-image: svgUrl("apply", "24", "gainsboro") !important;
+            }
         }
 
         .toolbar-button[button-type=cancel] {
-            background-image: svgUrl("cancel", "24", "IndianRed") !important;
+            background-image: svgUrl("cancel", "24", "%23D32F2F") !important;
+
+            &:disabled {
+                background-image: svgUrl("cancel", "24", "gainsboro") !important;
+            }
         }
 
         .toolbar-button[button-type=clear] {

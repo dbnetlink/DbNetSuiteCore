@@ -2,7 +2,7 @@
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
 /// <reference types="bootstrap" />
-type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted" | "onRecordDeleted";
+type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onCellDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted" | "onRecordDeleted" | "onInsertInitalize" | "onFormUpdated";
 interface CellDataDownloadArgs {
     row: HTMLTableRowElement;
     cell: HTMLTableCellElement;
@@ -21,9 +21,9 @@ type EventHandler = {
 };
 type InternalEventHandler = {
     context: DbNetSuite;
-    method: EmptyCallback;
+    method: EventHandler;
 };
-type EmptyCallback = (sender: DbNetSuite, args: any) => void;
+type EmptyCallback = (sender: DbNetSuite, args?: object) => void;
 declare class DbNetSuite {
     static DBNull: string;
     datePickerOptions: JQueryUI.DatepickerOptions;
@@ -37,6 +37,7 @@ declare class DbNetSuite {
     protected culture: string;
     protected linkedControls: Array<DbNetSuite>;
     protected messageBox: MessageBox | undefined;
+    protected parentControlType: string;
     initialised: boolean;
     constructor(id: string | null);
     bind(event: EventName, handler: EventHandler): void;
@@ -54,13 +55,14 @@ declare class DbNetSuite {
     protected controlElementId(name: string): string;
     protected disable(id: string, disabled: boolean): void;
     protected setInputElement(name: string, value: number): void;
-    protected configureLinkedControls(fk: object | null): void;
+    protected configureLinkedControls(id: object | null, pk?: string | null): void;
     protected info(text: string, element: JQuery<HTMLElement>): void;
     protected confirm(text: string, element: JQuery<HTMLElement>, callback: MessageBoxCallback): void;
-    protected error(text: string, element: JQuery<HTMLElement>): void;
+    protected error(text: string, element?: JQuery<HTMLElement> | null): void;
     private showMessageBox;
     protected addDatePicker($input: JQuery<HTMLInputElement>, datePickerOptions: JQueryUI.DatepickerOptions): void;
     private pickerSelected;
     protected addTimePicker($input: JQuery<HTMLInputElement>): void;
-    private configureLinkedControl;
+    private _configureLinkedControl;
+    private _getRequest;
 }

@@ -62,7 +62,7 @@ class DbNetCombo extends DbNetSuite {
         const selectedValues = this.getSelectedValues();
         const selectedOptions = this.getSelectedOptions();
         this.fireEvent("onOptionSelected", { selectedValues: selectedValues, selectedOptions: selectedOptions });
-        this.configureLinkedControls(selectedValues);
+        this.configureLinkedControls(selectedValues, selectedOptions[0].dataset["pk"]);
     }
     getSelectedValues() {
         var _a;
@@ -91,12 +91,26 @@ class DbNetCombo extends DbNetSuite {
         });
         return options;
     }
-    configureLinkedCombo(combo, fk) {
-        if (combo.connectionString == "") {
-            combo.connectionString = this.connectionString;
+    configureLinkedControl(control, fk, pk) {
+        if (control instanceof DbNetCombo) {
+            const combo = control;
+            if (control.connectionString == "") {
+                control.connectionString = this.connectionString;
+            }
+            combo.foreignKeyValue = fk;
+            combo.initialised ? combo.reload() : combo.initialize();
         }
-        combo.foreignKeyValue = fk;
-        combo.initialised ? combo.reload() : combo.initialize();
+        if (control instanceof DbNetGrid) {
+            const grid = control;
+            grid.assignForeignKey(grid, fk);
+            grid.currentPage = 1;
+            grid.initialised ? grid.getPage() : grid.initialize();
+        }
+        if (control instanceof DbNetEdit) {
+            const edit = control;
+            edit.currentRow = 1;
+            edit.initialised ? edit.getRecord(pk) : edit.initialize(pk);
+        }
     }
     filterKeyPress(event) {
         const el = event.target;
@@ -121,7 +135,9 @@ class DbNetCombo extends DbNetSuite {
         const request = {
             componentId: this.id,
             connectionString: this.connectionString,
+            culture: this.culture,
             dataOnlyColumns: this.dataOnlyColumns,
+            parentControlType: this.parentControlType,
             fromPart: this.fromPart,
             valueColumn: this.valueColumn,
             textColumn: this.textColumn,
