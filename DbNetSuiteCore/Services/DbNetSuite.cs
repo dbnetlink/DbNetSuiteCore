@@ -21,6 +21,8 @@ using DbNetSuiteCore.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using DbNetSuiteCore.Constants.DbNetSuite;
 using DbNetSuiteCore.Models.DbNetGrid;
+using System.ComponentModel;
+using DbNetSuiteCore.Enums;
 
 namespace DbNetSuiteCore.Services
 {
@@ -45,7 +47,7 @@ namespace DbNetSuiteCore.Services
         protected DbNetDataCore Database { get; set; }
 
         public string Id => ComponentId;
-        public string ParentControlType { get; set; } = String.Empty;
+        public ComponentType? ParentControlType { get; set; }
         public ResourceManager ResourceManager { get; set; }
 
         public DbNetSuite(AspNetCoreServices services)

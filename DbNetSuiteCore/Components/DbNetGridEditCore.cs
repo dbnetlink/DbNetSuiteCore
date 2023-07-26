@@ -4,7 +4,6 @@ using DbNetSuiteCore.Helpers;
 using DbNetSuiteCore.Models;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 
 namespace DbNetSuiteCore.Components
@@ -14,6 +13,7 @@ namespace DbNetSuiteCore.Components
         protected readonly string _fromPart;
 
         internal List<ColumnProperty> _columnProperties { get; set; } = new List<ColumnProperty>();
+        internal string FromPart => _fromPart;
 
         /// <summary>
         /// Selects the columns to be displayed in the grid
@@ -155,6 +155,8 @@ namespace DbNetSuiteCore.Components
             AddProperty(Navigation, nameof(Navigation), properties);
             AddProperty(Insert, nameof(Insert), properties);
             AddProperty(Delete, "_delete", properties);
+            AddProperty(ParentControlType, nameof(ParentControlType), properties);
+            AddProperty(ParentChildRelationship, nameof(ParentChildRelationship), properties);
         }
     }
 }

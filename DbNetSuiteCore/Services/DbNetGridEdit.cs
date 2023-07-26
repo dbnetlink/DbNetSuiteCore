@@ -36,12 +36,12 @@ namespace DbNetSuiteCore.Services
         private List<DbColumn> DbColumns
         {
             get
-            {   
+            {
                 if (this is DbNetGrid)
                 {
                     return (this as DbNetGrid).Columns.Cast<DbColumn>().ToList();
                 }
-                else if(this is DbNetEdit)
+                else if (this is DbNetEdit)
                 {
                     return (this as DbNetEdit).Columns.Cast<DbColumn>().ToList();
                 }
@@ -68,6 +68,7 @@ namespace DbNetSuiteCore.Services
         }
         public bool QuickSearch { get; set; }
         public string QuickSearchToken { get; set; } = string.Empty;
+        public ParentChildRelationship? ParentChildRelationship { get; set; } = null;
         public bool Search { get; set; }
         public string SearchFilterJoin { get; set; } = "and";
         public List<SearchParameter> SearchParams { get; set; } = new List<SearchParameter>();
@@ -135,10 +136,7 @@ namespace DbNetSuiteCore.Services
                     column.AutoIncrement = row.IsAutoIncrement();
                 }
 
-                if (column.Required == false)
-                {
-                    column.Required = row.IsRequired();
-                }
+                column.AllowsNull = row.AllowsNull();
 
                 if (column is GridColumn)
                 {
@@ -482,11 +480,6 @@ namespace DbNetSuiteCore.Services
 
             column.ColumnName = row.ColumnName();
 
-            if (column.ColumnSize == 0)
-            {
-                column.ColumnSize = row.ColumnSize();
-            }
-
             if (column.Label == "")
             {
                 column.Label = GenerateLabel(column.ColumnName);
@@ -531,6 +524,26 @@ namespace DbNetSuiteCore.Services
                 }
             }
 
+            if (column.ColumnSize == 0)
+            {
+                column.ColumnSize = row.ColumnSize();
+            }
+
+            switch (column.DataType)
+            {
+                case nameof(DateTime):
+                    column.ColumnSize = 8;
+                    break;
+                case nameof(Guid):
+                    column.ColumnSize = 36;
+                    break;
+                default:
+                    if (column.ColumnSize < 1)
+                    {
+                        column.ColumnSize = column.IsNumeric ? 10 : 20;
+                    }
+                    break;
+            }
         }
 
         protected void DeleteRecord(DbNetSuiteResponse response)
@@ -1007,6 +1020,11 @@ namespace DbNetSuiteCore.Services
                     case nameof(Double):
                         paramValue = Convert.ChangeType(value, GetColumnType(dataType));
                         break;
+                    case nameof(UInt16):
+                    case nameof(UInt32):
+                    case nameof(UInt64):
+                        paramValue = Convert.ChangeType(value, GetColumnType(dataType.Replace("U", string.Empty)));
+                        break;
                     default:
                         paramValue = Convert.ChangeType(value, GetColumnType(dataType));
                         break;
@@ -1070,6 +1088,59 @@ namespace DbNetSuiteCore.Services
                     parameters.Add(ParamName(dbColumn, prefix, true), ConvertToDbParam(template.Replace("{0}", value), dbColumn));
                     break;
             }
+        }
+
+        protected string ForeignKeyFilter(ListDictionary parameters = null)
+        {
+            DbColumn fkColumn = DbColumns.Where(c => c.ForeignKey).FirstOrDefault();
+
+            if (fkColumn == null)
+            {
+                return string.Empty;
+            }
+            string filter = string.Empty;
+            object foreignKeyValue = fkColumn.ForeignKeyValue;
+
+            if (foreignKeyValue.ToString() == nameof(System.DBNull))
+            {
+                filter = $"{fkColumn.ColumnExpression} is null";
+            }
+            else
+            {
+                if (ParentControlType == ComponentType.DbNetEdit)
+                {
+                    var fk = EncodingHelper.Decode(foreignKeyValue.ToString());
+                    var dictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(fk);
+                    foreignKeyValue = dictionary.Values.FirstOrDefault();
+                }
+                if (foreignKeyValue is List<object>)
+                {
+                    List<string> paramNames = new List<string>();
+                    List<object> foreignKeyValues = foreignKeyValue as List<object>;
+                    for (var i = 0; i < foreignKeyValues.Count; i++)
+                    {
+                        string paramName = Database.ParameterName($"{fkColumn.ColumnName}{i}");
+                        paramNames.Add(paramName);
+                        if (parameters != null)
+                        {
+                            parameters[paramName] = foreignKeyValues[i];
+                        }
+                    }
+
+                    filter = $"{fkColumn.ColumnExpression} in ({string.Join(",", paramNames)})";
+                }
+                else
+                {
+                    string paramName = ParamName(fkColumn, false);
+                    filter = $"{fkColumn.ColumnExpression} = {paramName}";
+                    if (parameters != null)
+                    {
+                        parameters[paramName] = ConvertToDbParam(foreignKeyValue);
+                    }
+                }
+            }
+
+            return filter;
         }
 
         protected string PrimaryKeyFilter(ListDictionary parameters)

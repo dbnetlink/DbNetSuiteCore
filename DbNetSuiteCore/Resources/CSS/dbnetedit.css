@@ -10,6 +10,8 @@ table.dbnetedit-form td {
 table.dbnetedit-form input, table.dbnetedit-form textarea, table.dbnetedit-form select {
   font-family: var(--main-font-family);
   font-size: var(--main-font-size);
+  border: 1px solid #90A4AE;
+  border-radius: 2px;
 }
 table.dbnetedit-form input.highlight, table.dbnetedit-form textarea.highlight, table.dbnetedit-form select.highlight {
   background-color: gold;

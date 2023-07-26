@@ -13,7 +13,6 @@ namespace DbNetSuiteCore.Models
         private string _lookup;
         private string _columnExpression;
         private object _foreignKeyValue;
-        private bool _required;
 
         public string BaseTableName { get; set; }
         public string BaseSchemaName { get; set; }
@@ -32,7 +31,6 @@ namespace DbNetSuiteCore.Models
             get => EncodingHelper.Decode(_columnExpression);
             set => _columnExpression = value;
         }
-        public int DefaultColumnSize => DataType == nameof(DateTime) ? 8 : IsNumeric ? 10 : 20;
 
         public bool EditDisplay { get; set; }
         public bool PrimaryKey { get; set; } = false;
@@ -64,10 +62,10 @@ namespace DbNetSuiteCore.Models
         public bool Display { get; set; } = true;
         public bool QuickSearch { get; set; } = false;
         public bool IsNumeric => _numericDataTypes.Contains(DataType);
+        public bool AllowsNull { get; set; }
         public bool Required
         {
-            get => _required;
-            set => _required = value;
+            get => AllowsNull == false && AutoIncrement == false;
         }
 
         public DbColumn()

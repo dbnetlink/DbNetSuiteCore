@@ -151,10 +151,11 @@ namespace DbNetSuiteCore.Components
             {
                 this._editDialogId = string.Empty;
                 this.Update = false;
+                EditControl = null;
             }
             else
             {
-                this._linkedControls.Add(EditControl);
+                AddLinkedControl(EditControl);
             }
 
             if (string.IsNullOrEmpty(message) == false)

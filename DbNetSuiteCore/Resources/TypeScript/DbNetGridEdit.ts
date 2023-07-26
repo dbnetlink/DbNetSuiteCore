@@ -1,4 +1,4 @@
-
+type ParentChildRelationship = "OneToOne" | "OneToMany" | null
 class DbNetGridEdit extends DbNetSuite {
     columns: DbColumn[];
     _delete = false;
@@ -11,6 +11,7 @@ class DbNetGridEdit extends DbNetSuite {
     quickSearchMinChars = 3;
     quickSearchTimerId: number | undefined;
     quickSearchToken = "";
+    parentChildRelationship: ParentChildRelationship = null;
     search = true;
     searchDialog: SearchDialog | undefined;
     searchFilterJoin = "";

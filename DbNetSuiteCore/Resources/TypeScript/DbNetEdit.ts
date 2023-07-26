@@ -78,16 +78,23 @@ class DbNetEdit extends DbNetGridEdit {
                 else {
                     $input.val('').data("value", '');
                 }
-        });
+            });
     }
 
-    disableForm(disable: boolean) {
-        if (this.initialised) {
-            this.clearForm();
-            this.formElements().not("[primarykey='true']").prop("disabled", disable);
-            this.toolbarPanel?.find("button").prop("disabled", disable);
-            this.disable("SearchBtn", false);
-            this.disable("InsertBtn", false);
+    disableForm(disable: boolean, linked = false) {
+        if (!this.initialised) {
+            return;
+        }
+        this.clearForm();
+        this.formElements().not("[primarykey='true']").not("[datatype='Guid']").prop("disabled", disable);
+        this.toolbarPanel?.find("button").prop("disabled", disable);
+        this.toolbarPanel?.find("input").val("");
+
+        this.disable("SearchBtn", linked);
+        this.disable("InsertBtn", linked);
+
+        if (disable) {
+            this.configureLinkedControls(null, DbNetSuite.DBNull);
         }
     }
 
@@ -125,10 +132,11 @@ class DbNetEdit extends DbNetGridEdit {
 
     private updateForm(response: DbNetEditResponse) {
         if (response.totalRows == 0) {
-            this.disableForm(true);
+            this.disableForm(true, true);
+            //            this.configureLinkedControls(null, DbNetSuite.DBNull);
             return;
         }
-        this.formPanel?.find(':input').not("[primarykey='true']").prop("disabled", false);
+        this.formPanel?.find(':input').not("[primarykey='true']").not("[datatype='Guid']").prop("disabled", false);
         const record = response.record;
         for (const columnName in record) {
             const $input = this.formPanel?.find(`:input[name='${columnName}']`) as JQuery<HTMLFormElement>;
@@ -141,7 +149,7 @@ class DbNetEdit extends DbNetGridEdit {
                 $input.val(value.toString()).data("value", value.toString());
             }
 
-            if ($input.attr("primarykey")) {
+            if ($input.attr("primarykey") || $input.attr("datatype") == "Guid") {
                 $input.prop("disabled", true);
             }
         }
@@ -161,6 +169,7 @@ class DbNetEdit extends DbNetGridEdit {
         if (response.message) {
             this.message(response.message);
         }
+        this.configureLinkedControls(null, this.primaryKey);
 
         this.fireEvent("onFormUpdated", { formElements: this.formElements() });
     }
@@ -184,7 +193,6 @@ class DbNetEdit extends DbNetGridEdit {
             changes: this.changes,
             componentId: this.id,
             connectionString: this.connectionString,
-            parentControlType: this.parentControlType,
             columns: this.columns.map((column) => { return column as EditColumnRequest }),
             currentRow: this.currentRow,
             culture: this.culture,
@@ -200,7 +208,9 @@ class DbNetEdit extends DbNetGridEdit {
             primaryKey: this.primaryKey,
             isEditDialog: this.isEditDialog,
             insert: this.insert,
-            delete: this._delete
+            delete: this._delete,
+            parentControlType: this.parentControlType,
+            parentChildRelationship: this.parentChildRelationship
         };
 
         return request;
@@ -221,7 +231,7 @@ class DbNetEdit extends DbNetGridEdit {
         this.setInputElement("Rows", response.totalRows);
         this.configureToolbarButtons(false);
 
-        if (this.parentControlType) {
+        if (this.parentControlType && this.parentChildRelationship == "OneToOne") {
             $navigationElements.show();
             $noRecordsCell.hide();
             return;
@@ -336,6 +346,40 @@ class DbNetEdit extends DbNetGridEdit {
         }
     }
 
+    public configureLinkedControl(control: DbNetSuite, pk: string | null) {
+        if (control instanceof DbNetEdit) {
+            const edit = control as DbNetEdit;
+            if (pk == DbNetSuite.DBNull) {
+                edit.disableForm(true, true);
+                return;
+            }
+            if (edit.parentChildRelationship == "OneToMany") {
+                this.assignForeignKey(control, null, pk);
+                pk = null;
+            }
+
+            if (edit.initialised) {
+                edit.getRows();
+            }
+            else {
+                edit.initialize(pk);
+            }
+        }
+    }
+
+    public assignForeignKey(control: DbNetSuite, id: object | null, pk: string | null = null) {
+        if (control instanceof DbNetEdit) {
+            const edit = control as DbNetEdit;
+            const col = edit.columns.find((c) => { return c.foreignKey == true });
+
+            if (col == undefined) {
+                return;
+            }
+
+            col.foreignKeyValue = pk ? pk : DbNetSuite.DBNull;
+        }
+    }
+
     public getRecord(primaryKey: string | null = null) {
         if (primaryKey) {
             this.primaryKey = primaryKey;
@@ -345,14 +389,20 @@ class DbNetEdit extends DbNetGridEdit {
 
     public insertRecord() {
         this.clearForm();
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const self = this;
         this.formElements().each(
             function () {
                 const $input = $(this);
                 $input.prop("disabled", false);
                 if ($input.attr("primarykey")) {
-                    if ($input.attr("autoincrement") != null) {
+                    if ($input.attr("autoincrement")) {
                         $input.prop("disabled", true);
                     }
+                }
+                if ($input.attr("datatype") == "Guid" && $input.attr("required")) {
+                    $input.prop("disabled", true);
+                    $input.val(self.uuid());
                 }
             });
 
@@ -360,6 +410,7 @@ class DbNetEdit extends DbNetGridEdit {
         $firstElement.trigger("focus");
         this.editMode = "insert";
         this.configureToolbarButtons(true);
+        this.configureLinkedControls(null, DbNetSuite.DBNull);
         this.fireEvent("onInsertInitalize", { formElements: this.formElements() });
     }
 
@@ -379,7 +430,7 @@ class DbNetEdit extends DbNetGridEdit {
         if (insert) {
             this.controlElement("ApplyBtn").prop("disabled", false);
             this.controlElement("CancelBtn").prop("disabled", false);
-       }
+        }
     }
 
     private formElements(): JQuery<HTMLFormElement> {
@@ -425,7 +476,7 @@ class DbNetEdit extends DbNetGridEdit {
 
         if ($formElements.filter('.highlight').length > 0) {
             this.message('An entry in the highlighted field(s) is required');
-            setInterval(() => this.clearHighlightedFields(), 3000);
+            setTimeout(() => this.clearHighlightedFields(), 3000);
             return;
         }
 
@@ -484,7 +535,7 @@ class DbNetEdit extends DbNetGridEdit {
         }
     }
 
-     private applyChangesCallback(response: DbNetEditResponse): void {
+    private applyChangesCallback(response: DbNetEditResponse): void {
         if (response.validationMessage) {
             this.message(response.validationMessage.value);
             this.highlightField(response.validationMessage.key.toLowerCase())
@@ -536,7 +587,7 @@ class DbNetEdit extends DbNetGridEdit {
 
     private message(msg: string): void {
         this.formPanel?.find(".message").html(msg).addClass("highlight");
-        setInterval(() => this.clearMessage(), 3000);
+        setTimeout(() => this.clearMessage(), 3000);
     }
 
     private clearMessage(): void {
@@ -545,7 +596,7 @@ class DbNetEdit extends DbNetGridEdit {
 
     private highlightField(columnName: string): void {
         this.formPanel?.find(`[name='${columnName}']`).addClass("highlight");
-        setInterval(() => this.clearHighlightedFields(), 3000);
+        setTimeout(() => this.clearHighlightedFields(), 3000);
     }
 
     private clearHighlightedFields(): void {
@@ -567,5 +618,22 @@ class DbNetEdit extends DbNetGridEdit {
         const $button = $(event.target as HTMLInputElement);
         $button.parent().find("input").timepicker('open');
         event.stopPropagation();
+    }
+
+    private uuid() {
+        function getRandomSymbol(symbol: string) {
+            let array;
+
+            if (symbol === 'y') {
+                array = ['8', '9', 'a', 'b'];
+                return array[Math.floor(Math.random() * array.length)];
+            }
+
+            array = new Uint8Array(1);
+            window.crypto.getRandomValues(array);
+            return (array[0] % 16).toString(16);
+        }
+
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, getRandomSymbol);
     }
 }

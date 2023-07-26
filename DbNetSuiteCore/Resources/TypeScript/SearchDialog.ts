@@ -30,7 +30,7 @@
     }
 
     private dialogOpened(event: JQuery.TriggeredEvent): void {
-        const width = this.$dialog?.find("table").first().width() as number + 10;
+        const width = this.$dialog?.find("table").first().width() as number + 20;
         this.$dialog?.dialog("option", "width", width);
     }
 

@@ -1,0 +1,48 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums.DbNetEdit;
+@using DbNetSuiteCore.Enums;
+@{
+    DbNetEditCore orderDetailsEdit = new DbNetEditCore("northwind", "[order details]")
+            {
+                Columns = new List<string> { "OrderID", "ProductID", "Quantity", "UnitPrice" },
+                Insert = true,
+                QuickSearch = true,
+                Delete = true
+            };
+
+    orderDetailsEdit.SetColumnProperty("OrderID", ColumnPropertyType.ForeignKey, true);
+    orderDetailsEdit.SetColumnProperty("ProductID", ColumnPropertyType.Lookup, new Lookup("Products", "ProductId", "ProductName"));
+    orderDetailsEdit.SetColumnProperty("UnitPrice", ColumnPropertyType.Format, "c");
+    orderDetailsEdit.SetColumnProperty("ProductID", ColumnPropertyType.Label, "Product");
+
+    DbNetEditCore ordersEdit = new DbNetEditCore("northwind", "orders")
+            {
+                Columns = new List<string> { "OrderID", "CustomerID", "EmployeeID", "OrderDate", "RequiredDate", "ShippedDate", "ShipVia", "Freight" },
+                Insert = true,
+                QuickSearch = true,
+                Delete = true
+            };
+
+    ordersEdit.SetColumnProperty("CustomerID", ColumnPropertyType.Display, false);
+    ordersEdit.SetColumnProperty("CustomerID", ColumnPropertyType.ForeignKey, true);
+    ordersEdit.SetColumnProperty("EmployeeID", ColumnPropertyType.Lookup, new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname"));
+    ordersEdit.SetColumnProperty("CustomerID", ColumnPropertyType.Lookup, new Lookup("Customers", "CustomerId", "CompanyName")); ;
+    ordersEdit.SetColumnProperty("ShipVia", ColumnPropertyType.Lookup, new Lookup("Suppliers", "SupplierId", "CompanyName"));
+    ordersEdit.SetColumnProperty("Freight", ColumnPropertyType.Format, "c");
+    ordersEdit.SetColumnProperty("EmployeeID", ColumnPropertyType.Label, "Employee");
+    ordersEdit.AddLinkedControl(orderDetailsEdit);
+
+    DbNetEditCore customersEdit = new DbNetEditCore("northwind", "customers")
+            {
+                Columns = new List<string> { "CustomerID", "CompanyName", "Address", "City" },
+                Insert = true,
+                QuickSearch = true,
+                Delete = true
+            };
+
+    customersEdit.SetColumnProperty("CustomerID", ColumnPropertyType.Display, false);
+    customersEdit.AddLinkedControl(ordersEdit);
+
+    @customersEdit.Render()
+}

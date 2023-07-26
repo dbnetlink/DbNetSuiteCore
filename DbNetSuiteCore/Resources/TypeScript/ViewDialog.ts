@@ -36,7 +36,7 @@
     }
 
     private setSize() {
-        const width = this.$dialog?.find("table").first().width() as number + 10;
+        const width = this.$dialog?.find("table").first().width() as number + 20;
 
         if (width > this.dialogWidth) {
             this.$dialog?.dialog("option", "width", width);

@@ -84,6 +84,7 @@ namespace DbNetSuiteCore.Components
             }
             else 
             {
+                _browseDialogId = null;
                 BrowseControl = null;
             }
 

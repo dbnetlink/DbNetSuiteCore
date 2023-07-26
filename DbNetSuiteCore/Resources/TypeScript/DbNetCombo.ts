@@ -74,9 +74,10 @@ class DbNetCombo extends DbNetSuite {
     private optionSelected(): void {
         const selectedValues = this.getSelectedValues();
         const selectedOptions = this.getSelectedOptions();
+        const pk = selectedOptions.length ? selectedOptions[0].dataset["pk"] : null;
 
         this.fireEvent("onOptionSelected", { selectedValues: selectedValues, selectedOptions: selectedOptions });
-        this.configureLinkedControls(selectedValues, selectedOptions[0].dataset["pk"]);
+        this.configureLinkedControls(selectedValues, pk);
     }
 
     private getSelectedValues() {

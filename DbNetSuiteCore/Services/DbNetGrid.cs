@@ -258,33 +258,11 @@ namespace DbNetSuiteCore.Services
         {
             List<string> fp = new List<string>();
 
-            GridColumn fkColumn = Columns.Where(c => c.ForeignKey && c.ForeignKeyValue != null).FirstOrDefault();
+            string foreignKeyFilter = ForeignKeyFilter();
 
-            if (fkColumn != null)
+            if (string.IsNullOrEmpty(foreignKeyFilter) == false)
             {
-                if (fkColumn.ForeignKeyValue.ToString() == nameof(System.DBNull))
-                {
-                    fp.Add($"{fkColumn.ColumnExpression} is null");
-
-                }
-                else
-                {
-                    if (fkColumn.ForeignKeyValue is List<object>)
-                    {
-                        List<string> paramNames = new List<string>();
-                        List<object> foreignKeyValues = fkColumn.ForeignKeyValue as List<object>;
-                        for (var i = 0; i < foreignKeyValues.Count; i++)
-                        {
-                            paramNames.Add(Database.ParameterName($"{fkColumn.ColumnName}{i}"));
-                        }
-
-                        fp.Add($"{fkColumn.ColumnExpression} in ({string.Join(",", paramNames)})");
-                    }
-                    else
-                    {
-                        fp.Add($"{fkColumn.ColumnExpression} = {ParamName(fkColumn, false)}");
-                    }
-                }
+                fp.Add(foreignKeyFilter);
             }
 
             if (string.IsNullOrEmpty(FixedFilterSql) == false)

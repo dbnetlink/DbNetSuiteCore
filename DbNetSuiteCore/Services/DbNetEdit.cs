@@ -112,14 +112,14 @@ namespace DbNetSuiteCore.Services
             ReflectionHelper.CopyProperties(this, viewModel);
             response.Form = await HttpContext.RenderToStringAsync($"Views/DbNetEdit/Form.cshtml", viewModel);
 
-         //   if (string.IsNullOrEmpty(ParentControlType) == false)
-          //  {
-                response.CurrentRow = 1;
-                query = BuildSql();
-                dataTable = LoadDataTable(query);
-                response.TotalRows = dataTable.Rows.Count;
-                response.Record = CreateRecord(dataTable, Columns.Cast<DbColumn>().ToList());
-                response.PrimaryKey = SerialisePrimaryKey(dataTable.Rows[0]);
+            //   if (string.IsNullOrEmpty(ParentControlType) == false)
+            //  {
+            response.CurrentRow = 1;
+            query = BuildSql();
+            dataTable = LoadDataTable(query);
+            response.TotalRows = dataTable.Rows.Count;
+            response.Record = CreateRecord(dataTable, Columns.Cast<DbColumn>().ToList());
+            response.PrimaryKey = SerialisePrimaryKey(dataTable.Rows[0]);
             //   }
             response.Columns = Columns;
         }
@@ -143,6 +143,8 @@ namespace DbNetSuiteCore.Services
             {
                 return;
             }
+
+            CurrentRow = 1;
 
             ConfigureEditColumns();
 
@@ -203,7 +205,7 @@ namespace DbNetSuiteCore.Services
         {
             DataTable dataTable;
 
-            if (string.IsNullOrEmpty(ParentControlType) == false)
+            if (ParentControlType.HasValue && ParentChildRelationship == Enums.ParentChildRelationship.OneToOne)
             {
                 response.TotalRows = 1;
                 response.CurrentRow = 1;
@@ -235,12 +237,19 @@ namespace DbNetSuiteCore.Services
             ListDictionary parameters = new ListDictionary();
             List<string> filterPart = new List<string>();
 
-            if (string.IsNullOrEmpty(PrimaryKey) == false && string.IsNullOrEmpty(ParentControlType) == false)
+            if (string.IsNullOrEmpty(PrimaryKey) == false && ParentControlType.HasValue && ParentChildRelationship == Enums.ParentChildRelationship.OneToOne)
             {
                 filterPart.Add(PrimaryKeyFilter(parameters));
             }
             else
             {
+                string foreignKeyFilter = ForeignKeyFilter(parameters);
+
+                if (string.IsNullOrEmpty(foreignKeyFilter) == false)
+                {
+                    filterPart.Add(foreignKeyFilter);
+                }
+
                 if (SearchParams.Any())
                 {
                     List<string> searchFilterPart = new List<string>();
@@ -266,10 +275,7 @@ namespace DbNetSuiteCore.Services
                 sql += $" where {string.Join(" or ", filterPart)}";
             }
 
-            if (string.IsNullOrEmpty(ParentControlType) && string.IsNullOrEmpty(PrimaryKey))
-            {
-                sql += $" order by {Columns.FirstOrDefault(c => c.Browse).ColumnExpression ?? "1"}";
-            }
+            sql += $" order by {Columns.FirstOrDefault(c => c.Browse)?.ColumnExpression ?? "1"}";
 
             return new QueryCommandConfig(sql, parameters);
         }
@@ -340,7 +346,7 @@ namespace DbNetSuiteCore.Services
                 updateCommand.Params[Database.ParameterName(key)] = ConvertToDbParam(Changes[key]);
             }
 
-            updateCommand.Sql = $"insert into {FromPart} ({string.Join(",",columnNames)}) values ({string.Join(",", paramNames)})";
+            updateCommand.Sql = $"insert into {FromPart} ({string.Join(",", columnNames)}) values ({string.Join(",", paramNames)})";
 
             string autoIncrementColumnName = this.Columns.FirstOrDefault(c => c.AutoIncrement)?.ColumnName;
 

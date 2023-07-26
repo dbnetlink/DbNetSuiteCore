@@ -58,7 +58,7 @@ class DbNetSuite {
         }
     }
     addLinkedControl(control) {
-        control.parentControlType = this.constructor.name;
+        //control.parentControlType = this.constructor.name;
         this.linkedControls.push(control);
     }
     fireEvent(event, params = undefined) {
@@ -215,6 +215,9 @@ class DbNetSuite {
         }
         if (this instanceof DbNetCombo) {
             this.configureLinkedControl(control, id, pk);
+        }
+        if (this instanceof DbNetEdit) {
+            this.configureLinkedControl(control, pk);
         }
     }
     _getRequest() {

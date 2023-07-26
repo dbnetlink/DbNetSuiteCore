@@ -65,14 +65,19 @@ class DbNetEdit extends DbNetGridEdit {
             }
         });
     }
-    disableForm(disable) {
-        var _a;
-        if (this.initialised) {
-            this.clearForm();
-            this.formElements().not("[primarykey='true']").prop("disabled", disable);
-            (_a = this.toolbarPanel) === null || _a === void 0 ? void 0 : _a.find("button").prop("disabled", disable);
-            this.disable("SearchBtn", false);
-            this.disable("InsertBtn", false);
+    disableForm(disable, linked = false) {
+        var _a, _b;
+        if (!this.initialised) {
+            return;
+        }
+        this.clearForm();
+        this.formElements().not("[primarykey='true']").not("[datatype='Guid']").prop("disabled", disable);
+        (_a = this.toolbarPanel) === null || _a === void 0 ? void 0 : _a.find("button").prop("disabled", disable);
+        (_b = this.toolbarPanel) === null || _b === void 0 ? void 0 : _b.find("input").val("");
+        this.disable("SearchBtn", linked);
+        this.disable("InsertBtn", linked);
+        if (disable) {
+            this.configureLinkedControls(null, DbNetSuite.DBNull);
         }
     }
     configureEdit(response) {
@@ -107,10 +112,11 @@ class DbNetEdit extends DbNetGridEdit {
     updateForm(response) {
         var _a, _b;
         if (response.totalRows == 0) {
-            this.disableForm(true);
+            this.disableForm(true, true);
+            //            this.configureLinkedControls(null, DbNetSuite.DBNull);
             return;
         }
-        (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(':input').not("[primarykey='true']").prop("disabled", false);
+        (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(':input').not("[primarykey='true']").not("[datatype='Guid']").prop("disabled", false);
         const record = response.record;
         for (const columnName in record) {
             const $input = (_b = this.formPanel) === null || _b === void 0 ? void 0 : _b.find(`:input[name='${columnName}']`);
@@ -122,7 +128,7 @@ class DbNetEdit extends DbNetGridEdit {
             else {
                 $input.val(value.toString()).data("value", value.toString());
             }
-            if ($input.attr("primarykey")) {
+            if ($input.attr("primarykey") || $input.attr("datatype") == "Guid") {
                 $input.prop("disabled", true);
             }
         }
@@ -138,6 +144,7 @@ class DbNetEdit extends DbNetGridEdit {
         if (response.message) {
             this.message(response.message);
         }
+        this.configureLinkedControls(null, this.primaryKey);
         this.fireEvent("onFormUpdated", { formElements: this.formElements() });
     }
     callServer(action, callback) {
@@ -157,7 +164,6 @@ class DbNetEdit extends DbNetGridEdit {
             changes: this.changes,
             componentId: this.id,
             connectionString: this.connectionString,
-            parentControlType: this.parentControlType,
             columns: this.columns.map((column) => { return column; }),
             currentRow: this.currentRow,
             culture: this.culture,
@@ -173,7 +179,9 @@ class DbNetEdit extends DbNetGridEdit {
             primaryKey: this.primaryKey,
             isEditDialog: this.isEditDialog,
             insert: this.insert,
-            delete: this._delete
+            delete: this._delete,
+            parentControlType: this.parentControlType,
+            parentChildRelationship: this.parentChildRelationship
         };
         return request;
     }
@@ -187,7 +195,7 @@ class DbNetEdit extends DbNetGridEdit {
         }
         this.setInputElement("Rows", response.totalRows);
         this.configureToolbarButtons(false);
-        if (this.parentControlType) {
+        if (this.parentControlType && this.parentChildRelationship == "OneToOne") {
             $navigationElements.show();
             $noRecordsCell.hide();
             return;
@@ -294,6 +302,35 @@ class DbNetEdit extends DbNetGridEdit {
                 break;
         }
     }
+    configureLinkedControl(control, pk) {
+        if (control instanceof DbNetEdit) {
+            const edit = control;
+            if (pk == DbNetSuite.DBNull) {
+                edit.disableForm(true, true);
+                return;
+            }
+            if (edit.parentChildRelationship == "OneToMany") {
+                this.assignForeignKey(control, null, pk);
+                pk = null;
+            }
+            if (edit.initialised) {
+                edit.getRows();
+            }
+            else {
+                edit.initialize(pk);
+            }
+        }
+    }
+    assignForeignKey(control, id, pk = null) {
+        if (control instanceof DbNetEdit) {
+            const edit = control;
+            const col = edit.columns.find((c) => { return c.foreignKey == true; });
+            if (col == undefined) {
+                return;
+            }
+            col.foreignKeyValue = pk ? pk : DbNetSuite.DBNull;
+        }
+    }
     getRecord(primaryKey = null) {
         if (primaryKey) {
             this.primaryKey = primaryKey;
@@ -302,19 +339,26 @@ class DbNetEdit extends DbNetGridEdit {
     }
     insertRecord() {
         this.clearForm();
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const self = this;
         this.formElements().each(function () {
             const $input = $(this);
             $input.prop("disabled", false);
             if ($input.attr("primarykey")) {
-                if ($input.attr("autoincrement") != null) {
+                if ($input.attr("autoincrement")) {
                     $input.prop("disabled", true);
                 }
+            }
+            if ($input.attr("datatype") == "Guid" && $input.attr("required")) {
+                $input.prop("disabled", true);
+                $input.val(self.uuid());
             }
         });
         const $firstElement = this.formElements().filter(':not(:disabled):first');
         $firstElement.trigger("focus");
         this.editMode = "insert";
         this.configureToolbarButtons(true);
+        this.configureLinkedControls(null, DbNetSuite.DBNull);
         this.fireEvent("onInsertInitalize", { formElements: this.formElements() });
     }
     configureToolbarButtons(insert) {
@@ -369,7 +413,7 @@ class DbNetEdit extends DbNetGridEdit {
         });
         if ($formElements.filter('.highlight').length > 0) {
             this.message('An entry in the highlighted field(s) is required');
-            setInterval(() => this.clearHighlightedFields(), 3000);
+            setTimeout(() => this.clearHighlightedFields(), 3000);
             return;
         }
         $formElements.filter('[pattern]').each(function () {
@@ -465,7 +509,7 @@ class DbNetEdit extends DbNetGridEdit {
     message(msg) {
         var _a;
         (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(".message").html(msg).addClass("highlight");
-        setInterval(() => this.clearMessage(), 3000);
+        setTimeout(() => this.clearMessage(), 3000);
     }
     clearMessage() {
         var _a;
@@ -474,7 +518,7 @@ class DbNetEdit extends DbNetGridEdit {
     highlightField(columnName) {
         var _a;
         (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(`[name='${columnName}']`).addClass("highlight");
-        setInterval(() => this.clearHighlightedFields(), 3000);
+        setTimeout(() => this.clearHighlightedFields(), 3000);
     }
     clearHighlightedFields() {
         this.formElements().filter(".highlight").removeClass("highlight");
@@ -493,5 +537,18 @@ class DbNetEdit extends DbNetGridEdit {
         const $button = $(event.target);
         $button.parent().find("input").timepicker('open');
         event.stopPropagation();
+    }
+    uuid() {
+        function getRandomSymbol(symbol) {
+            let array;
+            if (symbol === 'y') {
+                array = ['8', '9', 'a', 'b'];
+                return array[Math.floor(Math.random() * array.length)];
+            }
+            array = new Uint8Array(1);
+            window.crypto.getRandomValues(array);
+            return (array[0] % 16).toString(16);
+        }
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, getRandomSymbol);
     }
 }

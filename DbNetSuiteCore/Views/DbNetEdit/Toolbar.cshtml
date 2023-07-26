@@ -56,7 +56,7 @@
     <table class="dbnetsuite-toolbar" id="@(Model.ComponentId)_dbnetedit-toolbar">
         <tbody>
             <tr>
-                @if (string.IsNullOrEmpty(Model.ParentControlType) == false)
+                @if (Model.ParentControlType.HasValue && Model.ParentChildRelationship == ParentChildRelationship.OneToOne)
                 {
                     @Button("Previous", ToolbarSection.Navigation)
                     @Button("Next", ToolbarSection.Navigation)

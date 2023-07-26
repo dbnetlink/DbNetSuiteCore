@@ -808,7 +808,6 @@ class DbNetGrid extends DbNetGridEdit {
         }
         const request: DbNetGridRequest = {
             componentId: this.id,
-            parentControlType: this.parentControlType,
             connectionString: this.connectionString,
             fromPart: this.fromPart,
             currentPage: this.currentPage,
@@ -846,7 +845,9 @@ class DbNetGrid extends DbNetGridEdit {
             insert: this.insert,
             update: this.update,
             delete: this._delete,
-            viewLayoutColumns: this.viewLayoutColumns
+            viewLayoutColumns: this.viewLayoutColumns,
+            parentControlType: this.parentControlType,
+            parentChildRelationship: this.parentChildRelationship
         };
 
         return request;
@@ -954,6 +955,10 @@ class DbNetGrid extends DbNetGridEdit {
 
         if (control instanceof DbNetEdit) {
             const edit = control as DbNetEdit;
+            edit.currentRow = 1;
+
+            if (edit.parentChildRelationship)
+
             if (this.editControl == undefined) {
                 this.editControl = edit;
             }
@@ -964,7 +969,6 @@ class DbNetGrid extends DbNetGridEdit {
                 }
                 return;
             }
-            edit.currentRow = 1;
 
             if (edit.initialised) {
                 edit.disableForm(false);
@@ -1013,12 +1017,11 @@ class DbNetGrid extends DbNetGridEdit {
             const col = grid.columns.find((col) => { return col.foreignKey == true });
 
             if (col == undefined) {
-                alert('No foreign key defined for nested grid')
+                alert('No foreign key defined for child grid')
                 return;
             }
 
             col.foreignKeyValue = id ? id : DbNetSuite.DBNull;
         }
-
     }
 }

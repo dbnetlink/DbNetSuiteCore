@@ -45,7 +45,7 @@
 
     message(msg: string): void {
         this.$dialog?.find(".message").html(msg).addClass("highlight");
-        setInterval(() => this.clearMessage(), 5000);
+        setTimeout(() => this.clearMessage(), 5000);
     }
 
     clearMessage(): void {

@@ -39,7 +39,7 @@ class Dialog extends DbNetSuite {
     message(msg) {
         var _a;
         (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find(".message").html(msg).addClass("highlight");
-        setInterval(() => this.clearMessage(), 5000);
+        setTimeout(() => this.clearMessage(), 5000);
     }
     clearMessage() {
         var _a;

@@ -31,7 +31,7 @@ class ViewDialog extends Dialog {
     }
     setSize() {
         var _a, _b, _c;
-        const width = ((_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find("table").first().width()) + 10;
+        const width = ((_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find("table").first().width()) + 20;
         if (width > this.dialogWidth) {
             (_b = this.$dialog) === null || _b === void 0 ? void 0 : _b.dialog("option", "width", width);
         }

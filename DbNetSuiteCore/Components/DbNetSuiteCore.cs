@@ -31,6 +31,8 @@ namespace DbNetSuiteCore.Components
         /// Specifies the type of provider for the database connection
         /// </summary>
         public DataProvider? DataProvider { get; set; } = null;
+        public string ParentControlType { get; set; } = null;
+        public ParentChildRelationship? ParentChildRelationship { get; set; } = null;
 
         public DbNetSuiteCore(string connection, string id = null)
         {
@@ -64,6 +66,11 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public void AddLinkedControl(DbNetSuiteCore linkedControl)
         {
+            linkedControl.ParentControlType = this.GetType().Name.Replace("Core", string.Empty);
+            if (this is DbNetGridEditCore && linkedControl is DbNetGridEditCore)
+            {
+                linkedControl.ParentChildRelationship = (this as DbNetGridEditCore).FromPart.ToLower() == (linkedControl as DbNetGridEditCore).FromPart.ToLower() ? Enums.ParentChildRelationship.OneToOne : Enums.ParentChildRelationship.OneToMany;
+            }
             _linkedControls.Add(linkedControl);
         }
         /// <summary>

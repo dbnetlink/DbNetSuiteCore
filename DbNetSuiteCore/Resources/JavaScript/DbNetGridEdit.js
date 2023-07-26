@@ -10,6 +10,7 @@ class DbNetGridEdit extends DbNetSuite {
         this.quickSearchDelay = 1000;
         this.quickSearchMinChars = 3;
         this.quickSearchToken = "";
+        this.parentChildRelationship = null;
         this.search = true;
         this.searchFilterJoin = "";
         this.searchParams = [];

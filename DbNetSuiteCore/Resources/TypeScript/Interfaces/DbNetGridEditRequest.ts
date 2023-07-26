@@ -9,4 +9,5 @@
     navigation: boolean;
     quickSearch: boolean;
     quickSearchToken: string;
+    parentChildRelationship: ParentChildRelationship;
 }

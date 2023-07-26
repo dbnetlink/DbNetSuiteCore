@@ -2,6 +2,7 @@
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
 /// <reference types="bootstrap" />
+type ParentChildRelationship = "OneToOne" | "OneToMany" | null;
 declare class DbNetGridEdit extends DbNetSuite {
     columns: DbColumn[];
     _delete: boolean;
@@ -14,6 +15,7 @@ declare class DbNetGridEdit extends DbNetSuite {
     quickSearchMinChars: number;
     quickSearchTimerId: number | undefined;
     quickSearchToken: string;
+    parentChildRelationship: ParentChildRelationship;
     search: boolean;
     searchDialog: SearchDialog | undefined;
     searchFilterJoin: string;

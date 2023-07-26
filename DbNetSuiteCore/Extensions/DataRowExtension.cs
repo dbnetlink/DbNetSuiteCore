@@ -41,9 +41,9 @@ namespace DbNetSuiteCore.Extensions
         {
             return BoolValue(dataRow, "IsAutoIncrement", false);
         }
-        public static bool IsRequired(this DataRow dataRow)
+        public static bool AllowsNull(this DataRow dataRow)
         {
-            return BoolValue(dataRow, "AllowDBNull", false) && String.IsNullOrEmpty(dataRow["DefaultValue"].ToString()) == false && dataRow.IsAutoIncrement() == false;
+            return BoolValue(dataRow, "AllowDBNull", true);
         }
         public static string DataTypeName(this DataRow dataRow) => dataRow.Value("DataTypeName")?.ToString() ?? string.Empty;
 

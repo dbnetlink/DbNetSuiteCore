@@ -43,7 +43,6 @@ class DbNetSuite {
     public initialised = false;
 
     constructor(id: string | null) {
-
         if (id == null) {
             return;
         }
@@ -98,7 +97,7 @@ class DbNetSuite {
     }
 
     addLinkedControl(control: DbNetSuite) {
-        control.parentControlType = this.constructor.name;
+        //control.parentControlType = this.constructor.name;
         this.linkedControls.push(control);
     }
 
@@ -280,6 +279,9 @@ class DbNetSuite {
         }
         if (this instanceof DbNetCombo) {
             (this as DbNetCombo).configureLinkedControl(control, id as string[], pk);
+        }
+        if (this instanceof DbNetEdit) {
+            (this as DbNetEdit).configureLinkedControl(control, pk);
         }
     }
 
