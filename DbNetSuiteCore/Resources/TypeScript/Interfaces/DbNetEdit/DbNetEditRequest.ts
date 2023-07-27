@@ -6,4 +6,5 @@
     primaryKey: string;
     layoutColumns: number;
     isEditDialog: boolean;
+    toolbarPosition: ToolbarPosition;
 }

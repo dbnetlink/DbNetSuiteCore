@@ -10,12 +10,13 @@ declare class DbNetGridEdit extends DbNetSuite {
     insert: boolean;
     lookupDialog: LookupDialog | undefined;
     navigation: boolean;
+    optimizeForLargeDataset: boolean;
+    parentChildRelationship: ParentChildRelationship;
     quickSearch: boolean;
     quickSearchDelay: number;
     quickSearchMinChars: number;
     quickSearchTimerId: number | undefined;
     quickSearchToken: string;
-    parentChildRelationship: ParentChildRelationship;
     search: boolean;
     searchDialog: SearchDialog | undefined;
     searchFilterJoin: string;

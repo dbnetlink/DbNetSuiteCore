@@ -10,6 +10,7 @@ table.dbnetgrid-table {
         border: 1px solid #c0c0c0;
         font-family: var(--main-font-family);
         font-size: var(--main-font-size);
+        padding:2px;
 
         &.sticky {
             position: sticky;
@@ -235,11 +236,19 @@ table.dbnetgrid-table {
 }
 
 div.dbnetsuite-toolbar-panel {
-    background-color: whitesmoke;
-    border-radius: 2px;
-    border: 1px solid #ccc;
+    //    background-color: whitesmoke;
+    //    border-radius: 2px;
+    //    border: 1px solid #ccc;
     display: inline-block;
-    width:100%;
+    width: 100%;
+
+    &.top {
+        vertical-align: bottom;
+    }
+
+    &.bottom {
+        vertical-align: top;
+    }
 }
 
 table.dbnetsuite-toolbar * {
@@ -366,7 +375,7 @@ table.lookup-dialog-toolbar,
             width: 150px;
             margin: 0px;
             text-align: left;
-            background-image: svgUrl("filter", "20");
+            background-image: svgUrl("filter", "20","steelblue","");
             background-position: center right;
             background-repeat: no-repeat;
             background-size: 20px 20px;
@@ -460,7 +469,7 @@ table.lookup-dialog-toolbar,
     }
 
     .content {
-     //   overflow: auto;
+        //   overflow: auto;
     }
 
     .label {
@@ -481,7 +490,12 @@ table.lookup-dialog-toolbar,
         box-sizing: border-box;
 
         &.highlight {
-            background-color: palegoldenrod;
+            background-color: gold !important;
+        }
+
+        &:focus {
+            background-color: $focus-color;
+            outline: none;
         }
     }
 
@@ -493,13 +507,13 @@ table.lookup-dialog-toolbar,
         height: 24px;
         margin: 0px;
         box-sizing: border-box;
+
+        &:focus {
+            background-color: $focus-color;
+            outline: none;
+        }
     }
 
-    :focus {
-        outline-style: solid;
-        outline-color: silver;
-        outline-width: thin;
-    }
 
     tr.search-row {
         td {

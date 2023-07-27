@@ -4,8 +4,8 @@
 /// <reference types="bootstrap" />
 declare class Dialog extends DbNetSuite {
     $dialog: JQuery<HTMLElement> | undefined;
-    width: number;
-    maxWidth: number;
+    windowWidth: number;
+    windowHeight: number;
     constructor(id: string);
     open(): void;
     isOpen(): boolean;

@@ -16,7 +16,6 @@ interface DbNetGridRequest extends DbNetGridEditRequest {
     multiRowSelect: boolean;
     multiRowSelectLocation: MultiRowSelectLocation;
     nestedGrid: boolean;
-    optimizeForLargeDataset: boolean;
     orderBy: string;
     orderByDirection: string;
     pageSize: number;

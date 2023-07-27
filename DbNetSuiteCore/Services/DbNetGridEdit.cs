@@ -18,12 +18,8 @@ using DbNetSuiteCore.Models.DbNetEdit;
 using DbNetSuiteCore.ViewModels.DbNetGrid;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using DbNetSuiteCore.ViewModels;
 using DbNetSuiteCore.Constants;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
 using DbNetSuiteCore.Enums.DbNetEdit;
-using DocumentFormat.OpenXml.Office.Excel;
 
 namespace DbNetSuiteCore.Services
 {
@@ -33,7 +29,7 @@ namespace DbNetSuiteCore.Services
         private string _primaryKey;
 
         protected Dictionary<string, DataTable> _lookupTables = new Dictionary<string, DataTable>();
-        private List<DbColumn> DbColumns
+        protected List<DbColumn> DbColumns
         {
             get
             {
@@ -57,6 +53,8 @@ namespace DbNetSuiteCore.Services
         public bool Insert { get; set; } = false;
         public int LookupColumnIndex { get; set; }
         public bool Navigation { get; set; }
+        public bool OptimizeForLargeDataset { get; set; } = false;
+
         public string PrimaryKey
         {
             get => EncodingHelper.Decode(_primaryKey);
@@ -538,7 +536,7 @@ namespace DbNetSuiteCore.Services
                     column.ColumnSize = 36;
                     break;
                 default:
-                    if (column.ColumnSize < 1)
+                    if (column.ColumnSize < 10)
                     {
                         column.ColumnSize = column.IsNumeric ? 10 : 20;
                     }
@@ -762,10 +760,10 @@ namespace DbNetSuiteCore.Services
             return true;
         }
 
-        protected DataTable InitialiseDataTable<T>(List<T> columns)
+        protected DataTable InitialiseDataTable()
         {
             DataTable dataTable = new DataTable();
-            foreach (object o in columns)
+            foreach (object o in DbColumns)
             {
                 DbColumn dbColumn = (DbColumn)o;
                 DataColumn dataColumn = new DataColumn(dbColumn.ColumnName);
@@ -954,7 +952,7 @@ namespace DbNetSuiteCore.Services
         {
             return Database.ParameterName(paramName, parameterValue);
         }
-        protected object ConvertToDbParam(object value, DbColumn column = null)
+        protected object ConvertToDbParam(object value, DbColumn column)
         {
             string dataType = column?.DataType ?? string.Empty;
             if (value == null)
@@ -1004,7 +1002,11 @@ namespace DbNetSuiteCore.Services
                             paramValue = ParseBoolean(value.ToString());
                         break;
                     case nameof(TimeSpan):
-                        paramValue = TimeSpan.Parse(DateTime.Parse(value.ToString()).ToString("t"));
+                        paramValue = TimeSpan.Parse(DateTime.Parse(value.ToString()).ToString(column.Format));
+                        break;
+                    case nameof(DateTime):
+                        paramValue = Convert.ChangeType(value, Type.GetType($"System.{nameof(DateTime)}"));
+                        //paramValue = DateTime.ParseExact(value.ToString(), column.Format, CultureInfo.InvariantCulture);
                         break;
                     case nameof(Byte):
                         paramValue = value;
@@ -1135,7 +1137,7 @@ namespace DbNetSuiteCore.Services
                     filter = $"{fkColumn.ColumnExpression} = {paramName}";
                     if (parameters != null)
                     {
-                        parameters[paramName] = ConvertToDbParam(foreignKeyValue);
+                        parameters[paramName] = ConvertToDbParam(foreignKeyValue, null);
                     }
                 }
             }
@@ -1148,8 +1150,9 @@ namespace DbNetSuiteCore.Services
             List<string> primaryKeyFilterPart = new List<string>();
             foreach (string key in PrimaryKeyValues.Keys)
             {
+                DbColumn dbColumn = DbColumns.FirstOrDefault(c => c.IsMatch(key));
                 primaryKeyFilterPart.Add($"{key} = {Database.ParameterName(key)}");
-                parameters.Add(Database.ParameterName(key), ConvertToDbParam(PrimaryKeyValues[key]));
+                parameters.Add(Database.ParameterName(key), ConvertToDbParam(PrimaryKeyValues[key], dbColumn));
             }
             return $"{string.Join($" and ", primaryKeyFilterPart)}";
         }

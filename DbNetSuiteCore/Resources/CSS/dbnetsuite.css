@@ -101,6 +101,13 @@ div.dbnetsuite-error {
   background-color: gainsboro;
 }
 
+hr.toolbar {
+  border: none;
+  height: 1px;
+  background-color: gainsboro;
+  margin: 5px 0px;
+}
+
 .message-box [button-type=confirm],
 .message-box [button-type=ok] {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='limegreen'><path d='m382-368 338-338q15.733-16 37.367-16Q779-722 795-706.211q16 15.79 16 37.5Q811-647 795-631L419-255q-15.818 16-36.909 16T345-255L167-433q-16-15.733-15.5-37.367Q152-492 167.789-508q15.79-16 37.5-16Q227-524 243-508l139 140Z'/></svg>");

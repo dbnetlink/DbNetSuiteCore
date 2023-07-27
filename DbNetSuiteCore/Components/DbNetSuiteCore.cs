@@ -212,32 +212,68 @@ function init_{_id}()
         {
             string markup = _idSupplied ? string.Empty : $"<section id=\"{_id}\"></section>";
 
-            if (this is DbNetEditCore)
+            if (HasBrowseDialog(this))
             {
                 DbNetEditCore dbNetEditCore = (DbNetEditCore)this;
-                if (dbNetEditCore._browse)
-                {
-                    markup += $"<div id=\"{dbNetEditCore._browseDialogId}\" class=\"browse-dialog\" title=\"Browse\" style=\"display:none\"><section id=\"{dbNetEditCore.BrowseControl.Id}\"></section></div>";
-                }
+                markup += $"<div id=\"{dbNetEditCore._browseDialogId}\" class=\"browse-dialog\" title=\"Browse\" style=\"display:none\"><section id=\"{dbNetEditCore.BrowseControl.Id}\"></section></div>";
             }
 
-            if (this is DbNetGridCore)
+            if (HasEditDialog(this))
             {
                 DbNetGridCore dbNetGridCore = (DbNetGridCore)this;
-                if (dbNetGridCore.Edit)
-                {
-                    markup += $"<div id=\"{dbNetGridCore._editDialogId}\" class=\"edit-dialog\" title=\"Edit\" style=\"display:none\"><section id=\"{dbNetGridCore.EditControl.Id}\"></section></div>";
-                }
+                markup += $"<div id=\"{dbNetGridCore._editDialogId}\" class=\"edit-dialog\" title=\"Edit\" style=\"display:none\"><section id=\"{dbNetGridCore.EditControl.Id}\"></section></div>";
             }
 
             foreach (var linkedControl in _linkedControls)
             {
+                if (IsEditDialog(linkedControl) || IsBrowseDialog(linkedControl))
+                {
+                    continue;
+                }
                 markup += linkedControl.Markup();
             }
 
             return markup;
         }
+
+        private bool IsEditDialog(DbNetSuiteCore control)
+        {
+            if (control is DbNetEditCore)
+            {
+                DbNetEditCore dbNetEditCore = (DbNetEditCore)control;
+                return dbNetEditCore.IsEditDialog ?? false;
+            }
+            return false;
+        }
+
+        private bool IsBrowseDialog(DbNetSuiteCore control)
+        {
+            if (control is DbNetGridCore)
+            {
+                DbNetGridCore dbNetGridCore = (DbNetGridCore)control;
+                return dbNetGridCore.IsBrowseDialog ?? false;
+            }
+            return false;
+        }
+
+        private bool HasEditDialog(DbNetSuiteCore control)
+        {
+            if (control is DbNetGridCore)
+            {
+                DbNetGridCore dbNetGridCore = (DbNetGridCore)control;
+                return string.IsNullOrEmpty(dbNetGridCore._editDialogId) == false;
+            }
+            return false;
+        }
+
+        private bool HasBrowseDialog(DbNetSuiteCore control)
+        {
+            if (control is DbNetEditCore)
+            {
+                DbNetEditCore dbNetEditCore = (DbNetEditCore)control;
+                return dbNetEditCore._browse;
+            }
+            return false;
+        }
     }
 }
-
-

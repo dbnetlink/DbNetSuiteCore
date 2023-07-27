@@ -1,6 +1,7 @@
 ﻿@charset "ASCII";
 $font-family: verdana;
 $font-size: medium;
+$focus-color:#FFE082;
 
 @function svgUrl($name, $size, $colour: "SteelBlue", $viewBoxKey: "normal") {
     @return url('data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' height=\'#{$size}\' width=\'#{$size}\' viewBox=\'#{map-get($viewbox,$viewBoxKey)}\' fill=\'#{$colour}\'><path d=\'#{map-get($svg-icons,$name)}\'/></svg>');

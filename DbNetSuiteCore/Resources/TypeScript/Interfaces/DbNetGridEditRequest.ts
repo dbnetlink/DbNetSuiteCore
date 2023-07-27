@@ -7,7 +7,8 @@
     searchFilterJoin: string;
     searchParams: Array<SearchParam>;
     navigation: boolean;
+    optimizeForLargeDataset: boolean;
+    parentChildRelationship: ParentChildRelationship;
     quickSearch: boolean;
     quickSearchToken: string;
-    parentChildRelationship: ParentChildRelationship;
 }

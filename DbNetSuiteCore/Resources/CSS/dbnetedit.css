@@ -14,7 +14,11 @@ table.dbnetedit-form input, table.dbnetedit-form textarea, table.dbnetedit-form 
   border-radius: 2px;
 }
 table.dbnetedit-form input.highlight, table.dbnetedit-form textarea.highlight, table.dbnetedit-form select.highlight {
-  background-color: gold;
+  background-color: gold !important;
+}
+table.dbnetedit-form input:focus, table.dbnetedit-form textarea:focus, table.dbnetedit-form select:focus {
+  background-color: #FFE082;
+  outline: none;
 }
 table.dbnetedit-form input, table.dbnetedit-form select {
   height: 24px;
@@ -46,5 +50,5 @@ table.dbnetedit-form .toolbar-button {
   background-color: whitesmoke;
 }
 .dbnetedit-form .message.highlight {
-  background-color: #FFD54F;
+  background-color: #FFE082;
 }

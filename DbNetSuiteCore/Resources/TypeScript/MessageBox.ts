@@ -21,16 +21,18 @@ class MessageBox extends Dialog {
         this.button("confirm").on("click", () => this.buttonPressed(MessageBoxButtonType.Confirm));
         this.button("cancel").on("click", () => this.buttonPressed(MessageBoxButtonType.Cancel));
         this.$text = this.$dialog?.find(".message-box-text") as JQuery<HTMLElement>;
+        this.$text.css('max-width', this.windowWidth * 0.6);
+        this.$text.css('max-height', this.windowHeight * 0.6);
         this.$icon = this.$dialog?.find(".message-box-icon") as JQuery<HTMLElement>;
     }
 
     public show(messageBoxType: MessageBoxType, text: string, element: JQuery<HTMLElement> | null = null, callback: MessageBoxCallback | undefined) {
 
-        this.$dialog?.dialog("option", "width", "auto");
+    //    this.$dialog?.dialog("option", "width", "auto");
 
-        if (text.length > 200) {
-            this.$dialog?.dialog("option", "width", 600);
-        }
+   //     if (text.length > 200) {
+  //          this.$dialog?.dialog("option", "width", 600);
+   //     }
 
         this.$text.html(text)
         if (element) {

@@ -2,5 +2,6 @@
 @using DbNetSuiteCore.Components;
 @{
     DbNetGridCore ordersGrid = new DbNetGridCore("northwind","orders");
+    ordersGrid.Culture = "en-GB";
     @ordersGrid.Render()
 }

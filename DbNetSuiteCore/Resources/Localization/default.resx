@@ -175,7 +175,7 @@
   <data name="Bytes" xml:space="preserve">
     <value>Bytes</value>
   </data>
-  <data name="Cancel" xml:space="preserve">
+  <data name="Cancel_Tooltip" xml:space="preserve">
     <value>Cancel</value>
   </data>
   <data name="ChartConfig" xml:space="preserve">
@@ -591,8 +591,8 @@
   <data name="PrintTheCurrentRecord" xml:space="preserve">
     <value>Print the current record</value>
   </data>
-  <data name="QuickSearch" xml:space="preserve">
-    <value>Search records</value>
+  <data name="QuickSearch_Tooltip" xml:space="preserve">
+    <value>Enter wildcard to search against all character based columns</value>
   </data>
   <data name="Record" xml:space="preserve">
     <value>Record</value>

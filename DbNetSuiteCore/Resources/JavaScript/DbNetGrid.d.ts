@@ -54,7 +54,6 @@ declare class DbNetGrid extends DbNetGridEdit {
     multiRowSelect: boolean;
     multiRowSelectLocation: MultiRowSelectLocation;
     nestedGrid: boolean;
-    optimizeForLargeDataset: boolean;
     orderBy: string;
     orderByDirection: string;
     pageSize: number;

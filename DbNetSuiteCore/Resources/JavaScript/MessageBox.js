@@ -19,17 +19,19 @@ class MessageBox extends Dialog {
         this.button("confirm").on("click", () => this.buttonPressed(MessageBoxButtonType.Confirm));
         this.button("cancel").on("click", () => this.buttonPressed(MessageBoxButtonType.Cancel));
         this.$text = (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find(".message-box-text");
+        this.$text.css('max-width', this.windowWidth * 0.6);
+        this.$text.css('max-height', this.windowHeight * 0.6);
         this.$icon = (_b = this.$dialog) === null || _b === void 0 ? void 0 : _b.find(".message-box-icon");
     }
     show(messageBoxType, text, element = null, callback) {
-        var _a, _b, _c, _d, _e;
-        (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.dialog("option", "width", "auto");
-        if (text.length > 200) {
-            (_b = this.$dialog) === null || _b === void 0 ? void 0 : _b.dialog("option", "width", 600);
-        }
+        //    this.$dialog?.dialog("option", "width", "auto");
+        var _a, _b, _c;
+        //     if (text.length > 200) {
+        //          this.$dialog?.dialog("option", "width", 600);
+        //     }
         this.$text.html(text);
         if (element) {
-            (_c = this.$dialog) === null || _c === void 0 ? void 0 : _c.dialog("option", "position", { of: element.get(0) });
+            (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.dialog("option", "position", { of: element.get(0) });
         }
         this.callback = callback;
         this.hideButtons();
@@ -37,12 +39,12 @@ class MessageBox extends Dialog {
         switch (messageBoxType) {
             case MessageBoxType.Info:
             case MessageBoxType.Error:
-                (_d = this.$dialog) === null || _d === void 0 ? void 0 : _d.dialog("option", "title", messageBoxType == MessageBoxType.Info ? "Information" : "Error");
+                (_b = this.$dialog) === null || _b === void 0 ? void 0 : _b.dialog("option", "title", messageBoxType == MessageBoxType.Info ? "Information" : "Error");
                 this.button("ok").show();
                 this.$icon.addClass(messageBoxType == MessageBoxType.Info ? "info" : "error");
                 break;
             case MessageBoxType.Confirm:
-                (_e = this.$dialog) === null || _e === void 0 ? void 0 : _e.dialog("option", "title", "Confirm");
+                (_c = this.$dialog) === null || _c === void 0 ? void 0 : _c.dialog("option", "title", "Confirm");
                 this.button("confirm").show();
                 this.button("cancel").show();
                 this.$icon.addClass("confirm");

@@ -14,6 +14,7 @@ using System.Collections.Specialized;
 using System;
 using System.Linq;
 using DbNetSuiteCore.Constants;
+using System.Diagnostics.Metrics;
 
 
 namespace DbNetSuiteCore.Services
@@ -25,12 +26,12 @@ namespace DbNetSuiteCore.Services
         private bool _foreignKeySupplied => string.IsNullOrEmpty(ForeignKeyColumn) == false && ForeignKeyValue != null;
         public List<EditColumn> Columns { get; set; } = new List<EditColumn>();
         public Dictionary<string, object> Changes { get; set; }
-        public int CurrentRow { get; set; } = 1;
+        public long CurrentRow { get; set; } = 1;
         public bool IsEditDialog { get; set; } = false;
         public int LayoutColumns { get; set; } = 1;
-        public int TotalRows { get; set; }
+        public long TotalRows { get; set; }
         public bool Browse => Columns.Any(c => c.Browse);
-
+        public ToolbarPosition ToolbarPosition { get; set; } = ToolbarPosition.Bottom;
         public DbNetEdit(AspNetCoreServices services) : base(services)
         {
         }
@@ -100,7 +101,7 @@ namespace DbNetSuiteCore.Services
 
             string sql = $"select {BuildSelectPart(QueryBuildModes.Normal, Columns)} from {FromPart} where 1=2";
             QueryCommandConfig query = new QueryCommandConfig(sql);
-            DataTable dataTable = LoadDataTable(query);
+            DataTable dataTable = GetDataTable(query);
 
             var viewModel = new FormViewModel
             {
@@ -112,20 +113,35 @@ namespace DbNetSuiteCore.Services
             ReflectionHelper.CopyProperties(this, viewModel);
             response.Form = await HttpContext.RenderToStringAsync($"Views/DbNetEdit/Form.cshtml", viewModel);
 
-            //   if (string.IsNullOrEmpty(ParentControlType) == false)
-            //  {
+            if (OptimizeForLargeDataset)
+            {
+                SetTotalRows();
+            }
+
             response.CurrentRow = 1;
-            query = BuildSql();
-            dataTable = LoadDataTable(query);
-            response.TotalRows = dataTable.Rows.Count;
-            response.Record = CreateRecord(dataTable, Columns.Cast<DbColumn>().ToList());
+            dataTable = GetCurrentRow(dataTable, OptimizeForLargeDataset);
+            response.TotalRows = TotalRows;
+            response.Record = CreateRecord(dataTable, DbColumns);
             response.PrimaryKey = SerialisePrimaryKey(dataTable.Rows[0]);
-            //   }
             response.Columns = Columns;
         }
-        private DataTable LoadDataTable(QueryCommandConfig query)
+
+        private void SetTotalRows()
         {
-            var dataTable = new DataTable();
+            var query = BuildSql(QueryBuildModes.Count);
+
+            using (Database)
+            {
+                Database.Open();
+                TotalRows = Database.ExecuteScalar(query);
+                Database.Close();
+            }
+        }
+
+        private DataTable GetDataTable(QueryCommandConfig query)
+        {
+            DataTable dataTable = new DataTable();
+
             using (Database)
             {
                 Database.Open();
@@ -148,7 +164,7 @@ namespace DbNetSuiteCore.Services
 
             ConfigureEditColumns();
 
-            DataTable dataTable = GetDataTable();
+            DataTable dataTable = GetCurrentRow();
 
             response.CurrentRow = CurrentRow;
             response.TotalRows = TotalRows;
@@ -161,16 +177,17 @@ namespace DbNetSuiteCore.Services
             }
         }
 
-        private DataTable GetDataTable()
+        private DataTable GetCurrentRow(DataTable dataTable = null, bool rowsCounted = false)
         {
-            DataTable dataTable = InitialiseDataTable(Columns);
+            if (dataTable == null)
+            {
+                dataTable = InitialiseDataTable();
+            }
 
             using (Database)
             {
                 Database.Open();
-                QueryCommandConfig query;
-
-                query = BuildSql();
+                QueryCommandConfig query = BuildSql();
 
                 Database.Open();
                 Database.ExecuteQuery(query);
@@ -187,14 +204,22 @@ namespace DbNetSuiteCore.Services
                     if (counter == CurrentRow)
                     {
                         dataTable.Rows.Add(values);
+                        if (rowsCounted)
+                        {
+                            break;
+                        }
                     }
                 }
-                TotalRows = counter;
 
-                if (TotalRows < CurrentRow)
+                if (rowsCounted == false)
                 {
-                    CurrentRow = TotalRows;
-                    dataTable.Rows.Add(values);
+                    TotalRows = counter;
+
+                    if (TotalRows < CurrentRow)
+                    {
+                        CurrentRow = TotalRows;
+                        dataTable.Rows.Add(values);
+                    }
                 }
                 Database.Close();
             }
@@ -210,12 +235,17 @@ namespace DbNetSuiteCore.Services
                 response.TotalRows = 1;
                 response.CurrentRow = 1;
                 QueryCommandConfig query = BuildSql();
-                dataTable = LoadDataTable(query);
+                dataTable = GetDataTable(query);
             }
             else
             {
                 ConfigureEditColumns();
-                dataTable = GetDataTable();
+                if (OptimizeForLargeDataset)
+                {
+                    SetTotalRows();
+                }
+
+                dataTable = GetCurrentRow(null, OptimizeForLargeDataset);
                 response.CurrentRow = CurrentRow;
                 response.TotalRows = TotalRows;
                 response.Columns = Columns;
@@ -231,11 +261,13 @@ namespace DbNetSuiteCore.Services
         {
             Columns.Add(InitialiseColumn(new EditColumn(), row) as EditColumn);
         }
-        protected virtual QueryCommandConfig BuildSql()
+        protected virtual QueryCommandConfig BuildSql(QueryBuildModes queryBuildMode = QueryBuildModes.Normal)
         {
-            string sql = $"select {BuildSelectPart(QueryBuildModes.Normal, Columns)} from {FromPart}";
+            string selectPart = queryBuildMode == QueryBuildModes.Count ? "count(*)" : BuildSelectPart(QueryBuildModes.Normal, Columns);
+            string sql = $"select {selectPart} from {FromPart}";
             ListDictionary parameters = new ListDictionary();
             List<string> filterPart = new List<string>();
+            List<string> searchFilterPart = new List<string>();
 
             if (string.IsNullOrEmpty(PrimaryKey) == false && ParentControlType.HasValue && ParentChildRelationship == Enums.ParentChildRelationship.OneToOne)
             {
@@ -252,27 +284,26 @@ namespace DbNetSuiteCore.Services
 
                 if (SearchParams.Any())
                 {
-                    List<string> searchFilterPart = new List<string>();
                     foreach (SearchParameter searchParameter in SearchParams)
                     {
                         EditColumn editColumn = Columns[searchParameter.ColumnIndex];
                         searchFilterPart.Add($"{RefineSearchExpression(editColumn)} {FilterExpression(searchParameter, editColumn)}");
                     }
 
-                    filterPart.Add($"{string.Join($" {SearchFilterJoin} ", searchFilterPart)}");
+                    filterPart.Add($"({string.Join($" {SearchFilterJoin} ", searchFilterPart)})");
                     AddSearchDialogParameters(Columns.Cast<DbColumn>().ToList(), parameters);
                 }
 
                 if (String.IsNullOrEmpty(QuickSearchToken) == false)
                 {
                     filterPart.Add($"({string.Join(" or ", QuickSearchFilter(Columns.Cast<DbColumn>().ToList()).ToArray())})");
-                    parameters.Add(ParamName(ParamNames.QuickSearchToken, true), ConvertToDbParam($"%{QuickSearchToken}%"));
+                    parameters.Add(ParamName(ParamNames.QuickSearchToken, true), ConvertToDbParam($"%{QuickSearchToken}%", null));
                 }
             }
 
             if (filterPart.Any())
             {
-                sql += $" where {string.Join(" or ", filterPart)}";
+                sql += $" where {string.Join(" and ", filterPart)}";
             }
 
             sql += $" order by {Columns.FirstOrDefault(c => c.Browse)?.ColumnExpression ?? "1"}";
@@ -295,10 +326,10 @@ namespace DbNetSuiteCore.Services
 
             foreach (string key in Changes.Keys)
             {
-                DbColumn C = this.Columns.FirstOrDefault(c => c.IsMatch(key));
+                DbColumn c = this.Columns.FirstOrDefault(c => c.IsMatch(key));
 
-                updatePart.Add(Database.QualifiedDbObjectName(C.ColumnName) + " = " + Database.ParameterName(key));
-                updateCommand.Params[Database.ParameterName(key)] = ConvertToDbParam(Changes[key]);
+                updatePart.Add(Database.QualifiedDbObjectName(c.ColumnName) + " = " + Database.ParameterName(key));
+                updateCommand.Params[Database.ParameterName(key)] = ConvertToDbParam(Changes[key], c);
             }
 
             filterPart.Add(PrimaryKeyFilter(updateCommand.Params));
@@ -328,7 +359,7 @@ namespace DbNetSuiteCore.Services
         {
             List<string> columnNames = new List<string>();
             List<string> paramNames = new List<string>();
-            CommandConfig updateCommand = new CommandConfig();
+            CommandConfig insertCommand = new CommandConfig();
 
             ValidateUserInput(response);
 
@@ -339,14 +370,14 @@ namespace DbNetSuiteCore.Services
 
             foreach (string key in Changes.Keys)
             {
-                DbColumn C = this.Columns.FirstOrDefault(c => c.IsMatch(key));
+                DbColumn c = this.Columns.FirstOrDefault(c => c.IsMatch(key));
 
-                columnNames.Add(Database.QualifiedDbObjectName(C.ColumnName));
+                columnNames.Add(Database.QualifiedDbObjectName(c.ColumnName));
                 paramNames.Add(Database.ParameterName(key));
-                updateCommand.Params[Database.ParameterName(key)] = ConvertToDbParam(Changes[key]);
+                insertCommand.Params[Database.ParameterName(key)] = ConvertToDbParam(Changes[key], c);
             }
 
-            updateCommand.Sql = $"insert into {FromPart} ({string.Join(",", columnNames)}) values ({string.Join(",", paramNames)})";
+            insertCommand.Sql = $"insert into {FromPart} ({string.Join(",", columnNames)}) values ({string.Join(",", paramNames)})";
 
             string autoIncrementColumnName = this.Columns.FirstOrDefault(c => c.AutoIncrement)?.ColumnName;
 
@@ -355,7 +386,7 @@ namespace DbNetSuiteCore.Services
                 using (Database)
                 {
                     Database.Open();
-                    response.PrimaryKey = Database.ExecuteInsert(updateCommand, autoIncrementColumnName).ToString();
+                    response.PrimaryKey = Database.ExecuteInsert(insertCommand, autoIncrementColumnName).ToString();
                 }
 
                 response.Message = "Record added";

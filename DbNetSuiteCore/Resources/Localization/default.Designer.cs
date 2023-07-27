@@ -234,9 +234,9 @@ namespace DbNetSuiteCore.Resources.Localization {
         /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
-        internal static string Cancel {
+        internal static string Cancel_Tooltip {
             get {
-                return ResourceManager.GetString("Cancel", resourceCulture);
+                return ResourceManager.GetString("Cancel_Tooltip", resourceCulture);
             }
         }
         
@@ -1474,11 +1474,11 @@ namespace DbNetSuiteCore.Resources.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Search records.
+        ///   Looks up a localized string similar to Enter wildcard to search against all character based columns.
         /// </summary>
-        internal static string QuickSearch {
+        internal static string QuickSearch_Tooltip {
             get {
-                return ResourceManager.GetString("QuickSearch", resourceCulture);
+                return ResourceManager.GetString("QuickSearch_Tooltip", resourceCulture);
             }
         }
         

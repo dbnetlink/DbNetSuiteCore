@@ -6,12 +6,13 @@ class DbNetGridEdit extends DbNetSuite {
     insert = false;
     lookupDialog: LookupDialog | undefined;
     navigation = true;
+    optimizeForLargeDataset = false;
+    parentChildRelationship: ParentChildRelationship = null;
     quickSearch = false;
     quickSearchDelay = 1000;
     quickSearchMinChars = 3;
     quickSearchTimerId: number | undefined;
     quickSearchToken = "";
-    parentChildRelationship: ParentChildRelationship = null;
     search = true;
     searchDialog: SearchDialog | undefined;
     searchFilterJoin = "";

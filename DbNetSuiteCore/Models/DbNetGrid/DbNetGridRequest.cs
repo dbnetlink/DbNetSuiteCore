@@ -23,7 +23,6 @@ namespace DbNetSuiteCore.Models.DbNetGrid
         public bool MultiRowSelect { get; set; }
         public MultiRowSelectLocation MultiRowSelectLocation { get; set; }
         public bool NestedGrid { get; set; } = false;
-        public bool OptimizeForLargeDataset { get; set; }
         public int? OrderBy { get; set; }
         public OrderByDirection OrderByDirection { get; set; }
         public long PageSize { get; set; } = 20;

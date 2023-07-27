@@ -8,6 +8,7 @@ table.dbnetgrid-table th {
   border: 1px solid #c0c0c0;
   font-family: var(--main-font-family);
   font-size: var(--main-font-size);
+  padding: 2px;
 }
 table.dbnetgrid-table td.sticky,
 table.dbnetgrid-table th.sticky {
@@ -192,11 +193,14 @@ table.dbnetgrid-table td button.download:active {
 }
 
 div.dbnetsuite-toolbar-panel {
-  background-color: whitesmoke;
-  border-radius: 2px;
-  border: 1px solid #ccc;
   display: inline-block;
   width: 100%;
+}
+div.dbnetsuite-toolbar-panel.top {
+  vertical-align: bottom;
+}
+div.dbnetsuite-toolbar-panel.bottom {
+  vertical-align: top;
 }
 
 table.dbnetsuite-toolbar * {
@@ -1054,7 +1058,7 @@ table.lookup-dialog-toolbar td .toolbar-info[name=QuickSearch],
   width: 150px;
   margin: 0px;
   text-align: left;
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='20' width='20' viewBox='0 -960 960 960' fill='SteelBlue'><path d='m15.938 17-4.98-4.979q-.625.458-1.375.719Q8.833 13 8 13q-2.083 0-3.542-1.458Q3 10.083 3 8q0-2.083 1.458-3.542Q5.917 3 8 3q2.083 0 3.542 1.458Q13 5.917 13 8q0 .833-.26 1.583-.261.75-.719 1.375L17 15.938ZM8 11.5q1.458 0 2.479-1.021Q11.5 9.458 11.5 8q0-1.458-1.021-2.479Q9.458 4.5 8 4.5q-1.458 0-2.479 1.021Q4.5 6.542 4.5 8q0 1.458 1.021 2.479Q6.542 11.5 8 11.5Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='20' width='20' viewBox='' fill='steelblue'><path d='m15.938 17-4.98-4.979q-.625.458-1.375.719Q8.833 13 8 13q-2.083 0-3.542-1.458Q3 10.083 3 8q0-2.083 1.458-3.542Q5.917 3 8 3q2.083 0 3.542 1.458Q13 5.917 13 8q0 .833-.26 1.583-.261.75-.719 1.375L17 15.938ZM8 11.5q1.458 0 2.479-1.021Q11.5 9.458 11.5 8q0-1.458-1.021-2.479Q9.458 4.5 8 4.5q-1.458 0-2.479 1.021Q4.5 6.542 4.5 8q0 1.458 1.021 2.479Q6.542 11.5 8 11.5Z'/></svg>");
   background-position: center right;
   background-repeat: no-repeat;
   background-size: 20px 20px;
@@ -1151,7 +1155,11 @@ table.lookup-dialog-toolbar td.no-records span,
   box-sizing: border-box;
 }
 .search-dialog input.highlight {
-  background-color: palegoldenrod;
+  background-color: gold !important;
+}
+.search-dialog input:focus {
+  background-color: #FFE082;
+  outline: none;
 }
 .search-dialog select {
   border: 1px solid silver;
@@ -1162,10 +1170,9 @@ table.lookup-dialog-toolbar td.no-records span,
   margin: 0px;
   box-sizing: border-box;
 }
-.search-dialog :focus {
-  outline-style: solid;
-  outline-color: silver;
-  outline-width: thin;
+.search-dialog select:focus {
+  background-color: #FFE082;
+  outline: none;
 }
 .search-dialog tr.search-row td {
   font-family: var(--main-font-family);

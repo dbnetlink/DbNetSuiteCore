@@ -6,4 +6,5 @@ interface DbNetEditRequest extends DbNetGridEditRequest {
     primaryKey: string;
     layoutColumns: number;
     isEditDialog: boolean;
+    toolbarPosition: ToolbarPosition;
 }

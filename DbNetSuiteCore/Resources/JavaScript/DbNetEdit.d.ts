@@ -12,6 +12,7 @@ declare class DbNetEdit extends DbNetGridEdit {
     currentRow: number;
     delete: boolean;
     editMode: EditMode;
+    editPanel: JQuery<HTMLElement> | undefined;
     formPanel: JQuery<HTMLElement> | undefined;
     insert: boolean;
     layoutColumns: number;
@@ -25,7 +26,7 @@ declare class DbNetEdit extends DbNetGridEdit {
     addLinkedControl(control: DbNetSuite): void;
     getRows(callback?: DbNetEditResponseCallback): void;
     private clearForm;
-    disableForm(disable: boolean, linked?: boolean): void;
+    disableForm(disable: boolean): void;
     private configureEdit;
     private configureForm;
     private updateForm;
@@ -35,7 +36,7 @@ declare class DbNetEdit extends DbNetGridEdit {
     private updateColumns;
     private handleClick;
     configureLinkedControl(control: DbNetSuite, pk: string | null): void;
-    assignForeignKey(control: DbNetSuite, id: object | null, pk?: string | null): void;
+    assignForeignKey(control: DbNetSuite, pk?: string | null): void;
     getRecord(primaryKey?: string | null): void;
     insertRecord(): void;
     private configureToolbarButtons;

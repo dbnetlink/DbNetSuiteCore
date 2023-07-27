@@ -1,21 +1,19 @@
 ﻿class Dialog extends DbNetSuite {
     $dialog: JQuery<HTMLElement> | undefined;
-    width = 600;
-    maxWidth = 800;
+    windowWidth = $(window).width() as number;
+    windowHeight = $(window).height() as number;
 
     constructor(id: string) {
         super(null);
         this.$dialog = $(`#${id}`);
         this.$dialog.addClass("dialog");
-        const windowWidth = $(window).width() as number;
-        const windowHeight = $(window).height() as number;
-
+ 
         const options = {
             autoOpen: false,
             width: "auto",
             autoResize: true,
-            maxWidth: windowWidth - 100,
-            maxHeight: windowHeight - 100
+            maxWidth: this.windowWidth - 100,
+            maxHeight: this.windowHeight - 100
 
         } as JQueryUI.DialogOptions;
 

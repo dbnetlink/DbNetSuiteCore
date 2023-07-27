@@ -1,0 +1,36 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums.DbNetGrid;
+@using DbNetSuiteCore.Enums;
+@using DbNetEditEnums = DbNetSuiteCore.Enums.DbNetEdit;
+@{
+
+    DbNetGridCore ordersGrid = new DbNetGridCore("northwind", "orders")
+    {
+        Columns = new List<string> { "OrderID", "CustomerID", "EmployeeID", "OrderDate", "RequiredDate", "ShippedDate", "ShipVia", "Freight" },
+        Insert = true,
+        QuickSearch = true,
+        Delete = true
+    };
+
+    ordersGrid.SetColumnProperty("CustomerID", ColumnPropertyType.Display, false);
+    ordersGrid.SetColumnProperty("CustomerID", ColumnPropertyType.ForeignKey, true);
+    ordersGrid.SetColumnProperty("EmployeeID", ColumnPropertyType.Lookup, new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname"));
+    ordersGrid.SetColumnProperty("CustomerID", ColumnPropertyType.Lookup, new Lookup("Customers", "CustomerId", "CompanyName")); ;
+    ordersGrid.SetColumnProperty("ShipVia", ColumnPropertyType.Lookup, new Lookup("Suppliers", "SupplierId", "CompanyName"));
+    ordersGrid.SetColumnProperty("Freight", ColumnPropertyType.Format, "c");
+    ordersGrid.SetColumnProperty("EmployeeID", ColumnPropertyType.Label, "Employee");
+
+    DbNetEditCore customersEdit = new DbNetEditCore("northwind", "customers")
+            {
+                Columns = new List<string> { "CustomerID", "CompanyName", "Address", "City" },
+                Insert = true,
+                QuickSearch = true,
+                Delete = true
+            };
+
+    customersEdit.SetColumnProperty("CustomerID", DbNetEditEnums.ColumnPropertyType.Display, false);
+    customersEdit.AddLinkedControl(ordersGrid);
+
+    @customersEdit.Render()
+}

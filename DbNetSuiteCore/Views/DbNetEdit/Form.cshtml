@@ -25,6 +25,11 @@
     int remainder = fields.Count % Model.LayoutColumns;
     int rows = Math.Abs(fields.Count / Model.LayoutColumns) + (remainder == 0 ? 0 : 1);
 }
+@if (Model.ToolbarPosition == Enums.ToolbarPosition.Top)
+{
+    <div class="toolbar-container"></div>
+    <hr class="toolbar" />
+}
 <table class="dbnetedit-form">
     <tbody>
         @for (int r = 0; r < rows; r++)
@@ -52,6 +57,11 @@
         }
     </tbody>
 </table>
+@if (Model.ToolbarPosition != Enums.ToolbarPosition.Top)
+{
+    <hr class="toolbar"/>
+    <div class="toolbar-container"></div>
+}
 <div>
     <div class="message">&nbsp;</div>
 </div>

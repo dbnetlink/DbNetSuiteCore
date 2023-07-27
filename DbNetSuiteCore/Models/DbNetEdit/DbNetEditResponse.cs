@@ -16,7 +16,7 @@ namespace DbNetSuiteCore.Models.DbNetEdit
             set { columns = value; columns.ForEach(c => c.EncodeClientProperties()); }
         }
         public long TotalRows { get; set; }
-        public int CurrentRow { get; set; }
+        public long CurrentRow { get; set; }
         public string PrimaryKey
         {
             get { return primaryKey; }

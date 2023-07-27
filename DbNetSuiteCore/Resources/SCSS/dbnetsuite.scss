@@ -112,6 +112,13 @@ div.dbnetsuite-error {
     }
 }
 
+hr.toolbar {
+    border: none;
+    height: 1px;
+    background-color: gainsboro;
+    margin: 5px 0px;
+}
+
 .message-box {
     [button-type=confirm],
     [button-type=ok] {

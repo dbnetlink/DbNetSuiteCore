@@ -19,7 +19,12 @@ table.dbnetedit-form {
         border-radius: 2px;
 
         &.highlight {
-            background-color: gold;
+            background-color: gold !important;
+        }
+
+        &:focus {
+            background-color: #FFE082;
+            outline: none;
         }
     }
 
@@ -59,7 +64,7 @@ table.dbnetedit-form {
         background-color:whitesmoke;
 
         &.highlight {
-            background-color: #FFD54F;
+            background-color: $focus-color;
         }
     }
 }

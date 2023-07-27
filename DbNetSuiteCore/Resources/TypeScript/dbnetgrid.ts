@@ -56,7 +56,6 @@ class DbNetGrid extends DbNetGridEdit {
     multiRowSelect = false;
     multiRowSelectLocation: MultiRowSelectLocation = MultiRowSelectLocation.Left;
     nestedGrid = false;
-    optimizeForLargeDataset = false;
     orderBy = "";
     orderByDirection = "asc";
     pageSize = 20;

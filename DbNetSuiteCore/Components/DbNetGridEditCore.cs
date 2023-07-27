@@ -32,6 +32,10 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public List<string> Labels { get; set; } = new List<string>();
         /// <summary>
+        /// Optimizes the performance for large datasets
+        /// </summary>
+        public bool? OptimizeForLargeDataset { get; set; } = null;
+        /// <summary>
         /// Displays a search box in the toolbar that allows for searching against all the text based columns
         /// </summary>
         public bool? QuickSearch { get; set; } = null;
@@ -155,6 +159,7 @@ namespace DbNetSuiteCore.Components
             AddProperty(Navigation, nameof(Navigation), properties);
             AddProperty(Insert, nameof(Insert), properties);
             AddProperty(Delete, "_delete", properties);
+            AddProperty(OptimizeForLargeDataset, nameof(OptimizeForLargeDataset), properties);
             AddProperty(ParentControlType, nameof(ParentControlType), properties);
             AddProperty(ParentChildRelationship, nameof(ParentChildRelationship), properties);
         }

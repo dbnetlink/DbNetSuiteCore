@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using DbNetSuiteCore.Enums;
+using System.Collections.Generic;
 
 namespace DbNetSuiteCore.Models.DbNetEdit
 {
@@ -6,11 +7,11 @@ namespace DbNetSuiteCore.Models.DbNetEdit
     {
         public Dictionary<string,object> Changes { get; set; } = new Dictionary<string, object>();
         public List<EditColumn> Columns { get; set; } = new List<EditColumn>();
-        public int CurrentRow { get; set; } = 1;
+        public long CurrentRow { get; set; } = 1;
         public int LayoutColumns { get; set; } = 1;
         public string PrimaryKey { get; set; }
-        public int TotalRows { get; set; }
+        public long TotalRows { get; set; }
         public bool IsEditDialog { get; set; } = false;
-
+        public ToolbarPosition ToolbarPosition { get; set; } = ToolbarPosition.Bottom;
     }
 }

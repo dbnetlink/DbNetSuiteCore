@@ -66,7 +66,6 @@ namespace DbNetSuiteCore.Services
         public bool MultiRowSelect { get; set; } = false;
         public MultiRowSelectLocation MultiRowSelectLocation { get; set; } = MultiRowSelectLocation.Left;
         public bool NestedGrid { get; set; } = false;
-        public bool OptimizeForLargeDataset { get; set; } = false;
         public int? OrderBy { get; set; } = null;
         public OrderByDirection OrderByDirection { get; set; } = OrderByDirection.asc;
         public long PageSize
@@ -388,6 +387,8 @@ namespace DbNetSuiteCore.Services
 
             if (fkColumn != null)
             {
+                ForeignKeyFilter(parameters);
+                /*
                 if (fkColumn.ForeignKeyValue.ToString() != nameof(System.DBNull))
                 {
                     if (fkColumn.ForeignKeyValue is List<object>)
@@ -403,19 +404,20 @@ namespace DbNetSuiteCore.Services
                         parameters.Add(ParamName(fkColumn, true), ConvertToDbParam(fkColumn.ForeignKeyValue, fkColumn));
                     }
                 }
+                */
             }
 
             if (FixedFilterParams.Keys.Any())
             {
                 foreach (string paramName in FixedFilterParams.Keys)
                 {
-                    parameters.Add(ParamName(paramName), ConvertToDbParam(FixedFilterParams[paramName]));
+                    parameters.Add(ParamName(paramName), ConvertToDbParam(FixedFilterParams[paramName], null));
                 }
             }
 
             if (String.IsNullOrEmpty(QuickSearchToken) == false)
             {
-                parameters.Add(ParamName(ParamNames.QuickSearchToken, true), ConvertToDbParam($"%{QuickSearchToken}%"));
+                parameters.Add(ParamName(ParamNames.QuickSearchToken, true), ConvertToDbParam($"%{QuickSearchToken}%", null));
             }
 
             if (ColumnFilters.Keys.Any())
@@ -426,7 +428,7 @@ namespace DbNetSuiteCore.Services
                     var columnFilter = ParseFilterColumnValue(ColumnFilters[columnName], gridColumn);
                     if (columnFilter != null)
                     {
-                        parameters.Add(ParamName(gridColumn, ParamNames.ColumnFilter, true), ConvertToDbParam(columnFilter.Value.Value));
+                        parameters.Add(ParamName(gridColumn, ParamNames.ColumnFilter, true), ConvertToDbParam(columnFilter.Value.Value, gridColumn));
                     }
                 }
             }
@@ -446,7 +448,9 @@ namespace DbNetSuiteCore.Services
        protected QueryCommandConfig BuildSql(QueryBuildModes buildMode)
         {
             if (ProcedureName != "")
+            {
                 return ProcedureCommandConfig();
+            }
 
             return BuildSql(BuildSelectPart<GridColumn>(buildMode, Columns, GroupBy), BuildFilterPart(), BuildOrderPart(buildMode), BuildGroupByPart(buildMode), buildMode);
         }
@@ -909,7 +913,7 @@ namespace DbNetSuiteCore.Services
                     break;
             }
 
-            DataTable dataTable = InitialiseDataTable(Columns);
+            DataTable dataTable = InitialiseDataTable();
 
             TotalRows = -1;
             using (Database)
@@ -994,7 +998,7 @@ namespace DbNetSuiteCore.Services
         {
             ConfigureGridColumns();
 
-            DataTable dataTable = InitialiseDataTable(Columns);
+            DataTable dataTable = InitialiseDataTable();
 
             using (Database)
             {

@@ -71,10 +71,6 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public DbNetGridCore NestedGrid { get; set; } = null;
         /// <summary>
-        /// Optimizes the grid performance when used against very large datasets
-        /// </summary>
-        public bool? OptimizeForLargeDataset { get; set; } = null;
-        /// <summary>
         /// Number of rows displayed per page
         /// </summary>
         public int? PageSize { get; set; } = null;
@@ -248,7 +244,6 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             AddProperty(MultiRowSelect, nameof(MultiRowSelect), properties);
             AddProperty(BooleanDisplayMode, nameof(BooleanDisplayMode), properties);
             AddProperty(View, nameof(View), properties);
-            AddProperty(OptimizeForLargeDataset, nameof(OptimizeForLargeDataset), properties);
             AddProperty(AutoRowSelect, nameof(AutoRowSelect), properties);
             AddProperty(MultiRowSelectLocation, nameof(MultiRowSelectLocation), properties);
             AddProperty(GroupBy, nameof(GroupBy), properties);

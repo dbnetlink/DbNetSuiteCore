@@ -14,5 +14,6 @@ namespace DbNetSuiteCore.ViewModels.DbNetEdit
         public bool Browse { get; set; }
         public ComponentType? ParentControlType { get; set; }
         public ParentChildRelationship? ParentChildRelationship { get; set; }
+        public ToolbarPosition ToolbarPosition { get; set; } = ToolbarPosition.Bottom;
     }
 }

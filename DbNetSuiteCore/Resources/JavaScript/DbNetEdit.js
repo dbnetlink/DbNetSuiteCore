@@ -22,13 +22,7 @@ class DbNetEdit extends DbNetGridEdit {
             return;
         }
         this.element.empty();
-        if (this.toolbarPosition == "Top") {
-            this.toolbarPanel = this.addPanel("toolbar");
-        }
-        this.formPanel = this.addPanel("form");
-        if (this.toolbarPosition == "Bottom") {
-            this.toolbarPanel = this.addPanel("toolbar");
-        }
+        this.editPanel = this.addPanel("form");
         this.addLoadingPanel();
         if (primaryKey) {
             this.primaryKey = primaryKey;
@@ -65,7 +59,7 @@ class DbNetEdit extends DbNetGridEdit {
             }
         });
     }
-    disableForm(disable, linked = false) {
+    disableForm(disable) {
         var _a, _b;
         if (!this.initialised) {
             return;
@@ -73,24 +67,25 @@ class DbNetEdit extends DbNetGridEdit {
         this.clearForm();
         this.formElements().not("[primarykey='true']").not("[datatype='Guid']").prop("disabled", disable);
         (_a = this.toolbarPanel) === null || _a === void 0 ? void 0 : _a.find("button").prop("disabled", disable);
-        (_b = this.toolbarPanel) === null || _b === void 0 ? void 0 : _b.find("input").val("");
-        this.disable("SearchBtn", linked);
-        this.disable("InsertBtn", linked);
+        (_b = this.toolbarPanel) === null || _b === void 0 ? void 0 : _b.find("input.navigation").val("");
+        this.disable("SearchBtn", this.parentControlType != '');
+        this.disable("InsertBtn", this.parentControlType != '');
         if (disable) {
             this.configureLinkedControls(null, DbNetSuite.DBNull);
         }
     }
     configureEdit(response) {
-        var _a, _b;
-        if (this.toolbarPanel) {
-            if (response.toolbar) {
-                (_a = this.toolbarPanel) === null || _a === void 0 ? void 0 : _a.html(response.toolbar);
-            }
-            this.configureToolbar(response);
-        }
+        var _a, _b, _c;
         if (response.form) {
-            (_b = this.formPanel) === null || _b === void 0 ? void 0 : _b.html(response.form);
+            (_a = this.editPanel) === null || _a === void 0 ? void 0 : _a.html(response.form);
+            this.formPanel = this.editPanel.find("table.dbnetedit-form");
             this.configureForm();
+            const toolbarContainer = (_b = this.editPanel) === null || _b === void 0 ? void 0 : _b.find(".toolbar-container");
+            this.toolbarPanel = this.addPanel("toolbar", toolbarContainer);
+        }
+        if (response.toolbar) {
+            (_c = this.toolbarPanel) === null || _c === void 0 ? void 0 : _c.html(response.toolbar);
+            this.configureToolbar(response);
         }
         this.updateForm(response);
     }
@@ -112,8 +107,7 @@ class DbNetEdit extends DbNetGridEdit {
     updateForm(response) {
         var _a, _b;
         if (response.totalRows == 0) {
-            this.disableForm(true, true);
-            //            this.configureLinkedControls(null, DbNetSuite.DBNull);
+            this.disableForm(true);
             return;
         }
         (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(':input').not("[primarykey='true']").not("[datatype='Guid']").prop("disabled", false);
@@ -181,7 +175,9 @@ class DbNetEdit extends DbNetGridEdit {
             insert: this.insert,
             delete: this._delete,
             parentControlType: this.parentControlType,
-            parentChildRelationship: this.parentChildRelationship
+            optimizeForLargeDataset: this.optimizeForLargeDataset,
+            parentChildRelationship: this.parentChildRelationship,
+            toolbarPosition: this.toolbarPosition
         };
         return request;
     }
@@ -306,25 +302,34 @@ class DbNetEdit extends DbNetGridEdit {
         if (control instanceof DbNetEdit) {
             const edit = control;
             if (pk == DbNetSuite.DBNull) {
-                edit.disableForm(true, true);
+                edit.disableForm(true);
                 return;
             }
             if (edit.parentChildRelationship == "OneToMany") {
-                this.assignForeignKey(control, null, pk);
+                this.assignForeignKey(control, pk);
                 pk = null;
             }
-            if (edit.initialised) {
-                edit.getRows();
-            }
-            else {
-                edit.initialize(pk);
-            }
+            edit.initialised ? edit.getRows() : edit.initialize(pk);
+        }
+        if (control instanceof DbNetGrid) {
+            const grid = control;
+            this.assignForeignKey(grid, pk);
+            grid.currentPage = 1;
+            grid.initialised ? grid.getPage() : grid.initialize();
         }
     }
-    assignForeignKey(control, id, pk = null) {
+    assignForeignKey(control, pk = null) {
         if (control instanceof DbNetEdit) {
             const edit = control;
             const col = edit.columns.find((c) => { return c.foreignKey == true; });
+            if (col == undefined) {
+                return;
+            }
+            col.foreignKeyValue = pk ? pk : DbNetSuite.DBNull;
+        }
+        if (control instanceof DbNetGrid) {
+            const grid = control;
+            const col = grid.columns.find((c) => { return c.foreignKey == true; });
             if (col == undefined) {
                 return;
             }
