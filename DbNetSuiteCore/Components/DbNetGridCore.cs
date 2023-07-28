@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Html;
 using DbNetSuiteCore.Enums.DbNetGrid;
 using DocumentFormat.OpenXml.Math;
 using System.Linq;
+using DbNetSuiteCore.Models;
 
 namespace DbNetSuiteCore.Components
 {
@@ -81,7 +82,7 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// The parameters passed to the stored procedure
         /// </summary>
-        public Dictionary<string, object> ProcedureParams { get; set; } =  new Dictionary<string, object>();
+        public Dictionary<string, object> ProcedureParams { get; set; } = new Dictionary<string, object>();
         /// <summary>
         /// Highlights the selected row (default is true)
         /// </summary>
@@ -113,7 +114,7 @@ namespace DbNetSuiteCore.Components
 
         internal DbNetGridCore(string connection, string fromPart, bool browseControl) : base(connection, fromPart)
         {
-
+            IsBrowseDialog = browseControl;
         }
 
         /// <summary>
@@ -143,16 +144,7 @@ namespace DbNetSuiteCore.Components
         public HtmlString Render()
         {
             string message = ValidateProperties();
-            if (Edit == false || this._linkedControls.Any(control => control is DbNetEditCore))
-            {
-                this._editDialogId = string.Empty;
-                this.Update = false;
-                EditControl = null;
-            }
-            else
-            {
-                AddLinkedControl(EditControl);
-            }
+            AddEditDialogControl();
 
             if (string.IsNullOrEmpty(message) == false)
             {
@@ -210,6 +202,7 @@ function configure{_id}(grid)
 
         internal string LinkedRender()
         {
+            AddEditDialogControl();
             var script = @$" 
 {ConfigureLinkedControls()}
 var {_id} = new DbNetGrid('{_id}');
@@ -236,6 +229,26 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             return script;
         }
 
+        private void AddEditDialogControl()
+        {
+            if (Edit == false || this._linkedControls.Any(control => control is DbNetEditCore))
+            {
+                this._editDialogId = string.Empty;
+                this.Update = false;
+                this.Insert = false;
+                EditControl = null;
+            }
+            else
+            {
+                if (EditControl.Columns.Any() == false)
+                {
+                    EditControl.Columns = new List<string>(this.Columns.ToArray());
+                    EditControl.Labels = new List<string>(this.Labels.ToArray());
+                    EditControl._columnProperties = new List<ColumnProperty>(this._columnProperties);
+                }
+                AddLinkedControl(EditControl);
+            }
+        }
         private string Properties()
         {
             List<string> properties = new List<string>();
@@ -257,7 +270,7 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             AddProperty(_editDialogId, "EditDialogId", properties);
             AddProperty(ViewLayoutColumns, nameof(ViewLayoutColumns), properties);
             AddProperty(IsBrowseDialog, nameof(IsBrowseDialog), properties);
-          
+
             AddProperties(properties);
 
             if (FixedFilterParams.Count > 0)

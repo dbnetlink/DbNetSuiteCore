@@ -22,6 +22,7 @@ namespace DbNetSuiteCore.Models.DbNetEdit
             get { return primaryKey; }
             set { primaryKey = EncodingHelper.Encode(value); }
         }
+
         public KeyValuePair<string, string>? ValidationMessage { get; set; } = null;
     }
 }

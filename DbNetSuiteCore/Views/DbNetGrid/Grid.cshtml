@@ -14,6 +14,7 @@
 @{
     int rowIdx = 0;
     int primaryKeyIndex = @PrimaryKeyIndex(Model.Columns);
+    int foreignKeyIndex = @ForeignKeyIndex(Model.Columns);
 }
 
 <table class="dbnetgrid-table">
@@ -78,7 +79,7 @@
                 }
             }
 
-            <tr class="data-row @(rowIdx % 2 == 0 ? "even" : "odd")" @(DataAttributes(row, primaryKeyIndex))>
+            <tr class="data-row @(rowIdx % 2 == 0 ? "even" : "odd")" @(DataAttributes(row, primaryKeyIndex, foreignKeyIndex))>
                 @if (Model.MultiRowSelectLocation == MultiRowSelectLocation.Left)
                 {
                     @MultiRowSelectCell(false)
@@ -109,7 +110,7 @@
 </table>
 @functions
 {
-    public string DataAttributes(DataRow row, int primaryKeyIndex)
+    public string DataAttributes(DataRow row, int primaryKeyIndex, int foreignKeyIndex)
     {
         List<string> dataAttributes = new List<string>();
 
@@ -117,6 +118,11 @@
         {
             dataAttributes.Add($"data-id={row.ItemArray[primaryKeyIndex]}");
             dataAttributes.Add($"data-pk={EncodingHelper.Encode((Model.Component as Services.DbNetGrid).SerialisePrimaryKey(row))}");
+        }
+
+        if (foreignKeyIndex > -1)
+        {
+            dataAttributes.Add($"data-fk={row.ItemArray[foreignKeyIndex]}");
         }
 
         foreach (var column in Model.Columns.Where(c => c.DataOnly))
@@ -209,7 +215,12 @@
 
     public static int PrimaryKeyIndex(List<GridColumn> gridColumns)
     {
-        return gridColumns.Any(c => c.PrimaryKey) ? gridColumns.FirstOrDefault(c => c.PrimaryKey).Index : -1;
+        return gridColumns.FirstOrDefault(c => c.PrimaryKey)?.Index ?? -1;
+    }
+
+    public static int ForeignKeyIndex(List<GridColumn> gridColumns)
+    {
+        return gridColumns.FirstOrDefault(c => c.ForeignKey)?.Index ?? -1;
     }
 
     public HtmlString MultiRowSelectCell(bool header)

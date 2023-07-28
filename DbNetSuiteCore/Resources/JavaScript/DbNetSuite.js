@@ -155,9 +155,9 @@ class DbNetSuite {
         el.val(value.toString());
         el.width(`${value.toString().length}em`);
     }
-    configureLinkedControls(id, pk = null) {
+    configureLinkedControls(id, pk = null, fk = null) {
         this.linkedControls.forEach((control) => {
-            this._configureLinkedControl(control, id, pk);
+            this._configureLinkedControl(control, id, pk, fk);
         });
     }
     info(text, element) {
@@ -209,9 +209,9 @@ class DbNetSuite {
         options.change = this.pickerSelected;
         $input.timepicker(options);
     }
-    _configureLinkedControl(control, id, pk) {
+    _configureLinkedControl(control, id, pk, fk) {
         if (this instanceof DbNetGrid) {
-            this.configureLinkedControl(control, id, pk);
+            this.configureLinkedControl(control, id, pk, fk);
         }
         if (this instanceof DbNetCombo) {
             this.configureLinkedControl(control, id, pk);

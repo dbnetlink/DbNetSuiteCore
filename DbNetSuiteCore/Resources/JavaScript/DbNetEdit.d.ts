@@ -36,9 +36,9 @@ declare class DbNetEdit extends DbNetGridEdit {
     private updateColumns;
     private handleClick;
     configureLinkedControl(control: DbNetSuite, pk: string | null): void;
-    assignForeignKey(control: DbNetSuite, pk?: string | null): void;
     getRecord(primaryKey?: string | null): void;
     insertRecord(): void;
+    updateForeignKeyValue(fk: object | string): void;
     private configureToolbarButtons;
     private formElements;
     deleteRecord(): void;

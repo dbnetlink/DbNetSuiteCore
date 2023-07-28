@@ -150,4 +150,24 @@ class DbNetGridEdit extends DbNetSuite {
         return match;
     }
 
+    public assignForeignKey(control: DbNetSuite, fk: string | object | null) {
+        if (control instanceof DbNetGridEdit) {
+            const gridEdit = control as DbNetGridEdit;
+            const col = gridEdit.columns.find((col) => { return col.foreignKey == true });
+
+            if (col == undefined) {
+                return;
+            }
+
+            if (control instanceof DbNetEdit) {
+                const edit = control as DbNetEdit;
+                if (edit.initialised) {
+                    edit.updateForeignKeyValue(fk as object);
+                }
+            }
+
+            col.foreignKeyValue = fk ? fk : DbNetSuite.DBNull;
+        }
+    }
+
 }

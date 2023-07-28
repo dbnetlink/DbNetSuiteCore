@@ -79,12 +79,13 @@ class DbNetEdit extends DbNetGridEdit {
             return;
         }
         this.clearForm();
-        this.formElements().not("[primarykey='true']").not("[datatype='Guid']").prop("disabled", disable);
+        this.formElements().not("[primarykey='true']").not("[foreignkey='true']").not("[datatype='Guid']").prop("disabled", disable);
         this.toolbarPanel?.find("button").prop("disabled", disable);
         this.toolbarPanel?.find("input.navigation").val("");
 
         this.disable("SearchBtn", this.parentControlType != '');
         this.disable("InsertBtn", this.parentControlType != '');
+        this.disable("QuickSearch", this.parentControlType != '');
 
         if (disable) {
             this.configureLinkedControls(null, DbNetSuite.DBNull);
@@ -94,7 +95,7 @@ class DbNetEdit extends DbNetGridEdit {
     private configureEdit(response: DbNetEditResponse) {
         if (response.form) {
             this.editPanel?.html(response.form);
-            this.formPanel = this.editPanel.find("table.dbnetedit-form")
+            this.formPanel = this.editPanel?.find("table.dbnetedit-form")
             this.configureForm();
             const toolbarContainer = this.editPanel?.find(".toolbar-container");
             this.toolbarPanel = this.addPanel("toolbar", toolbarContainer);
@@ -128,7 +129,7 @@ class DbNetEdit extends DbNetGridEdit {
             this.disableForm(true);
             return;
         }
-        this.formPanel?.find(':input').not("[primarykey='true']").not("[datatype='Guid']").prop("disabled", false);
+        this.formPanel?.find(':input').not("[primarykey='true']").not("[foreignkey='true']").not("[datatype='Guid']").prop("disabled", false);
         const record = response.record;
         for (const columnName in record) {
             const $input = this.formPanel?.find(`:input[name='${columnName}']`) as JQuery<HTMLFormElement>;
@@ -141,7 +142,7 @@ class DbNetEdit extends DbNetGridEdit {
                 $input.val(value.toString()).data("value", value.toString());
             }
 
-            if ($input.attr("primarykey") || $input.attr("datatype") == "Guid") {
+            if ($input.attr("primarykey") || $input.attr("foreignkey") ||$input.attr("datatype") == "Guid") {
                 $input.prop("disabled", true);
             }
         }
@@ -247,6 +248,9 @@ class DbNetEdit extends DbNetGridEdit {
         this.currentRow = response.currentRow;
         this.totalRows = response.totalRows;
 
+        this.disable("SearchBtn", false);
+        this.disable("InsertBtn", false);
+        this.disable("QuickSearch", false);
         this.disable("FirstBtn", response.currentRow == 1);
         this.disable("PreviousBtn", response.currentRow == 1);
         this.disable("NextBtn", response.currentRow == response.totalRows);
@@ -283,21 +287,6 @@ class DbNetEdit extends DbNetGridEdit {
 
     private handleClick(event: JQuery.TriggeredEvent): void {
         const id = (event.target as Element).id;
-        /*
-        switch (id) {
-            case this.controlElementId("FirstBtn"):
-            case this.controlElementId("NextBtn"):
-            case this.controlElementId("PreviousBtn"):
-            case this.controlElementId("LastBtn"):
-                if (this.hasUnappliedChanges()) {
-                    this.messageBox("There are unapplied changes. Discard ?");
-    
-                }                    
-                break;
-            default:
-                break;
-        }
-        */
 
         switch (id) {
             case this.controlElementId("FirstBtn"):
@@ -363,12 +352,18 @@ class DbNetEdit extends DbNetGridEdit {
         }
     }
 
+    /*
     public assignForeignKey(control: DbNetSuite, pk: string | null = null) {
         if (control instanceof DbNetEdit) {
             const edit = control as DbNetEdit;
             const col = edit.columns.find((c) => { return c.foreignKey == true });
 
             if (col == undefined) {
+                return;
+            }
+
+            if (edit.initialised) {
+                edit.updateForeignKeyValue(pk as string);
                 return;
             }
 
@@ -385,6 +380,7 @@ class DbNetEdit extends DbNetGridEdit {
             col.foreignKeyValue = pk ? pk : DbNetSuite.DBNull;
         }
     }
+    */
 
     public getRecord(primaryKey: string | null = null) {
         if (primaryKey) {
@@ -406,9 +402,16 @@ class DbNetEdit extends DbNetGridEdit {
                         $input.prop("disabled", true);
                     }
                 }
+                if ($input.attr("foreignkey")) {
+                    $input.prop("disabled", true);
+                }
                 if ($input.attr("datatype") == "Guid" && $input.attr("required")) {
                     $input.prop("disabled", true);
                     $input.val(self.uuid());
+                }
+
+                if ($input.attr("initialvalue")) {
+                    $input.val($input.attr("initialvalue") as string);
                 }
             });
 
@@ -418,6 +421,10 @@ class DbNetEdit extends DbNetGridEdit {
         this.configureToolbarButtons(true);
         this.configureLinkedControls(null, DbNetSuite.DBNull);
         this.fireEvent("onInsertInitalize", { formElements: this.formElements() });
+    }
+
+    updateForeignKeyValue(fk: object|string) {
+        this.formElements().filter("[foreignkey='true']").attr("initialvalue", fk?.toString())
     }
 
     private configureToolbarButtons(insert: boolean) {
@@ -592,16 +599,16 @@ class DbNetEdit extends DbNetGridEdit {
     }
 
     private message(msg: string): void {
-        this.formPanel?.find(".message").html(msg).addClass("highlight");
+        this.editPanel?.find(".message").html(msg).addClass("highlight");
         setTimeout(() => this.clearMessage(), 3000);
     }
 
     private clearMessage(): void {
-        this.formPanel?.find(".message").html("&nbsp;").removeClass("highlight");
+        this.editPanel?.find(".message").html("&nbsp;").removeClass("highlight");
     }
 
     private highlightField(columnName: string): void {
-        this.formPanel?.find(`[name='${columnName}']`).addClass("highlight");
+        this.formElements().filter(`[name='${columnName}']`).addClass("highlight");
         setTimeout(() => this.clearHighlightedFields(), 3000);
     }
 

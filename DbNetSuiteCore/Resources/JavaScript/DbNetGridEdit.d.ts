@@ -36,4 +36,5 @@ declare class DbNetGridEdit extends DbNetSuite {
     lookup($input: JQuery<HTMLInputElement>, request: DbNetGridEditRequest): void;
     private newColumn;
     private matchingColumn;
+    assignForeignKey(control: DbNetSuite, fk: string | object | null): void;
 }

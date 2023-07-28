@@ -397,7 +397,7 @@ class DbNetGrid extends DbNetGridEdit {
         if (this.rowSelect) {
             this.selectRow(tr);
         }
-        this.configureLinkedControls(tr.data("id"), tr.data("pk"));
+        this.configureLinkedControls(tr.data("id"), tr.data("pk"), tr.data("fk"));
         if (this.viewDialog && this.viewDialog.isOpen()) {
             this.getViewContent();
         }
@@ -807,7 +807,7 @@ class DbNetGrid extends DbNetGridEdit {
         this.assignForeignKey(grid, pk);
         grid.initialize();
     }
-    configureLinkedControl(control, id, pk) {
+    configureLinkedControl(control, id, pk, fk) {
         var _a;
         if (control instanceof DbNetGrid) {
             const grid = control;
@@ -818,10 +818,10 @@ class DbNetGrid extends DbNetGridEdit {
         if (control instanceof DbNetEdit) {
             const edit = control;
             edit.currentRow = 1;
-            if (edit.parentChildRelationship)
-                if (this.editControl == undefined) {
-                    this.editControl = edit;
-                }
+            this.assignForeignKey(edit, fk);
+            if (this.editControl == undefined) {
+                this.editControl = edit;
+            }
             if (id == null) {
                 edit.disableForm(true);
                 if (this.editDialog) {
@@ -830,7 +830,7 @@ class DbNetGrid extends DbNetGridEdit {
                 return;
             }
             if (edit.initialised) {
-                edit.disableForm(false);
+                //edit.disableForm(false);
                 if (((_a = this.editDialog) === null || _a === void 0 ? void 0 : _a.isOpen()) === false) {
                     return;
                 }
@@ -863,16 +863,5 @@ class DbNetGrid extends DbNetGridEdit {
     }
     previousRecord() {
         $(this.selectedRow()).prev().trigger("click");
-    }
-    assignForeignKey(control, id, pk = null) {
-        if (control instanceof DbNetGrid) {
-            const grid = control;
-            const col = grid.columns.find((col) => { return col.foreignKey == true; });
-            if (col == undefined) {
-                alert('No foreign key defined for child grid');
-                return;
-            }
-            col.foreignKeyValue = id ? id : DbNetSuite.DBNull;
-        }
     }
 }

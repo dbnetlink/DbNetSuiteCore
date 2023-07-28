@@ -672,11 +672,9 @@ namespace DbNetSuiteCore.Services
 
             if (SearchParams.Any())
             {
-                object convertedValue = new object();
-
                 foreach (SearchParameter searchParameter in SearchParams)
                 {
-                    DbColumn gridColumn = columns[searchParameter.ColumnIndex] as DbColumn;
+                    DbColumn dbColumn = columns[searchParameter.ColumnIndex] as DbColumn;
 
                     string expression = searchParameter.SearchOperator.GetAttribute<FilterExpressionAttribute>()?.Expression ?? "{0}";
 
@@ -686,7 +684,7 @@ namespace DbNetSuiteCore.Services
                         case SearchOperator.NotIn:
                             foreach (string value in searchParameter.Value1.Split(','))
                             {
-                                searchParameter.Value1Valid = ConvertUserValue(gridColumn.DataType, value, ref convertedValue);
+                                searchParameter.Value1Valid = ValidateUserValue(dbColumn, value);
                                 if (searchParameter.Value1Valid == false)
                                 {
                                     break;
@@ -696,11 +694,11 @@ namespace DbNetSuiteCore.Services
                         default:
                             if (expression.Contains("{0}"))
                             {
-                                searchParameter.Value1Valid = ConvertUserValue(gridColumn.DataType, searchParameter.Value1, ref convertedValue);
+                                searchParameter.Value1Valid = ValidateUserValue(dbColumn, searchParameter.Value1);
                             }
                             if (expression.Contains("{1}"))
                             {
-                                searchParameter.Value2Valid = ConvertUserValue(gridColumn.DataType, searchParameter.Value2, ref convertedValue);
+                                searchParameter.Value2Valid = ValidateUserValue(dbColumn, searchParameter.Value2);
                             }
                             break;
                     }
@@ -719,45 +717,14 @@ namespace DbNetSuiteCore.Services
             return true;
         }
 
-        protected bool ConvertUserValue(string dataType, string value, ref object convertedValue)
+        protected bool ValidateUserValue(DbColumn dbColumn, string value)
         {
             if (string.IsNullOrEmpty(value))
             {
                 return true;
             }
 
-            try
-            {
-                switch (dataType)
-                {
-                    case nameof(Double):
-                        convertedValue = Convert.ToDouble(value);
-                        break;
-                    case nameof(Decimal):
-                        convertedValue = Convert.ToDecimal(value);
-                        break;
-                    case nameof(Int16):
-                    case nameof(Int32):
-                    case nameof(Int64):
-                        convertedValue = Convert.ToInt64(value);
-                        break;
-                    case nameof(DateTime):
-                        convertedValue = Convert.ToDateTime(value);
-                        break;
-                    case nameof(Boolean):
-                        convertedValue = Convert.ToBoolean(value);
-                        break;
-                    default:
-                        convertedValue = value.ToString();
-                        break;
-                }
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-            return true;
+            return ConvertToDbParam(value, dbColumn) == null ? false : true;
         }
 
         protected DataTable InitialiseDataTable()
@@ -954,6 +921,11 @@ namespace DbNetSuiteCore.Services
         }
         protected object ConvertToDbParam(object value, DbColumn column)
         {
+            if (column == null)
+            {
+                column = new DbColumn();
+            };
+
             string dataType = column?.DataType ?? string.Empty;
             if (value == null)
             {
@@ -1020,6 +992,11 @@ namespace DbNetSuiteCore.Services
                     case nameof(Decimal):
                     case nameof(Single):
                     case nameof(Double):
+                        if (string.IsNullOrEmpty(column.Format) == false)
+                        {
+                            var cultureInfo = Thread.CurrentThread.CurrentCulture;
+                            value = value.ToString().Replace(cultureInfo.NumberFormat.CurrencySymbol, "");
+                        }
                         paramValue = Convert.ChangeType(value, GetColumnType(dataType));
                         break;
                     case nameof(UInt16):
@@ -1035,7 +1012,7 @@ namespace DbNetSuiteCore.Services
             catch (Exception e)
             {
                 ThrowException(e.Message, "ConvertToDbParam: Value: " + value.ToString() + " DataType:" + dataType);
-                return DBNull.Value;
+                return null;
             }
 
             switch (dataType)
@@ -1109,12 +1086,14 @@ namespace DbNetSuiteCore.Services
             }
             else
             {
+                /*
                 if (ParentControlType == ComponentType.DbNetEdit)
                 {
-                    var fk = EncodingHelper.Decode(foreignKeyValue.ToString());
+                    var fk = GetForeignKeyValue(foreignKeyValue);
                     var dictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(fk);
                     foreignKeyValue = dictionary.Values.FirstOrDefault();
                 }
+                */
                 if (foreignKeyValue is List<object>)
                 {
                     List<string> paramNames = new List<string>();
@@ -1143,6 +1122,13 @@ namespace DbNetSuiteCore.Services
             }
 
             return filter;
+        }
+
+        protected object GetForeignKeyValue(object foreignKeyValue)
+        {
+            var fk = EncodingHelper.Decode(foreignKeyValue.ToString());
+            var dictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(fk);
+            return dictionary.Values.FirstOrDefault();
         }
 
         protected string PrimaryKeyFilter(ListDictionary parameters)

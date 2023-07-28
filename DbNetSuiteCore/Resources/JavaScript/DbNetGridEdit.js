@@ -128,4 +128,20 @@ class DbNetGridEdit extends DbNetSuite {
         }
         return match;
     }
+    assignForeignKey(control, fk) {
+        if (control instanceof DbNetGridEdit) {
+            const gridEdit = control;
+            const col = gridEdit.columns.find((col) => { return col.foreignKey == true; });
+            if (col == undefined) {
+                return;
+            }
+            if (control instanceof DbNetEdit) {
+                const edit = control;
+                if (edit.initialised) {
+                    edit.updateForeignKeyValue(fk);
+                }
+            }
+            col.foreignKeyValue = fk ? fk : DbNetSuite.DBNull;
+        }
+    }
 }

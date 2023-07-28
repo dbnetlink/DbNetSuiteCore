@@ -209,9 +209,9 @@ class DbNetSuite {
         el.width(`${value.toString().length}em`);
     }
 
-    protected configureLinkedControls(id: object | null, pk:string | null = null) {
+    protected configureLinkedControls(id: object | null, pk:string | null = null, fk:string | null = null) {
         this.linkedControls.forEach((control) => {
-            this._configureLinkedControl(control, id, pk);
+            this._configureLinkedControl(control, id, pk, fk);
         });
     }
 
@@ -273,9 +273,9 @@ class DbNetSuite {
         $input.timepicker(options);
     }
 
-    private _configureLinkedControl(control: DbNetSuite, id: object | null, pk: string | null) {
+    private _configureLinkedControl(control: DbNetSuite, id: object | null, pk: string | null, fk: object | null) {
         if (this instanceof DbNetGrid) {
-            (this as DbNetGrid).configureLinkedControl(control, id, pk);
+            (this as DbNetGrid).configureLinkedControl(control, id, pk, fk as object);
         }
         if (this instanceof DbNetCombo) {
             (this as DbNetCombo).configureLinkedControl(control, id as string[], pk);

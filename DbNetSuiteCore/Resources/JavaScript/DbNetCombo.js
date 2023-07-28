@@ -109,6 +109,7 @@ class DbNetCombo extends DbNetSuite {
         }
         if (control instanceof DbNetEdit) {
             const edit = control;
+            edit.assignForeignKey(edit, fk);
             edit.currentRow = 1;
             edit.initialised ? edit.getRecord(pk) : edit.initialize(pk);
         }

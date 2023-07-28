@@ -24,11 +24,11 @@
                 Delete = true
             };
 
-    ordersEdit.SetColumnProperty("CustomerID", ColumnPropertyType.Display, false);
+ //   ordersEdit.SetColumnProperty("CustomerID", ColumnPropertyType.Display, false);
     ordersEdit.SetColumnProperty("CustomerID", ColumnPropertyType.ForeignKey, true);
     ordersEdit.SetColumnProperty("EmployeeID", ColumnPropertyType.Lookup, new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname"));
-    ordersEdit.SetColumnProperty("CustomerID", ColumnPropertyType.Lookup, new Lookup("Customers", "CustomerId", "CompanyName")); ;
-    ordersEdit.SetColumnProperty("ShipVia", ColumnPropertyType.Lookup, new Lookup("Suppliers", "SupplierId", "CompanyName"));
+ //   ordersEdit.SetColumnProperty("CustomerID", ColumnPropertyType.Lookup, new Lookup("Customers", "CustomerId", "CompanyName")); ;
+    ordersEdit.SetColumnProperty("ShipVia", ColumnPropertyType.Lookup, new Lookup("Shippers", "ShipperId", "CompanyName"));
     ordersEdit.SetColumnProperty("Freight", ColumnPropertyType.Format, "c");
     ordersEdit.SetColumnProperty("EmployeeID", ColumnPropertyType.Label, "Employee");
     ordersEdit.AddLinkedControl(orderDetailsEdit);

@@ -55,7 +55,7 @@ declare class DbNetSuite {
     protected controlElementId(name: string): string;
     protected disable(id: string, disabled: boolean): void;
     protected setInputElement(name: string, value: number): void;
-    protected configureLinkedControls(id: object | null, pk?: string | null): void;
+    protected configureLinkedControls(id: object | null, pk?: string | null, fk?: string | null): void;
     protected info(text: string, element: JQuery<HTMLElement>): void;
     protected confirm(text: string, element: JQuery<HTMLElement>, callback: MessageBoxCallback): void;
     protected error(text: string, element?: JQuery<HTMLElement> | null): void;

@@ -377,6 +377,15 @@ namespace DbNetSuiteCore.Services
                 insertCommand.Params[Database.ParameterName(key)] = ConvertToDbParam(Changes[key], c);
             }
 
+            DbColumn foreignKey = Columns.FirstOrDefault(c => c.ForeignKey);
+
+            if (foreignKey != null)
+            {
+                columnNames.Add(Database.QualifiedDbObjectName(foreignKey.ColumnName));
+                paramNames.Add(Database.ParameterName(foreignKey.ColumnName));
+                insertCommand.Params[Database.ParameterName(foreignKey.ColumnName)] = ConvertToDbParam(foreignKey.ForeignKeyValue, foreignKey);
+            }
+
             insertCommand.Sql = $"insert into {FromPart} ({string.Join(",", columnNames)}) values ({string.Join(",", paramNames)})";
 
             string autoIncrementColumnName = this.Columns.FirstOrDefault(c => c.AutoIncrement)?.ColumnName;
@@ -400,7 +409,6 @@ namespace DbNetSuiteCore.Services
 
         private void ValidateUserInput(DbNetEditResponse response)
         {
-            object convertedValue = new object();
             foreach (string key in Changes.Keys)
             {
                 DbColumn dbColumn = this.Columns.FirstOrDefault(c => c.IsMatch(key));
@@ -411,11 +419,11 @@ namespace DbNetSuiteCore.Services
                     break;
                 }
 
-                bool isValid = ConvertUserValue(dbColumn.DataType, Changes[key].ToString(), ref convertedValue);
+                bool isValid = ValidateUserValue(dbColumn, Changes[key].ToString());
 
                 if (!isValid)
                 {
-                    response.ValidationMessage = new KeyValuePair<string, string>(dbColumn.ColumnName, $"Value for {dbColumn.Label} is not in the correct format.");
+                    response.ValidationMessage = new KeyValuePair<string, string>(dbColumn.ColumnName, $"Value for <b>{dbColumn.Label}</b> is not in the correct format.");
                     break;
                 }
             }

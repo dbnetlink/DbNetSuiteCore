@@ -122,10 +122,9 @@ declare class DbNetGrid extends DbNetGridEdit {
     downloadCellData(element: HTMLElement, image: boolean): void;
     private openNestedGrid;
     private configureNestedGrid;
-    configureLinkedControl(control: DbNetSuite, id: object | null, pk: string | null): void;
+    configureLinkedControl(control: DbNetSuite, id: object | null, pk: string | null, fk: object | null): void;
     configureEditButtons(edit: DbNetEdit): void;
     initialiseEdit(sender: DbNetEdit): void;
     private nextRecord;
     private previousRecord;
-    assignForeignKey(control: DbNetSuite, id: object | null, pk?: string | null): void;
 }

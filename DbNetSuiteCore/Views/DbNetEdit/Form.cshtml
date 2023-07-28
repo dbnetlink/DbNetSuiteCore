@@ -16,7 +16,7 @@
     @foreach (DataColumn dataColumn in Model.DataColumns)
     {
         EditColumn editColumn = Model.EditColumns[dataColumn.Ordinal];
-        if (editColumn.Display == false)
+        if (editColumn.Display == false || editColumn.ForeignKey || editColumn.AutoIncrement)
         {
             continue;
         }
@@ -59,7 +59,7 @@
 </table>
 @if (Model.ToolbarPosition != Enums.ToolbarPosition.Top)
 {
-    <hr class="toolbar"/>
+    <hr class="toolbar" />
     <div class="toolbar-container"></div>
 }
 <div>
@@ -164,6 +164,14 @@
             if (editColumn.AutoIncrement)
             {
                 attributes.Add($"autoincrement=\"true\"");
+            }
+        }
+        if (editColumn.ForeignKey)
+        {
+            attributes.Add($"foreignkey=\"true\"");
+            if (string.IsNullOrEmpty(editColumn.ForeignKeyValue?.ToString()) == false)
+            {
+                attributes.Add($"initialvalue=\"{editColumn.ForeignKeyValue}\"");
             }
         }
 

@@ -543,10 +543,16 @@ namespace DbNetSuiteCore.Services
         {
             GridGenerationMode = GridGenerationMode.Export;
             await Grid(response);
+            var cssFiles = new List<string>() { "dbnetsuite", "dbnetgrid" };
+            string css = string.Empty;
+            foreach (var cssFile in cssFiles)
+            {
+                css += TextHelper.StripBOM(await GetResourceString($"CSS.{cssFile}.css"));
+            }
             var viewModel = new HtmlExportViewModel
             {
                 GridHtml = response.Data.ToString(),
-                GridCss = await GetResourceString($"CSS.dbnetsuite.css")
+                GridCss = css
             };
             response.Data = await HttpContext.RenderToStringAsync("Views/DbNetGrid/HtmlExport.cshtml", viewModel);
             HttpContext.Response.ContentType = GetMimeTypeForFileExtension($".html"); ;
@@ -1180,6 +1186,10 @@ namespace DbNetSuiteCore.Services
         }
         private string GetLookupValue(GridColumn column, object dataValue)
         {
+            if (column.LookupColumns < 2)
+            { 
+                return dataValue?.ToString() ?? string.Empty;
+            }
             DataTable lookupTable = _lookupTables[column.ColumnKey];
             foreach (DataRow row in lookupTable.Rows)
             {

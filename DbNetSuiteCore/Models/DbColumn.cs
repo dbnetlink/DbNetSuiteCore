@@ -3,6 +3,8 @@ using DbNetSuiteCore.Helpers;
 using DbNetSuiteCore.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
 
 namespace DbNetSuiteCore.Models
 {
@@ -93,15 +95,28 @@ namespace DbNetSuiteCore.Models
         }
         private object ConvertForeignKeyValue(object foreignKeyValue)
         {
-            if (foreignKeyValue is Newtonsoft.Json.Linq.JArray)
+            if (foreignKeyValue != null)
             {
-                List<object> fkArray = (foreignKeyValue as Newtonsoft.Json.Linq.JArray).ToObject<List<object>>();
-                if (fkArray.Count > 0)
+                if (foreignKeyValue is Newtonsoft.Json.Linq.JArray)
                 {
-                    return fkArray;
+                    List<object> fkArray = (foreignKeyValue as Newtonsoft.Json.Linq.JArray).ToObject<List<object>>();
+                    if (fkArray.Count > 0)
+                    {
+                        return fkArray;
+                    }
+                    return nameof(System.DBNull);
                 }
-                return nameof(System.DBNull);
+                try
+                {
+                    var fk = EncodingHelper.Decode(foreignKeyValue.ToString());
+                    var foreignKeyValues = JsonSerializer.Deserialize<Dictionary<string, object>>(fk);
+                    return foreignKeyValues.Values.First();
+                }
+                catch (Exception)
+                {
+                }
             }
+
             return foreignKeyValue;
         }
     }

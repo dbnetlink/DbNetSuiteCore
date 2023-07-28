@@ -481,7 +481,7 @@ class DbNetGrid extends DbNetGridEdit {
             this.selectRow(tr);
         }
 
-        this.configureLinkedControls(tr.data("id"), tr.data("pk"));
+        this.configureLinkedControls(tr.data("id"), tr.data("pk"), tr.data("fk"));
 
         if (this.viewDialog && this.viewDialog.isOpen()) {
             this.getViewContent();
@@ -944,7 +944,7 @@ class DbNetGrid extends DbNetGridEdit {
         grid.initialize();
     }
 
-    public configureLinkedControl(control: DbNetSuite, id: object | null, pk: string | null) {
+    public configureLinkedControl(control: DbNetSuite, id: object | null, pk: string | null, fk: object | null) {
         if (control instanceof DbNetGrid) {
             const grid = control as DbNetGrid;
             this.assignForeignKey(grid, id);
@@ -955,9 +955,7 @@ class DbNetGrid extends DbNetGridEdit {
         if (control instanceof DbNetEdit) {
             const edit = control as DbNetEdit;
             edit.currentRow = 1;
-
-            if (edit.parentChildRelationship)
-
+            this.assignForeignKey(edit, fk);
             if (this.editControl == undefined) {
                 this.editControl = edit;
             }
@@ -970,7 +968,7 @@ class DbNetGrid extends DbNetGridEdit {
             }
 
             if (edit.initialised) {
-                edit.disableForm(false);
+                //edit.disableForm(false);
                 if (this.editDialog?.isOpen() === false) {
                     return;
                 }
@@ -1008,19 +1006,5 @@ class DbNetGrid extends DbNetGridEdit {
 
     private previousRecord() {
         $(this.selectedRow()).prev().trigger("click")
-    }
-
-    public assignForeignKey(control: DbNetSuite, id: object | null, pk: string | null = null) {
-        if (control instanceof DbNetGrid) {
-            const grid = control as DbNetGrid;
-            const col = grid.columns.find((col) => { return col.foreignKey == true });
-
-            if (col == undefined) {
-                alert('No foreign key defined for child grid')
-                return;
-            }
-
-            col.foreignKeyValue = id ? id : DbNetSuite.DBNull;
-        }
     }
 }

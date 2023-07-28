@@ -5,14 +5,13 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using DbNetSuiteCore.Constants.Resource;
+using DbNetSuiteCore.Helpers;
 using DbNetSuiteCore.Models;
 
 namespace DbNetSuiteCore.Services
 {
     public class Resource : DbNetSuite
 	{
-        private readonly string _byteOrderMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
-
         protected string Name => QueryParam("name");
         protected string FontSize => QueryParam("font-size") ?? Settings?.FontSize;
         protected string FontFamily => QueryParam("font-family") ?? Settings?.FontFamily;
@@ -109,7 +108,7 @@ namespace DbNetSuiteCore.Services
 			foreach (string styleSheetName in styleSheetNames)
 			{
 				string css = await GetResourceString($"CSS.{styleSheetName}.css");
-                css = StripBOM(css);
+                css = TextHelper.StripBOM(css);
 
                 switch (styleSheetName)
 				{
@@ -143,16 +142,6 @@ namespace DbNetSuiteCore.Services
 			HttpContext.Response.ContentType = $"font/woff2";
 			return await GetResource($"Fonts.{Name}.woff2");
 		}
-
-        public string StripBOM(string resource)
-        {
-            if (resource.StartsWith(_byteOrderMarkUtf8, StringComparison.Ordinal))
-            {
-                resource = resource.Remove(0, _byteOrderMarkUtf8.Length);
-            }
-
-            return resource;
-        }
 
         private bool IsDebugMode()
         {
