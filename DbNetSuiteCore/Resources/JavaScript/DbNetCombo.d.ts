@@ -37,6 +37,11 @@ declare class DbNetCombo extends DbNetSuite {
     private getSelectedOptions;
     private getOptions;
     configureLinkedControl(control: DbNetSuite, fk: Array<string>, pk: string | null): void;
+    configureEditButtons(edit: DbNetEdit): void;
+    initialiseEdit(sender: DbNetEdit): void;
+    private selectedOption;
+    private nextOption;
+    private previousOption;
     private filterKeyPress;
     private applyFilter;
     callServer(action: string): void;

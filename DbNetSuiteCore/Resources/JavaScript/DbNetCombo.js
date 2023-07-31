@@ -111,8 +111,44 @@ class DbNetCombo extends DbNetSuite {
             const edit = control;
             edit.assignForeignKey(edit, fk);
             edit.currentRow = 1;
-            edit.initialised ? edit.getRecord(pk) : edit.initialize(pk);
+            if (edit.parentChildRelationship == "OneToMany") {
+                edit.initialised ? edit.getRecord(pk) : edit.initialize(pk);
+            }
+            else {
+                if (edit.initialised) {
+                    edit.getRecord(pk);
+                    this.configureEditButtons(edit);
+                }
+                else {
+                    edit.internalBind("onInitialized", (sender) => this.initialiseEdit(sender));
+                    edit.internalBind("onRecordInserted", () => this.reload());
+                    edit.initialize(pk);
+                }
+            }
         }
+    }
+    configureEditButtons(edit) {
+        if (this.selectedOptions().length == 1) {
+            const $option = $(this.selectedOptions()[0]);
+            edit.controlElement("NextBtn").prop("disabled", $option.next('option').length == 0);
+            edit.controlElement("PreviousBtn").prop("disabled", $option.prev('option').length == 0);
+        }
+    }
+    initialiseEdit(sender) {
+        sender.controlElement("NextBtn").off().on("click", () => this.nextOption());
+        sender.controlElement("PreviousBtn").off().on("click", () => this.previousOption());
+        this.configureEditButtons(sender);
+    }
+    selectedOption() {
+        return $(this.selectedOptions()[0]);
+    }
+    nextOption() {
+        this.selectedOption().next().prop('selected', true);
+        this.optionSelected();
+    }
+    previousOption() {
+        this.selectedOption().prev().prop('selected', true);
+        this.optionSelected();
     }
     filterKeyPress(event) {
         const el = event.target;

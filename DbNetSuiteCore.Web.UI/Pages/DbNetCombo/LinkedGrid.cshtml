@@ -22,6 +22,5 @@
     DbNetComboCore regionsCombo = new DbNetComboCore("northwind", "regions", "regionid", "regiondescription", "regions") { Size = 10, MultipleSelect = true, AutoRowSelect = true };
     territoriesCombo.AddLinkedControl(employeesGrid);
     regionsCombo.AddLinkedControl(territoriesCombo);
-    @employeesGrid.Render()
     @regionsCombo.Render()
 }

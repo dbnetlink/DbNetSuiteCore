@@ -39,6 +39,7 @@ class DbNetSuite {
     protected linkedControls: Array<DbNetSuite> = [];
     protected messageBox: MessageBox | undefined;
     protected parentControlType = "";
+    public parentChildRelationship: ParentChildRelationship = null;
 
     public initialised = false;
 

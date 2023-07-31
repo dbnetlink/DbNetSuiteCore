@@ -1,6 +1,5 @@
 ﻿using DbNetSuiteCore.Enums;
 using DbNetSuiteCore.Models;
-using DocumentFormat.OpenXml.Math;
 using Microsoft.AspNetCore.Html;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -18,6 +17,8 @@ namespace DbNetSuiteCore.Components
         protected DbNetSuiteCoreSettings _DbNetSuiteCoreSettings;
         protected readonly IConfigurationRoot _configuration;
         protected readonly bool _idSupplied = false;
+        internal bool _isChildControl = false;
+
         protected List<DbNetSuiteCore> _linkedControls { get; set; } = new List<DbNetSuiteCore>();
 
         private List<EventBinding> _eventBindings { get; set; } = new List<EventBinding>();
@@ -67,9 +68,28 @@ namespace DbNetSuiteCore.Components
         public void AddLinkedControl(DbNetSuiteCore linkedControl)
         {
             linkedControl.ParentControlType = this.GetType().Name.Replace("Core", string.Empty);
-            if (this is DbNetGridEditCore && linkedControl is DbNetGridEditCore)
+            linkedControl._isChildControl = true;
+            if (linkedControl.ParentChildRelationship.HasValue == false)
             {
-                linkedControl.ParentChildRelationship = (this as DbNetGridEditCore).FromPart.ToLower() == (linkedControl as DbNetGridEditCore).FromPart.ToLower() ? Enums.ParentChildRelationship.OneToOne : Enums.ParentChildRelationship.OneToMany;
+                if ((this is DbNetGridEditCore || this is DbNetComboCore) && linkedControl is DbNetGridEditCore)
+                {
+                    string fromPart;
+                    if (this is DbNetGridEditCore)
+                    {
+                        fromPart = (this as DbNetGridEditCore).FromPart.ToLower();
+                    }
+                    else
+                    {
+                        fromPart = (this as DbNetComboCore).FromPart.ToLower();
+                    }
+                    linkedControl.ParentChildRelationship = fromPart == (linkedControl as DbNetGridEditCore).FromPart.ToLower() ? Enums.ParentChildRelationship.OneToOne : Enums.ParentChildRelationship.OneToMany;
+/*
+                    if (this is DbNetComboCore && linkedControl is DbNetEditCore && linkedControl.ParentChildRelationship == Enums.ParentChildRelationship.OneToOne)
+                    {
+                        (linkedControl as DbNetEditCore).Navigation = false;
+                    }
+*/
+                }
             }
             _linkedControls.Add(linkedControl);
         }
@@ -112,6 +132,10 @@ namespace DbNetSuiteCore.Components
                 message = $"Connection string [{_connection}] not found. Please check the connection strings in your appsettings.json file";
             }
 
+            if (_isChildControl)
+            {
+                message = $"The Render() method should not be called on a child control. This will be invoked automatically by the parent control.";
+            }
             return message;
         }
 
@@ -261,7 +285,7 @@ function init_{_id}()
             if (control is DbNetGridCore)
             {
                 DbNetGridCore dbNetGridCore = (DbNetGridCore)control;
-                return string.IsNullOrEmpty(dbNetGridCore._editDialogId) == false;
+                return dbNetGridCore._hasEditDialog;
             }
             return false;
         }

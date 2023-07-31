@@ -58,8 +58,11 @@
             <tr>
                 @if (Model.ParentControlType.HasValue && Model.ParentChildRelationship == ParentChildRelationship.OneToOne)
                 {
-                    @Button("Previous", ToolbarSection.Navigation)
-                    @Button("Next", ToolbarSection.Navigation)
+                    if (Model.Navigation)
+                    {
+                        @Button("Previous", ToolbarSection.Navigation)
+                        @Button("Next", ToolbarSection.Navigation)
+                    }
                     <td class="push-right"></td>
                     @Button("Apply", ToolbarSection.Save, Enums.ToolbarButtonStyle.ImageAndText)
                     @Button("Cancel", ToolbarSection.Save, Enums.ToolbarButtonStyle.ImageAndText)

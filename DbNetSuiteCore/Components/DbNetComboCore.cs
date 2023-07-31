@@ -46,6 +46,9 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Specifies any parameters values when the data source is a stored procedure
         /// </summary>
+        ///         
+        public string FromPart => _fromPart;
+
         public Dictionary<string, object> ProcedureParams { get; set; } = new Dictionary<string, object>();
         /// <summary>
         /// Specifies the name of the foreign key column in a linked combo

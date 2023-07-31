@@ -7,7 +7,6 @@ class DbNetGridEdit extends DbNetSuite {
     lookupDialog: LookupDialog | undefined;
     navigation = true;
     optimizeForLargeDataset = false;
-    parentChildRelationship: ParentChildRelationship = null;
     quickSearch = false;
     quickSearchDelay = 1000;
     quickSearchMinChars = 3;

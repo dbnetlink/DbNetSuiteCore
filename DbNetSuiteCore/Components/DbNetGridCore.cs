@@ -14,6 +14,8 @@ namespace DbNetSuiteCore.Components
     {
         internal string _editDialogId;
         internal bool? IsBrowseDialog { get; set; } = null;
+        internal bool _hasEditDialog => this._linkedControls.Where(c => c is DbNetEditCore).Any(c => (c as DbNetEditCore).IsEditDialog ?? false == true);
+
         /// <summary>
         /// Automatically selects the first row of the grid (default is true)
         /// </summary>
@@ -144,12 +146,14 @@ namespace DbNetSuiteCore.Components
         public HtmlString Render()
         {
             string message = ValidateProperties();
-            AddEditDialogControl();
 
             if (string.IsNullOrEmpty(message) == false)
             {
                 return new HtmlString($"<div class=\"dbnetsuite-error\">{message}</div>");
             }
+
+            AddEditDialogControl();
+
 
             string script = string.Empty;
             if (GoogleChartOptions != null)

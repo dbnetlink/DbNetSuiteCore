@@ -1,0 +1,11 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums;
+@using DbNetSuiteCore.Enums.DbNetEdit;
+@{
+    DbNetEditCore ordersEdit = new DbNetEditCore("northwind", "orders");
+    ordersEdit.SetColumnProperty("customerid", ColumnPropertyType.ForeignKey, true);
+    DbNetComboCore customersCombo = new DbNetComboCore("northwind", "customers", "customerid", "companyname");
+    customersCombo.AddLinkedControl(ordersEdit);
+    @customersCombo.Render()
+}

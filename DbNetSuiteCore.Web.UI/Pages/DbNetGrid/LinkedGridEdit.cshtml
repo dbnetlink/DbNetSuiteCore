@@ -1,0 +1,115 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums.DbNetGrid;
+@using DbNetEditEnums = DbNetSuiteCore.Enums.DbNetEdit;
+@using DbNetSuiteCore.Enums;
+<style>
+    .row {
+        display: flex; /* aligns all child elements (flex items) in a row */
+    }
+
+    .col {
+        flex: 1; /* distributes space on the line equally among items */
+        padding:10px;
+    }
+</style>
+
+<div class="row">
+    <div class="col" id="customersGrid"></div>
+    <div class="col" id="customersEdit"></div>
+</div>
+<div class="row">
+    <div class="col" id="ordersGrid"></div>
+    <div class="col" id="ordersEdit"></div>
+</div>
+<div class="row">
+    <div class="col" id="orderDetailsGrid"></div>
+    <div class="col" id="orderDetailsEdit"></div>
+</div>
+
+@{
+    DbNetEditCore orderDetailsEdit = new DbNetEditCore("northwind", "[order details]", "orderDetailsEdit")
+            {
+                Columns = new List<string> { "OrderID", "ProductID", "Quantity", "UnitPrice" },
+                Insert = true,
+                QuickSearch = true,
+                Delete = true
+            };
+
+    orderDetailsEdit.SetColumnProperty("OrderID", DbNetEditEnums.ColumnPropertyType.ForeignKey, true);
+    orderDetailsEdit.SetColumnProperty("ProductID", DbNetEditEnums.ColumnPropertyType.Lookup, new Lookup("Products", "ProductId", "ProductName"));
+    orderDetailsEdit.SetColumnProperty("UnitPrice", DbNetEditEnums.ColumnPropertyType.Format, "c");
+    orderDetailsEdit.SetColumnProperty("ProductID", DbNetEditEnums.ColumnPropertyType.Label, "Product");
+
+    DbNetEditCore ordersEdit = new DbNetEditCore("northwind", "orders", "ordersEdit")
+            {
+                Columns = new List<string> { "OrderID", "CustomerID", "EmployeeID", "OrderDate", "RequiredDate", "ShippedDate", "ShipVia", "Freight" },
+                Insert = true,
+                QuickSearch = true,
+                Delete = true
+            };
+
+    //   ordersEdit.SetColumnProperty("CustomerID", ColumnPropertyType.Display, false);
+    ordersEdit.SetColumnProperty("CustomerID", DbNetEditEnums.ColumnPropertyType.ForeignKey, true);
+    ordersEdit.SetColumnProperty("EmployeeID", DbNetEditEnums.ColumnPropertyType.Lookup, new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname"));
+    //   ordersEdit.SetColumnProperty("CustomerID", ColumnPropertyType.Lookup, new Lookup("Customers", "CustomerId", "CompanyName")); ;
+    ordersEdit.SetColumnProperty("ShipVia", DbNetEditEnums.ColumnPropertyType.Lookup, new Lookup("Shippers", "ShipperId", "CompanyName"));
+    ordersEdit.SetColumnProperty("Freight", DbNetEditEnums.ColumnPropertyType.Format, "c");
+    ordersEdit.SetColumnProperty("EmployeeID", DbNetEditEnums.ColumnPropertyType.Label, "Employee");
+
+    DbNetEditCore customersEdit = new DbNetEditCore("northwind", "customers", "customersEdit")
+            {
+                Columns = new List<string> { "CustomerID", "CompanyName", "Address", "City" },
+                Insert = true,
+                QuickSearch = true,
+                Delete = true
+            };
+
+    customersEdit.SetColumnProperty("CustomerID", DbNetEditEnums.ColumnPropertyType.Display, false);
+
+    DbNetGridCore orderDetailsGrid = new DbNetGridCore("northwind", "[order details]", "orderDetailsGrid")
+            {
+                Columns = new List<string> { "OrderID", "ProductID", "Quantity", "UnitPrice" },
+                Insert = true,
+                QuickSearch = true,
+                Delete = true
+            };
+
+    orderDetailsGrid.SetColumnProperty("OrderID", ColumnPropertyType.ForeignKey, true);
+    orderDetailsGrid.SetColumnProperty("ProductID", ColumnPropertyType.Lookup, new Lookup("Products", "ProductId", "ProductName"));
+    orderDetailsGrid.SetColumnProperty("UnitPrice", ColumnPropertyType.Format, "c");
+    orderDetailsGrid.SetColumnProperty("ProductID", ColumnPropertyType.Label, "Product");
+    orderDetailsGrid.AddLinkedControl(orderDetailsEdit);
+
+    DbNetGridCore ordersGrid = new DbNetGridCore("northwind", "orders", "ordersGrid")
+            {
+                Columns = new List<string> { "OrderID", "CustomerID", "EmployeeID", "OrderDate", "RequiredDate", "ShippedDate", "ShipVia", "Freight" },
+                Insert = true,
+                QuickSearch = true,
+                Delete = true
+            };
+
+    //   ordersGrid.SetColumnProperty("CustomerID", ColumnPropertyType.Display, false);
+    ordersGrid.SetColumnProperty("CustomerID", ColumnPropertyType.ForeignKey, true);
+    ordersGrid.SetColumnProperty("EmployeeID", ColumnPropertyType.Lookup, new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname"));
+    //   ordersGrid.SetColumnProperty("CustomerID", ColumnPropertyType.Lookup, new Lookup("Customers", "CustomerId", "CompanyName")); ;
+    ordersGrid.SetColumnProperty("ShipVia", ColumnPropertyType.Lookup, new Lookup("Shippers", "ShipperId", "CompanyName"));
+    ordersGrid.SetColumnProperty("Freight", ColumnPropertyType.Format, "c");
+    ordersGrid.SetColumnProperty("EmployeeID", ColumnPropertyType.Label, "Employee");
+    ordersGrid.AddLinkedControl(orderDetailsGrid);
+    ordersGrid.AddLinkedControl(ordersEdit);
+
+    DbNetGridCore customersGrid = new DbNetGridCore("northwind", "customers", "customersGrid")
+            {
+                Columns = new List<string> { "CustomerID", "CompanyName", "Address", "City" },
+                Insert = true,
+                QuickSearch = true,
+                Delete = true
+            };
+
+    customersGrid.SetColumnProperty("CustomerID", ColumnPropertyType.Display, false);
+    customersGrid.AddLinkedControl(ordersGrid);
+    customersGrid.AddLinkedControl(customersEdit);
+
+    @customersGrid.Render()
+}

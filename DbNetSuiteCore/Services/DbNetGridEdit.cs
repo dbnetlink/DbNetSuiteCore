@@ -1080,7 +1080,7 @@ namespace DbNetSuiteCore.Services
             string filter = string.Empty;
             object foreignKeyValue = fkColumn.ForeignKeyValue;
 
-            if (foreignKeyValue.ToString() == nameof(System.DBNull))
+            if ((foreignKeyValue?.ToString() ?? nameof(System.DBNull)) == nameof(System.DBNull))
             {
                 filter = $"{fkColumn.ColumnExpression} is null";
             }

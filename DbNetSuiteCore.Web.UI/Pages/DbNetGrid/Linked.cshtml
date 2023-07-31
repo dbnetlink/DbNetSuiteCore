@@ -1,0 +1,48 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums.DbNetGrid;
+@using DbNetSuiteCore.Enums;
+@{
+    DbNetGridCore orderDetailsGrid = new DbNetGridCore("northwind", "[order details]")
+            {
+                Columns = new List<string> { "OrderID", "ProductID", "Quantity", "UnitPrice" },
+                Insert = true,
+                QuickSearch = true,
+                Delete = true
+            };
+
+    orderDetailsGrid.SetColumnProperty("OrderID", ColumnPropertyType.ForeignKey, true);
+    orderDetailsGrid.SetColumnProperty("ProductID", ColumnPropertyType.Lookup, new Lookup("Products", "ProductId", "ProductName"));
+    orderDetailsGrid.SetColumnProperty("UnitPrice", ColumnPropertyType.Format, "c");
+    orderDetailsGrid.SetColumnProperty("ProductID", ColumnPropertyType.Label, "Product");
+
+    DbNetGridCore ordersGrid = new DbNetGridCore("northwind", "orders")
+            {
+                Columns = new List<string> { "OrderID", "CustomerID", "EmployeeID", "OrderDate", "RequiredDate", "ShippedDate", "ShipVia", "Freight" },
+                Insert = true,
+                QuickSearch = true,
+                Delete = true
+            };
+
+ //   ordersGrid.SetColumnProperty("CustomerID", ColumnPropertyType.Display, false);
+    ordersGrid.SetColumnProperty("CustomerID", ColumnPropertyType.ForeignKey, true);
+    ordersGrid.SetColumnProperty("EmployeeID", ColumnPropertyType.Lookup, new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname"));
+ //   ordersGrid.SetColumnProperty("CustomerID", ColumnPropertyType.Lookup, new Lookup("Customers", "CustomerId", "CompanyName")); ;
+    ordersGrid.SetColumnProperty("ShipVia", ColumnPropertyType.Lookup, new Lookup("Shippers", "ShipperId", "CompanyName"));
+    ordersGrid.SetColumnProperty("Freight", ColumnPropertyType.Format, "c");
+    ordersGrid.SetColumnProperty("EmployeeID", ColumnPropertyType.Label, "Employee");
+    ordersGrid.AddLinkedControl(orderDetailsGrid);
+
+    DbNetGridCore customersGrid = new DbNetGridCore("northwind", "customers")
+            {
+                Columns = new List<string> { "CustomerID", "CompanyName", "Address", "City" },
+                Insert = true,
+                QuickSearch = true,
+                Delete = true
+            };
+
+    customersGrid.SetColumnProperty("CustomerID", ColumnPropertyType.Display, false);
+    customersGrid.AddLinkedControl(ordersGrid);
+
+    @customersGrid.Render()
+}

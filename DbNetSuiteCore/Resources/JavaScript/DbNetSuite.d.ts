@@ -38,6 +38,7 @@ declare class DbNetSuite {
     protected linkedControls: Array<DbNetSuite>;
     protected messageBox: MessageBox | undefined;
     protected parentControlType: string;
+    parentChildRelationship: ParentChildRelationship;
     initialised: boolean;
     constructor(id: string | null);
     bind(event: EventName, handler: EventHandler): void;

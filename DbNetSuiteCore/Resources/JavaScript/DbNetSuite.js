@@ -11,6 +11,7 @@ class DbNetSuite {
         this.culture = "";
         this.linkedControls = [];
         this.parentControlType = "";
+        this.parentChildRelationship = null;
         this.initialised = false;
         if (id == null) {
             return;
