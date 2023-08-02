@@ -1,0 +1,63 @@
+﻿@namespace DbNetSuiteCore.Views.DbNetGrid
+@using DbNetSuiteCore.Enums
+@using DbNetSuiteCore.Helpers
+@using DbNetSuiteCore.Models
+@using DbNetSuiteCore.Models.DbNetGrid;
+@using Microsoft.AspNetCore.Html;
+@model DbNetSuiteCore.ViewModels.DbNetEdit.UploadDialogViewModel
+
+@{
+    var fileProperties = new List<string>() { "Name", "Last Modified", "Type", "Size" };
+}
+<div id="@(Model.ComponentId)_upload_dialog" class="upload-dialog" title="Upload">
+    <div class="content">
+        <table>
+            <tr>
+                <td>
+                    <table class="file-info">
+                        @foreach (string fileProperty in fileProperties)
+                        {
+                            <tr>
+                                <td class="file-info-label">@fileProperty</td>
+                                <td><input type="text" readonly class="file-info-value" id="@fileProperty.Replace(" ",string.Empty).ToLower()" /></td>
+                            </tr>
+                        }
+                    </table>
+                </td>
+                <td>
+                    <div class="icon-container">
+                        <img class="preview" />
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <table>
+            <tr>
+                <td style="width:100%">&nbsp;</td>
+                <td><input type="file" style="display:none"></td>
+                <td style="text-align:right">@Button("UploadFile", ToolbarButtonStyle.ImageAndText, "UploadFile")</td>
+            </tr>
+        </table>
+    </div>
+    <hr />
+    <div class="dialog-toolbar-panel">
+        <table class="upload-dialog-toolbar">
+            <tr>
+                <td style="width:100%">&nbsp;</td>
+                <td>@Button("Apply", ToolbarButtonStyle.ImageAndText,"Apply")</td>
+                <td>@Button("Cancel", ToolbarButtonStyle.ImageAndText,"Cancel")</td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <div class="message"></div>
+    </div>
+</div>
+
+@functions
+{
+    public HtmlString Button(string type, ToolbarButtonStyle buttonStyle, string title)
+    {
+        return new HtmlString($"<button type=\"button\" class=\"{type.ToLower()}-btn toolbar-button toolbar-button-{buttonStyle.ToString().ToLower()}\" title=\"{@Model.Translate(title)}\" button-type=\"{type.ToLower()}\" id=\"{Model.ComponentId}_View_Dialog_{type}Btn\">{(buttonStyle == ToolbarButtonStyle.Image ? string.Empty : Model.Translate(type).Replace(" ", "&nbsp;"))}</button>");
+    }
+}

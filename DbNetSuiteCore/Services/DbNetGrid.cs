@@ -43,12 +43,10 @@ namespace DbNetSuiteCore.Services
         public Dictionary<string, object> ColumnFilterParams { get; set; } = new Dictionary<string, object>();
         public Dictionary<string, string> ColumnFilters { get; set; } = new Dictionary<string, string>();
         public List<string> ColumnFilterSql { get; set; } = new List<string> { };
-        public string ColumnName { get; set; } = String.Empty;
         public bool Copy { get; set; } = true;
         public int CurrentPage { get; set; } = 1;
         public GridColumn DefaultColumn { get; set; }
         public bool Export { get; set; } = true;
-        public string Extension { get; set; } = string.Empty;
         public FilterColumnModeValues FilterColumnMode { get; set; } = FilterColumnModeValues.Simple;
         public string FilterSql { get; set; } = string.Empty;
         public Dictionary<string, object> FixedFilterParams { get; set; } = new Dictionary<string, object>();
@@ -133,10 +131,10 @@ namespace DbNetSuiteCore.Services
                     await ViewDialog(response);
                     break;
                 case RequestAction.SearchDialog:
-                    await SearchDialog(response, Columns.Cast<DbColumn>().ToList());
+                    await SearchDialog(response);
                     break;
                 case RequestAction.Lookup:
-                    await LookupDialog(response, Columns.Cast<DbColumn>().ToList());
+                    await LookupDialog(response);
                     break;
                 case RequestAction.DataArray:
                     return DataArray();
@@ -866,42 +864,7 @@ namespace DbNetSuiteCore.Services
                     return "string";
             }
         }
-        private byte[] GetColumnData()
-        {
-            byte[] byteData = new byte[0];
 
-            using (Database)
-            {
-                Database.Open();
-                QueryCommandConfig query = new QueryCommandConfig();
-
-                query.Sql = $"select {this.ColumnName} from {FromPart} where {PrimaryKeyFilter(query.Params)}";
-                Database.ExecuteQuery(query);
-
-                if (Database.Reader.Read())
-                {
-                    byteData = (byte[])Database.Reader[0];
-                }
-                Database.Close();
-            }
-
-            HttpContext.Response.ContentType = GetMimeTypeForFileExtension($".{Extension}"); ;
-            return byteData;
-        }
-
-        private string GetMimeTypeForFileExtension(string extension)
-        {
-            const string defaultContentType = "application/octet-stream";
-
-            var provider = new FileExtensionContentTypeProvider();
-
-            if (!provider.TryGetContentType(extension, out string contentType))
-            {
-                contentType = defaultContentType;
-            }
-
-            return contentType;
-        }
 
         private async Task Grid(DbNetGridResponse response)
         {

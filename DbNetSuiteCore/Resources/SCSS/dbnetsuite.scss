@@ -138,6 +138,7 @@ hr.toolbar {
         width: 48px;
         background-color: #fff;
         border: 5px solid steelblue;
+        box-sizing: content-box;
 
         &.info {
             background-image: svgUrl("info", "48");

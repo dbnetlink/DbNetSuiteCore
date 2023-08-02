@@ -4,12 +4,14 @@
 /// <reference types="bootstrap" />
 type ParentChildRelationship = "OneToOne" | "OneToMany" | null;
 declare class DbNetGridEdit extends DbNetSuite {
+    columnName: string | undefined;
     columns: DbColumn[];
     _delete: boolean;
     fromPart: string;
     insert: boolean;
     lookupDialog: LookupDialog | undefined;
     navigation: boolean;
+    primaryKey: string | undefined;
     optimizeForLargeDataset: boolean;
     quickSearch: boolean;
     quickSearchDelay: number;

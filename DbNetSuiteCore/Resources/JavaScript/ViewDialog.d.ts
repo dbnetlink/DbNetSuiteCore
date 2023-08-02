@@ -7,6 +7,7 @@ declare class ViewDialog extends Dialog {
     dialogWidth: number;
     constructor(id: string, parent: DbNetGrid);
     update(response: DbNetGridResponse, $row: JQuery<HTMLTableRowElement>): void;
+    private dialogOpened;
     private setSize;
     private viewNextRecord;
     private viewPreviousRecord;

@@ -31,7 +31,6 @@ declare class DbNetGrid extends DbNetGridEdit {
     autoRowSelect: boolean;
     booleanDisplayMode: BooleanDisplayMode;
     cellIndexCache: Dictionary<number>;
-    columnName: string | undefined;
     columnFilters: Dictionary<string>;
     copy: boolean;
     currentPage: number;
@@ -57,7 +56,6 @@ declare class DbNetGrid extends DbNetGridEdit {
     orderBy: string;
     orderByDirection: string;
     pageSize: number;
-    primaryKey: string | undefined;
     procedureName: string;
     procedureParams: Dictionary<object>;
     rowSelect: boolean;
@@ -119,10 +117,10 @@ declare class DbNetGrid extends DbNetGridEdit {
     private copyGrid;
     getRequest(): DbNetGridRequest;
     private addEventListener;
-    downloadCellData(element: HTMLElement, image: boolean): void;
     private openNestedGrid;
     private configureNestedGrid;
     configureLinkedControl(control: DbNetSuite, id: object | null, pk: string | null, fk: object | null): void;
+    downloadBinaryData(element: HTMLElement, image: boolean): void;
     configureEditButtons(edit: DbNetEdit): void;
     initialiseEdit(sender: DbNetEdit): void;
     private nextRecord;

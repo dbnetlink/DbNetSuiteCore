@@ -11,19 +11,22 @@ class DbNetEdit extends DbNetGridEdit {
     editMode: EditMode = "update";
     editPanel: JQuery<HTMLElement> | undefined;
     formPanel: JQuery<HTMLElement> | undefined;
+    formData: FormData;
     insert = false;
     layoutColumns = 1;
     messagePanel: JQuery<HTMLElement> | undefined;
-    primaryKey = "";
     search = true;
     totalRows = 0;
     isEditDialog = false;
+    uploadDialog: UploadDialog | undefined;
+
 
     constructor(id: string) {
         super(id);
         if (this.toolbarPosition == undefined) {
             this.toolbarPosition = "Bottom";
         }
+        this.formData = new FormData();
     }
 
     initialize(primaryKey: string | null = null): void {
@@ -61,6 +64,10 @@ class DbNetEdit extends DbNetGridEdit {
         this.callServer("search", callback);
     }
 
+    columnValue(columnName: string) {
+        this.formElements().filter(`:input[name='${columnName}']`).data("value");
+    }
+
     private clearForm() {
         this.formElements().each(
             function () {
@@ -71,6 +78,11 @@ class DbNetEdit extends DbNetGridEdit {
                 else {
                     $input.val('').data("value", '');
                 }
+            });
+        this.binaryElements().each(
+            function () {
+                const $img = $(this);
+                $img.hide();
             });
     }
 
@@ -117,6 +129,9 @@ class DbNetEdit extends DbNetGridEdit {
         this.formPanel?.find("[button-type='calendar']").on("click", (event) => this.selectDate(event));
         this.formPanel?.find("[button-type='clock']").on("click", (event) => this.selectTime(event));
         this.formPanel?.find("[button-type='lookup']").on("click", (event) => this.editLookup(event));
+        this.formPanel?.find("[button-type='delete']").on("click", (event) => this.deleteFile(event));
+        this.formPanel?.find("[button-type='upload']").on("click", (event) => this.uploadFile(event));
+        this.formPanel?.find("img.dbnetedit").on("load", () => { $(this).show(); });
 
         this.formPanel?.find("input[datatype='DateTime'").get().forEach(e => {
             const $input = $(e as HTMLInputElement);
@@ -133,6 +148,9 @@ class DbNetEdit extends DbNetGridEdit {
         const record = response.record;
         for (const columnName in record) {
             const $input = this.formPanel?.find(`:input[name='${columnName}']`) as JQuery<HTMLFormElement>;
+            if ($input.length == 0) {
+                continue;
+            }
             const value = record[columnName];
             if ($input.attr("type") == "checkbox") {
                 const checked = (value as unknown as boolean === true)
@@ -142,16 +160,25 @@ class DbNetEdit extends DbNetGridEdit {
                 $input.val(value.toString()).data("value", value.toString());
             }
 
-            if ($input.attr("primarykey") || $input.attr("foreignkey") ||$input.attr("datatype") == "Guid") {
+            if ($input.attr("primarykey") || $input.attr("foreignkey") || $input.attr("datatype") == "Guid") {
                 $input.prop("disabled", true);
             }
         }
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const self = this;
+        this.binaryElements().each(
+            function () {
+                const $img = $(this);
+                $img.hide();
+                self.downloadBinaryData($img);
+            });
 
         const $firstElement = this.formElements().filter(':not(:disabled):first') as JQuery<HTMLFormElement>;
         $firstElement.trigger("focus");
 
         this.editMode = "update";
         this.primaryKey = response.primaryKey as string;
+        this.formData = new FormData();
 
         if (this.browseDialog) {
             if (this.browseDialog.isOpen()) {
@@ -164,7 +191,7 @@ class DbNetEdit extends DbNetGridEdit {
         }
         this.configureLinkedControls(null, this.primaryKey);
 
-        this.fireEvent("onFormUpdated", { formElements: this.formElements() });
+        this.fireEvent("onRecordSelected", { formElements: this.formElements() });
     }
 
     private callServer(action: string, callback?: DbNetEditResponseCallback) {
@@ -187,6 +214,7 @@ class DbNetEdit extends DbNetGridEdit {
             componentId: this.id,
             connectionString: this.connectionString,
             columns: this.columns.map((column) => { return column as EditColumnRequest }),
+            columnName: this.columnName,
             currentRow: this.currentRow,
             culture: this.culture,
             fromPart: this.fromPart,
@@ -198,7 +226,7 @@ class DbNetEdit extends DbNetGridEdit {
             searchFilterJoin: this.searchFilterJoin,
             searchParams: this.searchParams,
             totalRows: this.totalRows,
-            primaryKey: this.primaryKey,
+            primaryKey: this.primaryKey as string,
             isEditDialog: this.isEditDialog,
             insert: this.insert,
             delete: this._delete,
@@ -346,41 +374,13 @@ class DbNetEdit extends DbNetGridEdit {
 
         if (control instanceof DbNetGrid) {
             const grid = control as DbNetGrid;
-            this.assignForeignKey(grid, pk);
-            grid.currentPage = 1;
-            grid.initialised ? grid.getPage() : grid.initialize();
+            if (grid.isBrowseDialog == false) {
+                this.assignForeignKey(grid, pk);
+                grid.currentPage = 1;
+                grid.initialised ? grid.getPage() : grid.initialize();
+            }
         }
     }
-
-    /*
-    public assignForeignKey(control: DbNetSuite, pk: string | null = null) {
-        if (control instanceof DbNetEdit) {
-            const edit = control as DbNetEdit;
-            const col = edit.columns.find((c) => { return c.foreignKey == true });
-
-            if (col == undefined) {
-                return;
-            }
-
-            if (edit.initialised) {
-                edit.updateForeignKeyValue(pk as string);
-                return;
-            }
-
-            col.foreignKeyValue = pk ? pk : DbNetSuite.DBNull;
-        }
-        if (control instanceof DbNetGrid) {
-            const grid = control as DbNetGrid;
-            const col = grid.columns.find((c) => { return c.foreignKey == true });
-
-            if (col == undefined) {
-                return;
-            }
-
-            col.foreignKeyValue = pk ? pk : DbNetSuite.DBNull;
-        }
-    }
-    */
 
     public getRecord(primaryKey: string | null = null) {
         if (primaryKey) {
@@ -423,7 +423,7 @@ class DbNetEdit extends DbNetGridEdit {
         this.fireEvent("onInsertInitalize", { formElements: this.formElements() });
     }
 
-    updateForeignKeyValue(fk: object|string) {
+    updateForeignKeyValue(fk: object | string) {
         this.formElements().filter("[foreignkey='true']").attr("initialvalue", fk?.toString())
     }
 
@@ -450,6 +450,10 @@ class DbNetEdit extends DbNetGridEdit {
         return this.formPanel?.find(':input.dbnetedit,select.dbnetedit') as JQuery<HTMLFormElement>;
     }
 
+    private binaryElements(): JQuery<HTMLElement> {
+        return this.formPanel?.find('img,button.binary') as JQuery<HTMLElement>;
+    }
+
     public deleteRecord() {
         this.confirm("Please confirm deletion of the current record", this.formPanel as JQuery<HTMLElement>, (buttonPressed: MessageBoxButtonType) => this.deletionConfirmed(buttonPressed));
     }
@@ -463,6 +467,9 @@ class DbNetEdit extends DbNetGridEdit {
             .then((response) => {
                 if (response.error == false) {
                     this.recordDeleted();
+                }
+                else {
+                    this.error(response.message);
                 }
             })
     }
@@ -527,13 +534,31 @@ class DbNetEdit extends DbNetGridEdit {
                 }
             });
 
-        if ($.isEmptyObject(changes) == true) {
+        if ($.isEmptyObject(changes) == true && this.hasFormData() == false) {
             return;
         }
 
         this.changes = changes;
 
-        this.post<DbNetEditResponse>(`${this.editMode}-record`, this.getRequest())
+        if (this.hasFormData()) {
+            this.post<DbNetEditResponse>('save-files', this.formData)
+                .then((response) => {
+                    this.submitChanges(response);
+                })
+        }
+        else {
+            this.submitChanges(null);
+        }
+    }
+
+    private submitChanges(response: DbNetEditResponse | null) {
+        const request = this.getRequest();
+
+        if (response) {
+            request.formCacheKey = response.formCacheKey;
+        }
+
+        this.post<DbNetEditResponse>(`${this.editMode}-record`, request)
             .then((response) => {
                 this.applyChangesCallback(response);
             })
@@ -586,7 +611,7 @@ class DbNetEdit extends DbNetGridEdit {
 
     private openBrowseDialog() {
         if (!this.browseDialog) {
-            this.browseDialog = new BrowseDialog(this.browseDialogId as string, this, this.browseDialogControl as DbNetGrid);
+            this.browseDialog = new BrowseDialog(this.browseDialogId as string, this.browseDialogControl as DbNetGrid);
         }
         this.browseDialog?.show(this.currentRow);
     }
@@ -627,6 +652,26 @@ class DbNetEdit extends DbNetGridEdit {
         this.lookup($input, request);
     }
 
+
+    protected uploadFile(event: JQuery.TriggeredEvent) {
+        if (this.uploadDialog) {
+            this.uploadDialog.show(event);
+            return;
+        }
+
+        this.post<DbNetSuiteResponse>("upload-dialog", this.getRequest())
+            .then((response) => {
+                this.element?.append(response.dialog);
+                this.uploadDialog = new UploadDialog(`${this.id}_upload_dialog`, this);
+                this.uploadDialog.show(event);
+            });
+    }
+
+    protected deleteFile(event: JQuery.TriggeredEvent) {
+        const $img = ($(event.currentTarget) as JQuery<HTMLButtonElement>).closest("td").find("img");
+        this.saveFile($img, null);
+    }
+
     private selectTime(event: JQuery.TriggeredEvent): void {
         const $button = $(event.target as HTMLInputElement);
         $button.parent().find("input").timepicker('open');
@@ -648,5 +693,49 @@ class DbNetEdit extends DbNetGridEdit {
         }
 
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, getRandomSymbol);
+    }
+
+    private downloadBinaryData($image: JQuery<HTMLElement>) {
+
+        this.columnName = $image.attr("name") as string;
+
+        this.post<Blob>("download-column-data", this.getRequest(), true)
+            .then((blob) => {
+                if ($image) {
+                    console.log(`blob size => ${blob.size}`)
+                    if (blob.size) {
+                        $image.attr("src", window.URL.createObjectURL(blob));
+                        $image.show();
+                    }
+                }
+                else {
+                    const link = document.createElement("a");
+                    link.href = window.URL.createObjectURL(blob);
+                    link.click();
+                }
+            });
+    }
+
+    public saveFile($img: JQuery<HTMLImageElement>, file: File | null) {
+        file ? $img.show() : $img.hide();
+        const columnName = $img.attr("name") as string;
+        if (this.formData.get(columnName) != null) {
+            this.formData.delete(columnName);
+        }
+        if (file) {
+            this.formData.append(columnName, file);
+        }
+        else {
+            this.formData.append(columnName, new Blob());
+        }
+    }
+
+    private hasFormData(): boolean {
+        let result = false;
+        for (const key of this.formData.keys()) {
+            result = true;
+            break;
+        }
+        return result;
     }
 }

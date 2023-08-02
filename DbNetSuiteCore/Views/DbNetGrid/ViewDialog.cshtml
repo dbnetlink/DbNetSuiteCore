@@ -7,14 +7,13 @@
 <div id="@(Model.ComponentId)_view_dialog" class="view-dialog" title="View" style="display:none">
     <div class="dialog-panel">
         <div class="content"></div>
+        <hr />
         <div class="dialog-toolbar-panel">
             <table class="view-dialog-toolbar">
                 <tr>
                     @Button("Previous", Model.ToolbarButtonStyle)
                     @Button("Next", Model.ToolbarButtonStyle)
                     <td style="width:100%">&nbsp;</td>
-                    @*   @Button("Print", ToolbarButtonStyle.ImageAndText) *@
-                    @Button("Close", ToolbarButtonStyle.ImageAndText)
                 </tr>
             </table>
         </div>

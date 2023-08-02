@@ -61,15 +61,71 @@ namespace DbNetSuiteCore.Components
             _fromPart = fromPart;
         }
 
+        /// <summary>
+        /// Assigns a foreign key based lookup against a column to provide a descriptive value
+        /// </summary>
         public void SetColumnLookup(string columnName, Lookup lookup)
         {
             SetColumnProperty(columnName, ColumnPropertyType.Lookup, lookup);
         }
 
+        /// <summary>
+        /// Creates a lookup based on a list of existing distinct values for the column
+        /// </summary>
         public void SetColumnLookup(string columnName)
         {
             SetColumnLookup(columnName, new Lookup(_fromPart, columnName, null, true));
         }
+
+        /// <summary>
+        /// Shows/hides the column in the control
+        /// </summary>
+        public void SetColumnDisplay(string columnName, bool display = false)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.Display, display);
+        }
+        /// <summary>
+        /// Shows/hides the list of columns in the control
+        /// </summary>
+        public void SetColumnDisplay(string[] columnNames, bool display = false)
+        {
+            foreach (var columnName in columnNames)
+            {
+                SetColumnDisplay(columnName, display);
+            }
+        }
+        /// <summary>
+        /// Sets the display format for the date/numeric column
+        /// </summary>
+        public void SetColumnFormat(string columnName, string format)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.Format, format);
+        }
+        /// <summary>
+        /// Sets the display format for the list of date/numeric columns
+        /// </summary>
+        public void SetColumnFormat(string[] columnNames, string format)
+        {
+            foreach (var columnName in columnNames)
+            {
+                SetColumnFormat(columnName, format);
+            }
+        }
+        /// <summary>
+        /// Sets the label for the column
+        /// </summary>
+        public void SetColumnLabel(string columnName, string label)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.Label, label);
+        }
+        /// <summary>
+        /// Indicates the contents of the column should be rendered as a an image
+        /// </summary>
+        public void SetColumnImage(string columnName, bool image = true)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.Image, image);
+        }
+        
 
         protected void SetColumnProperty(string columnName, Enum propertyType, object propertyValue)
         {

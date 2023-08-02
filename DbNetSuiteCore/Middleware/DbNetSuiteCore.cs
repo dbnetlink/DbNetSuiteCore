@@ -12,6 +12,7 @@ using DbNetSuiteCore.Services;
 using DocumentFormat.OpenXml.InkML;
 using System.Net;
 using DbNetSuiteCore.Constants.DbNetGrid;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace DbNetLink.Middleware
 {
@@ -25,11 +26,11 @@ namespace DbNetLink.Middleware
             _next = next;
         }
 
-        public async Task Invoke(HttpContext context, IWebHostEnvironment env, IConfiguration configuration)
+        public async Task Invoke(HttpContext context, IWebHostEnvironment env, IConfiguration configuration, IMemoryCache cache)
         {
             if (context.Request.Path.ToString().EndsWith(DbNetSuiteExtensions.PathExtension))
             {
-                await GenerateResponse(new AspNetCoreServices(context, env, configuration));
+                await GenerateResponse(new AspNetCoreServices(context, env, configuration, cache));
             }
             else
             {

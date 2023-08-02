@@ -43,7 +43,14 @@
                         EditColumn editColumn = fields[i].Key;
                         DataColumn dataColumn = fields[i].Value;
                         <td class="label">@(editColumn.Label)</td>
-                        <td class="control">@FormControl(editColumn,dataColumn)</td>
+                        if (editColumn.Binary)
+                        {
+                            <td class="control">@BinaryControl(editColumn,dataColumn)</td>
+                        }
+                        else
+                        {
+                            <td class="control">@FormControl(editColumn,dataColumn)</td>
+                        }
                     }
                 }
                 @if (remainder > 0)
@@ -84,6 +91,7 @@
 
             }
         }
+
         string tagName = "input";
         switch (editColumn.EditControlType)
         {
@@ -93,6 +101,7 @@
         }
 
         string button = string.Empty;
+
         if (editColumn.DataType.Equals(nameof(DateTime)))
         {
             button = AddButton("calendar", "SelectDate");
@@ -107,6 +116,15 @@
         }
 
         return new HtmlString($"<{tagName} {string.Join(" ", Attributes(editColumn, dataColumn, editColumn.ColumnSize))}></{tagName}>{button}");
+    }
+
+    public HtmlString BinaryControl(EditColumn editColumn, DataColumn dataColumn)
+    {
+        string tagName = "img";
+        string uploadButton = AddButton("upload", "Upload");
+        string deleteButton = AddButton("delete", "Delete");
+
+        return new HtmlString($"<div class=\"flex-container\"><div class=\"icon-container\"><{tagName} {string.Join(" ", Attributes(editColumn, dataColumn, editColumn.ColumnSize))}></{tagName}></div><div>{uploadButton}</div><div>{deleteButton}</div></div>");
     }
 
     private HtmlString DataListLookup(EditColumn editColumn, DataColumn dataColumn)

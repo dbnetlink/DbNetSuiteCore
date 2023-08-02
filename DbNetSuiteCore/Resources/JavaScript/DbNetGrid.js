@@ -27,7 +27,6 @@ class DbNetGrid extends DbNetGridEdit {
         this.autoRowSelect = true;
         this.booleanDisplayMode = BooleanDisplayMode.TrueFalse;
         this.cellIndexCache = {};
-        this.columnName = undefined;
         this.columnFilters = {};
         this.copy = true;
         this.currentPage = 1;
@@ -49,7 +48,6 @@ class DbNetGrid extends DbNetGridEdit {
         this.orderBy = "";
         this.orderByDirection = "asc";
         this.pageSize = 20;
-        this.primaryKey = undefined;
         this.procedureName = "";
         this.procedureParams = {};
         this.rowSelect = true;
@@ -229,10 +227,10 @@ class DbNetGrid extends DbNetGridEdit {
             $(e).on("click", (e) => this.openNestedGrid(e));
         });
         (_l = this.gridPanel) === null || _l === void 0 ? void 0 : _l.find("button.download").get().forEach(e => {
-            $(e).on("click", (e) => this.downloadCellData(e.currentTarget, false));
+            $(e).on("click", (e) => this.downloadBinaryData(e.currentTarget, false));
         });
         (_m = this.gridPanel) === null || _m === void 0 ? void 0 : _m.find("img.image").get().forEach(e => {
-            this.downloadCellData(e.parentElement, true);
+            this.downloadBinaryData(e.parentElement, true);
         });
         (_o = this.gridPanel) === null || _o === void 0 ? void 0 : _o.find("th[data-columnname]").get().forEach((th) => {
             var _a;
@@ -644,6 +642,9 @@ class DbNetGrid extends DbNetGridEdit {
             if (response.error == false) {
                 this.recordDeleted();
             }
+            else {
+                this.error(response.message);
+            }
         });
     }
     recordDeleted() {
@@ -733,44 +734,6 @@ class DbNetGrid extends DbNetGridEdit {
     addEventListener(id, eventName = "click") {
         this.controlElement(id).on(eventName, (event) => this.handleClick(event));
     }
-    downloadCellData(element, image) {
-        var _a, _b;
-        const $viewContentContainer = $(element).closest(".view-dialog-value");
-        const $button = $(element);
-        const $cell = $button.closest("td");
-        const $row = $button.closest("tr");
-        if ($viewContentContainer.length) {
-            this.columnName = $viewContentContainer.data("columnname");
-        }
-        else {
-            this.primaryKey = $row.data("pk");
-            this.columnName = (_b = (_a = this.gridPanel) === null || _a === void 0 ? void 0 : _a.find("th[data-columnname]").get($cell.prop("cellIndex"))) === null || _b === void 0 ? void 0 : _b.getAttribute("data-columnname");
-        }
-        const args = {
-            row: $row.get(0),
-            cell: $cell.get(0),
-            extension: "xlxs",
-            fileName: `${this.columnName}_${this.primaryKey}.xlsx`,
-            columnName: this.columnName
-        };
-        if (image) {
-            args.image = $cell.find("img").get(0);
-        }
-        this.fireEvent("onCellDataDownload", args);
-        this.post("download-column-data", this.getRequest(), true)
-            .then((blob) => {
-            if (image) {
-                const img = $cell.find("img");
-                img.attr("src", window.URL.createObjectURL(blob));
-            }
-            else {
-                const link = document.createElement("a");
-                link.href = window.URL.createObjectURL(blob);
-                link.download = args.fileName;
-                link.click();
-            }
-        });
-    }
     openNestedGrid(event) {
         const $button = $(event.currentTarget);
         const row = $button.closest("tr");
@@ -808,7 +771,6 @@ class DbNetGrid extends DbNetGridEdit {
         grid.initialize();
     }
     configureLinkedControl(control, id, pk, fk) {
-        var _a;
         if (control instanceof DbNetGrid) {
             const grid = control;
             this.assignForeignKey(grid, id);
@@ -831,7 +793,7 @@ class DbNetGrid extends DbNetGridEdit {
             }
             if (edit.initialised) {
                 //edit.disableForm(false);
-                if (((_a = this.editDialog) === null || _a === void 0 ? void 0 : _a.isOpen()) === false) {
+                if (!this.editDialog || this.editDialog.isOpen() === false) {
                     return;
                 }
                 edit.getRecord(pk);
@@ -844,6 +806,52 @@ class DbNetGrid extends DbNetGridEdit {
                 edit.initialize(pk);
             }
         }
+    }
+    downloadBinaryData(element, image) {
+        var _a, _b;
+        const $viewContentContainer = $(element).closest(".view-dialog-value");
+        const $button = $(element);
+        const $cell = $button.closest("td");
+        const $row = $button.closest("tr");
+        if ($viewContentContainer.length) {
+            this.columnName = $viewContentContainer.data("columnname");
+        }
+        else {
+            this.primaryKey = $row.data("pk");
+            this.columnName = (_b = (_a = this.gridPanel) === null || _a === void 0 ? void 0 : _a.find("th[data-columnname]").get($cell.prop("cellIndex"))) === null || _b === void 0 ? void 0 : _b.getAttribute("data-columnname");
+        }
+        const args = {
+            row: $row.get(0),
+            cell: $cell.get(0),
+            extension: "xlxs",
+            fileName: `${this.columnName}_${this.primaryKey}.xlsx`,
+            columnName: this.columnName
+        };
+        if (image) {
+            args.image = $cell.find("img").get(0);
+        }
+        this.fireEvent("onBinaryDataDownload", args);
+        this.post("download-column-data", this.getRequest(), true)
+            .then((blob) => {
+            if (blob.size) {
+                if (image) {
+                    const img = $cell.find("img");
+                    img.attr("src", window.URL.createObjectURL(blob));
+                }
+                else {
+                    const link = document.createElement("a");
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = args.fileName;
+                    link.click();
+                }
+            }
+            else {
+                if (image) {
+                    const img = $cell.find("img");
+                    img.hide();
+                }
+            }
+        });
     }
     configureEditButtons(edit) {
         const $row = $(this.selectedRow());

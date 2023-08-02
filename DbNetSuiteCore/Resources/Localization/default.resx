@@ -175,6 +175,9 @@
   <data name="Bytes" xml:space="preserve">
     <value>Bytes</value>
   </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
   <data name="Cancel_Tooltip" xml:space="preserve">
     <value>Cancel</value>
   </data>
@@ -714,6 +717,9 @@
   </data>
   <data name="UploadDocument" xml:space="preserve">
     <value>Upload document</value>
+  </data>
+  <data name="UploadFile" xml:space="preserve">
+    <value>Select File</value>
   </data>
   <data name="UserProfiles" xml:space="preserve">
     <value>User Profiles</value>

@@ -12,7 +12,7 @@ table.dbnetedit-form {
         vertical-align: middle;
     }
 
-    input, textarea, select {
+    input, textarea, select, img {
         font-family: var(--main-font-family);
         font-size: var(--main-font-size);
         border: 1px solid #90A4AE;
@@ -26,6 +26,11 @@ table.dbnetedit-form {
             background-color: #FFE082;
             outline: none;
         }
+    }
+
+    img.dbnetedit {
+        width: 100px;
+        height: auto;
     }
 
     input, select {
@@ -49,9 +54,15 @@ table.dbnetedit-form {
     .toolbar-button {
         margin-left: 2px;
     }
+
+    .flex-container {
+        display: flex;
+        flex-wrap: nowrap;
+    }
 }
 
-.dbnetedit-form {
+.dbnetedit-form,
+.upload-dialog {
     .message {
         border: 1pt solid #ddd;
         border-radius: 2px;
@@ -61,10 +72,53 @@ table.dbnetedit-form {
         vertical-align: middle;
         padding: 5px;
         margin: 2px 0px 2px 0px;
-        background-color:whitesmoke;
+        background-color: whitesmoke;
 
         &.highlight {
             background-color: $focus-color;
         }
+    }
+
+    img.preview {
+        width: auto;
+    }
+
+    .icon-container {
+        &.file {
+            height: 48px;
+            width: 48px;
+            padding:20px;
+            border: 1px solid #90A4AE;
+            border-radius: 2px;
+            vertical-align: bottom;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-color: #fff;
+            float:right;
+
+            &.default {
+                background-image: svgFileIconUrl("default");
+            }
+
+            &.csv {
+                background-image: svgFileIconUrl("csv");
+            }
+        }
+    }
+}
+
+.upload-dialog {
+    input {
+        font-family: var(--main-font-family);
+        font-size: var(--main-font-size);
+        border: 1px solid #90A4AE;
+        border-radius: 2px;
+    }
+
+    .file-info-label {
+        font-family: var(--main-font-family);
+        font-size: var(--main-font-size);
+        font-weight:bold;
+        white-space:nowrap;
     }
 }

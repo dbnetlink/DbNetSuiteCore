@@ -234,6 +234,15 @@ namespace DbNetSuiteCore.Resources.Localization {
         /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
+        internal static string Cancel {
+            get {
+                return ResourceManager.GetString("Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
         internal static string Cancel_Tooltip {
             get {
                 return ResourceManager.GetString("Cancel_Tooltip", resourceCulture);
@@ -1839,6 +1848,15 @@ namespace DbNetSuiteCore.Resources.Localization {
         internal static string UploadDocument {
             get {
                 return ResourceManager.GetString("UploadDocument", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select File.
+        /// </summary>
+        internal static string UploadFile {
+            get {
+                return ResourceManager.GetString("UploadFile", resourceCulture);
             }
         }
         

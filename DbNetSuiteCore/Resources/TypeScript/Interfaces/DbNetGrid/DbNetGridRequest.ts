@@ -1,7 +1,6 @@
 ﻿interface DbNetGridRequest extends DbNetGridEditRequest { 
     booleanDisplayMode: BooleanDisplayMode;
     columnFilters: Dictionary<string>;
-    columnName: string | undefined;
     columns: GridColumnRequest[];
     copy: boolean;
     currentPage: number;
@@ -19,7 +18,6 @@
     orderBy: string;
     orderByDirection: string;
     pageSize: number;
-    primaryKey: string | undefined;
     procedureName: string | undefined;
     procedureParams: Dictionary<object>;
     toolbarButtonStyle: ToolbarButtonStyle;

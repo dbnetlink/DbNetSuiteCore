@@ -44,7 +44,11 @@ namespace DbNetSuiteCore.Services
                 return null;
             }
         }
+        public string ColumnName { get; set; } = String.Empty;
+
         public bool Delete { get; set; } = false;
+        public string Extension { get; set; } = string.Empty;
+
         public string FromPart
         {
             get => EncodingHelper.Decode(_fromPart);
@@ -178,7 +182,7 @@ namespace DbNetSuiteCore.Services
 
                     if (editColumn.DataType == "Byte[]")
                     {
-                        editColumn.Display = false;
+                        editColumn.EditControlType = EditControlType.Upload;
                     }
 
                     if (editColumn.DataType == nameof(String))
@@ -546,6 +550,11 @@ namespace DbNetSuiteCore.Services
 
         protected void DeleteRecord(DbNetSuiteResponse response)
         {
+            if (IsReadOnly(response))
+            {
+                return;
+            }
+
             List<string> filterPart = new List<string>();
             CommandConfig deleteCommand = new CommandConfig();
 
@@ -624,21 +633,21 @@ namespace DbNetSuiteCore.Services
 
             return columnExpressions;
         }
-        protected async Task SearchDialog(DbNetSuiteResponse response, List<DbColumn> columns)
+        protected async Task SearchDialog(DbNetSuiteResponse response)
         {
             var searchDialogViewModel = new SearchDialogViewModel();
             ReflectionHelper.CopyProperties(this, searchDialogViewModel);
-            searchDialogViewModel.Columns = columns;
+            searchDialogViewModel.Columns = DbColumns;
             searchDialogViewModel.LookupTables = _lookupTables;
             response.Dialog = await HttpContext.RenderToStringAsync("Views/DbNetGrid/SearchDialog.cshtml", searchDialogViewModel);
         }
-        protected async Task LookupDialog(DbNetSuiteResponse response, List<DbColumn> columns)
+        protected async Task LookupDialog(DbNetSuiteResponse response)
         {
             var lookupDialogViewModel = new LookupDialogViewModel();
             ReflectionHelper.CopyProperties(this, lookupDialogViewModel);
             response.Dialog = await HttpContext.RenderToStringAsync("Views/DbNetGrid/LookupDialog.cshtml", lookupDialogViewModel);
 
-            var dataTable = GetLookupData(this.LookupColumnIndex, columns);
+            var dataTable = GetLookupData(this.LookupColumnIndex);
             string sortColumnName = dataTable.Columns[dataTable.Columns.Count - 1].ColumnName;
             var sortedDataTable = dataTable.AsEnumerable().OrderBy(x => x.Field<string>(sortColumnName)).ToList();
             // var dataView = new DataView(dataTable);
@@ -648,9 +657,9 @@ namespace DbNetSuiteCore.Services
             response.Html = await HttpContext.RenderToStringAsync("Views/DbNetGrid/LookupDialogContent.cshtml", lookupDialogViewModel);
         }
 
-        private DataTable GetLookupData(int columnIndex, List<DbColumn> columns)
+        private DataTable GetLookupData(int columnIndex)
         {
-            DbColumn dbColumn = columns.FirstOrDefault(c => c.Index == columnIndex);
+            DbColumn dbColumn = DbColumns.FirstOrDefault(c => c.Index == columnIndex);
             DataTable dataTable = new DataTable();
 
             using (Database)
@@ -1123,6 +1132,36 @@ namespace DbNetSuiteCore.Services
 
             return filter;
         }
+        protected byte[] GetColumnData()
+        {
+            byte[] byteData = new byte[0];
+
+            using (Database)
+            {
+                Database.Open();
+                QueryCommandConfig query = new QueryCommandConfig();
+
+                query.Sql = $"select {this.ColumnName} from {FromPart} where {PrimaryKeyFilter(query.Params)}";
+                Database.ExecuteQuery(query);
+
+                if (Database.Reader.Read())
+                {
+                    object value = Database.Reader[0];
+                    if (value is Byte[])
+                    {
+                        byteData = (byte[])value;
+                    }
+                }
+                Database.Close();
+            }
+
+            if (string.IsNullOrEmpty(Extension) == false)
+            {
+                HttpContext.Response.ContentType = GetMimeTypeForFileExtension($".{Extension}");
+            }
+            return byteData;
+        }
+
 
         protected object GetForeignKeyValue(object foreignKeyValue)
         {
@@ -1208,6 +1247,17 @@ namespace DbNetSuiteCore.Services
                 default:
                     return 0;
             }
+        }
+
+        protected bool IsReadOnly(DbNetSuiteResponse response)
+        {
+            if (Settings.ReadOnly)
+            {
+                response.Error = true;
+                response.Message = "Database modification has been disabled";
+            }
+
+            return Settings.ReadOnly;
         }
     }
 }

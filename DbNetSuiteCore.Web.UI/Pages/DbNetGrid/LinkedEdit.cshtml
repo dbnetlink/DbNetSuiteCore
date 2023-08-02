@@ -3,9 +3,11 @@
 @{
     DbNetEditCore customersEdit = new DbNetEditCore("northwind","customers");
     customersEdit.LayoutColumns = 3;
-    DbNetGridCore customersGrid = new DbNetGridCore("northwind","customers");
+
+    DbNetGridCore customersGrid = new DbNetGridCore("northwind", "customers");
     customersGrid.SetColumnLookup("country");
     customersGrid.SetColumnLookup("region");
+
     customersGrid.QuickSearch = true;
     customersGrid.View = true;
     customersGrid.ViewLayoutColumns = 3;

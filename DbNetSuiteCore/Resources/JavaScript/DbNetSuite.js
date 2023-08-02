@@ -111,14 +111,23 @@ class DbNetSuite {
     }
     post(action, request, blob = false, page = null) {
         this.showLoader();
-        const options = {
-            method: "POST",
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json;charset=UTF-8",
-            },
-            body: JSON.stringify(request)
-        };
+        let options = {};
+        if (request instanceof FormData) {
+            options = {
+                method: "POST",
+                body: request
+            };
+        }
+        else {
+            options = {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json;charset=UTF-8",
+                },
+                body: JSON.stringify(request)
+            };
+        }
         if (page == null) {
             page = this.constructor.name.toLowerCase();
         }

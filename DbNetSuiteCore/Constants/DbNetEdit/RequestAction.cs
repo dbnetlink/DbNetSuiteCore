@@ -10,6 +10,9 @@
         public const string Search = "search";
         public const string InsertRecord = "insert-record"; 
         public const string DeleteRecord = "delete-record";
+        public const string DownloadColumnData = "download-column-data";
+        public const string UploadDialog = "upload-dialog";
+        public const string SaveFiles = "save-files";
     }
 }
 

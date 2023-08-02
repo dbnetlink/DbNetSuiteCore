@@ -3,6 +3,7 @@
     public enum EventType
     {
         OnInitialized,
-        OnFormElementCreated
+        OnFormElementCreated,
+        OnRecordSelected
     }
 }

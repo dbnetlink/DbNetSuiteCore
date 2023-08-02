@@ -2,10 +2,12 @@
 class DbNetGridEdit extends DbNetSuite {
     constructor(id) {
         super(id);
+        this.columnName = undefined;
         this._delete = false;
         this.fromPart = "";
         this.insert = false;
         this.navigation = true;
+        this.primaryKey = undefined;
         this.optimizeForLargeDataset = false;
         this.quickSearch = false;
         this.quickSearchDelay = 1000;

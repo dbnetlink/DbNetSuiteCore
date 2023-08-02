@@ -23,6 +23,8 @@ using DbNetSuiteCore.Constants.DbNetSuite;
 using DbNetSuiteCore.Models.DbNetGrid;
 using System.ComponentModel;
 using DbNetSuiteCore.Enums;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace DbNetSuiteCore.Services
 {
@@ -34,6 +36,7 @@ namespace DbNetSuiteCore.Services
         protected readonly IWebHostEnvironment Env;
         protected readonly IConfiguration Configuration;
         protected readonly DbNetSuiteCoreSettings Settings;
+        protected readonly IMemoryCache Cache;
 
         private string _connectionString;
 
@@ -56,6 +59,7 @@ namespace DbNetSuiteCore.Services
             Env = services.webHostEnvironment;
             Configuration = services.configuration;
             Settings = services.configuration.GetSection("DbNetSuiteCore").Get<DbNetSuiteCoreSettings>() ?? new DbNetSuiteCoreSettings();
+            Cache = services.cache;
         }
 
         public async Task<object> Process()
@@ -162,9 +166,23 @@ namespace DbNetSuiteCore.Services
             }
         }
 
+        protected string GetMimeTypeForFileExtension(string extension)
+        {
+            const string defaultContentType = "application/octet-stream";
+
+            var provider = new FileExtensionContentTypeProvider();
+
+            if (!provider.TryGetContentType(extension, out string contentType))
+            {
+                contentType = defaultContentType;
+            }
+
+            return contentType;
+        }
+
         public string Translate(string key)
         {
-            return ResourceManager.GetString(key) ?? $"*{key}*";
+            return ResourceManager.GetString(key) ?? (Settings.Debug ? $"*{key}*" : key);
         }
     }
 }

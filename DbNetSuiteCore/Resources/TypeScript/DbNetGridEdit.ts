@@ -1,11 +1,13 @@
 type ParentChildRelationship = "OneToOne" | "OneToMany" | null
 class DbNetGridEdit extends DbNetSuite {
+    columnName: string | undefined = undefined;
     columns: DbColumn[];
     _delete = false;
     fromPart = "";
     insert = false;
     lookupDialog: LookupDialog | undefined;
     navigation = true;
+    primaryKey: string | undefined = undefined;
     optimizeForLargeDataset = false;
     quickSearch = false;
     quickSearchDelay = 1000;
@@ -105,7 +107,6 @@ class DbNetGridEdit extends DbNetSuite {
     }
 
     public lookup($input: JQuery<HTMLInputElement>, request: DbNetGridEditRequest) {
-        
         request.lookupColumnIndex = parseInt($input.attr("columnIndex") as string);
 
         if (this.lookupDialog && request.lookupColumnIndex == this.lookupDialog.columnIndex) {
@@ -168,5 +169,4 @@ class DbNetGridEdit extends DbNetSuite {
             col.foreignKeyValue = fk ? fk : DbNetSuite.DBNull;
         }
     }
-
 }

@@ -88,5 +88,11 @@
     "inputFiles": [
       "Resources/JavaScript/BrowseDialog.js"
     ]
+  },
+  {
+    "outputFileName": "Resources/JavaScript/UploadDialog.min.js",
+    "inputFiles": [
+      "Resources/JavaScript/UploadDialog.js"
+    ]
   }
 ]

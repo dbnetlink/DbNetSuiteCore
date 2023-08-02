@@ -10,14 +10,15 @@
     <Description>Interactive database driven Razor web reporting component for ASP.NET Core.  Supports MSSQL, MySql, PostgreSQL and SQLite</Description>
     <RepositoryUrl>https://github.com/dbnetlink/DbNetSuiteCore</RepositoryUrl>
     <PackageTags>asp.net core, grid, spreadsheet</PackageTags>
-    <AssemblyVersion>0.9.43</AssemblyVersion>
-    <FileVersion>0.9.43</FileVersion>
+    <AssemblyVersion>0.9.441</AssemblyVersion>
+    <FileVersion>0.9.441</FileVersion>
     <PackageReleaseNotes>Beta version. Currently still under active development.</PackageReleaseNotes>
     <PackageProjectUrl>https://dbnetsuitecoreapp.azurewebsites.net</PackageProjectUrl>
-    <Version>0.9.43-beta</Version>
+    <Version>0.9.441-beta</Version>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageLicenseExpression> NPOSL-3.0</PackageLicenseExpression>
     <BaseOutputPath>C:\Users\robin\source\repos\DbNetSuiteCore-VS2022\DbNetSuiteCoreApp\bin</BaseOutputPath>
+    <PackageOutputPath>C:\Users\robin\source\repos\DbNetSuiteCore-VS2022\DbNetSuiteCoreApp\bin</PackageOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -96,6 +97,8 @@
     <None Remove="Resources\JavaScript\MessageBox.min.js" />
     <None Remove="Resources\JavaScript\SearchDialog.js" />
     <None Remove="Resources\JavaScript\SearchDialog.min.js" />
+    <None Remove="Resources\JavaScript\UploadDialog.js" />
+    <None Remove="Resources\JavaScript\UploadDialog.min.js" />
     <None Remove="Resources\JavaScript\ViewDialog.js" />
     <None Remove="Resources\JavaScript\ViewDialog.min.js" />
     <None Remove="Resources\SCSS\dbnetcombo.scss" />
@@ -114,6 +117,7 @@
     <None Remove="Views\DbNetEdit\Form.cshtml" />
     <None Remove="Views\DbNetEdit\HtmlEditor.cshtml" />
     <None Remove="Views\DbNetEdit\Toolbar.cshtml" />
+    <None Remove="Views\DbNetEdit\UploadDialog.cshtml" />
     <None Remove="Views\DbNetGrid\DataTable.cshtml" />
     <None Remove="Views\DbNetGrid\Grid.cshtml" />
     <None Remove="Views\DbNetGrid\HtmlExport.cshtml" />
@@ -172,6 +176,8 @@
     <EmbeddedResource Include="Resources\JavaScript\MessageBox.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\SearchDialog.js" />
     <EmbeddedResource Include="Resources\JavaScript\SearchDialog.min.js" />
+    <EmbeddedResource Include="Resources\JavaScript\UploadDialog.js" />
+    <EmbeddedResource Include="Resources\JavaScript\UploadDialog.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\ViewDialog.js" />
     <EmbeddedResource Include="Resources\JavaScript\ViewDialog.min.js" />
     <EmbeddedResource Include="Resources\SCSS\dbnetedit.scss" />
@@ -207,6 +213,10 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\DbNetEdit\Form.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\DbNetEdit\UploadDialog.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </EmbeddedResource>

@@ -261,7 +261,8 @@ table.search-dialog-toolbar,
 table.lookup-dialog-toolbar,
 .search-dialog,
 .dbnetedit-form,
-.message-box {
+.message-box,
+.upload-dialog {
     border-collapse: inherit;
 
     td.navigation {
@@ -435,7 +436,6 @@ table.lookup-dialog-toolbar,
         border: 1px solid #90A4AE;
         padding: 2px;
         width: fit-content;
-        white-space: nowrap;
     }
 }
 
@@ -534,7 +534,7 @@ table.lookup-dialog-toolbar,
         font-size: var(--main-font-size);
         font-weight: bold;
         vertical-align: middle;
-        padding: 2px;
+        padding: 5px;
         margin-top: 5px;
 
         &.highlight {
@@ -543,16 +543,11 @@ table.lookup-dialog-toolbar,
     }
 }
 
-div.dialog-toolbar-panel {
-    border: 1pt solid #ddd;
-    border-radius: 2px;
-    background-color: #e9e9e9;
-}
-
 table.dbnetsuite-toolbar,
 table.view-dialog-toolbar,
 table.search-dialog-toolbar,
-table.lookup-dialog-toolbar {
+table.lookup-dialog-toolbar, 
+.upload-dialog{
     td {
         .toolbar-button[button-type=apply] {
             background-image: svgUrl("apply", "24", "%23388E3C") !important;

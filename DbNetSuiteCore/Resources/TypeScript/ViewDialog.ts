@@ -4,7 +4,8 @@
     constructor(id: string, parent:DbNetGrid) {
         super(id);
         this.parent = parent;
-
+        this.$dialog?.on("dialogopen", (event) => this.dialogOpened(event));
+        this.$dialog?.find("table").first().css("max-width", this.windowWidth * 0.6 )
         this.$dialog?.find(".next-btn").on("click", () => this.viewNextRecord());
         this.$dialog?.find(".previous-btn").on("click", () => this.viewPreviousRecord());
         this.$dialog?.find("[button-type='close']").on("click", () => this.close());
@@ -14,12 +15,12 @@
         this.$dialog?.find("div.content").html(response.data)
 
         this.$dialog?.find("button.download").get().forEach(e => {
-            $(e).on("click", (e) => this.parent.downloadCellData(e.currentTarget, false));
+            $(e).on("click", (e) => this.parent.downloadBinaryData(e.currentTarget, false));
         });
 
         this.$dialog?.find("img.image").get().forEach(e => {
-            this.parent.downloadCellData(e.parentElement!, true);
-            $(e).on('load', (e) => this.setSize());
+            this.parent.downloadBinaryData(e.parentElement!, true);
+           // $(e).on('load', (e) => this.setSize());
         });
 
         this.open();
@@ -31,8 +32,12 @@
             dialog: this.$dialog,
             record: response.record
         }
-        this.setSize();
         this.parent.fireEvent("onViewRecordSelected", args);
+    }
+
+    private dialogOpened(event: JQuery.TriggeredEvent): void {
+        const width = this.$dialog?.find("table").first().width() as number + 20;
+        this.$dialog?.dialog("option", "width", width);
     }
 
     private setSize() {

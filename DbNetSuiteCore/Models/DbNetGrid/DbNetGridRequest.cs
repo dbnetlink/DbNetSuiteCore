@@ -9,7 +9,6 @@ namespace DbNetSuiteCore.Models.DbNetGrid
         public BooleanDisplayMode BooleanDisplayMode { get; set; }
         public Dictionary<string, string> ColumnFilters { get; set; } = new Dictionary<string, string>();
         public List<GridColumn> Columns { get; set; } = new List<GridColumn>();
-        public string ColumnName { get; set; }
         public bool Copy { get; set; } = true;
         public int CurrentPage { get; set; } = 1;
         public GridColumn DefaultColumn { get; set; }
@@ -26,7 +25,6 @@ namespace DbNetSuiteCore.Models.DbNetGrid
         public int? OrderBy { get; set; }
         public OrderByDirection OrderByDirection { get; set; }
         public long PageSize { get; set; } = 20;
-        public string PrimaryKey { get; set; }
         public string ProcedureName { get; set; } = string.Empty;
         public Dictionary<string, object> ProcedureParams { get; set; } = new Dictionary<string, object>();
         public ToolbarButtonStyle ToolbarButtonStyle { get; set; }

@@ -1,4 +1,5 @@
 ﻿using DbNetSuiteCore.Services;
+using System.ComponentModel;
 using System.Resources;
 
 namespace DbNetSuiteCore.ViewModels
@@ -12,7 +13,7 @@ namespace DbNetSuiteCore.ViewModels
 
         public string Translate(string key)
         {
-            return ResourceManager.GetString(key) ?? $"*{key}*";
+            return Component.Translate(key);
         }
     }
 }

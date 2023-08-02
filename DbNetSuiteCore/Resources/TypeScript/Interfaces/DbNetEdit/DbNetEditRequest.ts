@@ -3,8 +3,8 @@
     columns: EditColumnRequest[];
     currentRow: number | undefined;
     totalRows: number;
-    primaryKey: string;
     layoutColumns: number;
     isEditDialog: boolean;
     toolbarPosition: ToolbarPosition;
+    formCacheKey: string;
 }

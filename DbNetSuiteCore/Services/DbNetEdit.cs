@@ -14,8 +14,8 @@ using System.Collections.Specialized;
 using System;
 using System.Linq;
 using DbNetSuiteCore.Constants;
-using System.Diagnostics.Metrics;
-
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.AspNetCore.Http;
 
 namespace DbNetSuiteCore.Services
 {
@@ -31,6 +31,7 @@ namespace DbNetSuiteCore.Services
         public int LayoutColumns { get; set; } = 1;
         public long TotalRows { get; set; }
         public bool Browse => Columns.Any(c => c.Browse);
+        public Guid? FormCacheKey { get; set; }
         public ToolbarPosition ToolbarPosition { get; set; } = ToolbarPosition.Bottom;
         public DbNetEdit(AspNetCoreServices services) : base(services)
         {
@@ -44,40 +45,51 @@ namespace DbNetSuiteCore.Services
         public List<object> ForeignKeyValue { get; set; } = null;
         public new async Task<object> Process()
         {
-            var request = await DeserialiseRequest<DbNetEditRequest>();
-            Columns = request.Columns;
-
-            Initialise();
-
             DbNetEditResponse response = new DbNetEditResponse();
 
-            switch (Action.ToLower())
+            if (Action.ToLower() == RequestAction.SaveFiles)
             {
-                case RequestAction.Initialize:
-                    response.Toolbar = await Toolbar();
-                    await CreateForm(response);
-                    break;
-                case RequestAction.SearchDialog:
-                    await SearchDialog(response, Columns.Cast<DbColumn>().ToList());
-                    break;
-                case RequestAction.Lookup:
-                    await LookupDialog(response, Columns.Cast<DbColumn>().ToList());
-                    break;
-                case RequestAction.GetRecord:
-                    GetRecord(response);
-                    break;
-                case RequestAction.UpdateRecord:
-                    UpdateRecord(response);
-                    break;
-                case RequestAction.InsertRecord:
-                    InsertRecord(response);
-                    break;
-                case RequestAction.DeleteRecord:
-                    DeleteRecord(response);
-                    break;
-                case RequestAction.Search:
-                    SelectRecords(response);
-                    break;
+                await SaveFiles(response);
+            }
+            else
+            {
+                var request = await DeserialiseRequest<DbNetEditRequest>();
+                Columns = request.Columns;
+                Initialise();
+
+                switch (Action.ToLower())
+                {
+                    case RequestAction.Initialize:
+                        response.Toolbar = await Toolbar();
+                        await CreateForm(response);
+                        break;
+                    case RequestAction.SearchDialog:
+                        await SearchDialog(response);
+                        break;
+                    case RequestAction.Lookup:
+                        await LookupDialog(response);
+                        break;
+                    case RequestAction.GetRecord:
+                        GetRecord(response);
+                        break;
+                    case RequestAction.UpdateRecord:
+                        UpdateRecord(response);
+                        break;
+                    case RequestAction.InsertRecord:
+                        InsertRecord(response);
+                        break;
+                    case RequestAction.DeleteRecord:
+                        DeleteRecord(response);
+                        break;
+                    case RequestAction.Search:
+                        SelectRecords(response);
+                        break;
+                    case RequestAction.DownloadColumnData:
+                        return GetColumnData();
+                    case RequestAction.UploadDialog:
+                        await UploadDialog(response);
+                        break;
+                }
             }
 
             var serializeOptions = new JsonSerializerOptions
@@ -316,12 +328,22 @@ namespace DbNetSuiteCore.Services
             List<string> updatePart = new List<string>();
             List<string> filterPart = new List<string>();
             CommandConfig updateCommand = new CommandConfig();
-
             ValidateUserInput(response);
-
             if (response.Error)
             {
                 return;
+            }
+
+            if (IsReadOnly(response))
+            {
+                return;
+            }
+
+            UploadedFiles uploadedFiles = null;
+
+            if (FormCacheKey.HasValue)
+            {
+                uploadedFiles = Cache.Get(FormCacheKey) as UploadedFiles;
             }
 
             foreach (string key in Changes.Keys)
@@ -330,6 +352,18 @@ namespace DbNetSuiteCore.Services
 
                 updatePart.Add(Database.QualifiedDbObjectName(c.ColumnName) + " = " + Database.ParameterName(key));
                 updateCommand.Params[Database.ParameterName(key)] = ConvertToDbParam(Changes[key], c);
+            }
+
+            if (uploadedFiles != null)
+            {
+                foreach (IFormFile file in uploadedFiles.Files)
+                {
+                    DbColumn c = this.Columns.FirstOrDefault(c => c.IsMatch(file.Name));
+
+                    var bytes = uploadedFiles.FileBytes[file.Name];
+                    updatePart.Add(Database.QualifiedDbObjectName(file.Name) + " = " + Database.ParameterName(file.Name));
+                    updateCommand.Params[Database.ParameterName(file.Name)] = ConvertToDbParam(bytes, c);
+                }
             }
 
             filterPart.Add(PrimaryKeyFilter(updateCommand.Params));
@@ -354,7 +388,6 @@ namespace DbNetSuiteCore.Services
             GetRecord(response);
         }
 
-
         private void InsertRecord(DbNetEditResponse response)
         {
             List<string> columnNames = new List<string>();
@@ -368,6 +401,18 @@ namespace DbNetSuiteCore.Services
                 return;
             }
 
+            if (IsReadOnly(response))
+            {
+                return;
+            }
+
+            UploadedFiles uploadedFiles = null;
+
+            if (FormCacheKey.HasValue)
+            {
+                uploadedFiles = Cache.Get(FormCacheKey) as UploadedFiles;
+            }
+
             foreach (string key in Changes.Keys)
             {
                 DbColumn c = this.Columns.FirstOrDefault(c => c.IsMatch(key));
@@ -375,6 +420,19 @@ namespace DbNetSuiteCore.Services
                 columnNames.Add(Database.QualifiedDbObjectName(c.ColumnName));
                 paramNames.Add(Database.ParameterName(key));
                 insertCommand.Params[Database.ParameterName(key)] = ConvertToDbParam(Changes[key], c);
+            }
+
+            if (uploadedFiles != null)
+            {
+                foreach (IFormFile file in uploadedFiles.Files)
+                {
+                    DbColumn c = this.Columns.FirstOrDefault(c => c.IsMatch(file.Name));
+
+                    var bytes = uploadedFiles.FileBytes[file.Name];
+                    columnNames.Add(Database.QualifiedDbObjectName(c.ColumnName));
+                    paramNames.Add(Database.ParameterName(file.Name));
+                    insertCommand.Params[Database.ParameterName(file.Name)] = ConvertToDbParam(bytes, c);
+                }
             }
 
             DbColumn foreignKey = Columns.FirstOrDefault(c => c.ForeignKey);
@@ -429,6 +487,38 @@ namespace DbNetSuiteCore.Services
             }
 
             response.Error = response.ValidationMessage != null;
+        }
+
+        private async Task SaveFiles(DbNetEditResponse response)
+        {
+            var formCollection = await HttpContext.Request.ReadFormAsync();
+
+            UploadedFiles uploadedFiles = new UploadedFiles();
+            uploadedFiles.FormCollection = formCollection;
+
+            if (FormCacheKey.HasValue)
+            {
+                try
+                {
+                    Cache.Remove(FormCacheKey.Value);
+                }
+                catch { }
+            }
+
+            response.FormCacheKey = Guid.NewGuid();
+
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(30))
+                    .SetPriority(CacheItemPriority.Normal);
+
+            Cache.Set(response.FormCacheKey, uploadedFiles, cacheEntryOptions);
+        }
+
+        protected async Task UploadDialog(DbNetSuiteResponse response)
+        {
+            var uploadDialogViewModel = new UploadDialogViewModel();
+            ReflectionHelper.CopyProperties(this, uploadDialogViewModel);
+            response.Dialog = await HttpContext.RenderToStringAsync("Views/DbNetEdit/UploadDialog.cshtml", uploadDialogViewModel);
         }
     }
 }

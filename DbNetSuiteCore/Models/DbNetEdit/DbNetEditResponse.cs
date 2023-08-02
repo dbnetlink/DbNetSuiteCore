@@ -1,4 +1,5 @@
 ﻿using DbNetSuiteCore.Helpers;
+using System;
 using System.Collections.Generic;
 
 namespace DbNetSuiteCore.Models.DbNetEdit
@@ -24,5 +25,6 @@ namespace DbNetSuiteCore.Models.DbNetEdit
         }
 
         public KeyValuePair<string, string>? ValidationMessage { get; set; } = null;
+        public Guid FormCacheKey { get; set; }
     }
 }

@@ -69,6 +69,7 @@ namespace DbNetSuiteCore.Components
         {
             SetColumnProperty(columnName, ColumnPropertyType.EditControlType, (object)propertyValue);
         }
+
         public HtmlString Render()
         {
             string message = ValidateProperties();

@@ -5,6 +5,7 @@ namespace DbNetSuiteCore.Models.DbNetEdit
 {
     public class DbNetGridEditRequest : DbNetSuiteRequest
     {
+        public string ColumnName { get; set; }
         public bool Delete { get; set; } = false;
         public string FromPart { get; set; }
         public int LookupColumnIndex { get; set; }
@@ -12,6 +13,8 @@ namespace DbNetSuiteCore.Models.DbNetEdit
         public bool Navigation { get; set; } = true;
         public bool OptimizeForLargeDataset { get; set; }
         public ParentChildRelationship? ParentChildRelationship { get; set; }
+        public string PrimaryKey { get; set; }
+
         public bool QuickSearch { get; set; } = false;
         public string QuickSearchToken { get; set; }
         public bool Search { get; set; } = true;

@@ -8,4 +8,5 @@ interface DbNetEditResponse extends DbNetGridEditResponse {
     columns?: EditColumn[];
     primaryKey?: string;
     validationMessage?: ValidationMessage;
+    formCacheKey: string;
 }
