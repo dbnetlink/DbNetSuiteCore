@@ -14,8 +14,6 @@ namespace DbNetSuiteCore.Models.DbNetGrid
         public string Style { get; set; }
         public bool Filter { get; set; } = false;
         public bool GroupHeader { get; set; } = false;
-        public bool Download { get; set; } = false;
-        public bool Image { get; set; } = false;
         public bool View { get; set; } = false;
         public bool FixedOrder => GroupHeader || TotalBreak;
         public GridColumn()

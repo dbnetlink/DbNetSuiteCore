@@ -10,6 +10,7 @@ namespace DbNetSuiteCore.Models.DbNetEdit
         public string FromPart { get; set; }
         public int LookupColumnIndex { get; set; }
         public bool Insert { get; set; } = false;
+        public int MaxImageHeight { get; set; }
         public bool Navigation { get; set; } = true;
         public bool OptimizeForLargeDataset { get; set; }
         public ParentChildRelationship? ParentChildRelationship { get; set; }

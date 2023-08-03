@@ -181,7 +181,7 @@ class DbNetGrid extends DbNetGridEdit {
         this.controlElement("QuickSearch").on("keyup", (event) => this.quickSearchKeyPress(event));
     }
     configureGrid(response) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
         if (this.toolbarPanel) {
             if (response.toolbar) {
                 (_a = this.toolbarPanel) === null || _a === void 0 ? void 0 : _a.html(response.toolbar);
@@ -220,19 +220,11 @@ class DbNetGrid extends DbNetGridEdit {
         (_h = this.gridPanel) === null || _h === void 0 ? void 0 : _h.find("tr.filter-row select").get().forEach(select => {
             $(select).on("change", (event) => this.runColumnFilterSearch());
         });
+        // this.configureDataRows(this.gridPanel?.find("tr.data-row") as JQuery<HTMLTableRowElement>);
         (_j = this.gridPanel) === null || _j === void 0 ? void 0 : _j.find("input.multi-select-checkbox").get().forEach(e => {
             $(e).on("click", (e) => this.handleRowSelectClick(e));
         });
-        (_k = this.gridPanel) === null || _k === void 0 ? void 0 : _k.find("button.nested-grid-button").get().forEach(e => {
-            $(e).on("click", (e) => this.openNestedGrid(e));
-        });
-        (_l = this.gridPanel) === null || _l === void 0 ? void 0 : _l.find("button.download").get().forEach(e => {
-            $(e).on("click", (e) => this.downloadBinaryData(e.currentTarget, false));
-        });
-        (_m = this.gridPanel) === null || _m === void 0 ? void 0 : _m.find("img.image").get().forEach(e => {
-            this.downloadBinaryData(e.parentElement, true);
-        });
-        (_o = this.gridPanel) === null || _o === void 0 ? void 0 : _o.find("th[data-columnname]").get().forEach((th) => {
+        (_k = this.gridPanel) === null || _k === void 0 ? void 0 : _k.find("th[data-columnname]").get().forEach((th) => {
             var _a;
             const columnName = $(th).data("columnname");
             const cellIdx = th.cellIndex;
@@ -242,20 +234,35 @@ class DbNetGrid extends DbNetGridEdit {
             });
         });
         if (this.autoRowSelect) {
-            (_p = this.gridPanel) === null || _p === void 0 ? void 0 : _p.find("tr.data-row").first().trigger("click");
+            (_l = this.gridPanel) === null || _l === void 0 ? void 0 : _l.find("tr.data-row").first().trigger("click");
         }
-        const rowCount = (_q = this.gridPanel) === null || _q === void 0 ? void 0 : _q.find("tr.data-row").length;
+        const rowCount = (_m = this.gridPanel) === null || _m === void 0 ? void 0 : _m.find("tr.data-row").length;
         this.fireEvent("onPageLoaded", { table: this.table(), rowCount: rowCount });
         this.renderChart();
         if (this.frozenHeader) {
-            const h = (_r = this.gridPanel) === null || _r === void 0 ? void 0 : _r.find("tr.header-row").height();
-            const $filterRow = (_s = this.gridPanel) === null || _s === void 0 ? void 0 : _s.find("tr.filter-row");
+            const h = (_o = this.gridPanel) === null || _o === void 0 ? void 0 : _o.find("tr.header-row").height();
+            const $filterRow = (_p = this.gridPanel) === null || _p === void 0 ? void 0 : _p.find("tr.filter-row");
             $filterRow.find("th").css("top", h);
         }
-        if (rowCount === 0) {
+        if (rowCount === 0 && this.initialised) {
             this.configureLinkedControls(null);
         }
     }
+    /*
+    private configureDataRows($rows: JQuery<HTMLTableRowElement>) {
+        $rows.find("button.nested-grid-button").get().forEach(e => {
+            $(e).on("click", (e) => this.openNestedGrid(e));
+        });
+
+        $rows.find("button.download").get().forEach(e => {
+            $(e).on("click", (e) => this.downloadBinaryData(e.currentTarget, false));
+        });
+
+        $rows.find("img.image").get().forEach(e => {
+            this.downloadBinaryData(e.parentElement!, true);
+        });
+    }
+    */
     configureDataTable(_html) {
         var _a, _b, _c, _d;
         (_a = this.element) === null || _a === void 0 ? void 0 : _a.removeClass("dbnetsuite");
@@ -382,10 +389,19 @@ class DbNetGrid extends DbNetGridEdit {
         this.orderBy = '';
         this.getPage();
     }
-    addRowEventHandlers(tr) {
-        tr.on("mouseover", () => tr.addClass("highlight"));
-        tr.on("mouseout", () => tr.removeClass("highlight"));
-        tr.on("click", () => this.handleRowClick(tr));
+    addRowEventHandlers($tr) {
+        $tr.on("mouseover", (e) => $(e.currentTarget).addClass("highlight"));
+        $tr.on("mouseout", (e) => $(e.currentTarget).removeClass("highlight"));
+        $tr.on("click", (e) => this.handleRowClick($(e.currentTarget)));
+        $tr.find("button.nested-grid-button").get().forEach(e => {
+            $(e).on("click", (e) => this.openNestedGrid(e));
+        });
+        $tr.find("button.download").get().forEach(e => {
+            $(e).on("click", (e) => this.downloadBinaryData(e.currentTarget, false));
+        });
+        $tr.find("img.image").get().forEach(e => {
+            this.downloadBinaryData(e.parentElement, true);
+        });
     }
     selectRow(tr) {
         tr.parent().find("tr.data-row").removeClass("selected").find("input.multi-select-checkbox").prop('checked', false);
@@ -727,7 +743,8 @@ class DbNetGrid extends DbNetGridEdit {
             delete: this._delete,
             viewLayoutColumns: this.viewLayoutColumns,
             parentControlType: this.parentControlType,
-            parentChildRelationship: this.parentChildRelationship
+            parentChildRelationship: this.parentChildRelationship,
+            maxImageHeight: this.maxImageHeight
         };
         return request;
     }
@@ -785,9 +802,14 @@ class DbNetGrid extends DbNetGridEdit {
                 this.editControl = edit;
             }
             if (id == null) {
-                edit.disableForm(true);
-                if (this.editDialog) {
-                    this.editDialog.close();
+                if (edit.initialised) {
+                    edit.disableForm(true);
+                    if (this.editDialog) {
+                        this.editDialog.close();
+                    }
+                }
+                else {
+                    this.initialiseEdit(edit, null);
                 }
                 return;
             }
@@ -800,12 +822,15 @@ class DbNetGrid extends DbNetGridEdit {
                 this.configureEditButtons(edit);
             }
             else {
-                edit.internalBind("onInitialized", (sender) => this.initialiseEdit(sender));
-                edit.internalBind("onRecordUpdated", () => this.refreshRow());
-                edit.internalBind("onRecordInserted", () => this.reload());
-                edit.initialize(pk);
+                this.initialiseEdit(edit, pk);
             }
         }
+    }
+    initialiseEdit(editControl, pk) {
+        editControl.internalBind("onInitialized", (sender) => this.configureEdit(sender));
+        editControl.internalBind("onRecordUpdated", () => this.refreshRow());
+        editControl.internalBind("onRecordInserted", () => this.reload());
+        editControl.initialize(pk);
     }
     downloadBinaryData(element, image) {
         var _a, _b;
@@ -858,7 +883,7 @@ class DbNetGrid extends DbNetGridEdit {
         edit.controlElement("NextBtn").prop("disabled", $row.next('.data-row').length == 0);
         edit.controlElement("PreviousBtn").prop("disabled", $row.prev('.data-row').length == 0);
     }
-    initialiseEdit(sender) {
+    configureEdit(sender) {
         sender.controlElement("NextBtn").off().on("click", () => this.nextRecord());
         sender.controlElement("PreviousBtn").off().on("click", () => this.previousRecord());
         if (this.editDialogId) {

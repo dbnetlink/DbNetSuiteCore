@@ -65,6 +65,7 @@ declare class DbNetEdit extends DbNetGridEdit {
     private selectTime;
     private uuid;
     private downloadBinaryData;
-    saveFile($img: JQuery<HTMLImageElement>, file: File | null): void;
+    saveFile($img: JQuery<HTMLImageElement>, file: File | null, fileMetaData?: FileMetaData | null): void;
+    private applyLastModified;
     private hasFormData;
 }

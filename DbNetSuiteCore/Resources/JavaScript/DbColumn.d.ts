@@ -14,4 +14,9 @@ declare class DbColumn {
     columnSize?: number;
     style?: string;
     unmatched: boolean;
+    download?: boolean;
+    image?: boolean;
+    extension?: string;
+    uploadMetaData?: string;
+    uploadMetaDataColumn?: string;
 }

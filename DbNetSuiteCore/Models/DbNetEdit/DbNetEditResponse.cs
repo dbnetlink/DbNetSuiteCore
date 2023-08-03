@@ -26,5 +26,6 @@ namespace DbNetSuiteCore.Models.DbNetEdit
 
         public KeyValuePair<string, string>? ValidationMessage { get; set; } = null;
         public Guid FormCacheKey { get; set; }
+        public string ConvertedDate { get; set; }
     }
 }

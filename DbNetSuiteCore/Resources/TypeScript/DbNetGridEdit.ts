@@ -6,6 +6,7 @@ class DbNetGridEdit extends DbNetSuite {
     fromPart = "";
     insert = false;
     lookupDialog: LookupDialog | undefined;
+    maxImageHeight = 40;
     navigation = true;
     primaryKey: string | undefined = undefined;
     optimizeForLargeDataset = false;

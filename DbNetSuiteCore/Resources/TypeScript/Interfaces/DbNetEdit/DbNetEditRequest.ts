@@ -7,4 +7,5 @@
     isEditDialog: boolean;
     toolbarPosition: ToolbarPosition;
     formCacheKey: string;
+    javascriptDate: Date;
 }

@@ -94,6 +94,9 @@ table.dbnetedit-form .flex-container {
   border: 1px solid #90A4AE;
   border-radius: 2px;
 }
+.upload-dialog input:focus {
+  outline: none;
+}
 .upload-dialog .file-info-label {
   font-family: var(--main-font-family);
   font-size: var(--main-font-size);

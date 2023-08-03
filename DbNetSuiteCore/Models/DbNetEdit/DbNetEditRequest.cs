@@ -14,5 +14,7 @@ namespace DbNetSuiteCore.Models.DbNetEdit
         public bool IsEditDialog { get; set; } = false;
         public ToolbarPosition ToolbarPosition { get; set; } = ToolbarPosition.Bottom;
         public Guid FormCacheKey { get; set; }
+        public DateTime JavascriptDate { get; set; }
+
     }
 }

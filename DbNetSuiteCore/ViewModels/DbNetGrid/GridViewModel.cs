@@ -21,7 +21,7 @@ namespace DbNetSuiteCore.ViewModels.DbNetGrid
         public bool FrozenHeader { get; set; }
         public GridGenerationMode GridGenerationMode { get; set; }
         public bool GroupBy { get; set; }
-
+        public int MaxImageHeight { get; set; } = 20;
         public List<GridColumn> GroupHeaderColumns => Columns.Where(c => c.GroupHeader).ToList();
         public List<GridColumn> TotalBreakColumns => Columns.Where(c => c.TotalBreak).ToList();
         public List<GridColumn> FixedOrderColumns => Columns.Where(c => c.FixedOrder).ToList();

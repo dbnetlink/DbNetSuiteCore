@@ -273,25 +273,15 @@ class DbNetGrid extends DbNetGridEdit {
                 $(th).on("click", () => this.handleHeaderClick($(th)));
             });
         }
-
         this.gridPanel?.find("tr.filter-row select").get().forEach(select => {
             $(select).on("change", (event) => this.runColumnFilterSearch());
         });
 
+       // this.configureDataRows(this.gridPanel?.find("tr.data-row") as JQuery<HTMLTableRowElement>);
+
+
         this.gridPanel?.find("input.multi-select-checkbox").get().forEach(e => {
             $(e).on("click", (e) => this.handleRowSelectClick(e));
-        });
-
-        this.gridPanel?.find("button.nested-grid-button").get().forEach(e => {
-            $(e).on("click", (e) => this.openNestedGrid(e));
-        });
-
-        this.gridPanel?.find("button.download").get().forEach(e => {
-            $(e).on("click", (e) => this.downloadBinaryData(e.currentTarget, false));
-        });
-
-        this.gridPanel?.find("img.image").get().forEach(e => {
-            this.downloadBinaryData(e.parentElement!, true);
         });
 
         this.gridPanel?.find("th[data-columnname]").get().forEach((th) => {
@@ -317,10 +307,26 @@ class DbNetGrid extends DbNetGridEdit {
             $filterRow.find("th").css("top", h)
         }
 
-        if (rowCount === 0) {
+        if (rowCount === 0 && this.initialised) {
             this.configureLinkedControls(null);
         }
     }
+
+    /*
+    private configureDataRows($rows: JQuery<HTMLTableRowElement>) {
+        $rows.find("button.nested-grid-button").get().forEach(e => {
+            $(e).on("click", (e) => this.openNestedGrid(e));
+        });
+
+        $rows.find("button.download").get().forEach(e => {
+            $(e).on("click", (e) => this.downloadBinaryData(e.currentTarget, false));
+        });
+
+        $rows.find("img.image").get().forEach(e => {
+            this.downloadBinaryData(e.parentElement!, true);
+        });
+    }
+    */
 
     private configureDataTable(_html: string) {
         this.element?.removeClass("dbnetsuite");
@@ -463,10 +469,22 @@ class DbNetGrid extends DbNetGridEdit {
         this.getPage();
     }
 
-    private addRowEventHandlers(tr: JQuery<HTMLElement>) {
-        tr.on("mouseover", () => tr.addClass("highlight"));
-        tr.on("mouseout", () => tr.removeClass("highlight"));
-        tr.on("click", () => this.handleRowClick(tr));
+    private addRowEventHandlers($tr: JQuery<HTMLElement>) {
+        $tr.on("mouseover", (e) => $(e.currentTarget).addClass("highlight"));
+        $tr.on("mouseout", (e) => $(e.currentTarget).removeClass("highlight"));
+        $tr.on("click", (e) => this.handleRowClick($(e.currentTarget)));
+
+        $tr.find("button.nested-grid-button").get().forEach(e => {
+            $(e).on("click", (e) => this.openNestedGrid(e));
+        });
+
+        $tr.find("button.download").get().forEach(e => {
+            $(e).on("click", (e) => this.downloadBinaryData(e.currentTarget, false));
+        });
+
+        $tr.find("img.image").get().forEach(e => {
+            this.downloadBinaryData(e.parentElement!, true);
+        });
     }
 
     public selectRow(tr: JQuery<HTMLElement>) {
@@ -847,7 +865,8 @@ class DbNetGrid extends DbNetGridEdit {
             delete: this._delete,
             viewLayoutColumns: this.viewLayoutColumns,
             parentControlType: this.parentControlType,
-            parentChildRelationship: this.parentChildRelationship
+            parentChildRelationship: this.parentChildRelationship,
+            maxImageHeight: this.maxImageHeight
         };
 
         return request;
@@ -918,9 +937,14 @@ class DbNetGrid extends DbNetGridEdit {
                 this.editControl = edit;
             }
             if (id == null) {
-                edit.disableForm(true);
-                if (this.editDialog) {
-                    this.editDialog.close();
+                if (edit.initialised) {
+                    edit.disableForm(true);
+                    if (this.editDialog) {
+                        this.editDialog.close();
+                    }
+                }
+                else {
+                    this.initialiseEdit(edit, null);
                 }
                 return;
             }
@@ -934,13 +958,16 @@ class DbNetGrid extends DbNetGridEdit {
                 this.configureEditButtons(edit)
             }
             else {
-                edit.internalBind("onInitialized", (sender: DbNetSuite) => this.initialiseEdit(sender as DbNetEdit));
-                edit.internalBind("onRecordUpdated", () => this.refreshRow());
-                edit.internalBind("onRecordInserted", () => this.reload());
-
-                edit.initialize(pk);
+                this.initialiseEdit(edit, pk);
             }
         }
+    }
+
+    private initialiseEdit(editControl: DbNetEdit, pk: string | null) {
+        editControl.internalBind("onInitialized", (sender: DbNetSuite) => this.configureEdit(sender as DbNetEdit));
+        editControl.internalBind("onRecordUpdated", () => this.refreshRow());
+        editControl.internalBind("onRecordInserted", () => this.reload());
+        editControl.initialize(pk);
     }
 
     public downloadBinaryData(element: HTMLElement, image: boolean) {
@@ -1000,7 +1027,7 @@ class DbNetGrid extends DbNetGridEdit {
         edit.controlElement("PreviousBtn").prop("disabled", $row.prev('.data-row').length == 0);
     }
 
-    public initialiseEdit(sender: DbNetEdit) {
+    public configureEdit(sender: DbNetEdit) {
         sender.controlElement("NextBtn").off().on("click", () => this.nextRecord());
         sender.controlElement("PreviousBtn").off().on("click", () => this.previousRecord());
         if (this.editDialogId) {

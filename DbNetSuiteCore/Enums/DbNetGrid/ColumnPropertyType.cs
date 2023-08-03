@@ -19,6 +19,9 @@
         PrimaryKey,
         Style,
         TotalBreak,
-        View
+        View,
+        Extension,
+        UploadMetaData,
+        UploadMetaDataColumn
     }
 }

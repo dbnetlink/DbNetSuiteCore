@@ -6,6 +6,7 @@ class DbNetGridEdit extends DbNetSuite {
         this._delete = false;
         this.fromPart = "";
         this.insert = false;
+        this.maxImageHeight = 40;
         this.navigation = true;
         this.primaryKey = undefined;
         this.optimizeForLargeDataset = false;

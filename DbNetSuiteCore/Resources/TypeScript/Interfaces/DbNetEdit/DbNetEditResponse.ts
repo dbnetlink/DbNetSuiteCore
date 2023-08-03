@@ -10,4 +10,5 @@ interface DbNetEditResponse extends DbNetGridEditResponse {
     primaryKey?: string;
     validationMessage?: ValidationMessage;
     formCacheKey: string;
+    convertedDate: string;
 }

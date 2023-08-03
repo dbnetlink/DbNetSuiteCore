@@ -13,6 +13,7 @@
         public const string DownloadColumnData = "download-column-data";
         public const string UploadDialog = "upload-dialog";
         public const string SaveFiles = "save-files";
+        public const string ConvertDate = "convert-date";
     }
 }
 

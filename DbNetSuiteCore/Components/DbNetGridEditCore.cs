@@ -32,6 +32,10 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public List<string> Labels { get; set; } = new List<string>();
         /// <summary>
+        /// Maximum height in pixels for preview image in grid or edit panel
+        /// </summary>
+        public int? MaxImageHeight { get; set; } = null;
+        /// <summary>
         /// Optimizes the performance for large datasets
         /// </summary>
         public bool? OptimizeForLargeDataset { get; set; } = null;
@@ -119,13 +123,38 @@ namespace DbNetSuiteCore.Components
             SetColumnProperty(columnName, ColumnPropertyType.Label, label);
         }
         /// <summary>
-        /// Indicates the contents of the column should be rendered as a an image
+        /// Indicates the contents of the column contains and should be rendered as a an image e.g. png, jpg
         /// </summary>
-        public void SetColumnImage(string columnName, bool image = true)
+        public void SetColumnImage(string columnName, ImageConfiguration imageConfiguration)
+        {
+            SetColumnBlob(columnName, imageConfiguration, true);
+        }
+
+        /// <summary>
+        /// Indicates the contents of the column contains should be rendered as a file e.g pdf, xlsx etc
+        /// </summary>
+        public void SetColumnFile(string columnName, FileConfiguration fileConfiguration)
+        {
+            SetColumnBlob(columnName, fileConfiguration, false);
+        }
+
+        private void SetColumnBlob(string columnName, BinaryConfiguration configuration, bool image)
         {
             SetColumnProperty(columnName, ColumnPropertyType.Image, image);
+
+            var extensionsWithMimeType = configuration.Extensions.Select(e => e = $"{e.Replace(".", string.Empty)}|{GetMimeTypeForFileExtension(e)}").ToList();
+
+            SetColumnProperty(columnName, ColumnPropertyType.Extension, string.Join(",", extensionsWithMimeType));
+
+            if (configuration.MetaDataColumns != null)
+            {
+                foreach (FileMetaData fileMetaData in configuration.MetaDataColumns.Keys)
+                {
+                    SetColumnProperty(configuration.MetaDataColumns[fileMetaData], ColumnPropertyType.UploadMetaData, fileMetaData);
+                    SetColumnProperty(configuration.MetaDataColumns[fileMetaData], ColumnPropertyType.UploadMetaDataColumn, columnName);
+                }
+            }
         }
-        
 
         protected void SetColumnProperty(string columnName, Enum propertyType, object propertyValue)
         {
@@ -201,6 +230,7 @@ namespace DbNetSuiteCore.Components
                 {
                     value = EncodingHelper.Encode(value.ToString());
                 }
+
                 return $"\"{value}\"";
             }
         }
@@ -218,6 +248,7 @@ namespace DbNetSuiteCore.Components
             AddProperty(OptimizeForLargeDataset, nameof(OptimizeForLargeDataset), properties);
             AddProperty(ParentControlType, nameof(ParentControlType), properties);
             AddProperty(ParentChildRelationship, nameof(ParentChildRelationship), properties);
+            AddProperty(MaxImageHeight, nameof(MaxImageHeight), properties);
         }
     }
 }

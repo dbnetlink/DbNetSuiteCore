@@ -15,6 +15,7 @@ class DbNetEdit extends DbNetGridEdit {
         if (this.toolbarPosition == undefined) {
             this.toolbarPosition = "Bottom";
         }
+        this.maxImageHeight = 100;
         this.formData = new FormData();
     }
     initialize(primaryKey = null) {
@@ -200,7 +201,8 @@ class DbNetEdit extends DbNetGridEdit {
             parentControlType: this.parentControlType,
             optimizeForLargeDataset: this.optimizeForLargeDataset,
             parentChildRelationship: this.parentChildRelationship,
-            toolbarPosition: this.toolbarPosition
+            toolbarPosition: this.toolbarPosition,
+            maxImageHeight: this.maxImageHeight
         };
         return request;
     }
@@ -555,6 +557,10 @@ class DbNetEdit extends DbNetGridEdit {
     }
     selectDate(event) {
         const $button = $(event.target);
+        const $input = $button.parent().find("input");
+        if ($input.attr("readonly") || $input.prop("disabled") == true) {
+            return;
+        }
         $button.parent().find("input").datepicker("show");
     }
     editLookup(event) {
@@ -616,7 +622,7 @@ class DbNetEdit extends DbNetGridEdit {
             }
         });
     }
-    saveFile($img, file) {
+    saveFile($img, file, fileMetaData = null) {
         file ? $img.show() : $img.hide();
         const columnName = $img.attr("name");
         if (this.formData.get(columnName) != null) {
@@ -628,6 +634,39 @@ class DbNetEdit extends DbNetGridEdit {
         else {
             this.formData.append(columnName, new Blob());
         }
+        const meteDataElements = this.formElements().filter(`:input[uploadmetadatacolumn='${columnName}']`);
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const self = this;
+        meteDataElements.each(function () {
+            const $input = $(this);
+            if (!file) {
+                $input.val('');
+                return;
+            }
+            switch ($input.attr("uploadmetadata")) {
+                case "FileName":
+                    $input.val(fileMetaData === null || fileMetaData === void 0 ? void 0 : fileMetaData.fileName);
+                    break;
+                case "Size":
+                    $input.val(fileMetaData === null || fileMetaData === void 0 ? void 0 : fileMetaData.size);
+                    break;
+                case "LastModified":
+                    self.applyLastModified($input, fileMetaData === null || fileMetaData === void 0 ? void 0 : fileMetaData.lastModified);
+                    break;
+                case "ContentType":
+                    $input.val(fileMetaData === null || fileMetaData === void 0 ? void 0 : fileMetaData.contentType);
+                    break;
+            }
+        });
+    }
+    applyLastModified($input, lastModified) {
+        const request = this.getRequest();
+        request.javascriptDate = lastModified;
+        request.columnName = $input.attr("name");
+        this.post("convert-date", request)
+            .then((response) => {
+            $input.val(response.convertedDate);
+        });
     }
     hasFormData() {
         let result = false;

@@ -113,12 +113,16 @@ table.dbnetedit-form {
         font-size: var(--main-font-size);
         border: 1px solid #90A4AE;
         border-radius: 2px;
+
+        &:focus {
+            outline: none;
+        }
     }
 
     .file-info-label {
         font-family: var(--main-font-family);
         font-size: var(--main-font-size);
-        font-weight:bold;
-        white-space:nowrap;
+        font-weight: bold;
+        white-space: nowrap;
     }
 }

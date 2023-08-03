@@ -1,0 +1,11 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums.DbNetEdit;
+
+@{
+    DbNetEditCore imagesEdit = new DbNetEditCore("dbnetsuitecore","images");
+    imagesEdit.Insert = true;
+    imagesEdit.Delete = true;
+    imagesEdit.SetColumnImage("Content", new ImageConfiguration("jpg"));
+    @imagesEdit.Render()
+}

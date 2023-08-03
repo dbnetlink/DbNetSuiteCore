@@ -158,6 +158,22 @@
                 break;
         }
 
+        if (editColumn.Binary)
+        {
+            var extensions = editColumn.Extension.Split(",").Select(c => $".{c.Split('|').First()}").ToList();
+            var mimeTypes = editColumn.Extension.Split(",").Select(c => c.Split("|")[1]).Where(c => String.IsNullOrEmpty(c) == false).ToList();
+            extensions.AddRange(mimeTypes);
+
+            attributes.Add($"accept=\"{string.Join(',', extensions.ToList())}\"");
+        }
+
+        if (editColumn.UploadMetaData.HasValue)
+        {
+            attributes.Add($"uploadmetadata=\"{editColumn.UploadMetaData}\"");
+            attributes.Add($"uploadmetadatacolumn=\"{editColumn.UploadMetaDataColumn.ToLower()}\"");
+            attributes.Add($"readonly");
+        }
+
         if (string.IsNullOrEmpty(editColumn.Pattern) == false)
         {
             attributes.Add($"pattern=\"{editColumn.Pattern}\"");

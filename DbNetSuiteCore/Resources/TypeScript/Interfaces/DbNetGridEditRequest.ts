@@ -4,6 +4,7 @@
     fromPart: string;
     insert: boolean;
     lookupColumnIndex?: number | undefined;
+    maxImageHeight: number;
     primaryKey: string | undefined;
     search: boolean;
     searchFilterJoin: string;

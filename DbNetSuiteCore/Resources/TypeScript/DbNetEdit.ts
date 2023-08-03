@@ -20,12 +20,12 @@ class DbNetEdit extends DbNetGridEdit {
     isEditDialog = false;
     uploadDialog: UploadDialog | undefined;
 
-
     constructor(id: string) {
         super(id);
         if (this.toolbarPosition == undefined) {
             this.toolbarPosition = "Bottom";
         }
+        this.maxImageHeight = 100;
         this.formData = new FormData();
     }
 
@@ -233,7 +233,8 @@ class DbNetEdit extends DbNetGridEdit {
             parentControlType: this.parentControlType,
             optimizeForLargeDataset: this.optimizeForLargeDataset,
             parentChildRelationship: this.parentChildRelationship,
-            toolbarPosition: this.toolbarPosition
+            toolbarPosition: this.toolbarPosition,
+            maxImageHeight: this.maxImageHeight
         };
 
         return request;
@@ -642,6 +643,11 @@ class DbNetEdit extends DbNetGridEdit {
     }
     private selectDate(event: JQuery.TriggeredEvent): void {
         const $button = $(event.target as HTMLInputElement);
+        const $input = $button.parent().find("input");
+
+        if ($input.attr("readonly") || $input.prop("disabled") == true) {
+            return;
+        }
         $button.parent().find("input").datepicker("show");
     }
 
@@ -716,7 +722,7 @@ class DbNetEdit extends DbNetGridEdit {
             });
     }
 
-    public saveFile($img: JQuery<HTMLImageElement>, file: File | null) {
+    public saveFile($img: JQuery<HTMLImageElement>, file: File | null, fileMetaData: FileMetaData | null = null) {
         file ? $img.show() : $img.hide();
         const columnName = $img.attr("name") as string;
         if (this.formData.get(columnName) != null) {
@@ -728,6 +734,45 @@ class DbNetEdit extends DbNetGridEdit {
         else {
             this.formData.append(columnName, new Blob());
         }
+
+        const meteDataElements = this.formElements().filter(`:input[uploadmetadatacolumn='${columnName}']`);
+
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const self = this;
+        meteDataElements.each(
+            function () {
+                const $input = $(this);
+                if (!file) {
+                    $input.val('');
+                    return;
+                }
+                switch ($input.attr("uploadmetadata")) {
+                    case "FileName":
+                        $input.val(fileMetaData?.fileName as string);
+                        break;
+                    case "Size":
+                        $input.val(fileMetaData?.size as number);
+                        break;
+                    case "LastModified":
+                        self.applyLastModified($input as JQuery<HTMLInputElement>, fileMetaData?.lastModified as Date);
+                        break;
+                    case "ContentType":
+                        $input.val(fileMetaData?.contentType as string);
+                        break;
+                }
+            });
+    }
+
+
+    private applyLastModified($input: JQuery<HTMLInputElement>, lastModified: Date) {
+        const request = this.getRequest();
+        request.javascriptDate = lastModified;
+        request.columnName = $input.attr("name");
+
+        this.post<DbNetEditResponse>("convert-date", request)
+            .then((response) => {
+                $input.val(response.convertedDate);
+            })
     }
 
     private hasFormData(): boolean {

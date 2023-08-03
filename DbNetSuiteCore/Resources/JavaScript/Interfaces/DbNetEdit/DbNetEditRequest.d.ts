@@ -7,4 +7,5 @@ interface DbNetEditRequest extends DbNetGridEditRequest {
     isEditDialog: boolean;
     toolbarPosition: ToolbarPosition;
     formCacheKey: string;
+    javascriptDate: Date;
 }

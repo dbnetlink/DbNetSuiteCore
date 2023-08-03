@@ -1,6 +1,7 @@
 ﻿using DbNetSuiteCore.Enums;
 using DbNetSuiteCore.Models;
 using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -298,6 +299,18 @@ function init_{_id}()
                 return dbNetEditCore._browse;
             }
             return false;
+        }
+
+        protected string GetMimeTypeForFileExtension(string extension)
+        {
+            var provider = new FileExtensionContentTypeProvider();
+
+            if (!provider.TryGetContentType($".{extension}", out string contentType))
+            {
+                contentType = string.Empty;
+            }
+
+            return contentType;
         }
     }
 }

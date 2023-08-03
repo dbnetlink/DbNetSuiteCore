@@ -14,4 +14,9 @@
     columnSize?: number;
     style?: string;
     unmatched = false;
+    download?: boolean;
+    image?: boolean;
+    extension?: string;
+    uploadMetaData?: string;
+    uploadMetaDataColumn?: string;
 }

@@ -56,6 +56,7 @@ namespace DbNetSuiteCore.Services
         }
         public bool Insert { get; set; } = false;
         public int LookupColumnIndex { get; set; }
+        public int MaxImageHeight { get; set; } = 40;
         public bool Navigation { get; set; }
         public bool OptimizeForLargeDataset { get; set; } = false;
 

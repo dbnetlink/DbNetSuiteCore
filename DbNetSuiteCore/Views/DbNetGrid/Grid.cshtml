@@ -140,7 +140,7 @@
             case "Byte[]" when gridColumn.Download:
                 return "<button type=\"button\" class=\"download\">&nbsp;</button>";
             case "Byte[]" when gridColumn.Image:
-                return "<img class=\"image\"/>";
+                return $"<img class=\"image\" style=\"max-height:{Model.MaxImageHeight}px\"/>";
             default:
                 {
                     if (gridColumn.ClearDuplicateValue != null && gridColumn.ClearDuplicateValue.Value && Model.DuplicateValue(gridColumn, rowIdx))

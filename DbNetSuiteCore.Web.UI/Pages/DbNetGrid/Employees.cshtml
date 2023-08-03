@@ -10,11 +10,12 @@
     employeesGrid.Insert = true;
     employeesGrid.Delete = true;
     employeesGrid.View = true;
-    //employeesGrid.ViewLayoutColumns = 3;
+    employeesGrid.MaxImageHeight = 100;
     employeesGrid.EditControl.SetControlType("notes", EditControlType.TextArea);
     employeesGrid.EditControl.SetColumnLookup("ReportsTo", new Lookup("employees", "employeeid", "lastname + ', ' + firstName"));
     employeesGrid.EditControl.Bind(EventType.OnFormElementCreated, "configureFormElement");
-    employeesGrid.SetColumnImage("Photo");
+
+    employeesGrid.SetColumnImage("Photo", new ImageConfiguration("jpg"));
 
     @employeesGrid.Render()
 }

@@ -16,8 +16,6 @@ class GridColumn extends DbColumn {
     filter?: boolean;
     filterMode?: FilterSelectionMode;
     groupHeader?: boolean;
-    download?: boolean;
-    image?: boolean;
     view?: boolean;
     aggregate?: AggregateType
     totalBreak?: boolean;

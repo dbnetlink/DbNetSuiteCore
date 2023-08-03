@@ -69,6 +69,11 @@ namespace DbNetSuiteCore.Models
         {
             get => AllowsNull == false && AutoIncrement == false;
         }
+        public bool Download { get; set; } = false;
+        public bool Image { get; set; } = false;
+        public string Extension { get; set; }
+        public FileMetaData? UploadMetaData { get; set; }
+        public string UploadMetaDataColumn { get; set; }
 
         public DbColumn()
         {

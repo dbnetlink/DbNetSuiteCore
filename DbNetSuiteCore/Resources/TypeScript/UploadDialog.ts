@@ -5,14 +5,17 @@
     file: File | undefined;
     $uploadButton: JQuery<HTMLButtonElement> | undefined;
     $previewImage: JQuery<HTMLImageElement>;
-
+    $editImage: JQuery<HTMLImageElement> | undefined;
+    fileMetaData: FileMetaData | undefined
+    $selectFilesButton: JQuery<HTMLButtonElement>;
     constructor(id: string, parent: DbNetEdit) {
         super(id);
 
         this.$dialog?.on("dialogopen", (event) => this.dialogOpened(event));
         this.parent = parent;
         this.inputFile = (this.$dialog?.find("input[type='file']") as JQuery<HTMLInputElement>)[0];
-        this.$dialog?.find("[button-type='uploadfile']").on("click", () => this.selectFile());
+        this.$selectFilesButton = this.$dialog?.find("[button-type='uploadfile']") as JQuery<HTMLButtonElement>;
+        this.$selectFilesButton.on("click", () => this.selectFile());
         $(this.inputFile).on("change", () => this.fileSelected());
         this.$apply = this.$dialog?.find("[button-type='apply']") as JQuery<HTMLButtonElement>;
         this.$apply.on("click", () => this.apply());
@@ -26,6 +29,7 @@
         const height = this.$dialog?.find('table.file-info').height() as number + 10;
         this.$dialog?.find('img.preview').height(height);
         this.sizeDialog();
+        this.$selectFilesButton.trigger("click");
     }
 
     private sizeDialog(): void {
@@ -35,6 +39,8 @@
 
     public show(event: JQuery.TriggeredEvent): void {
         this.$uploadButton = $(event.currentTarget as HTMLButtonElement);
+        this.$editImage = (this.$uploadButton as JQuery<HTMLButtonElement>).closest("td").find("img");
+        $(this.inputFile).attr("accept", this.$editImage.attr("accept") as string);
         this.open();
     }
 
@@ -50,6 +56,7 @@
     private fileSelected(): void {
         const demoImage = this.$previewImage[0] as HTMLImageElement;
         this.file = this.inputFile.files?.item(0) as File;
+        this.fileMetaData = { fileName: this.file.name, size: this.file.size, contentType: this.file.type, lastModified: new Date(this.file.lastModified) } as FileMetaData;
         this.$dialog?.find("#name").val(this.file.name);
         this.$dialog?.find("#lastmodified").val(new Date(this.file.lastModified).toLocaleString());
         this.$dialog?.find("#type").val(this.file.type);
@@ -96,12 +103,12 @@
     }
 
     private apply(): void {
-        const $img = (this.$uploadButton as JQuery<HTMLButtonElement>).closest("td").find("img");
+        const $img = this.$editImage as JQuery<HTMLImageElement>;
         if ((this.file as File).type.startsWith("image/")) {
             this.renderFileAsImage($img.get(0) as HTMLImageElement);
         }
         const file = new File([this.file as File], (this.file as File).name);
-        this.parent.saveFile($img, file);
+        this.parent.saveFile($img, file, this.fileMetaData);
         this.close();
     }
 }

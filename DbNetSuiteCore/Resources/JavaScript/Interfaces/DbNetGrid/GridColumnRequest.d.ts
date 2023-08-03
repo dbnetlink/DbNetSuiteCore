@@ -12,4 +12,9 @@ interface GridColumnRequest {
     filter?: boolean;
     dataType?: string;
     dataOnly?: boolean;
+    download?: boolean;
+    image?: boolean;
+    extension?: string;
+    uploadMetaData: string;
+    uploadMetaDataColumn: string;
 }

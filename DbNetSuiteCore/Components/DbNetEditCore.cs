@@ -25,7 +25,6 @@ namespace DbNetSuiteCore.Components
         public DbNetEditCore(string connection, string fromPart, string id = null) : base(connection, fromPart, id)
         {
             BrowseControl = new DbNetGridCore(connection, fromPart, true);
-
             this._browseDialogId = $"{this.Id}_browse_dialog";
         }
 

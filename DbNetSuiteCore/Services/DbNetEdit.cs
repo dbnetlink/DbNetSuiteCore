@@ -32,6 +32,7 @@ namespace DbNetSuiteCore.Services
         public long TotalRows { get; set; }
         public bool Browse => Columns.Any(c => c.Browse);
         public Guid? FormCacheKey { get; set; }
+        public DateTime JavascriptDate { get; set; }
         public ToolbarPosition ToolbarPosition { get; set; } = ToolbarPosition.Bottom;
         public DbNetEdit(AspNetCoreServices services) : base(services)
         {
@@ -89,6 +90,9 @@ namespace DbNetSuiteCore.Services
                     case RequestAction.UploadDialog:
                         await UploadDialog(response);
                         break;
+                    case RequestAction.ConvertDate:
+                        ConvertDate(response);
+                        break;
                 }
             }
 
@@ -133,8 +137,11 @@ namespace DbNetSuiteCore.Services
             response.CurrentRow = 1;
             dataTable = GetCurrentRow(dataTable, OptimizeForLargeDataset);
             response.TotalRows = TotalRows;
-            response.Record = CreateRecord(dataTable, DbColumns);
-            response.PrimaryKey = SerialisePrimaryKey(dataTable.Rows[0]);
+            if (TotalRows > 0)
+            {
+                response.Record = CreateRecord(dataTable, DbColumns);
+                response.PrimaryKey = SerialisePrimaryKey(dataTable.Rows[0]);
+            }
             response.Columns = Columns;
         }
 
@@ -227,7 +234,7 @@ namespace DbNetSuiteCore.Services
                 {
                     TotalRows = counter;
 
-                    if (TotalRows < CurrentRow)
+                    if (TotalRows < CurrentRow && TotalRows > 0)
                     {
                         CurrentRow = TotalRows;
                         dataTable.Rows.Add(values);
@@ -519,6 +526,19 @@ namespace DbNetSuiteCore.Services
             var uploadDialogViewModel = new UploadDialogViewModel();
             ReflectionHelper.CopyProperties(this, uploadDialogViewModel);
             response.Dialog = await HttpContext.RenderToStringAsync("Views/DbNetEdit/UploadDialog.cshtml", uploadDialogViewModel);
+        }
+
+        private void ConvertDate(DbNetEditResponse response)
+        {
+            DbColumn column = DbColumns.FirstOrDefault(c => c.IsMatch(this.ColumnName));
+
+            string format = "d";
+            if (column != null)
+            {
+                format = string.IsNullOrEmpty(column.Format) ? "d" : column.Format;
+            }
+
+            response.ConvertedDate = this.JavascriptDate.ToString(format);
         }
     }
 }
