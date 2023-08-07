@@ -18,6 +18,7 @@ namespace DbNetSuiteCore.Models
 
         public string BaseTableName { get; set; }
         public string BaseSchemaName { get; set; }
+        public bool Browse { get; set; } = false;
         public string DataType { get; set; }
         public string OriginalDataType { get; set; }
 
@@ -67,7 +68,7 @@ namespace DbNetSuiteCore.Models
         public bool AllowsNull { get; set; }
         public bool Required
         {
-            get => AllowsNull == false && AutoIncrement == false;
+            get => AutoIncrement == false && (AllowsNull == false || PrimaryKey);
         }
         public bool Download { get; set; } = false;
         public bool Image { get; set; } = false;

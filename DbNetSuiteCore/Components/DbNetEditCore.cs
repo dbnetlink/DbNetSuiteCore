@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Html;
 using DbNetSuiteCore.Enums.DbNetEdit;
 using System;
-using DbNetSuiteCore.Services;
 using System.Linq;
+using DbNetSuiteCore.Enums;
+using DbNetSuiteCore.Models;
 
 namespace DbNetSuiteCore.Components
 {
@@ -44,53 +45,57 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public DbNetGridCore BrowseControl { get; set; }
         /// <summary>
-        /// Assigns a grid column property to multiple columns
-        /// </summary>
-        public void SetColumnProperty(string[] columnNames, ColumnPropertyType propertyType, object propertyValue)
-        {
-            foreach (var columnName in columnNames)
-            {
-                SetColumnProperty(columnName, propertyType, propertyValue);
-            }
-        }
-        /// <summary>
-        /// Assigns a grid column property value to a single column
-        /// </summary>
-        public void SetColumnProperty(string columnName, ColumnPropertyType propertyType, object propertyValue)
-        {
-            base.SetColumnProperty(columnName, propertyType, (object)propertyValue);
-        }
-
-        /// <summary>
-        /// Sets the edit control type for the specified column
+        /// Sets the type of edit control for the column
         /// </summary>
         public void SetControlType(string columnName, object propertyValue)
         {
             SetColumnProperty(columnName, ColumnPropertyType.EditControlType, (object)propertyValue);
+        }
+        /// <summary>
+        /// Sets the size of the edit field
+        /// </summary>
+        public void SetColumnSize(string columnName, int size)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.ColumnSize, size);
+        }
+        /// <summary>
+        /// Sets the size of the edit field
+        /// </summary>
+        public void SetColumnPattern(string columnName, string pattern)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.Pattern, pattern);
+        }
+        /// <summary>
+        /// Specifies the columns that will be displayed in the browse dialog
+        /// </summary>
+        public void SetColumnBrowse(string[] columnNames)
+        {
+            foreach (string columnName in columnNames)
+            {
+                SetColumnProperty(columnName, ColumnPropertyType.Browse, true);
+            }
+        }
+        /// <summary>
+        /// Indicates the columns that are required in the edit form
+        /// </summary>
+        public void SetColumnRequired(string[] columnNames)
+        {
+            foreach (string columnName in columnNames)
+            {
+                SetColumnProperty(columnName, ColumnPropertyType.Required, true);
+            }
         }
 
         public HtmlString Render()
         {
             string message = ValidateProperties();
 
-            if (_browse)
-            {
-                BrowseControl.AutoRowSelect = false;
-                BrowseControl.PageSize = -1;
-                BrowseControl.ToolbarPosition = Enums.ToolbarPosition.Hidden;
-                BrowseControl.Columns = this._columnProperties.Where(c => c.PropertyType is ColumnPropertyType.Browse).Select(c => c.ColumnName).ToList();
-                this._linkedControls.Add(BrowseControl);
-            }
-            else 
-            {
-                _browseDialogId = null;
-                BrowseControl = null;
-            }
-
             if (string.IsNullOrEmpty(message) == false)
             {
                 return new HtmlString($"<div class=\"dbnetsuite-error\">{message}</div>");
             }
+
+            AddBrowseControl();
 
             string script = string.Empty;
 
@@ -162,6 +167,35 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             properties.Add($"datePickerOptions = {DatePickerOptions()};");
 
             return string.Join(Environment.NewLine, properties);
+        }
+
+        private void AddBrowseControl()
+        {
+            if (_browse)
+            {
+                BrowseControl.AutoRowSelect = false;
+                BrowseControl.PageSize = -1;
+                BrowseControl.ToolbarPosition = Enums.ToolbarPosition.Hidden;
+                BrowseControl.Columns = new List<string>(this.Columns.ToArray());
+                BrowseControl.Labels = new List<string>(this.Labels.ToArray());
+
+                var browseColumns = this._columnProperties.Where(c => c.PropertyType is ColumnPropertyType.Browse).Select(c => c.ColumnName).ToList();
+
+                foreach (ColumnProperty columnProperty in this._columnProperties.Where(c => browseColumns.Contains(c.ColumnName.ToLower())))
+                {
+                    if (BrowseControl._columnProperties.Any(p => p.Equals(columnProperty)) == false)
+                    {
+                        BrowseControl._columnProperties.Add(columnProperty);
+                    }
+                }
+
+                this._linkedControls.Add(BrowseControl);
+            }
+            else
+            {
+                _browseDialogId = null;
+                BrowseControl = null;
+            }
         }
     }
 }

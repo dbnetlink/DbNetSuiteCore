@@ -6,21 +6,19 @@
 @{
 
     DbNetGridCore ordersGrid = new DbNetGridCore("northwind", "orders")
-            {
-                Columns = new List<string> { "OrderID", "CustomerID", "EmployeeID", "OrderDate", "RequiredDate", "ShippedDate", "Freight", "ShipVia" },
-                Insert = true,
-                QuickSearch = true,
-                Delete = true,
-                Update = true
+    {
+        Columns = new List<string> { "OrderID", "CustomerID", "EmployeeID", "OrderDate", "RequiredDate", "ShippedDate", "Freight", "ShipVia" },
+        Insert = true,
+        QuickSearch = true,
+        Delete = true,
+        Update = true
     };
 
-  //  ordersGrid.SetColumnProperty("CustomerID", ColumnPropertyType.Display, false);
-    ordersGrid.SetColumnProperty("CustomerID", ColumnPropertyType.ForeignKey, true);
-    ordersGrid.SetColumnProperty("EmployeeID", ColumnPropertyType.Lookup, new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname"));
-   // ordersGrid.SetColumnProperty("CustomerID", ColumnPropertyType.Lookup, new Lookup("Customers", "CustomerId", "CompanyName")); ;
-    ordersGrid.SetColumnProperty("ShipVia", ColumnPropertyType.Lookup, new Lookup("Shippers", "ShipperId", "CompanyName"));
-    ordersGrid.SetColumnProperty("Freight", ColumnPropertyType.Format, "c");
-    ordersGrid.SetColumnProperty("EmployeeID", ColumnPropertyType.Label, "Employee");
+    ordersGrid.SetColumnAsForeignKey("CustomerID");
+    ordersGrid.SetColumnLookup("EmployeeID", new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname"));
+    ordersGrid.SetColumnLookup("ShipVia", new Lookup("Shippers", "ShipperId", "CompanyName"));
+    ordersGrid.SetColumnFormat("Freight", "c");
+    ordersGrid.SetColumnLabel("EmployeeID", "Employee");
 
     DbNetEditCore customersEdit = new DbNetEditCore("northwind", "customers")
     {
@@ -30,7 +28,7 @@
         Delete = true
     };
 
-    customersEdit.SetColumnProperty("CustomerID", DbNetEditEnums.ColumnPropertyType.Display, false);
+    customersEdit.SetColumnHidden("CustomerID");
     customersEdit.AddLinkedControl(ordersGrid);
 
     @customersEdit.Render()

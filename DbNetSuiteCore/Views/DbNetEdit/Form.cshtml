@@ -13,15 +13,19 @@
 
 @{
     List<KeyValuePair<EditColumn, DataColumn>> fields = new List<KeyValuePair<EditColumn, DataColumn>>();
+    List<KeyValuePair<EditColumn, DataColumn>> hiddenFields = new List<KeyValuePair<EditColumn, DataColumn>>();
     @foreach (DataColumn dataColumn in Model.DataColumns)
     {
         EditColumn editColumn = Model.EditColumns[dataColumn.Ordinal];
-        if (editColumn.Display == false || editColumn.ForeignKey || editColumn.AutoIncrement)
+        if (editColumn.Hidden)
         {
+            hiddenFields.Add(new KeyValuePair<EditColumn, DataColumn>(editColumn, dataColumn));
             continue;
         }
         fields.Add(new KeyValuePair<EditColumn, DataColumn>(editColumn, dataColumn));
     }
+
+    fields.AddRange(hiddenFields);
     int remainder = fields.Count % Model.LayoutColumns;
     int rows = Math.Abs(fields.Count / Model.LayoutColumns) + (remainder == 0 ? 0 : 1);
 }
@@ -42,14 +46,14 @@
                     {
                         EditColumn editColumn = fields[i].Key;
                         DataColumn dataColumn = fields[i].Value;
-                        <td class="label">@(editColumn.Label)</td>
+                        <td class="label" @DisplayStyle(editColumn)>@(editColumn.Label)</td>
                         if (editColumn.Binary)
                         {
-                            <td class="control">@BinaryControl(editColumn,dataColumn)</td>
+                            <td class="control" @DisplayStyle(editColumn)>@BinaryControl(editColumn,dataColumn)</td>
                         }
                         else
                         {
-                            <td class="control">@FormControl(editColumn,dataColumn)</td>
+                            <td class="control" @DisplayStyle(editColumn)>@FormControl(editColumn,dataColumn)</td>
                         }
                     }
                 }
@@ -158,7 +162,7 @@
                 break;
         }
 
-        if (editColumn.Binary)
+        if (editColumn.Binary && string.IsNullOrEmpty(editColumn.Extension) == false)
         {
             var extensions = editColumn.Extension.Split(",").Select(c => $".{c.Split('|').First()}").ToList();
             var mimeTypes = editColumn.Extension.Split(",").Select(c => c.Split("|")[1]).Where(c => String.IsNullOrEmpty(c) == false).ToList();
@@ -268,5 +272,10 @@
         }
 
         return string.Join(string.Empty, options.ToArray());
+    }
+
+    public HtmlString DisplayStyle(EditColumn editColumn)
+    {
+        return new HtmlString(editColumn.Hidden ? "style=\"display:none\"" : string.Empty);
     }
 }

@@ -4,9 +4,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Html;
 using DbNetSuiteCore.Enums.DbNetGrid;
-using DocumentFormat.OpenXml.Math;
 using System.Linq;
-using DbNetSuiteCore.Models;
 
 namespace DbNetSuiteCore.Components
 {
@@ -42,7 +40,7 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public Dictionary<string, object> FixedFilterParams { get; set; } = new Dictionary<string, object>();
         /// <summary>
-        /// Applies an SQL filter the the grid 
+        /// Applies an SQL filter the grid 
         /// </summary>
         public string FixedFilterSql { get; set; } = null;
         /// <summary>
@@ -118,24 +116,7 @@ namespace DbNetSuiteCore.Components
         {
             IsBrowseDialog = browseControl;
         }
-
-        /// <summary>
-        /// Assigns a grid column property to multiple columns
-        /// </summary>
-        public void SetColumnProperty(string[] columnNames, ColumnPropertyType propertyType, object propertyValue)
-        {
-            foreach (var columnName in columnNames)
-            {
-                SetColumnProperty(columnName, propertyType, propertyValue);
-            }
-        }
-        /// <summary>
-        /// Assigns a grid column property value to a single column
-        /// </summary>
-        public void SetColumnProperty(string columnName, ColumnPropertyType propertyType, object propertyValue)
-        {
-            base.SetColumnProperty(columnName, propertyType, (object)propertyValue);
-        }
+       
         /// <summary>
         /// Binds an event to a named client-side JavaScript function
         /// </summary>
@@ -143,6 +124,139 @@ namespace DbNetSuiteCore.Components
         {
             base.Bind(eventType, functionName);
         }
+        /// <summary>
+        /// Specifies the column that should have duplicate adjacent values cleared for readability.
+        /// </summary>
+        public void SetColumnClearDuplicateValue(string columnName)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.ClearDuplicateValue, true);
+        }
+        /// <summary>
+        /// Specifies the columns that should have duplicate adjacent values cleared for readability.
+        /// </summary>
+        public void SetColumnClearDuplicateValue(string[] columnNames)
+        {
+            foreach (var columnName in columnNames)
+            {
+                SetColumnClearDuplicateValue(columnName);
+            }
+        }
+
+        /// <summary>
+        /// Specifies the column that should trigger a summary aggregatre when the value changes.
+        /// </summary>
+        public void SetColumnTotalBreak(string columnName)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.TotalBreak, true);
+        }
+        /// <summary>
+        /// Specifies the columns that should trigger a summary aggregatre when the value changes.
+        /// </summary>
+        public void SetColumnTotalBreak(string[] columnNames)
+        {
+            foreach (var columnName in columnNames)
+            {
+                SetColumnTotalBreak(columnName);
+            }
+        }
+        /// <summary>
+        /// Specifies the grid column should not be displayed but the value stored as an attribute of the row.
+        /// </summary>
+        public void SetColumnDataOnly(string columnName)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.DataOnly, true);
+        }
+        /// <summary>
+        /// Specifies the grid columns should not be displayed but the values stored as an attribute of the row.
+        /// </summary>
+        public void SetColumnDataOnly(string[] columnNames)
+        {
+            foreach (var columnName in columnNames)
+            {
+                SetColumnDataOnly(columnName);
+            }
+        }
+        /// <summary>
+        /// Specifies the grid column that should have a filter. Use "*" for all columns.
+        /// </summary>
+        public void SetColumnFilter(string columnName)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.Filter, true);
+        }
+        /// <summary>
+        /// Specifies the grid columns that should have a filter
+        /// </summary>
+        public void SetColumnFilter(string[] columnNames)
+        {
+            foreach (var columnName in columnNames)
+            {
+                SetColumnFilter(columnName);
+            }
+        }
+        /// <summary>
+        /// Specifies the style of the column filter for the column.
+        /// </summary>
+        public void SetColumnFilterMode(string columnName, FilterMode filterMode)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.FilterMode, filterMode);
+        }
+        /// <summary>
+        /// Specifies the style of the column filter for the columns.
+        /// </summary>
+        public void SetColumnFilterMode(string[] columnNames, FilterMode filterMode)
+        {
+            foreach (var columnName in columnNames)
+            {
+                SetColumnFilterMode(columnName, filterMode);
+            }
+        }
+
+        /// <summary>
+        /// Specifies the type of aggregate for an aggregated column.
+        /// </summary>
+        public void SetColumnAggregate(string columnName, AggregateType aggregateType)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.Aggregate, aggregateType);
+        }
+        /// <summary>
+        /// Specifies the type of aggregate for the aggregated columns.
+        /// </summary>
+        public void SetColumnAggregate(string[] columnNames, AggregateType aggregateType)
+        {
+            foreach (var columnName in columnNames)
+            {
+                SetColumnAggregate(columnName, aggregateType);
+            }
+        }
+        
+        /// <summary>
+        /// Specifies the column to be shown in the View dialog. Use "*" for all columns.
+        /// </summary>
+        public void SetColumnView(string columnName)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.View, true);
+        }
+        /// <summary>
+        /// Specifies the columns to be shown in the View dialog
+        /// </summary>
+        public void SetColumnView(string[] columnNames)
+        {
+            foreach (var columnName in columnNames)
+            {
+                SetColumnView(columnName);
+            }
+        }
+        /// <summary>
+        /// Specifies the columns to be shown in the View dialog
+        /// </summary>
+        public void SetColumnAsGroupHeader(string[] columnNames)
+        {
+            foreach (var columnName in columnNames)
+            {
+                SetColumnProperty(columnName, ColumnPropertyType.GroupHeader, true);
+            }
+        }
+        
         public HtmlString Render()
         {
             string message = ValidateProperties();
@@ -153,7 +267,6 @@ namespace DbNetSuiteCore.Components
             }
 
             AddEditDialogControl();
-
 
             string script = string.Empty;
             if (GoogleChartOptions != null)
@@ -248,7 +361,13 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
                 {
                     EditControl.Columns = new List<string>(this.Columns.ToArray());
                     EditControl.Labels = new List<string>(this.Labels.ToArray());
-                    EditControl._columnProperties = new List<ColumnProperty>(this._columnProperties);
+                    foreach (var columnProperty in this._columnProperties)
+                    {
+                        if (EditControl._columnProperties.Any(p => p.Equals(columnProperty)) == false)
+                        {
+                            EditControl._columnProperties.Add(columnProperty);
+                        }
+                    }
                 }
                 AddLinkedControl(EditControl);
             }

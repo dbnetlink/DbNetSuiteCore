@@ -8,13 +8,13 @@
     customersEdit.SetColumnLookup("region");
     customersEdit.SetControlType("region", EditControlType.SuggestLookup);
     customersEdit.SetControlType("country", EditControlType.TextBoxLookup);
-    customersEdit.SetColumnProperty("address", ColumnPropertyType.ColumnSize, 40);
+    customersEdit.SetColumnSize("address", 40);
     customersEdit.QuickSearch = true;
     customersEdit.LayoutColumns = 3;
     customersEdit.Insert = true;
     customersEdit.Delete = true;
     customersEdit.ToolbarPosition = ToolbarPosition.Top;
-    customersEdit.SetColumnProperty(new string[] { "companyname", "city", "country", "region" }, ColumnPropertyType.Browse, true);
+    customersEdit.SetColumnBrowse(new string[] { "companyname", "city", "country", "region" });
 
 
     @customersEdit.Render()

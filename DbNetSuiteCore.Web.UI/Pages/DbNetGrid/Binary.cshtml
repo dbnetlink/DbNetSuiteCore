@@ -3,11 +3,26 @@
 @using DbNetSuiteCore.Enums;
 @{
     // Configure the grid and render
-    DbNetGridCore imagesGrid = new DbNetGridCore("dbnetsuitecore","images");
+    DbNetGridCore imagesGrid = new DbNetGridCore("dbnetsuitecore", "images");
     imagesGrid.Update = true;
     imagesGrid.Insert = true;
     imagesGrid.Delete = true;
-    imagesGrid.SetColumnImage("Content", new ImageConfiguration(new List<string>() { "jpg","png" }, new Dictionary<FileMetaData, string>() { { FileMetaData.FileName, "FileName" }, { FileMetaData.ContentType, "ContentType" }, { FileMetaData.LastModified, "LastModified" }, { FileMetaData.Size, "Size" } }));
+    imagesGrid.SetColumnAsImage("Content", new ImageConfiguration(new List<string>() { "jpg", "png" }, new Dictionary<FileMetaData, string>() { { FileMetaData.FileName, "FileName" }, { FileMetaData.ContentType, "ContentType" }, { FileMetaData.LastModified, "LastModified" }, { FileMetaData.Size, "Size" } }));
+
+    imagesGrid.SetColumnDisplay(new string[] { "ContentType", "LastModified", "Size" }, false);
+    imagesGrid.EditControl.SetColumnDisplay(new string[] { "ContentType", "LastModified", "Size" }, true);
 
     @imagesGrid.Render()
+
+    DbNetGridCore filesGrid = new DbNetGridCore("dbnetsuitecore", "images");
+    filesGrid.Update = true;
+    filesGrid.Insert = true;
+    filesGrid.Delete = true;
+    filesGrid.SetColumnAsFile("Content", new FileConfiguration( "pdf", new Dictionary
+    <FileMetaData, string>() { { FileMetaData.FileName, "FileName" }, { FileMetaData.ContentType, "ContentType" }, { FileMetaData.LastModified, "LastModified" }, { FileMetaData.Size, "Size" } }));
+
+    filesGrid.SetColumnDisplay(new string[] { "ContentType", "LastModified", "Size" }, false);
+    filesGrid.EditControl.SetColumnDisplay(new string[] { "ContentType", "LastModified", "Size" }, true);
+
+    @filesGrid.Render()
 }

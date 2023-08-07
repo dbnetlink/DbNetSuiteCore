@@ -5,8 +5,8 @@
 type DbNetEditResponseCallback = (response: DbNetEditResponse) => void;
 type EditMode = "update" | "insert";
 declare class DbNetEdit extends DbNetGridEdit {
+    browseControl: DbNetGrid | undefined;
     browseDialog: BrowseDialog | undefined;
-    browseDialogControl: DbNetGrid | undefined;
     browseDialogId: string;
     changes: Dictionary<object>;
     currentRow: number;
@@ -28,7 +28,7 @@ declare class DbNetEdit extends DbNetGridEdit {
     getRows(callback?: DbNetEditResponseCallback): void;
     columnValue(columnName: string): void;
     private clearForm;
-    disableForm(disable: boolean): void;
+    disableForm(): void;
     private configureEdit;
     private configureForm;
     private updateForm;
@@ -51,7 +51,8 @@ declare class DbNetEdit extends DbNetGridEdit {
     private submitChanges;
     private cancelChanges;
     private applyChangesCallback;
-    private initBrowseDialog;
+    private updateBrowseControl;
+    browseControlReloaded(): void;
     private openBrowseDialog;
     private browseDialogRowSelected;
     private message;

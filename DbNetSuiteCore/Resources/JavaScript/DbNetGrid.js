@@ -396,7 +396,7 @@ class DbNetGrid extends DbNetGridEdit {
         $tr.find("button.nested-grid-button").get().forEach(e => {
             $(e).on("click", (e) => this.openNestedGrid(e));
         });
-        $tr.find("button.download").get().forEach(e => {
+        $tr.find("button.download, a.download").get().forEach(e => {
             $(e).on("click", (e) => this.downloadBinaryData(e.currentTarget, false));
         });
         $tr.find("img.image").get().forEach(e => {
@@ -411,7 +411,9 @@ class DbNetGrid extends DbNetGridEdit {
         if (this.rowSelect) {
             this.selectRow(tr);
         }
-        this.configureLinkedControls(tr.data("id"), tr.data("pk"), tr.data("fk"));
+        const pk = tr.data("pk");
+        const fk = tr.data("fk");
+        this.configureLinkedControls(tr.data("id"), pk, fk ? fk : pk);
         if (this.viewDialog && this.viewDialog.isOpen()) {
             this.getViewContent();
         }
@@ -803,7 +805,7 @@ class DbNetGrid extends DbNetGridEdit {
             }
             if (id == null) {
                 if (edit.initialised) {
-                    edit.disableForm(true);
+                    edit.disableForm();
                     if (this.editDialog) {
                         this.editDialog.close();
                     }
@@ -814,9 +816,10 @@ class DbNetGrid extends DbNetGridEdit {
                 return;
             }
             if (edit.initialised) {
-                //edit.disableForm(false);
-                if (!this.editDialog || this.editDialog.isOpen() === false) {
-                    return;
+                if (edit.isEditDialog) {
+                    if (!this.editDialog || this.editDialog.isOpen() === false) {
+                        return;
+                    }
                 }
                 edit.getRecord(pk);
                 this.configureEditButtons(edit);
@@ -827,9 +830,11 @@ class DbNetGrid extends DbNetGridEdit {
         }
     }
     initialiseEdit(editControl, pk) {
-        editControl.internalBind("onInitialized", (sender) => this.configureEdit(sender));
-        editControl.internalBind("onRecordUpdated", () => this.refreshRow());
-        editControl.internalBind("onRecordInserted", () => this.reload());
+        if (editControl.parentChildRelationship == "OneToOne") {
+            editControl.internalBind("onInitialized", (sender) => this.configureEdit(sender));
+            editControl.internalBind("onRecordUpdated", () => this.refreshRow());
+            editControl.internalBind("onRecordInserted", () => this.reload());
+        }
         editControl.initialize(pk);
     }
     downloadBinaryData(element, image) {
@@ -845,17 +850,27 @@ class DbNetGrid extends DbNetGridEdit {
             this.primaryKey = $row.data("pk");
             this.columnName = (_b = (_a = this.gridPanel) === null || _a === void 0 ? void 0 : _a.find("th[data-columnname]").get($cell.prop("cellIndex"))) === null || _b === void 0 ? void 0 : _b.getAttribute("data-columnname");
         }
-        const args = {
-            row: $row.get(0),
-            cell: $cell.get(0),
-            extension: "xlxs",
-            fileName: `${this.columnName}_${this.primaryKey}.xlsx`,
-            columnName: this.columnName
-        };
-        if (image) {
-            args.image = $cell.find("img").get(0);
+        let fileName = '';
+        if (image == false) {
+            if ($button[0].tagName == 'a') {
+                fileName = $button.text();
+            }
+            else {
+                fileName = $button.data("filename").split('|')[0];
+            }
+            const args = {
+                row: $row.get(0),
+                cell: $cell.get(0),
+                extension: "xlxs",
+                fileName: fileName,
+                columnName: this.columnName
+            };
+            /*
+            if (image) {
+                args.image = $cell.find("img").get(0) as HTMLImageElement;
+            }*/
+            this.fireEvent("onBinaryDataDownload", args);
         }
-        this.fireEvent("onBinaryDataDownload", args);
         this.post("download-column-data", this.getRequest(), true)
             .then((blob) => {
             if (blob.size) {
@@ -866,7 +881,7 @@ class DbNetGrid extends DbNetGridEdit {
                 else {
                     const link = document.createElement("a");
                     link.href = window.URL.createObjectURL(blob);
-                    link.download = args.fileName;
+                    link.download = fileName;
                     link.click();
                 }
             }

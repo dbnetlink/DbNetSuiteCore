@@ -1,9 +1,9 @@
 ﻿@page
 @using DbNetSuiteCore.Enums.DbNetGrid;
 @using DbNetSuiteCore.Components;
+
 @{
-    // Configure the grid and render
     DbNetGridCore productsGrid = new DbNetGridCore("northwind","products");
-    productsGrid.SetColumnProperty("discontinued", ColumnPropertyType.DataType, nameof(Boolean));
+    productsGrid.SetColumnDataType("discontinued", typeof(Boolean));
     @productsGrid.Render()
 }

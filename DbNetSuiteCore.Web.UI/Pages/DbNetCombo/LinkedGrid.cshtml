@@ -10,13 +10,13 @@
 
     employeesGrid.Columns = new List<string>() { "lastname", "firstname", "Title", "TitleOfCourtesy", "BirthDate", "HireDate", "Address", "City", "Region", "PostalCode", "Country", "HomePhone", "Extension", "photo", "notes", "reportsto", "photopath", "employees.EmployeeID", "territoryid" };
 
-    employeesGrid.SetColumnProperty("reportsto", ColumnPropertyType.Lookup, new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname"));
-    employeesGrid.SetColumnProperty("TerritoryId", ColumnPropertyType.Lookup, new Lookup("territories", "TerritoryId", "territorydescription"));
-    employeesGrid.SetColumnProperty("Photo", ColumnPropertyType.Image, true);
-    employeesGrid.SetColumnProperty(new String[] { "photo", "notes", "photopath" }, ColumnPropertyType.Display, false);
-    employeesGrid.SetColumnProperty(new String[] { "firstname", "lastname", "photo", "notes", "photopath" }, ColumnPropertyType.View, true);
-    employeesGrid.SetColumnProperty("TerritoryId", ColumnPropertyType.ForeignKey, true);
-    employeesGrid.SetColumnProperty(new String[] { "TerritoryId" }, ColumnPropertyType.GroupHeader, true);
+    employeesGrid.SetColumnLookup("reportsto", new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname"));
+    employeesGrid.SetColumnLookup("TerritoryId", new Lookup("territories", "TerritoryId", "territorydescription"));
+    employeesGrid.SetColumnAsImage("Photo", new ImageConfiguration("jpg"));
+    employeesGrid.SetColumnDisplay(new String[] { "photo", "notes", "photopath" }, false);
+    employeesGrid.SetColumnView(new String[] { "firstname", "lastname", "photo", "notes", "photopath" });
+    employeesGrid.SetColumnAsForeignKey("TerritoryId");
+    employeesGrid.SetColumnAsGroupHeader(new String[] { "TerritoryId" });
 
     DbNetComboCore territoriesCombo = new DbNetComboCore("northwind", "territories", "territoryid", "territorydescription", "territories") { ForeignKeyColumn = "regionid", Size = 10, MultipleSelect = true, AutoRowSelect = true };
     DbNetComboCore regionsCombo = new DbNetComboCore("northwind", "regions", "regionid", "regiondescription", "regions") { Size = 10, MultipleSelect = true, AutoRowSelect = true };

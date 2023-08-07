@@ -16,7 +16,12 @@
         if (!selectedRow || currentRow != selectedRow.rowIndex) {
             const $tr = $(this.gridControl.table()).find('tr').eq(currentRow);
             this.gridControl.selectRow($tr);
-            $tr[0].scrollIntoView();
+            try {
+                $tr.prev()[0].scrollIntoView();
+            }
+            catch (ex) {
+                console.log(ex)
+            }
         }
     }
 }

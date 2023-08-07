@@ -2,8 +2,8 @@ type DbNetEditResponseCallback = (response: DbNetEditResponse) => void;
 type EditMode = "update" | "insert"
 
 class DbNetEdit extends DbNetGridEdit {
+    browseControl: DbNetGrid | undefined;
     browseDialog: BrowseDialog | undefined;
-    browseDialogControl: DbNetGrid | undefined;
     browseDialogId = "";
     changes: Dictionary<object> = {};
     currentRow = 1;
@@ -51,7 +51,11 @@ class DbNetEdit extends DbNetGridEdit {
 
         this.linkedControls.forEach((control) => {
             if ((control as DbNetGrid).isBrowseDialog) {
-                this.browseDialogControl = (control as DbNetGrid);
+                this.browseControl = (control as DbNetGrid);
+                this.browseControl.internalBind("onRowSelected", (sender, args) => this.browseDialogRowSelected(sender, args));
+                this.browseControl.internalBind("onPageLoaded", () => this.browseControlReloaded());
+
+                this.browseControl.initialize();
             }
         });
     }
@@ -61,7 +65,18 @@ class DbNetEdit extends DbNetGridEdit {
     }
 
     getRows(callback?: DbNetEditResponseCallback) {
-        this.callServer("search", callback);
+        this.post<DbNetEditResponse>("search", this.getRequest())
+            .then((response) => {
+                if (response.error == false) {
+                    this.configureToolbar(response);
+                    this.updateForm(response);
+                    this.updateBrowseControl();
+                }
+
+                if (callback) {
+                    callback(response);
+                }
+            })
     }
 
     columnValue(columnName: string) {
@@ -84,22 +99,21 @@ class DbNetEdit extends DbNetGridEdit {
                 const $img = $(this);
                 $img.hide();
             });
+
     }
 
-    disableForm(disable: boolean) {
-        if (!this.initialised) {
-            return;
-        }
+    disableForm() {
         this.clearForm();
-        this.formElements().not("[primarykey='true']").not("[foreignkey='true']").not("[datatype='Guid']").prop("disabled", disable);
-        this.toolbarPanel?.find("button").prop("disabled", disable);
-        this.toolbarPanel?.find("input.navigation").val("");
+        this.formPanel?.find("button").prop("disabled", true);
+        this.formElements().not("[primarykey='true']").not("[foreignkey='true']").not("[datatype='Guid']").prop("disabled", true);
+        this.toolbarPanel?.find("button").prop("disabled", true);
+        this.toolbarPanel?.find("input.toolbar-info").val("");
 
         this.disable("SearchBtn", this.parentControlType != '');
         this.disable("InsertBtn", this.parentControlType != '');
         this.disable("QuickSearch", this.parentControlType != '');
 
-        if (disable) {
+        if (this.initialised) {
             this.configureLinkedControls(null, DbNetSuite.DBNull);
         }
     }
@@ -141,10 +155,11 @@ class DbNetEdit extends DbNetGridEdit {
 
     private updateForm(response: DbNetEditResponse) {
         if (response.totalRows == 0) {
-            this.disableForm(true);
+            this.disableForm();
             return;
         }
         this.formPanel?.find(':input').not("[primarykey='true']").not("[foreignkey='true']").not("[datatype='Guid']").prop("disabled", false);
+        this.formPanel?.find("button").prop("disabled", false);
         const record = response.record;
         for (const columnName in record) {
             const $input = this.formPanel?.find(`:input[name='${columnName}']`) as JQuery<HTMLFormElement>;
@@ -164,6 +179,13 @@ class DbNetEdit extends DbNetGridEdit {
                 $input.prop("disabled", true);
             }
         }
+        const $firstElement = this.formElements().filter(':not(:disabled):first') as JQuery<HTMLFormElement>;
+        $firstElement.trigger("focus");
+
+        this.editMode = "update";
+        this.primaryKey = response.primaryKey as string;
+        this.formData = new FormData();
+
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const self = this;
         this.binaryElements().each(
@@ -172,13 +194,6 @@ class DbNetEdit extends DbNetGridEdit {
                 $img.hide();
                 self.downloadBinaryData($img);
             });
-
-        const $firstElement = this.formElements().filter(':not(:disabled):first') as JQuery<HTMLFormElement>;
-        $firstElement.trigger("focus");
-
-        this.editMode = "update";
-        this.primaryKey = response.primaryKey as string;
-        this.formData = new FormData();
 
         if (this.browseDialog) {
             if (this.browseDialog.isOpen()) {
@@ -253,7 +268,7 @@ class DbNetEdit extends DbNetGridEdit {
         }
 
         this.setInputElement("Rows", response.totalRows);
-        this.configureToolbarButtons(false);
+        this.configureToolbarButtons(false, response.totalRows);
 
         if (this.parentControlType && this.parentChildRelationship == "OneToOne") {
             $navigationElements.show();
@@ -338,7 +353,7 @@ class DbNetEdit extends DbNetGridEdit {
                 this.openSearchDialog(this.getRequest());
                 break;
             case this.controlElementId("BrowseBtn"):
-                this.initBrowseDialog();
+                this.openBrowseDialog();
                 break;
             case this.controlElementId("ApplyBtn"):
                 this.applyChanges();
@@ -362,7 +377,7 @@ class DbNetEdit extends DbNetGridEdit {
         if (control instanceof DbNetEdit) {
             const edit = control as DbNetEdit;
             if (pk == DbNetSuite.DBNull) {
-                edit.disableForm(true);
+                edit.disableForm();
                 return;
             }
             if (edit.parentChildRelationship == "OneToMany") {
@@ -416,6 +431,8 @@ class DbNetEdit extends DbNetGridEdit {
                 }
             });
 
+        this.formPanel?.find("button").prop("disabled", false);
+
         const $firstElement = this.formElements().filter(':not(:disabled):first') as JQuery<HTMLFormElement>;
         $firstElement.trigger("focus");
         this.editMode = "insert";
@@ -428,7 +445,7 @@ class DbNetEdit extends DbNetGridEdit {
         this.formElements().filter("[foreignkey='true']").attr("initialvalue", fk?.toString())
     }
 
-    private configureToolbarButtons(insert: boolean) {
+    private configureToolbarButtons(insert: boolean, totalRows: number = 0) {
         const elements = this.controlElement("dbnetedit-toolbar").find(".navigation");
         const buttons = ["SearchBtn", "QuickSearch", "InsertBtn", "DeleteBtn", "BrowseBtn",]
         const noRecords = this.controlElement("no-records-cell");
@@ -441,10 +458,10 @@ class DbNetEdit extends DbNetGridEdit {
             insert ? $btn.hide() : $btn.show();
         }
 
-        if (insert) {
-            this.controlElement("ApplyBtn").prop("disabled", false);
-            this.controlElement("CancelBtn").prop("disabled", false);
-        }
+        const disabled = !insert && totalRows == 0
+
+        this.controlElement("ApplyBtn").prop("disabled", disabled);
+        this.controlElement("CancelBtn").prop("disabled", disabled);
     }
 
     private formElements(): JQuery<HTMLFormElement> {
@@ -599,20 +616,24 @@ class DbNetEdit extends DbNetGridEdit {
         }
     }
 
-    private initBrowseDialog() {
-        if (!this.browseDialogControl?.initialised) {
-            this.browseDialogControl?.internalBind("onInitialized", () => this.openBrowseDialog());
-            this.browseDialogControl?.internalBind("onRowSelected", (sender, args) => this.browseDialogRowSelected(sender, args));
-            this.browseDialogControl?.initialize();
+    private updateBrowseControl() {
+        if (!this.browseControl || this.browseControl.initialised == false) {
+            return;
         }
-        else {
-            this.openBrowseDialog()
+
+        this.browseControl.searchParams = this.searchParams;
+        this.browseControl.reload();
+    }
+
+    public browseControlReloaded() {
+        if (this.browseDialog?.isOpen()) {
+            this.browseDialog.selectRow(this.currentRow);
         }
     }
 
     private openBrowseDialog() {
         if (!this.browseDialog) {
-            this.browseDialog = new BrowseDialog(this.browseDialogId as string, this.browseDialogControl as DbNetGrid);
+            this.browseDialog = new BrowseDialog(this.browseDialogId as string, this.browseControl as DbNetGrid);
         }
         this.browseDialog?.show(this.currentRow);
     }

@@ -1,5 +1,6 @@
 ﻿using DbNetSuiteCore.Enums.DbNetGrid;
 using System;
+using System.Collections.Generic;
 
 namespace DbNetSuiteCore.Models
 {
@@ -14,6 +15,21 @@ namespace DbNetSuiteCore.Models
             ColumnName = columnName;
             PropertyType = propertyType;
             PropertyValue = propertyValue;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as ColumnProperty);
+        }
+
+        public bool Equals(ColumnProperty obj)
+        {
+            return ColumnName == obj.ColumnName && PropertyType.ToString() == obj.PropertyType.ToString();
+        }
+
+        public override int GetHashCode()
+        {
+            throw new NotImplementedException();
         }
     }
 }

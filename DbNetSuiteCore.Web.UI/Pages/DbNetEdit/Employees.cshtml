@@ -6,10 +6,10 @@
     DbNetEditCore employeesEdit = new DbNetEditCore("northwind", "employees");
     employeesEdit.SetColumnLookup("ReportsTo", new Lookup("employees", "employeeid", "lastname + ', ' + firstname"));
     employeesEdit.SetControlType("notes", EditControlType.TextArea);
-    employeesEdit.SetColumnProperty("titleofcourtesy", ColumnPropertyType.Pattern, "Mr.|Dr.|Ms.|Mr.");
+    employeesEdit.SetColumnPattern("titleofcourtesy", "Mr.|Dr.|Ms.|Mr.");
     employeesEdit.Bind(EventType.OnFormElementCreated, "configureFormElement");
-    employeesEdit.SetColumnProperty(new string[] { "lastname", "firstname", "titleofcourtesy" }, ColumnPropertyType.Browse, true);
-    employeesEdit.SetColumnProperty(new string[] { "lastname", "firstname", "titleofcourtesy" }, ColumnPropertyType.Required, true);
+    employeesEdit.SetColumnBrowse(new string[] { "lastname", "firstname", "titleofcourtesy" });
+    employeesEdit.SetColumnRequired(new string[] { "lastname", "firstname", "titleofcourtesy" });
 
     employeesEdit.Insert = true;
     employeesEdit.Delete = true;

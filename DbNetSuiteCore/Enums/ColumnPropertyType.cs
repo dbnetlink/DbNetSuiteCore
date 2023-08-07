@@ -1,4 +1,4 @@
-﻿namespace DbNetSuiteCore.Enums.DbNetGrid
+﻿namespace DbNetSuiteCore.Enums
 {
     public enum ColumnPropertyType
     {
@@ -22,6 +22,11 @@
         View,
         Extension,
         UploadMetaData,
-        UploadMetaDataColumn
+        UploadMetaDataColumn,
+        ColumnSize,
+        EditControlType,
+        Pattern,
+        Required,
+        Browse
     }
 }

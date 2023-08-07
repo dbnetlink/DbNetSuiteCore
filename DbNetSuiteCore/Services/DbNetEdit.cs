@@ -408,6 +408,14 @@ namespace DbNetSuiteCore.Services
                 return;
             }
 
+            if (DbColumns.Any(c => c.PrimaryKey && c.AutoIncrement == false))
+            {
+                if (CheckPrimaryKeyIsUnique(response) == false)
+                {
+                    return;
+                };
+            }
+
             if (IsReadOnly(response))
             {
                 return;
@@ -494,6 +502,41 @@ namespace DbNetSuiteCore.Services
             }
 
             response.Error = response.ValidationMessage != null;
+        }
+
+        private bool CheckPrimaryKeyIsUnique(DbNetEditResponse response)
+        {
+            QueryCommandConfig query = new QueryCommandConfig();
+
+            Dictionary<string, object> primaryKeyValues = new Dictionary<string, object>();
+
+            foreach (string key in Changes.Keys)
+            {
+                DbColumn dbColumn = this.Columns.FirstOrDefault(c => c.IsMatch(key));
+
+                if (dbColumn.PrimaryKey == false || dbColumn.AutoIncrement)
+                {
+                    continue;
+                }
+
+                primaryKeyValues[dbColumn.ColumnName] = Changes[key];
+            }
+
+            query.Sql = $"select 1 from {this.FromPart} where {this.PrimaryKeyFilter(query.Params, primaryKeyValues)}";
+
+            using (Database)
+            {
+                Database.Open();
+                Database.ExecuteQuery(query);
+                response.Error = Database.Reader.Read();
+            }
+
+            if (response.Error)
+            {
+                response.ValidationMessage = new KeyValuePair<string, string>(primaryKeyValues.Keys.First(), "Supplied primary key value is not unique" );
+            }
+            
+            return !response.Error;
         }
 
         private async Task SaveFiles(DbNetEditResponse response)

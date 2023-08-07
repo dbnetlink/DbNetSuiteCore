@@ -270,6 +270,19 @@ namespace DbNetSuiteCore.Services
                 }
             }
 
+            if (this is DbNetGrid)
+            {
+                if (columns.Any(c => (c as DbColumn).Browse))
+                {
+
+                    foreach (object o in columns.Where(c => (c as DbColumn).Browse == false))
+                    {
+                        DbColumn column = (DbColumn)o;
+                        column.Display = false;
+                    }
+                }
+            }
+
             foreach (object o in columns.Where(c => (c as DbColumn).Unmatched && (c as DbColumn).PrimaryKey))
             {
                 DbColumn column = (DbColumn)o;
@@ -1171,14 +1184,18 @@ namespace DbNetSuiteCore.Services
             return dictionary.Values.FirstOrDefault();
         }
 
-        protected string PrimaryKeyFilter(ListDictionary parameters)
+        protected string PrimaryKeyFilter(ListDictionary parameters, Dictionary<string, object> primaryKeyValues  = null)
         {
+            if (primaryKeyValues == null)
+            {
+                primaryKeyValues = PrimaryKeyValues;
+            }
             List<string> primaryKeyFilterPart = new List<string>();
-            foreach (string key in PrimaryKeyValues.Keys)
+            foreach (string key in primaryKeyValues.Keys)
             {
                 DbColumn dbColumn = DbColumns.FirstOrDefault(c => c.IsMatch(key));
                 primaryKeyFilterPart.Add($"{key} = {Database.ParameterName(key)}");
-                parameters.Add(Database.ParameterName(key), ConvertToDbParam(PrimaryKeyValues[key], dbColumn));
+                parameters.Add(Database.ParameterName(key), ConvertToDbParam(primaryKeyValues[key], dbColumn));
             }
             return $"{string.Join($" and ", primaryKeyFilterPart)}";
         }

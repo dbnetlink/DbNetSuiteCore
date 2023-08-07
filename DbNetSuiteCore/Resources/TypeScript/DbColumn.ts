@@ -1,4 +1,5 @@
 ﻿class DbColumn {
+    browse?: boolean;
     columnExpression?: string;
     columnName?: string;
     columnKey?: string;

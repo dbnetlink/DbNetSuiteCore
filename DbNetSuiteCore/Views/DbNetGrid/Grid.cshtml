@@ -138,7 +138,7 @@
         switch (gridColumn.DataType)
         {
             case "Byte[]" when gridColumn.Download:
-                return "<button type=\"button\" class=\"download\">&nbsp;</button>";
+                return GetFileNameDownload(gridColumn, row);
             case "Byte[]" when gridColumn.Image:
                 return $"<img class=\"image\" style=\"max-height:{Model.MaxImageHeight}px\"/>";
             default:
@@ -153,6 +153,19 @@
                     }
                 }
         }
+    }
+
+    public string GetFileNameDownload(GridColumn gridColumn, DataRow row)
+    {
+        GridColumn fileNameColumn = Model.Columns.FirstOrDefault(c => c.UploadMetaDataColumn == gridColumn.ColumnName && c.UploadMetaData == FileMetaData.FileName);
+
+        if (fileNameColumn != null)
+        {
+            string fileName = row.ItemArray[fileNameColumn.Index].ToString();
+            return $"<a class=\"download\" href=\"javascript:void(0)\" data-filename=\"{fileName}\">{fileName}</a>";
+        }
+
+        return $"<button type=\"button\" class=\"download\" data-filename=\"{Guid.NewGuid()}.{gridColumn.Extension}\">&nbsp;</button>";
     }
 
     public string CellValue(object dataValue, GridColumn column)

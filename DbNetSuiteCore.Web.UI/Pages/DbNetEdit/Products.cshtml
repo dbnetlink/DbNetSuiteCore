@@ -6,7 +6,11 @@
     DbNetEditCore productsEdit = new DbNetEditCore("northwind_", "products");
     productsEdit.SetColumnLookup("categoryid", new Lookup("Categories", "CategoryID", "CategoryName"));
     productsEdit.SetColumnLookup("SupplierID", new Lookup("Suppliers", "SupplierID", "CompanyName"));
-    productsEdit.SetColumnProperty("UnitPrice", ColumnPropertyType.Format, "c");
+    productsEdit.SetColumnFormat("UnitPrice", "c");
+    productsEdit.SetColumnBrowse(new string[] { "ProductName", "CategoryID", "SupplierID" });
+
+    productsEdit.SetColumnLabel("CategoryID", "Category");
+    productsEdit.SetColumnLabel("SupplierID", "Supplier");
 
     @productsEdit.Render()
 }

@@ -15,7 +15,7 @@
     employeesGrid.EditControl.SetColumnLookup("ReportsTo", new Lookup("employees", "employeeid", "lastname + ', ' + firstName"));
     employeesGrid.EditControl.Bind(EventType.OnFormElementCreated, "configureFormElement");
 
-    employeesGrid.SetColumnImage("Photo", new ImageConfiguration("jpg"));
+    employeesGrid.SetColumnAsImage("Photo", new ImageConfiguration("jpg"));
 
     @employeesGrid.Render()
 }

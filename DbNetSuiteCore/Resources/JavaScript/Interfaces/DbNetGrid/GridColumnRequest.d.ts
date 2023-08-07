@@ -1,4 +1,5 @@
 interface GridColumnRequest {
+    browse?: boolean;
     columnExpression?: string;
     columnName?: string;
     label?: string;

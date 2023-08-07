@@ -1,7 +1,7 @@
 ﻿using DbNetSuiteCore.Enums;
-using DbNetSuiteCore.Enums.DbNetGrid;
 using DbNetSuiteCore.Helpers;
 using DbNetSuiteCore.Models;
+using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -89,6 +89,68 @@ namespace DbNetSuiteCore.Components
             SetColumnProperty(columnName, ColumnPropertyType.Display, display);
         }
         /// <summary>
+        /// Hides the specified column in the control
+        /// </summary>
+        public void SetColumnHidden(string columnName)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.Display, false);
+        }
+        /// <summary>
+        /// Hides the specified columns in the control
+        /// </summary>
+        public void SetColumnHidden(string[] columnNames)
+        {
+            foreach (var columnName in columnNames)
+            {
+                SetColumnHidden(columnName);
+            }
+        }
+
+        /// <summary>
+        /// Sets a CSS style for the specified column e.g. "background-color:gold; color:steelblue"
+        /// </summary>
+        public void SetColumnStyle(string columnName, string style)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.Style, style);
+        }
+        /// <summary>
+        /// Sets a CSS style for the specified columns e.g. "background-color:gold; color:steelblue"
+        /// </summary>
+        public void SetColumnStyle(string[] columnNames, string style)
+        {
+            foreach (var columnName in columnNames)
+            {
+                SetColumnStyle(columnName, style);
+            }
+        }
+
+        /// <summary>
+        /// Overrides the default database type for the specified column
+        /// </summary>
+        public void SetColumnDataType(string columnName, Type type)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.DataType, type.ToString().Split(".").Last());
+        }
+        /// <summary>
+        /// Overrides the default database type for the specified columns
+        /// </summary>
+        public void SetColumnDataType(string[] columnNames, Type type)
+        {
+            foreach (var columnName in columnNames)
+            {
+                SetColumnDataType(columnName, type);
+            }
+        }
+
+        /// <summary>
+        /// Sets the column as the foreign key in the linked control
+        /// </summary>
+        public void SetColumnAsForeignKey(string columnName)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.ForeignKey, true);
+        }
+        
+        /// <summary>
         /// Shows/hides the list of columns in the control
         /// </summary>
         public void SetColumnDisplay(string[] columnNames, bool display = false)
@@ -125,22 +187,23 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Indicates the contents of the column contains and should be rendered as a an image e.g. png, jpg
         /// </summary>
-        public void SetColumnImage(string columnName, ImageConfiguration imageConfiguration)
+        public void SetColumnAsImage(string columnName, ImageConfiguration imageConfiguration)
         {
-            SetColumnBlob(columnName, imageConfiguration, true);
+            SetColumnAsBlob(columnName, imageConfiguration, true);
         }
 
         /// <summary>
         /// Indicates the contents of the column contains should be rendered as a file e.g pdf, xlsx etc
         /// </summary>
-        public void SetColumnFile(string columnName, FileConfiguration fileConfiguration)
+        public void SetColumnAsFile(string columnName, FileConfiguration fileConfiguration)
         {
-            SetColumnBlob(columnName, fileConfiguration, false);
+            SetColumnAsBlob(columnName, fileConfiguration, false);
         }
 
-        private void SetColumnBlob(string columnName, BinaryConfiguration configuration, bool image)
+        private void SetColumnAsBlob(string columnName, BinaryConfiguration configuration, bool image)
         {
-            SetColumnProperty(columnName, ColumnPropertyType.Image, image);
+            ColumnPropertyType columnPropertyType = image ? ColumnPropertyType.Image : ColumnPropertyType.Download;
+            SetColumnProperty(columnName, columnPropertyType, true);
 
             var extensionsWithMimeType = configuration.Extensions.Select(e => e = $"{e.Replace(".", string.Empty)}|{GetMimeTypeForFileExtension(e)}").ToList();
 
@@ -150,8 +213,19 @@ namespace DbNetSuiteCore.Components
             {
                 foreach (FileMetaData fileMetaData in configuration.MetaDataColumns.Keys)
                 {
-                    SetColumnProperty(configuration.MetaDataColumns[fileMetaData], ColumnPropertyType.UploadMetaData, fileMetaData);
-                    SetColumnProperty(configuration.MetaDataColumns[fileMetaData], ColumnPropertyType.UploadMetaDataColumn, columnName);
+                    string metaDataColumnName = configuration.MetaDataColumns[fileMetaData];
+                    SetColumnProperty(metaDataColumnName, ColumnPropertyType.UploadMetaData, fileMetaData);
+                    SetColumnProperty(metaDataColumnName, ColumnPropertyType.UploadMetaDataColumn, columnName);
+
+                    /*
+                    if (this is DbNetGridCore)
+                    {
+                        if (Columns.Any() == false && Columns.Any(c => c.ToLower() == metaDataColumnName.ToLower()) == false)
+                        {
+                            SetColumnProperty(metaDataColumnName, ColumnPropertyType.Display, false);
+                        }
+                    }
+                    */
                 }
             }
         }
