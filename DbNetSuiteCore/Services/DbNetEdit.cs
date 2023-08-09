@@ -143,6 +143,8 @@ namespace DbNetSuiteCore.Services
                 response.PrimaryKey = SerialisePrimaryKey(dataTable.Rows[0]);
             }
             response.Columns = Columns;
+
+            this.CheckForPrimaryKey(response);
         }
 
         private void SetTotalRows()
@@ -332,6 +334,9 @@ namespace DbNetSuiteCore.Services
 
         private void UpdateRecord(DbNetEditResponse response)
         {
+            if (CheckForPrimaryKey(response) == false) {
+                return;
+            }
             List<string> updatePart = new List<string>();
             List<string> filterPart = new List<string>();
             CommandConfig updateCommand = new CommandConfig();
@@ -582,6 +587,17 @@ namespace DbNetSuiteCore.Services
             }
 
             response.ConvertedDate = this.JavascriptDate.ToString(format);
+        }
+
+        private bool CheckForPrimaryKey(DbNetEditResponse response)
+        {
+            if (Columns.Any(c => c.PrimaryKey) == false)
+            {
+                response.Message = "A primary key has not been defined";
+                return false;
+            }
+
+            return true;
         }
     }
 }

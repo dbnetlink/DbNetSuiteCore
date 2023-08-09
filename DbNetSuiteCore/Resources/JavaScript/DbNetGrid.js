@@ -316,7 +316,8 @@ class DbNetGrid extends DbNetGridEdit {
                 clearDuplicateValue: col.clearDuplicateValue,
                 primaryKey: col.primaryKey,
                 index: col.index,
-                dataOnly: col.dataOnly
+                dataOnly: col.dataOnly,
+                search: col.search
             };
             this.columns.push(new GridColumn(properties));
         });

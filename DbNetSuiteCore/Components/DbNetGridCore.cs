@@ -230,6 +230,23 @@ namespace DbNetSuiteCore.Components
         }
         
         /// <summary>
+        /// Specifies the column to be shown in the Search dialog
+        /// </summary>
+        public void SetColumnSearch(string columnName)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.Search, true);
+        }
+        /// <summary>
+        /// Specifies the columns to be shown in the Search dialog
+        /// </summary>
+        public void SetColumnSearch(string[] columnNames)
+        {
+            foreach (var columnName in columnNames)
+            {
+                SetColumnSearch(columnName);
+            }
+        }
+        /// <summary>
         /// Specifies the column to be shown in the View dialog. Use "*" for all columns.
         /// </summary>
         public void SetColumnView(string columnName)

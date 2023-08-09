@@ -5,5 +5,8 @@
 @{
     DbNetGridCore productsGrid = new DbNetGridCore("northwind","products");
     productsGrid.SetColumnDataType("discontinued", typeof(Boolean));
+    productsGrid.SetColumnLookup("categoryid", new Lookup("Categories", "CategoryID", "CategoryName"));
+    productsGrid.SetColumnLookup("SupplierID", new Lookup("Suppliers", "SupplierID", "CompanyName"));
+
     @productsGrid.Render()
 }

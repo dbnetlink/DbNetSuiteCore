@@ -1,0 +1,24 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums.DbNetEdit;
+@using DbNetSuiteCore.Enums;
+@{
+    DbNetEditCore productsEdit = new DbNetEditCore("northwind", "products");
+    productsEdit.Columns = new List<string>() { "ProductId", "ProductName", "CategoryID", "SupplierID", "UnitPrice" };
+
+    productsEdit.SetColumnLookup("categoryid", new Lookup("Categories", "CategoryID", "CategoryName"));
+    productsEdit.SetColumnLookup("SupplierID", new Lookup("Suppliers", "SupplierID", "CompanyName"));
+    productsEdit.SetColumnFormat("UnitPrice", "c");
+    productsEdit.SetColumnDataType("UnitPrice", typeof(Decimal));  // SQLite only
+    productsEdit.SetColumnHidden("ProductId");
+
+    productsEdit.SetColumnLabel("CategoryID", "Category");
+    productsEdit.SetColumnLabel("SupplierID", "Supplier");
+
+    @productsEdit.Render()
+
+    DbNetEditCore customersEdit = new DbNetEditCore("northwind", "customers");
+    customersEdit.Columns = new List<string>() { "CustomerId", "CompanyName" };
+
+    @customersEdit.Render()
+}

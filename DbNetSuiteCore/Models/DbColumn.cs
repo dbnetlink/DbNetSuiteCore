@@ -11,7 +11,8 @@ namespace DbNetSuiteCore.Models
     public class DbColumn : Column
     {
         private List<string> _numericDataTypes = new List<string>() { nameof(Decimal), nameof(Double), nameof(Single), nameof(Int64), nameof(Int32), nameof(Int16) };
-        private bool _search = true;
+        private bool _search = false;
+        private bool _userAssignedSearch = false;
         private string _lookup;
         private string _columnExpression;
         private object _foreignKeyValue;
@@ -25,7 +26,12 @@ namespace DbNetSuiteCore.Models
         public bool Search
         {
             get => _search && Binary == false && ForeignKey == false;
-            set => _search = value;
+            set => _search = SetSearch(value);
+        }
+
+        public bool UserAssignedSearch
+        {
+            get => _userAssignedSearch && Search;
         }
         public bool AddedByUser { get; set; }
         public string Format { get; set; } = string.Empty;
@@ -124,6 +130,15 @@ namespace DbNetSuiteCore.Models
             }
 
             return foreignKeyValue;
+        }
+
+        private bool SetSearch(bool searchable)
+        {
+            if (searchable)
+            {
+                _userAssignedSearch = true;
+            }
+            return searchable;
         }
     }
 }

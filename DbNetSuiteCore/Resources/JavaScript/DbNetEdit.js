@@ -35,6 +35,9 @@ class DbNetEdit extends DbNetGridEdit {
                 this.configureEdit(response);
                 this.initialised = true;
                 this.fireEvent("onInitialized");
+                if (response.message) {
+                    this.message(response.message);
+                }
             }
         });
         this.linkedControls.forEach((control) => {
@@ -277,7 +280,8 @@ class DbNetEdit extends DbNetGridEdit {
                 index: col.index,
                 editControlType: col.editControlType,
                 pattern: col.pattern,
-                browse: col.browse
+                browse: col.browse,
+                search: col.search
             };
             this.columns.push(new EditColumn(properties));
         });

@@ -13,6 +13,7 @@
     lookup?: string;
     primaryKey?: boolean;
     columnSize?: number;
+    search?: boolean;
     style?: string;
     unmatched = false;
     download?: boolean;

@@ -295,6 +295,18 @@ namespace DbNetSuiteCore.Services
                 columns.Remove(columns.First(c => (c as DbColumn).Unmatched));
             }
 
+            if (Search)
+            {
+                if (columns.Any(c => (c as DbColumn).UserAssignedSearch) == false)
+                {
+                    foreach (object o in columns)
+                    {
+                        DbColumn column = (DbColumn)o;
+                        column.Search = true;
+                    }
+                }
+            }
+
             GetLookupTables(columns);
 
             return columns;

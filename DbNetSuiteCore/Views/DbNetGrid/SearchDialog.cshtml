@@ -9,12 +9,8 @@
 <div id="@(Model.ComponentId)_search_dialog" class="search-dialog" title="Search">
     <div class="content">
         <table>
-            @foreach (DbColumn dbColumn in Model.Columns)
+            @foreach (DbColumn dbColumn in Model.Columns.Where(c => c.Search))
             {
-                if (dbColumn.Search == false)
-                {
-                    continue;
-                }
                 <tr columnname="@dbColumn.ColumnName">
                     <td class="label">@dbColumn.Label</td>
                     <td>

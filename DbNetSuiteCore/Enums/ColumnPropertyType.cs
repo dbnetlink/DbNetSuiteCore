@@ -17,6 +17,7 @@
         Label,
         Lookup,
         PrimaryKey,
+        Search,
         Style,
         TotalBreak,
         View,

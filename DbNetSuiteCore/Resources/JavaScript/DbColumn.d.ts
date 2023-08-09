@@ -13,6 +13,7 @@ declare class DbColumn {
     lookup?: string;
     primaryKey?: boolean;
     columnSize?: number;
+    search?: boolean;
     style?: string;
     unmatched: boolean;
     download?: boolean;
