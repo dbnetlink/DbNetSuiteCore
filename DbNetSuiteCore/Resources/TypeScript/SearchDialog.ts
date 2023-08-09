@@ -1,5 +1,8 @@
 ﻿class SearchDialog extends Dialog {
     parent: DbNetGridEdit;
+    timerId: number | undefined;
+    inputBuffer: Dictionary<string> = {};
+
     constructor(id: string, parent: DbNetGridEdit) {
         super(id);
 
@@ -14,6 +17,10 @@
             const $input = $(e as HTMLInputElement);
             $input.width(240);
             $input.on("keyup", (event) => this.criteriaEntered(event.target))
+
+            if ($input.attr("numeric")) {
+                $input.on("keypress", (event) => this.filterNumericKeyPress(event))
+            }
         });
         this.$dialog?.find("input[datatype='DateTime'").get().forEach(e => {
             const $input = $(e as HTMLInputElement);
@@ -36,6 +43,10 @@
 
     private configureForOperator(event: JQuery.TriggeredEvent): void {
         const $select = $(event.target as HTMLInputElement);
+
+        if ($select.attr("dataType") == "Boolean") {
+            return;
+        }
         const $row = $select.closest("tr");
         switch ($select.val()) {
             case "Between":
@@ -53,6 +64,54 @@
                 $row.find("input").show().width(240);
                 break;
         }
+    }
+
+    private filterNumericKeyPress(e: JQuery.KeyPressEvent) {
+        const txt = String.fromCharCode(e.which);
+        if (!txt.match(/[0-9,.]/)) {
+            window.clearTimeout(this.timerId);
+            const columnIndex = $(e.currentTarget).attr("columnIndex") as string
+            this.timerId = window.setTimeout(() => { this.checkInputBuffer(columnIndex) }, 500);
+            if (this.inputBuffer[columnIndex] == null) {
+                this.inputBuffer[columnIndex] = txt;
+            }
+            else {
+                this.inputBuffer[columnIndex] += txt;
+            }
+            return false;
+        }
+    }
+
+    private checkInputBuffer(index:string) {
+        if (this.inputBuffer[index] == null) {
+            return;
+        }
+
+        let op = null;
+        switch (this.inputBuffer[index]) {
+            case ">":
+                op = "GreaterThan";
+                break;
+            case "<":
+                op = "LessThan";
+                break;
+            case "<=":
+                op = "NotGreaterThan";
+                break;
+            case ">=":
+                op = "NotLessThan";
+                break;
+            case "<>":
+            case "!=":
+                op = "NotEqualTo";
+                break;
+        }
+
+        if (op) {
+            const $select = this.$dialog?.find(`[name='searchOperator(${index})']`) as JQuery<HTMLSelectElement>;
+            $select.val(op);
+        }
+        this.inputBuffer = {};
     }
 
     private criteriaEntered(input: HTMLInputElement): void {
@@ -115,7 +174,7 @@
             const $row = $select.closest("tr");
             const $input1 = $row.find("input:eq(0)");
             const $input2 = $row.find("input:eq(1)");
-            if ($select.val() != "") {
+            if ($select.val() != "" && ($input1.is(":visible") == false || $input1.val() != "")) {
                 const searchParam: SearchParam = {
                     searchOperator: $select.val() as string,
                     columnIndex: $input1.attr("columnIndex") as string,

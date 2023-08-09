@@ -497,6 +497,10 @@ table.lookup-dialog-toolbar,
             background-color: $focus-color;
             outline: none;
         }
+
+        &[dataType=Boolean]{
+            display:none;
+        }
     }
 
     select {

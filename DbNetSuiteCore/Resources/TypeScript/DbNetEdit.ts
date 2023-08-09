@@ -445,7 +445,7 @@ class DbNetEdit extends DbNetGridEdit {
         this.formElements().filter("[foreignkey='true']").attr("initialvalue", fk?.toString())
     }
 
-    private configureToolbarButtons(insert: boolean, totalRows: number = 0) {
+    private configureToolbarButtons(insert: boolean, totalRows = 0) {
         const elements = this.controlElement("dbnetedit-toolbar").find(".navigation");
         const buttons = ["SearchBtn", "QuickSearch", "InsertBtn", "DeleteBtn", "BrowseBtn",]
         const noRecords = this.controlElement("no-records-cell");

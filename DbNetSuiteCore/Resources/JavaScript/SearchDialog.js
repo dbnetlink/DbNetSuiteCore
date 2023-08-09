@@ -3,6 +3,7 @@ class SearchDialog extends Dialog {
     constructor(id, parent) {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
         super(id);
+        this.inputBuffer = {};
         (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.on("dialogopen", (event) => this.dialogOpened(event));
         this.parent = parent;
         (_b = this.$dialog) === null || _b === void 0 ? void 0 : _b.find("select.search-operator").on("change", (event) => this.configureForOperator(event));
@@ -13,6 +14,9 @@ class SearchDialog extends Dialog {
             const $input = $(e);
             $input.width(240);
             $input.on("keyup", (event) => this.criteriaEntered(event.target));
+            if ($input.attr("numeric")) {
+                $input.on("keypress", (event) => this.filterNumericKeyPress(event));
+            }
         });
         (_g = this.$dialog) === null || _g === void 0 ? void 0 : _g.find("input[datatype='DateTime'").get().forEach(e => {
             const $input = $(e);
@@ -33,6 +37,9 @@ class SearchDialog extends Dialog {
     }
     configureForOperator(event) {
         const $select = $(event.target);
+        if ($select.attr("dataType") == "Boolean") {
+            return;
+        }
         const $row = $select.closest("tr");
         switch ($select.val()) {
             case "Between":
@@ -50,6 +57,51 @@ class SearchDialog extends Dialog {
                 $row.find("input").show().width(240);
                 break;
         }
+    }
+    filterNumericKeyPress(e) {
+        const txt = String.fromCharCode(e.which);
+        if (!txt.match(/[0-9,.]/)) {
+            window.clearTimeout(this.timerId);
+            const columnIndex = $(e.currentTarget).attr("columnIndex");
+            this.timerId = window.setTimeout(() => { this.checkInputBuffer(columnIndex); }, 500);
+            if (this.inputBuffer[columnIndex] == null) {
+                this.inputBuffer[columnIndex] = txt;
+            }
+            else {
+                this.inputBuffer[columnIndex] += txt;
+            }
+            return false;
+        }
+    }
+    checkInputBuffer(index) {
+        var _a;
+        if (this.inputBuffer[index] == null) {
+            return;
+        }
+        let op = null;
+        switch (this.inputBuffer[index]) {
+            case ">":
+                op = "GreaterThan";
+                break;
+            case "<":
+                op = "LessThan";
+                break;
+            case "<=":
+                op = "NotGreaterThan";
+                break;
+            case ">=":
+                op = "NotLessThan";
+                break;
+            case "<>":
+            case "!=":
+                op = "NotEqualTo";
+                break;
+        }
+        if (op) {
+            const $select = (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find(`[name='searchOperator(${index})']`);
+            $select.val(op);
+        }
+        this.inputBuffer = {};
     }
     criteriaEntered(input) {
         const $input = $(input);
@@ -107,7 +159,7 @@ class SearchDialog extends Dialog {
             const $row = $select.closest("tr");
             const $input1 = $row.find("input:eq(0)");
             const $input2 = $row.find("input:eq(1)");
-            if ($select.val() != "") {
+            if ($select.val() != "" && ($input1.is(":visible") == false || $input1.val() != "")) {
                 const searchParam = {
                     searchOperator: $select.val(),
                     columnIndex: $input1.attr("columnIndex"),

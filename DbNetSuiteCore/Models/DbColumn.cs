@@ -58,7 +58,7 @@ namespace DbNetSuiteCore.Models
         public string LookupTextField { get; set; }
         public string LookupTextExpression { get; set; }
         public string Culture { get; set; }
-        public bool IsBoolean { get; set; }
+        public bool IsBoolean => DataType == nameof(Boolean);
         public bool Unmatched { get; set; }
         public bool Binary => DataType == "Byte[]";
         public int Index { get; set; } = -1;

@@ -1332,6 +1332,9 @@ table.lookup-dialog-toolbar td.no-records span,
   background-color: #FFE082;
   outline: none;
 }
+.search-dialog input[dataType=Boolean] {
+  display: none;
+}
 .search-dialog select {
   border: 1px solid silver;
   border-radius: 2px;

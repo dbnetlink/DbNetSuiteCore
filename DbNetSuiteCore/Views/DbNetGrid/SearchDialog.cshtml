@@ -78,12 +78,6 @@
     {
         string dataType = column.DataType;
 
-        /*
-        if (column.Lookup != "" || column.SearchLookup != "")
-            if (column.LookupSearchMode == DbColumn.LookupSearchModeValues.SearchText)
-                dataType = column.LookupDataType;
-        */
-
         var options = new List<SearchOperator>();
 
         foreach (SearchOperator searchOperator in Enum.GetValues(typeof(SearchOperator)))
@@ -115,7 +109,7 @@
         {
             if (Model.BooleanDisplayMode != BooleanDisplayMode.TrueFalse)
             {
-                    return (searchOperator == SearchOperator.True ? Model.Translate("Yes") : Model.Translate("No"));
+                return (searchOperator == SearchOperator.True ? Model.Translate("Yes") : Model.Translate("No"));
             }
         }
 
@@ -147,7 +141,7 @@
                     return;
                 }
                 break;
-            case "Boolean":
+            case nameof(Boolean):
                 if (IsBooleanOperator(searchOperator) == false)
                 {
                     return;
@@ -188,7 +182,7 @@
     private HtmlString AddInputControl(DbColumn column, bool hidden = false)
     {
         string type = "input";
-         
+
         List<string> classNames = new List<string>() { "input-control" };
         List<string> attributes = new List<string>();
         attributes.Add(ViewHelper.SetAttribute("columnIndex", column.Index.ToString()));
@@ -197,6 +191,10 @@
         attributes.Add(ViewHelper.SetAttribute("format", column.Format));
         attributes.Add(ViewHelper.SetAttribute("class", string.Join(" ", classNames)));
         attributes.Add(ViewHelper.SetAttribute("type", type));
+        if (column.IsNumeric)
+        {
+            attributes.Add(ViewHelper.SetAttribute("numeric", "true"));
+        }
 
         string controls = $"<input {string.Join(" ", attributes)}/>";
 
