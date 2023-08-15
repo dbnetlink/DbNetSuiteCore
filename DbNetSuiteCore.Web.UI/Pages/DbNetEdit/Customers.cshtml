@@ -4,6 +4,7 @@
 @using DbNetSuiteCore.Enums;
 @{
     DbNetEditCore customersEdit = new DbNetEditCore("northwind", "customers");
+    customersEdit.Columns = new List<string>() { "CustomerId", "CompanyName", "ContactName", "ContactTitle", "Address", "City", "Region", "PostalCode", "Country", "Phone", "Fax" };
     customersEdit.SetColumnLookup("country");
     customersEdit.SetColumnLookup("region");
     customersEdit.SetControlType("region", EditControlType.SuggestLookup);
@@ -15,7 +16,6 @@
     customersEdit.Delete = true;
     customersEdit.ToolbarPosition = ToolbarPosition.Top;
     customersEdit.SetColumnBrowse(new string[] { "companyname", "city", "country", "region" });
-
 
     @customersEdit.Render()
 }

@@ -135,37 +135,61 @@
 
     public string CellContent(DataRow row, GridColumn gridColumn, int rowIdx)
     {
-        switch (gridColumn.DataType)
+        var cellValue = row.ItemArray[gridColumn.Index];
+
+        if (gridColumn.DataType == "Byte[]")
         {
-            case "Byte[]" when gridColumn.Download:
+            var size = (cellValue?.ToString() ?? string.Empty).Replace("0", string.Empty);
+            if (size == string.Empty)
+            {
+                return string.Empty;
+            }
+            if (gridColumn.Download)
+            {
                 return GetFileNameDownload(gridColumn, row);
-            case "Byte[]" when gridColumn.Image:
-                return $"<img class=\"image\" style=\"max-height:{Model.MaxImageHeight}px\"/>";
-            default:
-                {
-                    if (gridColumn.ClearDuplicateValue != null && gridColumn.ClearDuplicateValue.Value && Model.DuplicateValue(gridColumn, rowIdx))
-                    {
-                        return CellValue(null, gridColumn);
-                    }
-                    else
-                    {
-                        return CellValue(row.ItemArray[gridColumn.Index], gridColumn);
-                    }
-                }
+            }
+            else
+            {
+                string fileName = GetFileName(gridColumn, row);
+                return $"<img class=\"image\" data-filename=\"{fileName}\" data-extension=\"{gridColumn.Extension}\" style=\"max-height:{Model.MaxImageHeight}px\"/>";
+            }
+        }
+        else
+        {
+            if (gridColumn.ClearDuplicateValue != null && gridColumn.ClearDuplicateValue.Value && Model.DuplicateValue(gridColumn, rowIdx))
+            {
+                return CellValue(null, gridColumn);
+            }
+            else
+            {
+                return CellValue(cellValue, gridColumn);
+            }
         }
     }
 
     public string GetFileNameDownload(GridColumn gridColumn, DataRow row)
     {
-        GridColumn fileNameColumn = Model.Columns.FirstOrDefault(c => c.UploadMetaDataColumn == gridColumn.ColumnName && c.UploadMetaData == FileMetaData.FileName);
+        string fileName = GetFileName(gridColumn, row);
 
-        if (fileNameColumn != null)
+        if (fileName != null)
         {
-            string fileName = row.ItemArray[fileNameColumn.Index].ToString();
             return $"<a class=\"download\" href=\"javascript:void(0)\" data-filename=\"{fileName}\">{fileName}</a>";
         }
 
-        return $"<button type=\"button\" class=\"download\" data-filename=\"{Guid.NewGuid()}.{gridColumn.Extension}\">&nbsp;</button>";
+        return $"<button type=\"button\" class=\"download\" data-extension=\"{gridColumn.Extension}\" data-filename=\"{Guid.NewGuid()}.{gridColumn.Extension}\">&nbsp;</button>";
+    }
+
+    private string GetFileName(GridColumn gridColumn, DataRow row)
+    {
+        string fileName = null;
+        GridColumn fileNameColumn = Model.Columns.FirstOrDefault(c => c.UploadMetaDataColumn?.ToLower() == gridColumn.ColumnName.ToLower() && c.UploadMetaData == FileMetaData.FileName);
+
+        if (fileNameColumn != null)
+        {
+            fileName = row.ItemArray[fileNameColumn.Index].ToString();
+        }
+
+        return fileName;
     }
 
     public string CellValue(object dataValue, GridColumn column)

@@ -135,6 +135,10 @@ class DbNetGridEdit extends DbNetSuite {
             const gridEdit = control;
             const col = gridEdit.columns.find((col) => { return col.foreignKey == true; });
             if (col == undefined) {
+                if (control.parentChildRelationship == "OneToMany") {
+                    control.highlight();
+                    this.error("A foreign key column has not been specified for the linked control");
+                }
                 return;
             }
             if (control instanceof DbNetEdit) {

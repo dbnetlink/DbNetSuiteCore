@@ -6,6 +6,10 @@
     constructor(id: string) {
         super(null);
         this.$dialog = $(`#${id}`);
+
+        if (this.$dialog.length == 0) {
+            alert(`Unable to find dialog with Id => ${id}`)
+        }
         this.$dialog.addClass("dialog");
  
         const options = {
@@ -48,5 +52,9 @@
 
     clearMessage(): void {
         this.$dialog?.find(".message").html("&nbsp;").removeClass("highlight");
+    }
+
+    protected button(type: string): JQuery<HTMLElement> {
+        return this.$dialog?.find(`.${type}-btn`) as JQuery<HTMLElement>;
     }
 }

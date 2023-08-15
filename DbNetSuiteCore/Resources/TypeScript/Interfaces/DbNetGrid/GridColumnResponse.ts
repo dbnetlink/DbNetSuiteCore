@@ -11,5 +11,5 @@
     filterMode: FilterSelectionMode;
     view: boolean;
     dataType: string;
-    aggregate: AggregateType
+    aggregate: AggregateType;
 }

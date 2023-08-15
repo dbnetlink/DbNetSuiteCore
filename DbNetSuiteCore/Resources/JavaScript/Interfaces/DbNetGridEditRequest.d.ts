@@ -14,4 +14,6 @@ interface DbNetGridEditRequest extends DbNetSuiteRequest {
     parentChildRelationship: ParentChildRelationship;
     quickSearch: boolean;
     quickSearchToken: string;
+    uploadMetaData: string;
+    uploadMetaDataColumn: string;
 }

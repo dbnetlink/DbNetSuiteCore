@@ -3,6 +3,7 @@ class UploadDialog extends Dialog {
     constructor(id, parent) {
         var _a, _b, _c, _d, _e, _f;
         super(id);
+        this.validExtensions = [];
         (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.on("dialogopen", (event) => this.dialogOpened(event));
         this.parent = parent;
         this.inputFile = ((_b = this.$dialog) === null || _b === void 0 ? void 0 : _b.find("input[type='file']"))[0];
@@ -30,8 +31,9 @@ class UploadDialog extends Dialog {
     }
     show(event) {
         this.$uploadButton = $(event.currentTarget);
-        this.$editImage = this.$uploadButton.closest("td").find("img");
+        this.$editImage = this.$uploadButton.closest("td").find("img,a");
         $(this.inputFile).attr("accept", this.$editImage.attr("accept"));
+        this.validExtensions = this.$editImage.attr("extensions").toLowerCase().split(',');
         this.open();
     }
     previewLoaded() {
@@ -45,6 +47,12 @@ class UploadDialog extends Dialog {
         var _a, _b, _c, _d, _e;
         const demoImage = this.$previewImage[0];
         this.file = (_a = this.inputFile.files) === null || _a === void 0 ? void 0 : _a.item(0);
+        const ext = `.${this.file.name.split('.').pop()}`;
+        if (this.validExtensions.indexOf(ext) == -1) {
+            this.message("Selected file extension is not valid");
+            this.clear();
+            return;
+        }
         this.fileMetaData = { fileName: this.file.name, size: this.file.size, contentType: this.file.type, lastModified: new Date(this.file.lastModified) };
         (_b = this.$dialog) === null || _b === void 0 ? void 0 : _b.find("#name").val(this.file.name);
         (_c = this.$dialog) === null || _c === void 0 ? void 0 : _c.find("#lastmodified").val(new Date(this.file.lastModified).toLocaleString());
@@ -80,6 +88,7 @@ class UploadDialog extends Dialog {
         const ext = (_a = fileName.split('.').pop()) === null || _a === void 0 ? void 0 : _a.toLowerCase();
         switch (ext) {
             case "csv":
+            case "pdf":
                 $(img).parent().addClass(ext);
                 break;
             default:
@@ -90,8 +99,12 @@ class UploadDialog extends Dialog {
     }
     apply() {
         const $img = this.$editImage;
+        const img = $img.get(0);
         if (this.file.type.startsWith("image/")) {
-            this.renderFileAsImage($img.get(0));
+            this.renderFileAsImage(img);
+        }
+        else {
+            this.renderFileAsNonImage(img);
         }
         const file = new File([this.file], this.file.name);
         this.parent.saveFile($img, file, this.fileMetaData);

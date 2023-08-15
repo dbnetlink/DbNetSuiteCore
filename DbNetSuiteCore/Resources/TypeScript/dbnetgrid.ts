@@ -384,7 +384,9 @@ class DbNetGrid extends DbNetGridEdit {
                 primaryKey: col.primaryKey,
                 index: col.index,
                 dataOnly: col.dataOnly,
-                search:col.search
+                search: col.search,
+                uploadMetaData: col.uploadMetaData,
+                uploadMetaDataColumn: col.uploadMetaDataColumn
             } as GridColumnResponse;
             this.columns.push(new GridColumn(properties));
         });
@@ -498,9 +500,20 @@ class DbNetGrid extends DbNetGridEdit {
             this.selectRow(tr);
         }
 
-        const pk = tr.data("pk");
-        const fk = tr.data("fk");
-        this.configureLinkedControls(tr.data("id"), pk, fk ? fk : pk);
+        if (this.linkedControls.length) {
+            const pk = tr.data("pk");
+            const fk = tr.data("fk");
+
+            if (pk == null) {
+                if (this.linkedControls.length > 1 || this.editDialogId == '') {
+                    this.error("A primary key column must be specfied when linking child controls");
+                }
+                return;
+            }
+            else {
+                this.configureLinkedControls(tr.data("id"), pk, fk ? fk : pk);
+            }
+        }
 
         if (this.viewDialog && this.viewDialog.isOpen()) {
             this.getViewContent();
@@ -752,7 +765,18 @@ class DbNetGrid extends DbNetGridEdit {
     }
 
     private updateRow() {
+        if (!this.primaryKeyCheck()) {
+            return
+        }
         this.openEditDialog(false);
+    }
+
+    private primaryKeyCheck() {
+        if ($(this.selectedRow()).data('pk') == null) {
+            this.error("A primary key has not been included in the grid columns");
+            return false;
+        }
+        return true;
     }
 
     private insertRow() {
@@ -765,6 +789,10 @@ class DbNetGrid extends DbNetGridEdit {
     }
 
     public deleteRow() {
+        if (!this.primaryKeyCheck()) {
+            return
+        }
+
         this.confirm("Please confirm deletion of the selected row", this.gridPanel as JQuery<HTMLElement>, (buttonPressed: MessageBoxButtonType) => this.deletionConfirmed(buttonPressed));
     }
 
@@ -880,6 +908,10 @@ class DbNetGrid extends DbNetGridEdit {
     }
 
     private openNestedGrid(event: JQuery.ClickEvent<HTMLElement>) {
+        if (!this.primaryKeyCheck()) {
+            return;
+        }
+
         const $button = $(event.currentTarget);
         const row = $button.closest("tr");
 
@@ -935,7 +967,7 @@ class DbNetGrid extends DbNetGridEdit {
         if (control instanceof DbNetEdit) {
             const edit = control as DbNetEdit;
             edit.currentRow = 1;
-            this.assignForeignKey(edit, fk);
+            this.assignForeignKey(edit, pk);
             if (this.editControl == undefined) {
                 this.editControl = edit;
             }
@@ -993,7 +1025,6 @@ class DbNetGrid extends DbNetGridEdit {
         let fileName = '';
 
         if (image == false) {
-            
             if ($button[0].tagName == 'a') {
                 fileName = $button.text();
             }
@@ -1007,10 +1038,6 @@ class DbNetGrid extends DbNetGridEdit {
                 fileName: fileName,
                 columnName: this.columnName
             }
-            /*
-            if (image) {
-                args.image = $cell.find("img").get(0) as HTMLImageElement;
-            }*/
 
             this.fireEvent("onBinaryDataDownload", args);
         }
@@ -1019,8 +1046,9 @@ class DbNetGrid extends DbNetGridEdit {
             .then((blob) => {
                 if (blob.size) {
                     if (image) {
-                        const img = $cell.find("img") as JQuery<HTMLImageElement>;
-                        img.attr("src", window.URL.createObjectURL(blob));
+                        const $img = $cell.find("img") as JQuery<HTMLImageElement>;
+                        $img.attr("src", window.URL.createObjectURL(blob));
+                        $img.on("click", (event) => this.viewImage(event) )
                     }
                     else {
                         const link = document.createElement("a");
@@ -1060,4 +1088,5 @@ class DbNetGrid extends DbNetGridEdit {
     private previousRecord() {
         $(this.selectedRow()).prev().trigger("click")
     }
+
 }

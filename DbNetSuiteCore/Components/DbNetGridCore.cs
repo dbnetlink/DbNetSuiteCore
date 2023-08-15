@@ -285,6 +285,11 @@ namespace DbNetSuiteCore.Components
 
             AddEditDialogControl();
 
+            if (NestedGrid != null)
+            {
+                NestedGrid.ParentChildRelationship = FromPart == NestedGrid.FromPart.ToLower() ? Enums.ParentChildRelationship.OneToOne : Enums.ParentChildRelationship.OneToMany;
+            }
+
             string script = string.Empty;
             if (GoogleChartOptions != null)
             {

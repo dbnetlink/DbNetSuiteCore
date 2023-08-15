@@ -3,6 +3,7 @@
 @{
     // Configure the grid and render
     DbNetGridCore customersGrid = new DbNetGridCore("northwind","customers");
+    customersGrid.Columns = new List<string>() { "CustomerId", "CompanyName", "ContactName", "ContactTitle", "Address", "City", "Region", "PostalCode", "Country", "Phone", "Fax" };
     customersGrid.QuickSearch = true;
     customersGrid.Update = true;
     customersGrid.EditControl.SetColumnLookup("country"); 

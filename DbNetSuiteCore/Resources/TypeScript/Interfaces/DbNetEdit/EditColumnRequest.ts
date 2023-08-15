@@ -3,4 +3,5 @@
     editControlType?: string;
     pattern?: string;
     required?: boolean;
+    autoIncrement?: boolean;
 }

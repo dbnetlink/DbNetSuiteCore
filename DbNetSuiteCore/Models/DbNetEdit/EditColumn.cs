@@ -6,7 +6,7 @@ namespace DbNetSuiteCore.Models.DbNetEdit
     {
         public EditControlType EditControlType { get; set; } = EditControlType.Auto;
         public string  Pattern { get; set; }
-        public bool Hidden => (Display == false || ForeignKey || PrimaryKey) && AutoIncrement == true;
+        public bool Hidden => Display == false || ForeignKey || (PrimaryKey && AutoIncrement == true);
 
         public EditColumn()
         {

@@ -39,6 +39,13 @@ section.dbnetsuite {
     *, ::after, ::before {
         box-sizing: border-box;
     }
+
+    &.highlight-dbnetsuite-container {
+        border: 2px solid #D32F2F;
+        border-radius: 5px;
+        padding: 10px;
+        background-color: #EF9A9A;
+    }
 }
 
 .material-icons {

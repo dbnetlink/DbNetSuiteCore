@@ -133,10 +133,6 @@ table.dbnetgrid-table {
         text-align: right;
     }
 
-    td[data-type=Byte\[\]] {
-        text-align: center;
-    }
-
     td[data-type=Boolean] {
         text-align: center;
         vertical-align: middle;
@@ -184,6 +180,10 @@ table.dbnetgrid-table {
     td {
         background-position: center center;
         background-repeat: no-repeat;
+
+        img.image {
+            cursor:pointer;
+        }
     }
 
     tr.selected {
@@ -262,7 +262,8 @@ table.lookup-dialog-toolbar,
 .search-dialog,
 .dbnetedit-form,
 .message-box,
-.upload-dialog {
+.upload-dialog,
+.image-viewer{
     border-collapse: inherit;
 
     td.navigation {
@@ -454,6 +455,23 @@ table.lookup-dialog-toolbar,
     }
 }
 
+.image-viewer {
+    .image-wrapper {
+        overflow: auto;
+        height: 60vh;
+        width: 60vw;
+        position: relative;
+    }
+
+    .img-wrapper > img {
+        vertical-align: top;
+    }
+
+    .toolbar {
+        text-align:right;
+    }
+}
+
 .search-dialog {
     table {
         border-collapse: separate;
@@ -517,7 +535,6 @@ table.lookup-dialog-toolbar,
             outline: none;
         }
     }
-
 
     tr.search-row {
         td {

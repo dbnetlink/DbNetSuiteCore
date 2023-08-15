@@ -1,17 +1,27 @@
 ﻿@page
 @using DbNetSuiteCore.Components;
 @using DbNetSuiteCore.Enums;
+@using DbNetSuiteCore.Enums.DbNetEdit;
 
 @{
     DbNetEditCore imagesEdit = new DbNetEditCore("dbnetsuitecore","images");
     imagesEdit.Insert = true;
     imagesEdit.Delete = true;
     imagesEdit.SetColumnAsImage("Content", new ImageConfiguration(new List<string>() { "jpg", "png" }, new Dictionary<FileMetaData, string>() { { FileMetaData.FileName, "FileName" }, { FileMetaData.ContentType, "ContentType" }, { FileMetaData.LastModified, "LastModified" }, { FileMetaData.Size, "Size" } }));
+    imagesEdit.Bind(EventType.onFileSelected, "setDescription");
     @imagesEdit.Render()
 
-    DbNetEditCore filesEdit = new DbNetEditCore("dbnetsuitecore", "images");
+    DbNetEditCore filesEdit = new DbNetEditCore("dbnetsuitecore", "files");
     filesEdit.Insert = true;
     filesEdit.Delete = true;
     filesEdit.SetColumnAsFile("Content", new FileConfiguration("pdf", new Dictionary<FileMetaData, string>() { { FileMetaData.FileName, "FileName" }, { FileMetaData.ContentType, "ContentType" }, { FileMetaData.LastModified, "LastModified" }, { FileMetaData.Size, "Size" } }));
+    filesEdit.Bind(EventType.onFileSelected, "setDescription");
+
     @filesEdit.Render()
 }
+
+<script>
+    function setDescription(sender, args) {
+        sender.setColumnValue("description", args.fileMetaData.fileName.split('.')[0])
+    }
+</script>

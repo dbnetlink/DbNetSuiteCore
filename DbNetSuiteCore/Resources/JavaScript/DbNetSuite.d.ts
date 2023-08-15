@@ -2,7 +2,7 @@
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
 /// <reference types="bootstrap" />
-type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onBinaryDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted" | "onRecordDeleted" | "onInsertInitalize" | "onRecordSelected";
+type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onBinaryDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted" | "onRecordDeleted" | "onInsertInitalize" | "onRecordSelected" | "onFileSelected";
 interface CellDataDownloadArgs {
     row: HTMLTableRowElement;
     cell: HTMLTableCellElement;
@@ -40,6 +40,7 @@ declare class DbNetSuite {
     protected parentControlType: string;
     parentChildRelationship: ParentChildRelationship;
     initialised: boolean;
+    protected imageViewer: ImageViewer | undefined;
     constructor(id: string | null);
     bind(event: EventName, handler: EventHandler): void;
     internalBind(event: EventName, callback: EmptyCallback): void;
@@ -66,4 +67,6 @@ declare class DbNetSuite {
     protected addTimePicker($input: JQuery<HTMLInputElement>): void;
     private _configureLinkedControl;
     private _getRequest;
+    protected highlight(): void;
+    protected viewImage(event: JQuery.ClickEvent<HTMLElement>): void;
 }

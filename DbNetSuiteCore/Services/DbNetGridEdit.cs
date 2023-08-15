@@ -377,6 +377,22 @@ namespace DbNetSuiteCore.Services
                         break;
                 }
 
+                if (column.Binary)
+                {
+                    switch (Database.Database)
+                    {
+                        case DatabaseType.SQLite:
+                        case DatabaseType.MySql:
+                        case DatabaseType.PostgreSql:
+                            columnExpression = $"length({columnExpression}) {columnExpression}";
+                            break;
+                        case DatabaseType.SqlServer:
+                            columnExpression = $"datalength({columnExpression}) {columnExpression}";
+                            break;
+                    }
+
+                }
+
                 selectParts.Add(columnExpression);
             }
 
@@ -903,10 +919,6 @@ namespace DbNetSuiteCore.Services
             var dictionary = new Dictionary<string, object>();
             foreach (DataColumn column in dataTable.Columns)
             {
-                if (column.DataType == typeof(Byte[]))
-                {
-                    continue;
-                }
                 DbColumn dbColumn = columns[column.Ordinal];
                 var columnValue = dataTable.Rows[0][column.ColumnName];
 
@@ -930,8 +942,13 @@ namespace DbNetSuiteCore.Services
 
             return dictionary;
         }
+
         public string SerialisePrimaryKey(DataRow dataRow)
         {
+            if (DbColumns.Any(c => c.PrimaryKey) == false)
+            {
+                return null;
+            }
             Dictionary<string, object> primaryKeyValues = new Dictionary<string, object>();
             foreach (DbColumn dbColumn in DbColumns)
             {
@@ -1196,7 +1213,7 @@ namespace DbNetSuiteCore.Services
             return dictionary.Values.FirstOrDefault();
         }
 
-        protected string PrimaryKeyFilter(ListDictionary parameters, Dictionary<string, object> primaryKeyValues  = null)
+        protected string PrimaryKeyFilter(ListDictionary parameters, Dictionary<string, object> primaryKeyValues = null)
         {
             if (primaryKeyValues == null)
             {

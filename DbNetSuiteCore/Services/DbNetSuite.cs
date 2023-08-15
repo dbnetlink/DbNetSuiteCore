@@ -71,6 +71,9 @@ namespace DbNetSuiteCore.Services
                 case RequestAction.MessageBox:
                     await MessageBox(response);
                     break;
+                case RequestAction.ImageViewer:
+                    await ImageViewer(response);
+                    break;
             }
 
             return SerialisedResponse(response);
@@ -93,6 +96,13 @@ namespace DbNetSuiteCore.Services
             var baseViewModel = new BaseViewModel();
             ReflectionHelper.CopyProperties(this, baseViewModel);
             response.Html = await HttpContext.RenderToStringAsync("Views/DbNetSuite/MessageBox.cshtml", baseViewModel);
+        }
+
+        protected async Task ImageViewer(DbNetSuiteResponse response)
+        {
+            var baseViewModel = new BaseViewModel();
+            ReflectionHelper.CopyProperties(this, baseViewModel);
+            response.Html = await HttpContext.RenderToStringAsync("Views/DbNetSuite/ImageViewer.cshtml", baseViewModel);
         }
 
         protected void ThrowException(string Msg, string Info = null)

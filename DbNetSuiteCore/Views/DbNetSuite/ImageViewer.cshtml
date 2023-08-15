@@ -1,0 +1,47 @@
+﻿@namespace DbNetSuiteCore.Views.DbNetGrid
+@using DbNetSuiteCore.ViewModels;
+@using Microsoft.AspNetCore.Html
+@using DbNetSuiteCore.ViewModels.DbNetGrid
+@using DbNetSuiteCore.Enums
+@model BaseViewModel
+
+<div id="@(Model.ComponentId)_image_viewer" class="image-viewer" title="Image Viewer" style="display:none">
+    <div class="image-viewer-panel">
+        <table>
+            <tr>
+                <td>
+                    <div class="image-wrapper"><img class="main-image"/></div>
+                    <a class="download-link" download href="" style="display:none"></a>
+                </td>
+            </tr>
+        </table>
+        <hr />
+        <table style="width:100%">
+            <tr>
+                <td>
+                    <div class="toolbar">
+                        @Button("Download", ToolbarButtonStyle.ImageAndText)
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+@functions
+{
+    public HtmlString Button(string type, ToolbarButtonStyle buttonStyle)
+    {
+        return new HtmlString($"<button type=\"button\" class=\"{type.ToLower()}-btn toolbar-button toolbar-button-{buttonStyle.ToString().ToLower()}\" title=\"{@Title(type)}\" button-type=\"{type.ToLower()}\" id=\"image_viewer_Dialog_{type}Btn\">{ResourceString(type)}</button>");
+    }
+
+    public string Title(string type)
+    {
+        return ResourceString($"{type}Record_Title");
+    }
+
+    public string ResourceString(string key)
+    {
+        return Model.Translate(key) ?? key;
+    }
+}

@@ -10,11 +10,11 @@
     <Description>Interactive database driven Razor web reporting component for ASP.NET Core.  Supports MSSQL, MySql, PostgreSQL and SQLite</Description>
     <RepositoryUrl>https://github.com/dbnetlink/DbNetSuiteCore</RepositoryUrl>
     <PackageTags>asp.net core, grid, spreadsheet</PackageTags>
-    <AssemblyVersion>0.9.448</AssemblyVersion>
-    <FileVersion>0.9.448</FileVersion>
+    <AssemblyVersion>0.9.449</AssemblyVersion>
+    <FileVersion>0.9.449</FileVersion>
     <PackageReleaseNotes>Beta version. Currently still under active development.</PackageReleaseNotes>
     <PackageProjectUrl>https://dbnetsuitecoreapp.azurewebsites.net</PackageProjectUrl>
-    <Version>0.9.448-beta</Version>
+    <Version>0.9.449-beta</Version>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageLicenseExpression> NPOSL-3.0</PackageLicenseExpression>
     <BaseOutputPath>C:\Users\robin\source\repos\DbNetSuiteCore-VS2022\DbNetSuiteCoreApp\bin</BaseOutputPath>
@@ -87,6 +87,8 @@
     <None Remove="Resources\JavaScript\EditDialog.min.js" />
     <None Remove="Resources\JavaScript\GridColumn.js" />
     <None Remove="Resources\JavaScript\GridColumn.min.js" />
+    <None Remove="Resources\JavaScript\ImageViewer.js" />
+    <None Remove="Resources\JavaScript\ImageViewer.min.js" />
     <None Remove="Resources\JavaScript\jquery-3.6.0.js" />
     <None Remove="Resources\JavaScript\libraries\jquery-3.6.1.min.js" />
     <None Remove="Resources\JavaScript\libraries\jquery-ui.min.js" />
@@ -128,6 +130,7 @@
     <None Remove="Views\DbNetGrid\Toolbar.cshtml" />
     <None Remove="Views\DbNetGrid\ViewDialog.cshtml" />
     <None Remove="Views\DbNetGrid\ViewDialogContent.cshtml" />
+    <None Remove="Views\DbNetSuite\ImageViewer.cshtml" />
     <None Remove="Views\DbNetSuite\MessageBox.cshtml" />
   </ItemGroup>
 
@@ -169,6 +172,8 @@
     <EmbeddedResource Include="Resources\JavaScript\EditDialog.js" />
     <EmbeddedResource Include="Resources\JavaScript\EditDialog.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\GridColumn.min.js" />
+    <EmbeddedResource Include="Resources\JavaScript\ImageViewer.js" />
+    <EmbeddedResource Include="Resources\JavaScript\ImageViewer.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\libraries\jquery.timepicker.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\LookupDialog.js" />
     <EmbeddedResource Include="Resources\JavaScript\LookupDialog.min.js" />
@@ -272,6 +277,10 @@
     <EmbeddedResource Include="Resources\JavaScript\DbNetSuite.js" />
     <EmbeddedResource Include="Resources\TypeScript\DbNetSuite.ts" />
     <EmbeddedResource Include="Resources\TypeScript\DbNetGrid.ts" />
+    <EmbeddedResource Include="Views\DbNetSuite\ImageViewer.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\DbNetSuite\MessageBox.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

@@ -1,4 +1,4 @@
-type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onBinaryDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted" | "onRecordDeleted" | "onInsertInitalize" | "onRecordSelected"
+type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onBinaryDataDownload" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted" | "onRecordDeleted" | "onInsertInitalize" | "onRecordSelected" | "onFileSelected"
 
 interface CellDataDownloadArgs {
     row: HTMLTableRowElement,
@@ -40,8 +40,9 @@ class DbNetSuite {
     protected messageBox: MessageBox | undefined;
     protected parentControlType = "";
     public parentChildRelationship: ParentChildRelationship = null;
-
     public initialised = false;
+    protected imageViewer: ImageViewer | undefined;
+
 
     constructor(id: string | null) {
         if (id == null) {
@@ -305,6 +306,28 @@ class DbNetSuite {
         };
 
         return request;
+    }
+
+    protected highlight() {
+        const className = "highlight-dbnetsuite-container";
+        this.element?.addClass(className);
+        window.setTimeout(() => { this.element?.removeClass(className) }, 3000);
+    }
+
+
+    protected viewImage(event: JQuery.ClickEvent<HTMLElement>) {
+        if (this.imageViewer) {
+            this.imageViewer.show($(event.currentTarget));
+            return;
+        }
+        this.post<DbNetSuiteResponse>("image-viewer", this._getRequest(), false, "dbnetsuite")
+            .then((response) => {
+                if (!this.imageViewer) {
+                    this.element?.append(response.html);
+                    this.imageViewer = new ImageViewer(`${this.id}_image_viewer`);
+                    this.imageViewer.show($(event.currentTarget));
+                }
+            })
     }
 }
 

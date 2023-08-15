@@ -94,5 +94,11 @@
     "inputFiles": [
       "Resources/JavaScript/UploadDialog.js"
     ]
+  },
+  {
+    "outputFileName": "Resources/JavaScript/ImageViewer.min.js",
+    "inputFiles": [
+      "Resources/JavaScript/ImageViewer.js"
+    ]
   }
 ]

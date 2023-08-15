@@ -82,28 +82,36 @@ namespace DbNetSuiteCore.Components
         }
 
         /// <summary>
-        /// Shows/hides the column in the control
+        /// Shows/hides the specified column in the control
         /// </summary>
-        public void SetColumnDisplay(string columnName, bool display = false)
+        public void SetColumnDisplay(string columnName, bool display = true)
         {
             SetColumnProperty(columnName, ColumnPropertyType.Display, display);
         }
         /// <summary>
+        /// Shows/hides the specified columns in the control
+        /// </summary>
+        public void SetColumnDisplay(string[] columnNames, bool display = true)
+        {
+            foreach (var columnName in columnNames)
+            {
+                SetColumnDisplay(columnName, display);
+            }
+        }
+
+        /// <summary>
         /// Hides the specified column in the control
         /// </summary>
-        public void SetColumnHidden(string columnName)
+        public void SetColumnHidden(string columnName, bool hide = true)
         {
-            SetColumnProperty(columnName, ColumnPropertyType.Display, false);
+            SetColumnDisplay(columnName, !hide);
         }
         /// <summary>
         /// Hides the specified columns in the control
         /// </summary>
-        public void SetColumnHidden(string[] columnNames)
+        public void SetColumnHidden(string[] columnNames, bool hide = true)
         {
-            foreach (var columnName in columnNames)
-            {
-                SetColumnHidden(columnName);
-            }
+            SetColumnDisplay(columnNames, !hide);
         }
 
         /// <summary>
@@ -150,16 +158,6 @@ namespace DbNetSuiteCore.Components
             SetColumnProperty(columnName, ColumnPropertyType.ForeignKey, true);
         }
         
-        /// <summary>
-        /// Shows/hides the list of columns in the control
-        /// </summary>
-        public void SetColumnDisplay(string[] columnNames, bool display = false)
-        {
-            foreach (var columnName in columnNames)
-            {
-                SetColumnDisplay(columnName, display);
-            }
-        }
         /// <summary>
         /// Sets the display format for the date/numeric column
         /// </summary>

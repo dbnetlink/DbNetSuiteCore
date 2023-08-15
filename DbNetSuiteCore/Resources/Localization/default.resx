@@ -151,6 +151,9 @@
   <data name="ApplyTheEnteredSearchCriteria" xml:space="preserve">
     <value>Apply the entered search criteria</value>
   </data>
+  <data name="Apply_tooltip" xml:space="preserve">
+    <value>Apply</value>
+  </data>
   <data name="ARowMustBeSelected" xml:space="preserve">
     <value>A row must be selected</value>
   </data>
@@ -178,7 +181,7 @@
   <data name="Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="Cancel_Tooltip" xml:space="preserve">
+  <data name="Cancel_tooltip" xml:space="preserve">
     <value>Cancel</value>
   </data>
   <data name="ChartConfig" xml:space="preserve">
@@ -290,10 +293,10 @@
     <value>Does not start with</value>
   </data>
   <data name="Download" xml:space="preserve">
-    <value>Export</value>
+    <value>Download</value>
   </data>
   <data name="Download_tooltip" xml:space="preserve">
-    <value>Export data in selected format</value>
+    <value>Download data in selected format</value>
   </data>
   <data name="DragYourFileHere" xml:space="preserve">
     <value>Drag your file here</value>
@@ -318,6 +321,12 @@
   </data>
   <data name="ExampleFormat" xml:space="preserve">
     <value>Entered value should be in the following format</value>
+  </data>
+  <data name="Export" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="Export_tooltip" xml:space="preserve">
+    <value>Export data in selected format</value>
   </data>
   <data name="ExtensionChangeWarning" xml:space="preserve">
     <value>Changing file extensions is not permitted.  Please ensure the new extension matches the old one.</value>

@@ -33,6 +33,12 @@ section.dbnetsuite.empty {
 .dbnetsuite *, .dbnetsuite ::after, .dbnetsuite ::before {
   box-sizing: border-box;
 }
+.dbnetsuite.highlight-dbnetsuite-container {
+  border: 2px solid #D32F2F;
+  border-radius: 5px;
+  padding: 10px;
+  background-color: #EF9A9A;
+}
 
 .material-icons {
   font-family: "MaterialIcons";

@@ -4,6 +4,7 @@
     {
         OnInitialized,
         OnFormElementCreated,
-        OnRecordSelected
+        OnRecordSelected, 
+        onFileSelected
     }
 }

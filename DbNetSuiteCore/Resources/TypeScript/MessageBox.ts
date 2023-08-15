@@ -67,10 +67,6 @@ class MessageBox extends Dialog {
         this.button("ok").hide();
     }
 
-    private button(type: string): JQuery<HTMLElement> {
-        return this.$dialog?.find(`.${type}-btn`) as JQuery<HTMLElement>;
-    }
-
     private buttonPressed(type: MessageBoxButtonType) {
         this.close();
         if (this.callback) {

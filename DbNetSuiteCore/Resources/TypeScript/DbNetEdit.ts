@@ -86,6 +86,10 @@ class DbNetEdit extends DbNetGridEdit {
         this.formElements().filter(`:input[name='${columnName}']`).data("value");
     }
 
+    setColumnValue(columnName: string, value: string) {
+        this.formElements().filter(`:input[name='${columnName}']`).val(value);
+    }
+
     private clearForm() {
         this.formElements().each(
             function () {
@@ -148,12 +152,21 @@ class DbNetEdit extends DbNetGridEdit {
         this.formPanel?.find("[button-type='lookup']").on("click", (event) => this.editLookup(event));
         this.formPanel?.find("[button-type='delete']").on("click", (event) => this.deleteFile(event));
         this.formPanel?.find("[button-type='upload']").on("click", (event) => this.uploadFile(event));
-        this.formPanel?.find("img.dbnetedit").on("load", () => { $(this).show(); });
+        this.formPanel?.find("img.dbnetedit").on("load", (event) => this.imageLoaded(event));
+        this.formPanel?.find("img.dbnetedit").on("click", (event) => this.viewImage(event));
 
         this.formPanel?.find("input[datatype='DateTime'").get().forEach(e => {
             const $input = $(e as HTMLInputElement);
             this.addDatePicker($input, this.datePickerOptions);
         });
+    }
+
+    private imageLoaded(event: JQuery.TriggeredEvent) {
+        const $img = $(event.currentTarget);
+        $img.show();
+        if (this.imageViewer?.isOpen()) {
+            $img.trigger("click");
+        }
     }
 
     private updateForm(response: DbNetEditResponse) {
@@ -193,9 +206,9 @@ class DbNetEdit extends DbNetGridEdit {
         const self = this;
         this.binaryElements().each(
             function () {
-                const $img = $(this);
-                $img.hide();
-                self.downloadBinaryData($img);
+                const $element = $(this);
+                const fileName = self.getFileName($element.attr("name") as string);
+                self.configureBinaryData($element, record as Dictionary<object>, fileName as string);
             });
 
         if (this.browseDialog) {
@@ -209,8 +222,8 @@ class DbNetEdit extends DbNetGridEdit {
         }
         this.configureLinkedControls(null, this.primaryKey);
 
-        this.fireEvent("onRecordSelected", { formElements: this.formElements() });
-    }
+        this.fireEvent("onRecordSelected", { formElements: this.formElements(), binaryElements: this.binaryElements() });
+  }
 
     private callServer(action: string, callback?: DbNetEditResponseCallback) {
         this.post<DbNetEditResponse>(action, this.getRequest())
@@ -327,7 +340,8 @@ class DbNetEdit extends DbNetGridEdit {
                 editControlType: col.editControlType,
                 pattern: col.pattern,
                 browse: col.browse,
-                search: col.search
+                search: col.search,
+                autoIncrement: col.autoIncrement
             } as unknown as EditColumnResponse;
             this.columns.push(new EditColumn(properties));
         });
@@ -473,10 +487,22 @@ class DbNetEdit extends DbNetGridEdit {
     }
 
     private binaryElements(): JQuery<HTMLElement> {
-        return this.formPanel?.find('img,button.binary') as JQuery<HTMLElement>;
+        return this.formPanel?.find('img.dbnetedit,a.dbnetedit') as JQuery<HTMLElement>;
+    }
+
+    private primaryKeyCheck() {
+        if (this.primaryKey == null) {
+            this.error("A primary key has not been included in the edit columns");
+            return false;
+        }
+        return true;
     }
 
     public deleteRecord() {
+        if (!this.primaryKeyCheck()) {
+            return;
+        }
+
         this.confirm("Please confirm deletion of the current record", this.formPanel as JQuery<HTMLElement>, (buttonPressed: MessageBoxButtonType) => this.deletionConfirmed(buttonPressed));
     }
 
@@ -503,6 +529,9 @@ class DbNetEdit extends DbNetGridEdit {
     }
 
     private applyChanges() {
+        if (this.editMode == "update" && !this.primaryKeyCheck()) {
+            return;
+        }
         const changes: Dictionary<object> = {};
         let validationMessage: ValidationMessage | null = null;
 
@@ -683,7 +712,6 @@ class DbNetEdit extends DbNetGridEdit {
         this.lookup($input, request);
     }
 
-
     protected uploadFile(event: JQuery.TriggeredEvent) {
         if (this.uploadDialog) {
             this.uploadDialog.show(event);
@@ -726,30 +754,67 @@ class DbNetEdit extends DbNetGridEdit {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, getRandomSymbol);
     }
 
-    private downloadBinaryData($image: JQuery<HTMLElement>) {
+    private configureBinaryData($element: JQuery<HTMLElement>, record: Dictionary<object>, fileName:string|null) {
+        const columnName = $element.attr("name") as string;
+        const size = record[columnName];
 
-        this.columnName = $image.attr("name") as string;
+        if (size.toString().replace("0", "") == "") {
+            $element.hide();
+            return;
+        }
 
+        if ($element.attr("isimage") == "true") {
+            this.columnName = columnName;
+            this.post<Blob>("download-column-data", this.getRequest(), true)
+                .then((blob) => {
+                    if (blob.size) {
+                        $element.data("filename", fileName);
+                        $element.attr("src", window.URL.createObjectURL(blob));
+                        $element.show();
+                    }
+
+                });
+        }
+        else {
+            $element.attr("href", "javascript:void(0)");
+            $element.text("Download");
+            $element.show();
+            $element.off().on("click", (event) => this.downloadFile(event));
+        }
+    }
+
+    private getFileName(columnName:string) {
+        return this.formElements().filter(`[uploadmetadatacolumn='${columnName}'][uploadmetadata='FileName']`).val();
+    }
+
+    private downloadFile(event: JQuery.ClickEvent<HTMLElement>) {
+        const $element = $(event.currentTarget);
+        this.columnName = $element.attr("name") as string;
+        let fileName = this.getFileName(this.columnName);
+        if (!fileName) {
+            const ext = ($element.attr("extensions") as string).split(",")[0]
+            fileName = `download${ext}`;
+        }
         this.post<Blob>("download-column-data", this.getRequest(), true)
             .then((blob) => {
-                if ($image) {
-                    console.log(`blob size => ${blob.size}`)
-                    if (blob.size) {
-                        $image.attr("src", window.URL.createObjectURL(blob));
-                        $image.show();
-                    }
-                }
-                else {
-                    const link = document.createElement("a");
+                if (blob.size) {
+                    $element.off();
+                    const link = $element.get(0);
                     link.href = window.URL.createObjectURL(blob);
+                    link.download = fileName;
                     link.click();
                 }
             });
     }
 
-    public saveFile($img: JQuery<HTMLImageElement>, file: File | null, fileMetaData: FileMetaData | null = null) {
-        file ? $img.show() : $img.hide();
-        const columnName = $img.attr("name") as string;
+    public saveFile($element: JQuery<HTMLElement>, file: File | null, fileMetaData: FileMetaData | null = null) {
+        if ($element.prop("tagName") == "A") {
+            $element.text(fileMetaData?.fileName as string);
+            $element.attr("href", null);
+        }
+        file ? $element.show() : $element.hide();
+
+        const columnName = $element.attr("name") as string;
         if (this.formData.get(columnName) != null) {
             this.formData.delete(columnName);
         }
@@ -786,8 +851,9 @@ class DbNetEdit extends DbNetGridEdit {
                         break;
                 }
             });
-    }
 
+        this.fireEvent("onFileSelected", { element: $element, fileMetaData: fileMetaData as FileMetaData });
+    }
 
     private applyLastModified($input: JQuery<HTMLInputElement>, lastModified: Date) {
         const request = this.getRequest();

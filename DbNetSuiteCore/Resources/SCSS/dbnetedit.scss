@@ -28,9 +28,22 @@ table.dbnetedit-form {
         }
     }
 
+    a {
+        font-family: var(--main-font-family);
+        font-size: var(--main-font-size);
+        display: table-cell;
+        vertical-align: middle;
+        margin-right: 5px;
+
+        [href]:not([href=""]) {
+            color: blue !important;
+        }
+    }
+
     img.dbnetedit {
-        width: 100px;
-        height: auto;
+        width: auto;
+        height: 60px;
+        cursor:pointer;
     }
 
     input, select {
@@ -87,14 +100,14 @@ table.dbnetedit-form {
         &.file {
             height: 48px;
             width: 48px;
-            padding:20px;
+            padding: 20px;
             border: 1px solid #90A4AE;
             border-radius: 2px;
             vertical-align: bottom;
             background-position: center center;
             background-repeat: no-repeat;
             background-color: #fff;
-            float:right;
+            float: right;
 
             &.default {
                 background-image: svgFileIconUrl("default");
@@ -102,6 +115,10 @@ table.dbnetedit-form {
 
             &.csv {
                 background-image: svgFileIconUrl("csv");
+            }
+
+            &.pdf {
+                background-image: svgFileIconUrl("pdf");
             }
         }
     }

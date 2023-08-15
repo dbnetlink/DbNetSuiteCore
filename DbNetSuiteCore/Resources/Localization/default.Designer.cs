@@ -142,6 +142,15 @@ namespace DbNetSuiteCore.Resources.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Apply.
+        /// </summary>
+        internal static string Apply_tooltip {
+            get {
+                return ResourceManager.GetString("Apply_tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Apply changes to the current record.
         /// </summary>
         internal static string ApplyChangesToTheCurrentRecord {
@@ -243,9 +252,9 @@ namespace DbNetSuiteCore.Resources.Localization {
         /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
-        internal static string Cancel_Tooltip {
+        internal static string Cancel_tooltip {
             get {
-                return ResourceManager.GetString("Cancel_Tooltip", resourceCulture);
+                return ResourceManager.GetString("Cancel_tooltip", resourceCulture);
             }
         }
         
@@ -574,7 +583,7 @@ namespace DbNetSuiteCore.Resources.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Export.
+        ///   Looks up a localized string similar to Download.
         /// </summary>
         internal static string Download {
             get {
@@ -583,7 +592,7 @@ namespace DbNetSuiteCore.Resources.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Export data in selected format.
+        ///   Looks up a localized string similar to Download data in selected format.
         /// </summary>
         internal static string Download_tooltip {
             get {
@@ -660,6 +669,24 @@ namespace DbNetSuiteCore.Resources.Localization {
         internal static string ExampleFormat {
             get {
                 return ResourceManager.GetString("ExampleFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export.
+        /// </summary>
+        internal static string Export {
+            get {
+                return ResourceManager.GetString("Export", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export data in selected format.
+        /// </summary>
+        internal static string Export_tooltip {
+            get {
+                return ResourceManager.GetString("Export_tooltip", resourceCulture);
             }
         }
         

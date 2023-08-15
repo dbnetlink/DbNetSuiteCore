@@ -20,6 +20,5 @@ declare class MessageBox extends Dialog {
     constructor(id: string);
     show(messageBoxType: MessageBoxType, text: string, element: JQuery<HTMLElement> | null | undefined, callback: MessageBoxCallback | undefined): void;
     private hideButtons;
-    private button;
     private buttonPressed;
 }

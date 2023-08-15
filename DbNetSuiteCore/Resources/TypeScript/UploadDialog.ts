@@ -5,9 +5,10 @@
     file: File | undefined;
     $uploadButton: JQuery<HTMLButtonElement> | undefined;
     $previewImage: JQuery<HTMLImageElement>;
-    $editImage: JQuery<HTMLImageElement> | undefined;
+    $editImage: JQuery<HTMLElement> | undefined;
     fileMetaData: FileMetaData | undefined
     $selectFilesButton: JQuery<HTMLButtonElement>;
+    validExtensions: Array<string> = [];
     constructor(id: string, parent: DbNetEdit) {
         super(id);
 
@@ -39,8 +40,10 @@
 
     public show(event: JQuery.TriggeredEvent): void {
         this.$uploadButton = $(event.currentTarget as HTMLButtonElement);
-        this.$editImage = (this.$uploadButton as JQuery<HTMLButtonElement>).closest("td").find("img");
+        this.$editImage = (this.$uploadButton as JQuery<HTMLButtonElement>).closest("td").find("img,a");
         $(this.inputFile).attr("accept", this.$editImage.attr("accept") as string);
+        this.validExtensions = (this.$editImage.attr("extensions") as string).toLowerCase().split(',');
+
         this.open();
     }
 
@@ -56,6 +59,15 @@
     private fileSelected(): void {
         const demoImage = this.$previewImage[0] as HTMLImageElement;
         this.file = this.inputFile.files?.item(0) as File;
+
+        const ext = `.${this.file.name.split('.').pop()}`;
+
+        if (this.validExtensions.indexOf(ext) == -1) {
+            this.message("Selected file extension is not valid");
+            this.clear();
+            return;
+        }
+
         this.fileMetaData = { fileName: this.file.name, size: this.file.size, contentType: this.file.type, lastModified: new Date(this.file.lastModified) } as FileMetaData;
         this.$dialog?.find("#name").val(this.file.name);
         this.$dialog?.find("#lastmodified").val(new Date(this.file.lastModified).toLocaleString());
@@ -85,7 +97,7 @@
         reader.readAsDataURL(this.file as File);
     }
 
-    private renderFileAsNonImage(img: HTMLImageElement) {
+    private renderFileAsNonImage(img: HTMLElement) {
         $(img).hide();
         $(img).parent().addClass("file");
 
@@ -93,7 +105,8 @@
         const ext = fileName.split('.').pop()?.toLowerCase();
         switch (ext) {
             case "csv":
-                $(img).parent().addClass(ext);
+            case "pdf":
+               $(img).parent().addClass(ext);
                 break;
             default:
                 $(img).parent().addClass('default');
@@ -103,9 +116,13 @@
     }
 
     private apply(): void {
-        const $img = this.$editImage as JQuery<HTMLImageElement>;
+        const $img = this.$editImage as JQuery<HTMLElement>;
+        const img = $img.get(0) as HTMLElement;
         if ((this.file as File).type.startsWith("image/")) {
-            this.renderFileAsImage($img.get(0) as HTMLImageElement);
+            this.renderFileAsImage(img as HTMLImageElement);
+        }
+        else {
+            this.renderFileAsNonImage(img);
         }
         const file = new File([this.file as File], (this.file as File).name);
         this.parent.saveFile($img, file, this.fileMetaData);

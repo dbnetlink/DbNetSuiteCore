@@ -22,7 +22,6 @@ class DbNetGridEdit extends DbNetSuite {
     toolbarButtonStyle: ToolbarButtonStyle = ToolbarButtonStyle.Image;
     toolbarPanel: JQuery<HTMLElement> | undefined;
     toolbarPosition: ToolbarPosition;
-
     constructor(id: string) {
         super(id);
         this.columns = [];
@@ -157,6 +156,10 @@ class DbNetGridEdit extends DbNetSuite {
             const col = gridEdit.columns.find((col) => { return col.foreignKey == true });
 
             if (col == undefined) {
+                if (control.parentChildRelationship == "OneToMany") {
+                    control.highlight();
+                    this.error("A foreign key column has not been specified for the linked control")
+                }
                 return;
             }
 

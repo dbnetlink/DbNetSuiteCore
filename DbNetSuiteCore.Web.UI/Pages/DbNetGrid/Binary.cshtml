@@ -9,20 +9,20 @@
     imagesGrid.Delete = true;
     imagesGrid.SetColumnAsImage("Content", new ImageConfiguration(new List<string>() { "jpg", "png" }, new Dictionary<FileMetaData, string>() { { FileMetaData.FileName, "FileName" }, { FileMetaData.ContentType, "ContentType" }, { FileMetaData.LastModified, "LastModified" }, { FileMetaData.Size, "Size" } }));
 
-    imagesGrid.SetColumnDisplay(new string[] { "ContentType", "LastModified", "Size" }, false);
-    imagesGrid.EditControl.SetColumnDisplay(new string[] { "ContentType", "LastModified", "Size" }, true);
+    imagesGrid.SetColumnDisplay(new string[] { "ContentType", "LastModified" }, false);
+    imagesGrid.EditControl.SetColumnDisplay(new string[] { "ContentType", "LastModified" }, true);
 
     @imagesGrid.Render()
 
-    DbNetGridCore filesGrid = new DbNetGridCore("dbnetsuitecore", "images");
+    DbNetGridCore filesGrid = new DbNetGridCore("dbnetsuitecore", "files");
     filesGrid.Update = true;
     filesGrid.Insert = true;
     filesGrid.Delete = true;
     filesGrid.SetColumnAsFile("Content", new FileConfiguration( "pdf", new Dictionary
     <FileMetaData, string>() { { FileMetaData.FileName, "FileName" }, { FileMetaData.ContentType, "ContentType" }, { FileMetaData.LastModified, "LastModified" }, { FileMetaData.Size, "Size" } }));
 
-    filesGrid.SetColumnDisplay(new string[] { "ContentType", "LastModified", "Size" }, false);
-    filesGrid.EditControl.SetColumnDisplay(new string[] { "ContentType", "LastModified", "Size" }, true);
+    filesGrid.SetColumnDisplay(new string[] { "ContentType", "LastModified" }, false);
+    filesGrid.EditControl.SetColumnDisplay(new string[] { "ContentType", "LastModified" }, true);
 
     @filesGrid.Render()
 }

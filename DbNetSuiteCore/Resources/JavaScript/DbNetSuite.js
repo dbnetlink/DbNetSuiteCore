@@ -239,6 +239,27 @@ class DbNetSuite {
         };
         return request;
     }
+    highlight() {
+        var _a;
+        const className = "highlight-dbnetsuite-container";
+        (_a = this.element) === null || _a === void 0 ? void 0 : _a.addClass(className);
+        window.setTimeout(() => { var _a; (_a = this.element) === null || _a === void 0 ? void 0 : _a.removeClass(className); }, 3000);
+    }
+    viewImage(event) {
+        if (this.imageViewer) {
+            this.imageViewer.show($(event.currentTarget));
+            return;
+        }
+        this.post("image-viewer", this._getRequest(), false, "dbnetsuite")
+            .then((response) => {
+            var _a;
+            if (!this.imageViewer) {
+                (_a = this.element) === null || _a === void 0 ? void 0 : _a.append(response.html);
+                this.imageViewer = new ImageViewer(`${this.id}_image_viewer`);
+                this.imageViewer.show($(event.currentTarget));
+            }
+        });
+    }
 }
 DbNetSuite.DBNull = "DBNull";
 document.addEventListener("DOMContentLoaded", function () {

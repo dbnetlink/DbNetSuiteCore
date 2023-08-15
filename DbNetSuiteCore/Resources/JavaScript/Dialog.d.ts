@@ -12,4 +12,5 @@ declare class Dialog extends DbNetSuite {
     close(): void;
     message(msg: string): void;
     clearMessage(): void;
+    protected button(type: string): JQuery<HTMLElement>;
 }

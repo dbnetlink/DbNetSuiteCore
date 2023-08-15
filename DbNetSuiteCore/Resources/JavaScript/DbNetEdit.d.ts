@@ -27,10 +27,12 @@ declare class DbNetEdit extends DbNetGridEdit {
     addLinkedControl(control: DbNetSuite): void;
     getRows(callback?: DbNetEditResponseCallback): void;
     columnValue(columnName: string): void;
+    setColumnValue(columnName: string, value: string): void;
     private clearForm;
     disableForm(): void;
     private configureEdit;
     private configureForm;
+    private imageLoaded;
     private updateForm;
     private callServer;
     getRequest(): DbNetEditRequest;
@@ -44,6 +46,7 @@ declare class DbNetEdit extends DbNetGridEdit {
     private configureToolbarButtons;
     private formElements;
     private binaryElements;
+    private primaryKeyCheck;
     deleteRecord(): void;
     deletionConfirmed(buttonPressed: MessageBoxButtonType): void;
     private recordDeleted;
@@ -65,8 +68,10 @@ declare class DbNetEdit extends DbNetGridEdit {
     protected deleteFile(event: JQuery.TriggeredEvent): void;
     private selectTime;
     private uuid;
-    private downloadBinaryData;
-    saveFile($img: JQuery<HTMLImageElement>, file: File | null, fileMetaData?: FileMetaData | null): void;
+    private configureBinaryData;
+    private getFileName;
+    private downloadFile;
+    saveFile($element: JQuery<HTMLElement>, file: File | null, fileMetaData?: FileMetaData | null): void;
     private applyLastModified;
     private hasFormData;
 }

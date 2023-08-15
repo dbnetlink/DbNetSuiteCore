@@ -317,7 +317,9 @@ class DbNetGrid extends DbNetGridEdit {
                 primaryKey: col.primaryKey,
                 index: col.index,
                 dataOnly: col.dataOnly,
-                search: col.search
+                search: col.search,
+                uploadMetaData: col.uploadMetaData,
+                uploadMetaDataColumn: col.uploadMetaDataColumn
             };
             this.columns.push(new GridColumn(properties));
         });
@@ -412,9 +414,19 @@ class DbNetGrid extends DbNetGridEdit {
         if (this.rowSelect) {
             this.selectRow(tr);
         }
-        const pk = tr.data("pk");
-        const fk = tr.data("fk");
-        this.configureLinkedControls(tr.data("id"), pk, fk ? fk : pk);
+        if (this.linkedControls.length) {
+            const pk = tr.data("pk");
+            const fk = tr.data("fk");
+            if (pk == null) {
+                if (this.linkedControls.length > 1 || this.editDialogId == '') {
+                    this.error("A primary key column must be specfied when linking child controls");
+                }
+                return;
+            }
+            else {
+                this.configureLinkedControls(tr.data("id"), pk, fk ? fk : pk);
+            }
+        }
         if (this.viewDialog && this.viewDialog.isOpen()) {
             this.getViewContent();
         }
@@ -637,7 +649,17 @@ class DbNetGrid extends DbNetGridEdit {
         }
     }
     updateRow() {
+        if (!this.primaryKeyCheck()) {
+            return;
+        }
         this.openEditDialog(false);
+    }
+    primaryKeyCheck() {
+        if ($(this.selectedRow()).data('pk') == null) {
+            this.error("A primary key has not been included in the grid columns");
+            return false;
+        }
+        return true;
     }
     insertRow() {
         var _a;
@@ -649,6 +671,9 @@ class DbNetGrid extends DbNetGridEdit {
         }
     }
     deleteRow() {
+        if (!this.primaryKeyCheck()) {
+            return;
+        }
         this.confirm("Please confirm deletion of the selected row", this.gridPanel, (buttonPressed) => this.deletionConfirmed(buttonPressed));
     }
     deletionConfirmed(buttonPressed) {
@@ -755,6 +780,9 @@ class DbNetGrid extends DbNetGridEdit {
         this.controlElement(id).on(eventName, (event) => this.handleClick(event));
     }
     openNestedGrid(event) {
+        if (!this.primaryKeyCheck()) {
+            return;
+        }
         const $button = $(event.currentTarget);
         const row = $button.closest("tr");
         if ($button.hasClass("open")) {
@@ -800,7 +828,7 @@ class DbNetGrid extends DbNetGridEdit {
         if (control instanceof DbNetEdit) {
             const edit = control;
             edit.currentRow = 1;
-            this.assignForeignKey(edit, fk);
+            this.assignForeignKey(edit, pk);
             if (this.editControl == undefined) {
                 this.editControl = edit;
             }
@@ -866,18 +894,15 @@ class DbNetGrid extends DbNetGridEdit {
                 fileName: fileName,
                 columnName: this.columnName
             };
-            /*
-            if (image) {
-                args.image = $cell.find("img").get(0) as HTMLImageElement;
-            }*/
             this.fireEvent("onBinaryDataDownload", args);
         }
         this.post("download-column-data", this.getRequest(), true)
             .then((blob) => {
             if (blob.size) {
                 if (image) {
-                    const img = $cell.find("img");
-                    img.attr("src", window.URL.createObjectURL(blob));
+                    const $img = $cell.find("img");
+                    $img.attr("src", window.URL.createObjectURL(blob));
+                    $img.on("click", (event) => this.viewImage(event));
                 }
                 else {
                     const link = document.createElement("a");

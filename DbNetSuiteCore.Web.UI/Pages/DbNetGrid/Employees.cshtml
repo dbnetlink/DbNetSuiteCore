@@ -11,6 +11,8 @@
     employeesGrid.Delete = true;
     employeesGrid.View = true;
     employeesGrid.MaxImageHeight = 100;
+    employeesGrid.SetColumnHidden(new string[] { "photo", "notes" });
+    employeesGrid.EditControl.SetColumnHidden(new string[] { "notes" }, false);
     employeesGrid.EditControl.SetControlType("notes", EditControlType.TextArea);
     employeesGrid.EditControl.SetColumnLookup("ReportsTo", new Lookup("employees", "employeeid", "lastname + ', ' + firstName"));
     employeesGrid.EditControl.Bind(EventType.OnFormElementCreated, "configureFormElement");

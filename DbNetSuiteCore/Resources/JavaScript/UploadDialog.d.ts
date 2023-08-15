@@ -9,9 +9,10 @@ declare class UploadDialog extends Dialog {
     file: File | undefined;
     $uploadButton: JQuery<HTMLButtonElement> | undefined;
     $previewImage: JQuery<HTMLImageElement>;
-    $editImage: JQuery<HTMLImageElement> | undefined;
+    $editImage: JQuery<HTMLElement> | undefined;
     fileMetaData: FileMetaData | undefined;
     $selectFilesButton: JQuery<HTMLButtonElement>;
+    validExtensions: Array<string>;
     constructor(id: string, parent: DbNetEdit);
     private dialogOpened;
     private sizeDialog;

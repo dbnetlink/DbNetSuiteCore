@@ -6,9 +6,11 @@
 
     DbNetEditCore ordersEdit = new DbNetEditCore("northwind", "orders");
     ordersEdit.LayoutColumns = 3;
+    ordersEdit.Insert = true;
     ordersEdit.SetColumnAsForeignKey("customerid");
 
     DbNetGridCore customersGrid = new DbNetGridCore("northwind", "customers") { PageSize = 10};
+    customersGrid.Columns = new List<string>() { "CustomerId","CompanyName", "ContactName", "ContactTitle", "Address", "City", "Region", "PostalCode", "Country", "Phone", "Fax" };
     customersGrid.SetColumnLookup("country");
     customersGrid.SetColumnLookup("region");
 
@@ -17,6 +19,8 @@
     customersGrid.ViewLayoutColumns = 3;
     customersGrid.Insert = true;
     customersGrid.Update = true;
+    customersGrid.Delete = true;
+
     customersGrid.AddLinkedControl(customersEdit);
     customersGrid.AddLinkedControl(ordersEdit);
     @customersGrid.Render()

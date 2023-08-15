@@ -57,10 +57,6 @@ class MessageBox extends Dialog {
         this.button("cancel").hide();
         this.button("ok").hide();
     }
-    button(type) {
-        var _a;
-        return (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find(`.${type}-btn`);
-    }
     buttonPressed(type) {
         this.close();
         if (this.callback) {

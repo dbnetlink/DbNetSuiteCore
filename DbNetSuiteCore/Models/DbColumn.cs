@@ -79,6 +79,7 @@ namespace DbNetSuiteCore.Models
         public bool Download { get; set; } = false;
         public bool Image { get; set; } = false;
         public string Extension { get; set; }
+        public bool IsImageExtension => IsImageFileType();
         public FileMetaData? UploadMetaData { get; set; }
         public string UploadMetaDataColumn { get; set; }
 
@@ -103,6 +104,22 @@ namespace DbNetSuiteCore.Models
             else if (this.ColumnName.ToLower() == columnName.ToLower())
                 return true;
 
+            return false;
+        }
+
+        private bool IsImageFileType()
+        {
+            if (string.IsNullOrEmpty(Extension) == false)
+            {
+                string[] extensions = Extension.ToLower().Replace(".", string.Empty).Split(',');
+                foreach (string extension in extensions)
+                {
+                    if (extension.Split("|").Last().StartsWith("image/"))
+                    {
+                        return true;
+                    }
+                }
+            }
             return false;
         }
         private object ConvertForeignKeyValue(object foreignKeyValue)

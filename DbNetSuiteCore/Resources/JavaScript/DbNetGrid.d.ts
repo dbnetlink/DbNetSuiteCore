@@ -109,6 +109,7 @@ declare class DbNetGrid extends DbNetGridEdit {
     private refreshRow;
     private openEditDialog;
     private updateRow;
+    private primaryKeyCheck;
     private insertRow;
     deleteRow(): void;
     deletionConfirmed(buttonPressed: MessageBoxButtonType): void;
