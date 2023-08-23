@@ -7,7 +7,7 @@
         OnCellTransform,
         OnPageLoaded,
         OnRowSelected,
-        OnBinaryDataDownload,
+        OnConfigureBinaryData,
         OnViewRecordSelected
     }
 }

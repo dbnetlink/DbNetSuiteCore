@@ -24,6 +24,14 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public bool? Delete { get; set; } = null;
         /// <summary>
+        /// Use to assign values for any parameter placeholders used in the SQL
+        /// </summary>
+        public Dictionary<string, object> FixedFilterParams { get; set; } = new Dictionary<string, object>();
+        /// <summary>
+        /// Applies an SQL filter the grid 
+        /// </summary>
+        public string FixedFilterSql { get; set; } = null;
+        /// <summary>
         /// Allow insertion of new records
         /// </summary>
         public bool? Insert { get; set; } = null;
@@ -321,6 +329,11 @@ namespace DbNetSuiteCore.Components
             AddProperty(ParentControlType, nameof(ParentControlType), properties);
             AddProperty(ParentChildRelationship, nameof(ParentChildRelationship), properties);
             AddProperty(MaxImageHeight, nameof(MaxImageHeight), properties);
+            AddProperty(EncodingHelper.Encode(FixedFilterSql), nameof(FixedFilterSql), properties);
+            if (FixedFilterParams.Count > 0)
+            {
+                properties.Add($"fixedFilterParams = {Serialize(FixedFilterParams)};");
+            }
         }
     }
 }

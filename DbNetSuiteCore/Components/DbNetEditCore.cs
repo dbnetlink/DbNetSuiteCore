@@ -163,7 +163,6 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             AddProperty(_browseDialogId, "BrowseDialogId", properties);
             AddProperties(properties);
 
-            //AddProperty(EncodingHelper.Encode(FixedFilterSql), nameof(FixedFilterSql), properties);
             properties.Add($"datePickerOptions = {DatePickerOptions()};");
 
             return string.Join(Environment.NewLine, properties);

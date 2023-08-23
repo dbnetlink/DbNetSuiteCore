@@ -83,7 +83,7 @@ class DbNetEdit extends DbNetGridEdit {
     }
 
     columnValue(columnName: string) {
-        this.formElements().filter(`:input[name='${columnName}']`).data("value");
+        return this.formElements().filter(`:input[name='${columnName}']`).data("value");
     }
 
     setColumnValue(columnName: string, value: string) {
@@ -207,8 +207,7 @@ class DbNetEdit extends DbNetGridEdit {
         this.binaryElements().each(
             function () {
                 const $element = $(this);
-                const fileName = self.getFileName($element.attr("name") as string);
-                self.configureBinaryData($element, record as Dictionary<object>, fileName as string);
+                self.configureBinaryData($element, record as Dictionary<object>);
             });
 
         if (this.browseDialog) {
@@ -240,33 +239,14 @@ class DbNetEdit extends DbNetGridEdit {
     }
 
     public getRequest(): DbNetEditRequest {
-        const request: DbNetEditRequest = {
-            changes: this.changes,
-            componentId: this.id,
-            connectionString: this.connectionString,
-            columns: this.columns.map((column) => { return column as EditColumnRequest }),
-            columnName: this.columnName,
-            currentRow: this.currentRow,
-            culture: this.culture,
-            fromPart: this.fromPart,
-            layoutColumns: this.layoutColumns,
-            navigation: this.navigation,
-            quickSearch: this.quickSearch,
-            quickSearchToken: this.quickSearchToken,
-            search: this.search,
-            searchFilterJoin: this.searchFilterJoin,
-            searchParams: this.searchParams,
-            totalRows: this.totalRows,
-            primaryKey: this.primaryKey as string,
-            isEditDialog: this.isEditDialog,
-            insert: this.insert,
-            delete: this._delete,
-            parentControlType: this.parentControlType,
-            optimizeForLargeDataset: this.optimizeForLargeDataset,
-            parentChildRelationship: this.parentChildRelationship,
-            toolbarPosition: this.toolbarPosition,
-            maxImageHeight: this.maxImageHeight
-        };
+        const request = this.baseRequest() as DbNetEditRequest;
+
+        request.changes = this.changes;
+        request.columns = this.columns.map((column) => { return column as EditColumnRequest });
+        request.currentRow = this.currentRow;
+        request.layoutColumns = this.layoutColumns;
+        request.totalRows = this.totalRows;
+        request.isEditDialog = this.isEditDialog;
 
         return request;
     }
@@ -654,6 +634,7 @@ class DbNetEdit extends DbNetGridEdit {
             return;
         }
 
+        this.browseControl.quickSearchToken = this.quickSearchToken;
         this.browseControl.searchParams = this.searchParams;
         this.browseControl.reload();
     }
@@ -754,7 +735,7 @@ class DbNetEdit extends DbNetGridEdit {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, getRandomSymbol);
     }
 
-    private configureBinaryData($element: JQuery<HTMLElement>, record: Dictionary<object>, fileName:string|null) {
+    private configureBinaryData($element: JQuery<HTMLElement>, record: Dictionary<object>) {
         const columnName = $element.attr("name") as string;
         const size = record[columnName];
 
@@ -763,12 +744,28 @@ class DbNetEdit extends DbNetGridEdit {
             return;
         }
 
+        let fileName = this.getFileName(columnName) as string | null;
+
+        if (!fileName) {
+            fileName = "";
+        }
+
+        const args = {
+            element: $element.get(0),
+            fileName: fileName,
+            columnName: this.columnName,
+            record: record
+        }
+
+        this.fireEvent("onConfigureBinaryData", args);
+
+        $element.data("filename", args.fileName);
+
         if ($element.attr("isimage") == "true") {
             this.columnName = columnName;
             this.post<Blob>("download-column-data", this.getRequest(), true)
                 .then((blob) => {
                     if (blob.size) {
-                        $element.data("filename", fileName);
                         $element.attr("src", window.URL.createObjectURL(blob));
                         $element.show();
                     }
@@ -790,7 +787,7 @@ class DbNetEdit extends DbNetGridEdit {
     private downloadFile(event: JQuery.ClickEvent<HTMLElement>) {
         const $element = $(event.currentTarget);
         this.columnName = $element.attr("name") as string;
-        let fileName = this.getFileName(this.columnName);
+        let fileName = $element.data("filename");
         if (!fileName) {
             const ext = ($element.attr("extensions") as string).split(",")[0]
             fileName = `download${ext}`;

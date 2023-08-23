@@ -10,6 +10,8 @@
     employeesEdit.Bind(EventType.OnFormElementCreated, "configureFormElement");
     employeesEdit.SetColumnBrowse(new string[] { "lastname", "firstname", "titleofcourtesy" });
     employeesEdit.SetColumnRequired(new string[] { "lastname", "firstname", "titleofcourtesy" });
+    employeesEdit.SetColumnAsImage("Photo", new ImageConfiguration("jpg"));
+    employeesEdit.Bind(EventType.OnConfigureBinaryData, "configureImageFileName");
 
     employeesEdit.Insert = true;
     employeesEdit.Delete = true;
@@ -24,5 +26,10 @@
             args.formElement.rows = 4;
             args.formElement.cols = 50;
         }
+    }
+
+    function configureImageFileName(sender, args) {
+        var fileName = sender.columnValue("photopath");
+        args.fileName = fileName.split('/').pop().replace(".bmp",".jpg");
     }
 </script>

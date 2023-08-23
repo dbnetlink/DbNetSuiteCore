@@ -1,0 +1,8 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums.DbNetEdit;
+@using DbNetSuiteCore.Enums;
+@{
+    DbNetEditCore customersEdit = new DbNetEditCore("northwind", "customers");
+    @customersEdit.Render()
+}

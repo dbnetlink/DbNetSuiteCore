@@ -9,8 +9,8 @@ namespace DbNetSuiteCore.Models.DbNetEdit
         private List<EditColumn> columns;
         private string primaryKey;
 
-        public object Toolbar { get; set; }
-        public object Form { get; set; }
+        public string Toolbar { get; set; }
+        public string Form { get; set; }
         public List<EditColumn> Columns
         {
             get { return columns; }

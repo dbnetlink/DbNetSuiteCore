@@ -20,13 +20,30 @@ class LookupDialog extends Dialog {
         const dbColumn = this.parent.columns.find((col) => { return col.index == this.columnIndex; });
         (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.dialog("option", "title", `${dbColumn.label} ${this.title}`);
         (_b = this.$dialog) === null || _b === void 0 ? void 0 : _b.find("div.select").html(response.html);
-        (_c = this.$dialog) === null || _c === void 0 ? void 0 : _c.find("select").val(($input === null || $input === void 0 ? void 0 : $input.val()).split(',')).width(300);
+        this.$select = (_c = this.$dialog) === null || _c === void 0 ? void 0 : _c.find("select");
+        this.$select.val(($input === null || $input === void 0 ? void 0 : $input.val()).split(',')).width(300);
+        if (this.contextIsEdit()) {
+            this.$select.removeAttr("multiple");
+        }
+        else {
+            this.$select.attr("multiple", "multiple");
+        }
+    }
+    contextIsEdit() {
+        var _a;
+        return (_a = this.$input) === null || _a === void 0 ? void 0 : _a.hasClass("dbnetedit");
     }
     apply() {
-        var _a, _b;
-        const $select = (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find("select");
-        const selectedValues = $select.val();
-        (_b = this.$input) === null || _b === void 0 ? void 0 : _b.val(selectedValues.join(',')).trigger("keyup");
+        var _a, _b, _c, _d, _e;
+        if (this.contextIsEdit()) {
+            if ((_a = this.$select) === null || _a === void 0 ? void 0 : _a.find(":selected").length) {
+                (_b = this.$input) === null || _b === void 0 ? void 0 : _b.val((_c = this.$select) === null || _c === void 0 ? void 0 : _c.val()).trigger("keyup");
+            }
+        }
+        else {
+            const selectedValues = (_d = this.$select) === null || _d === void 0 ? void 0 : _d.val();
+            (_e = this.$input) === null || _e === void 0 ? void 0 : _e.val(selectedValues.join(',')).trigger("keyup");
+        }
         this.close();
     }
 }

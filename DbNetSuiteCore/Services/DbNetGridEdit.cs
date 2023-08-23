@@ -27,6 +27,7 @@ namespace DbNetSuiteCore.Services
     {
         private string _fromPart;
         private string _primaryKey;
+        private string _fixedFilterSql;
 
         protected Dictionary<string, DataTable> _lookupTables = new Dictionary<string, DataTable>();
         protected List<DbColumn> DbColumns
@@ -48,7 +49,12 @@ namespace DbNetSuiteCore.Services
 
         public bool Delete { get; set; } = false;
         public string Extension { get; set; } = string.Empty;
-
+        public Dictionary<string, object> FixedFilterParams { get; set; } = new Dictionary<string, object>();
+        public string FixedFilterSql
+        {
+            get => EncodingHelper.Decode(_fixedFilterSql);
+            set => _fixedFilterSql = value;
+        }
         public string FromPart
         {
             get => EncodingHelper.Decode(_fromPart);
@@ -75,8 +81,7 @@ namespace DbNetSuiteCore.Services
         public bool Search { get; set; }
         public string SearchFilterJoin { get; set; } = "and";
         public List<SearchParameter> SearchParams { get; set; } = new List<SearchParameter>();
-
-
+        public ToolbarButtonStyle ToolbarButtonStyle { get; set; } = ToolbarButtonStyle.Image;
         public DbNetGridEdit(AspNetCoreServices services) : base(services)
         {
         }
@@ -377,7 +382,7 @@ namespace DbNetSuiteCore.Services
                         break;
                 }
 
-                if (column.Binary)
+                if (column.Download || column.Image)
                 {
                     switch (Database.Database)
                     {
@@ -929,6 +934,10 @@ namespace DbNetSuiteCore.Services
                     if (dbColumn.IsNumeric)
                     {
                         columnValue = Convert.ToDecimal(columnValue).ToString(dbColumn.Format);
+                    }
+                    else if (dbColumn.IsBoolean)
+                    {
+                        columnValue = Convert.ToBoolean(Convert.ToInt16(columnValue));
                     }
                     else if (dbColumn.DataType == nameof(DateTime))
                     {

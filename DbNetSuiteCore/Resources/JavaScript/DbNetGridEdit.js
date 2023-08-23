@@ -6,6 +6,8 @@ class DbNetGridEdit extends DbNetSuite {
         this._delete = false;
         this.fromPart = "";
         this.insert = false;
+        this.fixedFilterParams = {};
+        this.fixedFilterSql = "";
         this.maxImageHeight = 40;
         this.navigation = true;
         this.primaryKey = undefined;
@@ -89,8 +91,10 @@ class DbNetGridEdit extends DbNetSuite {
         }
     }
     lookup($input, request) {
+        var _a;
+        $input.uniqueId();
         request.lookupColumnIndex = parseInt($input.attr("columnIndex"));
-        if (this.lookupDialog && request.lookupColumnIndex == this.lookupDialog.columnIndex) {
+        if (this.lookupDialog && $input.attr("id") == ((_a = this.lookupDialog.$input) === null || _a === void 0 ? void 0 : _a.attr("id"))) {
             this.lookupDialog.open();
             return;
         }
@@ -149,5 +153,31 @@ class DbNetGridEdit extends DbNetSuite {
             }
             col.foreignKeyValue = fk ? fk : DbNetSuite.DBNull;
         }
+    }
+    baseRequest() {
+        const request = {
+            componentId: this.id,
+            connectionString: this.connectionString,
+            fromPart: this.fromPart,
+            toolbarButtonStyle: this.toolbarButtonStyle,
+            quickSearch: this.quickSearch,
+            quickSearchToken: this.quickSearchToken,
+            optimizeForLargeDataset: this.optimizeForLargeDataset,
+            primaryKey: this.primaryKey,
+            columnName: this.columnName,
+            search: this.search,
+            searchFilterJoin: this.searchFilterJoin,
+            searchParams: this.searchParams,
+            navigation: this.navigation,
+            culture: this.culture,
+            fixedFilterParams: this.fixedFilterParams,
+            fixedFilterSql: this.fixedFilterSql,
+            insert: this.insert,
+            delete: this._delete,
+            parentControlType: this.parentControlType,
+            parentChildRelationship: this.parentChildRelationship,
+            maxImageHeight: this.maxImageHeight
+        };
+        return request;
     }
 }

@@ -18,19 +18,38 @@
         this.$dialog?.dialog("option", "width", 320);
     }
 
-    public update(response: DbNetSuiteResponse, $input:JQuery<HTMLInputElement>): void {
+    public update(response: DbNetSuiteResponse, $input: JQuery<HTMLInputElement>): void {
         this.$input = $input;
         this.columnIndex = parseInt($input.attr("columnIndex") as string);
         const dbColumn: DbColumn = this.parent.columns.find((col) => { return col.index! == this.columnIndex }) as DbColumn;
         this.$dialog?.dialog("option", "title", `${dbColumn.label} ${this.title}`);
         this.$dialog?.find("div.select").html(response.html);
-        this.$dialog?.find("select").val(($input?.val() as string).split(',')).width(300);
+
+        this.$select = this.$dialog?.find("select") as JQuery<HTMLSelectElement>;
+        this.$select.val(($input?.val() as string).split(',')).width(300);
+        if (this.contextIsEdit()) {
+            this.$select.removeAttr("multiple")
+        }
+        else {
+            this.$select.attr("multiple", "multiple");
+        }
+    }
+
+    private contextIsEdit() {
+        return this.$input?.hasClass("dbnetedit");
     }
  
     private apply(): void {
-        const $select: JQuery<HTMLSelectElement> = this.$dialog?.find("select") as JQuery<HTMLSelectElement>;
-        const selectedValues = $select.val() as string[];
-        this.$input?.val(selectedValues.join(',')).trigger("keyup");
+        if (this.contextIsEdit()) {
+            if (this.$select?.find(":selected").length) {
+                this.$input?.val(this.$select?.val() as string).trigger("keyup");
+            }
+        }
+        else {
+            const selectedValues = this.$select?.val() as string[];
+            this.$input?.val(selectedValues.join(',')).trigger("keyup");
+        }
+
         this.close();
     }
 }

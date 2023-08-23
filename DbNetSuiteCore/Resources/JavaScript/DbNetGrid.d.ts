@@ -42,8 +42,6 @@ declare class DbNetGrid extends DbNetGridEdit {
     editControl: DbNetEdit | undefined;
     editDialogId: string;
     export_: boolean;
-    fixedFilterParams: Dictionary<object>;
-    fixedFilterSql: string;
     frozenHeader: boolean;
     googleChartOptions: GoogleChartOptions | undefined;
     gridGenerationMode: GridGenerationMode;

@@ -62,7 +62,6 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
 
             var parser = new HtmlParser();
             var document = await parser.ParseDocumentAsync(dbNetGridResponse!.Toolbar);
-            var buttons = document.QuerySelectorAll("button");
 
             var inputs = document.QuerySelectorAll("input");
             Assert.Equal(3, inputs.Length);
@@ -103,7 +102,27 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
                 }
             }
         }
+
+        [Fact]
+        public async Task EditToolbarTest()
+        {
+            DbNetGridRequest request = GetRequest();
+
+            request.Update = true;
+            request.Insert = true;
+            request.Delete = true;
+
+            DbNetGridResponse? dbNetGridResponse = await GetResponse(request, RequestAction.Initialize);
+
+            var parser = new HtmlParser();
+            var document = await parser.ParseDocumentAsync(dbNetGridResponse!.Toolbar);
+            var buttons = document.QuerySelectorAll("button");
+
+            Assert.Equal(10, buttons.Length);
+            Assert.Equal("_SearchBtn", buttons[0].Id);
+            Assert.Equal("_InsertBtn", buttons[1].Id);
+            Assert.Equal("_UpdateBtn", buttons[2].Id);
+            Assert.Equal("_DeleteBtn", buttons[3].Id);
+        }
     }
 }
-
-

@@ -36,14 +36,6 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public bool? Export { get; set; } = null;
         /// <summary>
-        /// Use to assign values for any parameter placeholders used in the SQL
-        /// </summary>
-        public Dictionary<string, object> FixedFilterParams { get; set; } = new Dictionary<string, object>();
-        /// <summary>
-        /// Applies an SQL filter the grid 
-        /// </summary>
-        public string FixedFilterSql { get; set; } = null;
-        /// <summary>
         /// When set to true will prevent the grid headings from scrolling off the page
         /// </summary>
         public bool? FrozenHeader { get; set; } = null;
@@ -407,7 +399,6 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             AddProperty(GroupBy, nameof(GroupBy), properties);
             AddProperty(Copy, nameof(Copy), properties);
             AddProperty(Export, $"{nameof(Export)}_", properties);
-            AddProperty(EncodingHelper.Encode(FixedFilterSql), nameof(FixedFilterSql), properties);
             AddProperty(RowSelect, nameof(RowSelect), properties);
             AddProperty(EncodingHelper.Encode(ProcedureName), nameof(ProcedureName), properties);
             AddProperty(GridGenerationMode, nameof(GridGenerationMode), properties);
@@ -417,11 +408,6 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             AddProperty(IsBrowseDialog, nameof(IsBrowseDialog), properties);
 
             AddProperties(properties);
-
-            if (FixedFilterParams.Count > 0)
-            {
-                properties.Add($"fixedFilterParams = {Serialize(FixedFilterParams)};");
-            }
 
             if (ProcedureParams?.Count > 0)
             {

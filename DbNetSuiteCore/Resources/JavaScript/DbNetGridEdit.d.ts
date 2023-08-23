@@ -10,6 +10,8 @@ declare class DbNetGridEdit extends DbNetSuite {
     fromPart: string;
     insert: boolean;
     lookupDialog: LookupDialog | undefined;
+    fixedFilterParams: Dictionary<object>;
+    fixedFilterSql: string;
     maxImageHeight: number;
     navigation: boolean;
     primaryKey: string | undefined;
@@ -39,4 +41,5 @@ declare class DbNetGridEdit extends DbNetSuite {
     private newColumn;
     private matchingColumn;
     assignForeignKey(control: DbNetSuite, fk: string | object | null): void;
+    protected baseRequest(): DbNetGridEditRequest;
 }

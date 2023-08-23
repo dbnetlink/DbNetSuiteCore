@@ -11,5 +11,6 @@ declare class LookupDialog extends Dialog {
     constructor(id: string, parent: DbNetGridEdit);
     private dialogOpened;
     update(response: DbNetSuiteResponse, $input: JQuery<HTMLInputElement>): void;
+    private contextIsEdit;
     private apply;
 }

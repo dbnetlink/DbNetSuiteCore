@@ -26,7 +26,7 @@ declare class DbNetEdit extends DbNetGridEdit {
     initialize(primaryKey?: string | null): void;
     addLinkedControl(control: DbNetSuite): void;
     getRows(callback?: DbNetEditResponseCallback): void;
-    columnValue(columnName: string): void;
+    columnValue(columnName: string): any;
     setColumnValue(columnName: string, value: string): void;
     private clearForm;
     disableForm(): void;

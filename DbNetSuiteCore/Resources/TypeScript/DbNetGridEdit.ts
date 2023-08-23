@@ -6,6 +6,8 @@ class DbNetGridEdit extends DbNetSuite {
     fromPart = "";
     insert = false;
     lookupDialog: LookupDialog | undefined;
+    fixedFilterParams: Dictionary<object> = {};
+    fixedFilterSql = "";
     maxImageHeight = 40;
     navigation = true;
     primaryKey: string | undefined = undefined;
@@ -107,9 +109,10 @@ class DbNetGridEdit extends DbNetSuite {
     }
 
     public lookup($input: JQuery<HTMLInputElement>, request: DbNetGridEditRequest) {
+        $input.uniqueId();
         request.lookupColumnIndex = parseInt($input.attr("columnIndex") as string);
 
-        if (this.lookupDialog && request.lookupColumnIndex == this.lookupDialog.columnIndex) {
+        if (this.lookupDialog && $input.attr("id") == this.lookupDialog.$input?.attr("id")) {
             this.lookupDialog.open();
             return;
         }
@@ -172,5 +175,33 @@ class DbNetGridEdit extends DbNetSuite {
 
             col.foreignKeyValue = fk ? fk : DbNetSuite.DBNull;
         }
+    }
+
+    protected baseRequest(): DbNetGridEditRequest {
+        const request: DbNetGridEditRequest = {
+            componentId: this.id,
+            connectionString: this.connectionString,
+            fromPart: this.fromPart,
+            toolbarButtonStyle: this.toolbarButtonStyle,
+            quickSearch: this.quickSearch,
+            quickSearchToken: this.quickSearchToken,
+            optimizeForLargeDataset: this.optimizeForLargeDataset,
+            primaryKey: this.primaryKey as string,
+            columnName: this.columnName,
+            search: this.search,
+            searchFilterJoin: this.searchFilterJoin,
+            searchParams: this.searchParams,
+            navigation: this.navigation,
+            culture: this.culture,
+            fixedFilterParams: this.fixedFilterParams,
+            fixedFilterSql: this.fixedFilterSql,
+            insert: this.insert,
+            delete: this._delete,
+            parentControlType: this.parentControlType,
+            parentChildRelationship: this.parentChildRelationship,
+            maxImageHeight: this.maxImageHeight
+        };
+
+        return request;
     }
 }

@@ -303,6 +303,18 @@ namespace DbNetSuiteCore.Services
                     filterPart.Add(foreignKeyFilter);
                 }
 
+                if (string.IsNullOrEmpty(FixedFilterSql) == false)
+                {
+                    filterPart.Add(FixedFilterSql);
+                    if (FixedFilterParams.Keys.Any())
+                    {
+                        foreach (string paramName in FixedFilterParams.Keys)
+                        {
+                            parameters.Add(ParamName(paramName), ConvertToDbParam(FixedFilterParams[paramName], null));
+                        }
+                    }
+                }
+
                 if (SearchParams.Any())
                 {
                     foreach (SearchParameter searchParameter in SearchParams)

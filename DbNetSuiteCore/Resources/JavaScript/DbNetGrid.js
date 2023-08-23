@@ -35,8 +35,6 @@ class DbNetGrid extends DbNetGridEdit {
         this.editControl = undefined;
         this.editDialogId = "";
         this.export_ = true;
-        this.fixedFilterParams = {};
-        this.fixedFilterSql = "";
         this.frozenHeader = false;
         this.googleChartOptions = undefined;
         this.gridGenerationMode = GridGenerationMode.Display;
@@ -403,7 +401,7 @@ class DbNetGrid extends DbNetGridEdit {
             $(e).on("click", (e) => this.downloadBinaryData(e.currentTarget, false));
         });
         $tr.find("img.image").get().forEach(e => {
-            this.downloadBinaryData(e.parentElement, true);
+            this.downloadBinaryData(e, true);
         });
     }
     selectRow(tr) {
@@ -730,50 +728,28 @@ class DbNetGrid extends DbNetGridEdit {
         if (this.defaultColumn) {
             this.columns = this.columns.filter(item => item !== this.defaultColumn);
         }
-        const request = {
-            componentId: this.id,
-            connectionString: this.connectionString,
-            fromPart: this.fromPart,
-            currentPage: this.currentPage,
-            pageSize: this.toolbarPosition == "Hidden" ? -1 : this.pageSize,
-            orderBy: this.orderBy,
-            orderByDirection: this.orderByDirection,
-            toolbarButtonStyle: this.toolbarButtonStyle,
-            columns: this.columns.map((column) => { return column; }),
-            multiRowSelect: this.multiRowSelect,
-            multiRowSelectLocation: this.multiRowSelectLocation,
-            nestedGrid: this.nestedGrid,
-            quickSearch: this.quickSearch,
-            quickSearchToken: this.quickSearchToken,
-            booleanDisplayMode: this.booleanDisplayMode,
-            columnFilters: this.columnFilters,
-            frozenHeader: this.frozenHeader,
-            optimizeForLargeDataset: this.optimizeForLargeDataset,
-            defaultColumn: this.defaultColumn,
-            primaryKey: this.primaryKey,
-            columnName: this.columnName,
-            view: this.view,
-            groupBy: this.groupBy,
-            search: this.search,
-            searchFilterJoin: this.searchFilterJoin,
-            searchParams: this.searchParams,
-            copy: this.copy,
-            export: this.export_,
-            navigation: this.navigation,
-            culture: this.culture,
-            fixedFilterParams: this.fixedFilterParams,
-            fixedFilterSql: this.fixedFilterSql,
-            procedureParams: this.procedureParams,
-            procedureName: this.procedureName,
-            gridGenerationMode: this.gridGenerationMode,
-            insert: this.insert,
-            update: this.update,
-            delete: this._delete,
-            viewLayoutColumns: this.viewLayoutColumns,
-            parentControlType: this.parentControlType,
-            parentChildRelationship: this.parentChildRelationship,
-            maxImageHeight: this.maxImageHeight
-        };
+        const request = this.baseRequest();
+        request.pageSize = this.toolbarPosition == "Hidden" ? -1 : this.pageSize;
+        request.currentPage = this.currentPage;
+        request.orderBy = this.orderBy;
+        request.orderByDirection = this.orderByDirection;
+        request.columns = this.columns.map((column) => { return column; });
+        request.multiRowSelect = this.multiRowSelect;
+        request.multiRowSelectLocation = this.multiRowSelectLocation;
+        request.nestedGrid = this.nestedGrid;
+        request.booleanDisplayMode = this.booleanDisplayMode;
+        request.columnFilters = this.columnFilters;
+        request.frozenHeader = this.frozenHeader;
+        request.defaultColumn = this.defaultColumn;
+        request.view = this.view;
+        request.groupBy = this.groupBy;
+        request.copy = this.copy;
+        request.export = this.export_;
+        request.procedureParams = this.procedureParams;
+        request.procedureName = this.procedureName;
+        request.gridGenerationMode = this.gridGenerationMode;
+        request.update = this.update;
+        request.viewLayoutColumns = this.viewLayoutColumns;
         return request;
     }
     addEventListener(id, eventName = "click") {
@@ -869,9 +845,8 @@ class DbNetGrid extends DbNetGridEdit {
     downloadBinaryData(element, image) {
         var _a, _b;
         const $viewContentContainer = $(element).closest(".view-dialog-value");
-        const $button = $(element);
-        const $cell = $button.closest("td");
-        const $row = $button.closest("tr");
+        const $cell = $(element).closest("td");
+        const $row = $(element).closest("tr");
         if ($viewContentContainer.length) {
             this.columnName = $viewContentContainer.data("columnname");
         }
@@ -880,21 +855,29 @@ class DbNetGrid extends DbNetGridEdit {
             this.columnName = (_b = (_a = this.gridPanel) === null || _a === void 0 ? void 0 : _a.find("th[data-columnname]").get($cell.prop("cellIndex"))) === null || _b === void 0 ? void 0 : _b.getAttribute("data-columnname");
         }
         let fileName = '';
-        if (image == false) {
+        if (image) {
+            const $image = $(element);
+            fileName = $image.data("filename").split('|')[0];
+        }
+        else {
+            const $button = $(element);
             if ($button[0].tagName == 'a') {
                 fileName = $button.text();
             }
             else {
                 fileName = $button.data("filename").split('|')[0];
             }
-            const args = {
-                row: $row.get(0),
-                cell: $cell.get(0),
-                extension: "xlxs",
-                fileName: fileName,
-                columnName: this.columnName
-            };
-            this.fireEvent("onBinaryDataDownload", args);
+        }
+        const args = {
+            row: $row.get(0),
+            cell: $cell.get(0),
+            extension: "xlxs",
+            fileName: fileName,
+            columnName: this.columnName
+        };
+        this.fireEvent("onConfigureBinaryData", args);
+        if (args.fileName != fileName) {
+            $(element).data("filename", args.fileName);
         }
         this.post("download-column-data", this.getRequest(), true)
             .then((blob) => {
@@ -909,12 +892,6 @@ class DbNetGrid extends DbNetGridEdit {
                     link.href = window.URL.createObjectURL(blob);
                     link.download = fileName;
                     link.click();
-                }
-            }
-            else {
-                if (image) {
-                    const img = $cell.find("img");
-                    img.hide();
                 }
             }
         });

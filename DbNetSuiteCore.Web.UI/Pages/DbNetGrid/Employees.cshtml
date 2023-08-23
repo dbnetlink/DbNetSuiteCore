@@ -1,6 +1,7 @@
 ﻿@page
 @using DbNetSuiteCore.Components;
 @using DbNetSuiteCore.Enums.DbNetEdit;
+@using DbNetGridEnums = DbNetSuiteCore.Enums.DbNetGrid;
 
 @{
     // Configure the grid and render
@@ -11,11 +12,14 @@
     employeesGrid.Delete = true;
     employeesGrid.View = true;
     employeesGrid.MaxImageHeight = 100;
-    employeesGrid.SetColumnHidden(new string[] { "photo", "notes" });
+    employeesGrid.Bind(DbNetGridEnums.EventType.OnConfigureBinaryData, "configureImageFileName");
+
+   // employeesGrid.SetColumnHidden(new string[] { "photo", "notes" });
     employeesGrid.EditControl.SetColumnHidden(new string[] { "notes" }, false);
     employeesGrid.EditControl.SetControlType("notes", EditControlType.TextArea);
     employeesGrid.EditControl.SetColumnLookup("ReportsTo", new Lookup("employees", "employeeid", "lastname + ', ' + firstName"));
     employeesGrid.EditControl.Bind(EventType.OnFormElementCreated, "configureFormElement");
+    employeesGrid.EditControl.Bind(EventType.OnFileSelected, "assignFileName");
 
     employeesGrid.SetColumnAsImage("Photo", new ImageConfiguration("jpg"));
 
@@ -27,5 +31,14 @@
             args.formElement.rows = 4;
             args.formElement.cols = 50;
         }
+    }
+
+    function configureImageFileName(sender, args) {
+        var fileName = sender.columnValue("photopath", args.row);
+        args.fileName = fileName.split('/').pop().replace(".bmp", ".jpg");
+    }
+
+    function assignFileName(sender, args) {
+        sender.setColumnValue("photopath",args.fileMetaData.fileName);
     }
 </script>

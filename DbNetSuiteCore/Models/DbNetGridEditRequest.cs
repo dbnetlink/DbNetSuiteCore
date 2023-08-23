@@ -7,6 +7,8 @@ namespace DbNetSuiteCore.Models.DbNetEdit
     {
         public string ColumnName { get; set; }
         public bool Delete { get; set; } = false;
+        public Dictionary<string, object> FixedFilterParams { get; set; } = new Dictionary<string, object>();
+        public string FixedFilterSql { get; set; }
         public string FromPart { get; set; }
         public int LookupColumnIndex { get; set; }
         public bool Insert { get; set; } = false;
@@ -21,5 +23,6 @@ namespace DbNetSuiteCore.Models.DbNetEdit
         public bool Search { get; set; } = true;
         public string SearchFilterJoin { get; set; }
         public List<SearchParameter> SearchParams { get; set; } = new List<SearchParameter>();
+        public ToolbarButtonStyle ToolbarButtonStyle { get; set; }
     }
 }

@@ -5,6 +5,7 @@
         OnInitialized,
         OnFormElementCreated,
         OnRecordSelected, 
-        onFileSelected
+        OnFileSelected, 
+        OnConfigureBinaryData
     }
 }

@@ -7,8 +7,6 @@
     defaultColumn: GridColumn | undefined;
     export: boolean;
     extension?: string | undefined;
-    fixedFilterParams: Dictionary<object>;
-    fixedFilterSql: string | undefined;
     frozenHeader: boolean;
     gridGenerationMode: GridGenerationMode
     groupBy: boolean;
@@ -20,7 +18,6 @@
     pageSize: number;
     procedureName: string | undefined;
     procedureParams: Dictionary<object>;
-    toolbarButtonStyle: ToolbarButtonStyle;
     update: boolean;
     view: boolean;
     viewLayoutColumns: number;

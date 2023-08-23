@@ -29,9 +29,7 @@ namespace DbNetSuiteCore.Services
         private Dictionary<string, object> _columnProperties = new Dictionary<string, object>(StringComparer.CurrentCultureIgnoreCase);
         private Dictionary<string, object> _resp = new Dictionary<string, object>();
         const string NullValueToken = "@@null@@";
-
         public List<GridColumn> Columns { get; set; } = new List<GridColumn>();
-        private string _fixedFilterSql;
         private string _procedureName;
         private long _pageSize = 20;
 
@@ -49,12 +47,6 @@ namespace DbNetSuiteCore.Services
         public bool Export { get; set; } = true;
         public FilterColumnModeValues FilterColumnMode { get; set; } = FilterColumnModeValues.Simple;
         public string FilterSql { get; set; } = string.Empty;
-        public Dictionary<string, object> FixedFilterParams { get; set; } = new Dictionary<string, object>();
-        public string FixedFilterSql
-        {
-            get => EncodingHelper.Decode(_fixedFilterSql);
-            set => _fixedFilterSql = value;
-        }
         public string FixedOrderBy { get; set; } = string.Empty;
         public bool FrozenHeader { get; set; } = false;
         public GridGenerationMode GridGenerationMode { get; set; } = GridGenerationMode.Display;
@@ -80,8 +72,6 @@ namespace DbNetSuiteCore.Services
         }
         public Dictionary<string, object> ProcedureParams { get; set; }
         public string SelectModifier { get; set; } = string.Empty;
-        public ToolbarButtonStyle ToolbarButtonStyle { get; set; } = ToolbarButtonStyle.Image;
-        public ToolbarPosition ToolbarPosition { get; set; } = ToolbarPosition.Top;
         public int TotalPages { get; set; } = 0;
         public long TotalRows { get; set; } = 0;
         public bool Update { get; set; } = false;

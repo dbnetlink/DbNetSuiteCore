@@ -8,14 +8,14 @@
     imagesEdit.Insert = true;
     imagesEdit.Delete = true;
     imagesEdit.SetColumnAsImage("Content", new ImageConfiguration(new List<string>() { "jpg", "png" }, new Dictionary<FileMetaData, string>() { { FileMetaData.FileName, "FileName" }, { FileMetaData.ContentType, "ContentType" }, { FileMetaData.LastModified, "LastModified" }, { FileMetaData.Size, "Size" } }));
-    imagesEdit.Bind(EventType.onFileSelected, "setDescription");
+    imagesEdit.Bind(EventType.OnFileSelected, "setDescription");
     @imagesEdit.Render()
 
     DbNetEditCore filesEdit = new DbNetEditCore("dbnetsuitecore", "files");
     filesEdit.Insert = true;
     filesEdit.Delete = true;
     filesEdit.SetColumnAsFile("Content", new FileConfiguration("pdf", new Dictionary<FileMetaData, string>() { { FileMetaData.FileName, "FileName" }, { FileMetaData.ContentType, "ContentType" }, { FileMetaData.LastModified, "LastModified" }, { FileMetaData.Size, "Size" } }));
-    filesEdit.Bind(EventType.onFileSelected, "setDescription");
+    filesEdit.Bind(EventType.OnFileSelected, "setDescription");
 
     @filesEdit.Render()
 }

@@ -1,0 +1,14 @@
+﻿@page
+@using DbNetSuiteCore.Enums.DbNetEdit;
+@using DbNetSuiteCore.Components;
+
+@{
+    DbNetEditCore productsEdit = new DbNetEditCore("northwind","products");
+    productsEdit.SetColumnDataType("discontinued", typeof(Boolean));
+    productsEdit.SetColumnLookup("categoryid", new Lookup("Categories", "CategoryID", "CategoryName"));
+    productsEdit.SetColumnLookup("SupplierID", new Lookup("Suppliers", "SupplierID", "CompanyName"));
+    productsEdit.FixedFilterSql = "discontinued = @discontinued";
+    productsEdit.FixedFilterParams["discontinued"] = true;
+
+    @productsEdit.Render()
+}
