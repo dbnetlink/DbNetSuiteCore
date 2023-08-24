@@ -43,7 +43,7 @@ table.dbnetedit-form {
     img.dbnetedit {
         width: auto;
         height: 60px;
-        cursor:pointer;
+        cursor: pointer;
     }
 
     input, select {
@@ -62,6 +62,10 @@ table.dbnetedit-form {
 
     textarea {
         width: 100%;
+    }
+
+    select.readonly {
+        pointer-events: none;
     }
 
     .toolbar-button {

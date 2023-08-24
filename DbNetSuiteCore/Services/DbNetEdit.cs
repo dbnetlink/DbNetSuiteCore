@@ -501,7 +501,7 @@ namespace DbNetSuiteCore.Services
         {
             foreach (string key in Changes.Keys)
             {
-                DbColumn dbColumn = this.Columns.FirstOrDefault(c => c.IsMatch(key));
+                EditColumn dbColumn = this.Columns.FirstOrDefault(c => c.IsMatch(key));
 
                 if (dbColumn.Required && Changes[key].ToString() == string.Empty)
                 {

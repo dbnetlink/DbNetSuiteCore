@@ -72,16 +72,14 @@ namespace DbNetSuiteCore.Models
         public bool QuickSearch { get; set; } = false;
         public bool IsNumeric => _numericDataTypes.Contains(DataType);
         public bool AllowsNull { get; set; }
-        public bool Required
-        {
-            get => AutoIncrement == false && (AllowsNull == false || PrimaryKey);
-        }
         public bool Download { get; set; } = false;
         public bool Image { get; set; } = false;
         public string Extension { get; set; }
         public bool IsImageExtension => IsImageFileType();
         public FileMetaData? UploadMetaData { get; set; }
         public string UploadMetaDataColumn { get; set; }
+        public string Style { get; set; }
+
 
         public DbColumn()
         {

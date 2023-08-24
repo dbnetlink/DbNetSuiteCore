@@ -4,4 +4,5 @@
     pattern?: string;
     required?: boolean;
     autoIncrement?: boolean;
+    readOnly?: boolean;
 }

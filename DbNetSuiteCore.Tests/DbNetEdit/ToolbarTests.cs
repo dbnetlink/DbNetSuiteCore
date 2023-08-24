@@ -105,8 +105,8 @@ namespace DbNetSuiteCore.Tests.DbNetEdit
 
             DbNetEditResponse? DbNetEditResponse = await GetResponse(request, RequestAction.Initialize);
 
-            Assert.Equal(8, DbNetEditResponse.TotalRows);
-            Assert.Equal(1, DbNetEditResponse.CurrentRow);
+            Assert.Equal(8, DbNetEditResponse?.TotalRows);
+            Assert.Equal(1, DbNetEditResponse?.CurrentRow);
         }
 
         [Fact]

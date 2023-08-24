@@ -263,7 +263,7 @@ table.lookup-dialog-toolbar,
 .dbnetedit-form,
 .message-box,
 .upload-dialog,
-.image-viewer{
+.image-viewer {
     border-collapse: inherit;
 
     td.navigation {
@@ -327,7 +327,13 @@ table.lookup-dialog-toolbar,
 
             @each $toolbarButton in $toolbarButtons {
                 &[button-type=#{$toolbarButton}] {
-                    background-image: svgUrl($toolbarButton, "24", "steelblue");
+                    $iconColor: map-get(( apply : "%23388E3C", cancel : "%23D32F2F", ), $toolbarButton);
+
+                    @if ($iconColor == null) {
+                        $iconColor : "steelblue"
+                    }
+
+                    background-image: svgUrl($toolbarButton, "24", $iconColor);
 
                     &.toolbar-button-text {
                         background-image: none;
@@ -370,7 +376,7 @@ table.lookup-dialog-toolbar,
             padding-right: 3px;
             font-family: var(--main-font-family);
             font-size: var(--main-font-size);
-            white-space:nowrap;
+            white-space: nowrap;
         }
 
         .toolbar-info[name=QuickSearch] {
@@ -564,7 +570,6 @@ table.lookup-dialog-toolbar,
     }
 }
 
-//table.dbnetsuite-toolbar,
 table.view-dialog-toolbar,
 table.search-dialog-toolbar,
 table.lookup-dialog-toolbar, 

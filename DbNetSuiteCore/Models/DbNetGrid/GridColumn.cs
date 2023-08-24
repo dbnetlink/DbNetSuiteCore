@@ -11,7 +11,6 @@ namespace DbNetSuiteCore.Models.DbNetGrid
         public FilterColumnSelectMode FilterMode { get; set; } = FilterColumnSelectMode.Input;
         public bool TotalBreak { get; set; } = false;
         public OrderByDirection? OrderBy { get; set; } = null;
-        public string Style { get; set; }
         public bool Filter { get; set; } = false;
         public bool GroupHeader { get; set; } = false;
         public bool View { get; set; } = false;

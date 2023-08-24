@@ -85,7 +85,23 @@ namespace DbNetSuiteCore.Components
                 SetColumnProperty(columnName, ColumnPropertyType.Required, true);
             }
         }
-
+        /// <summary>
+        /// Disables the ability to modify the fields in the form
+        /// </summary>
+        public void SetColumnReadOnly(string[] columnNames)
+        {
+            foreach (string columnName in columnNames)
+            {
+                SetColumnReadOnly(columnName);
+            }
+        }
+        /// <summary>
+        /// Disables the ability to modify the field in the form
+        /// </summary>
+        public void SetColumnReadOnly(string columnName)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.ReadOnly, true);
+        }
         public HtmlString Render()
         {
             string message = ValidateProperties();

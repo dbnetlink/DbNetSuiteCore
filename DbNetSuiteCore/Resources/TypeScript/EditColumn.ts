@@ -3,6 +3,7 @@
     editControlType?: string;
     pattern?: string;
     required?: boolean;
+    readOnly?: boolean;
 
     constructor(properties: EditColumnResponse, unmatched = false) {
         super();

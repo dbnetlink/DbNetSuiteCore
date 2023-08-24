@@ -129,12 +129,12 @@ hr.toolbar {
 .message-box {
     [button-type=confirm],
     [button-type=ok] {
-        background-image: svgUrl("apply", "24", "limegreen");
+        background-image: svgUrl("apply", "24", "%23388E3C");
         margin: 0px 5px;
     }
 
     [button-type=cancel] {
-        background-image: svgUrl("cancel", "24", "indianred") !important;
+        background-image: svgUrl("cancel", "24", "%23D32F2F") !important;
         margin: 0px 5px;
     }
 

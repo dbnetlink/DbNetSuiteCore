@@ -833,7 +833,7 @@ table.lookup-dialog-toolbar td .toolbar-button[button-type=apply],
 .message-box td .toolbar-button[button-type=apply],
 .upload-dialog td .toolbar-button[button-type=apply],
 .image-viewer td .toolbar-button[button-type=apply] {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='steelblue'><path d='m382-368 338-338q15.733-16 37.367-16Q779-722 795-706.211q16 15.79 16 37.5Q811-647 795-631L419-255q-15.818 16-36.909 16T345-255L167-433q-16-15.733-15.5-37.367Q152-492 167.789-508q15.79-16 37.5-16Q227-524 243-508l139 140Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='%23388E3C'><path d='m382-368 338-338q15.733-16 37.367-16Q779-722 795-706.211q16 15.79 16 37.5Q811-647 795-631L419-255q-15.818 16-36.909 16T345-255L167-433q-16-15.733-15.5-37.367Q152-492 167.789-508q15.79-16 37.5-16Q227-524 243-508l139 140Z'/></svg>");
 }
 table.dbnetsuite-toolbar td .toolbar-button[button-type=apply].toolbar-button-text,
 table.view-dialog-toolbar td .toolbar-button[button-type=apply].toolbar-button-text,
@@ -965,7 +965,7 @@ table.lookup-dialog-toolbar td .toolbar-button[button-type=cancel],
 .message-box td .toolbar-button[button-type=cancel],
 .upload-dialog td .toolbar-button[button-type=cancel],
 .image-viewer td .toolbar-button[button-type=cancel] {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='steelblue'><path d='M266-182v-106h302q59 0 102.5-36.5T714-418q0-57-43.5-93.5T568-548H340l94 94-74 72-220-219 220-220 74 73-94 94h228q103 0 177.5 68T820-418q0 100-74.5 168T568-182H266Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 -960 960 960' fill='%23D32F2F'><path d='M266-182v-106h302q59 0 102.5-36.5T714-418q0-57-43.5-93.5T568-548H340l94 94-74 72-220-219 220-220 74 73-94 94h228q103 0 177.5 68T820-418q0 100-74.5 168T568-182H266Z'/></svg>");
 }
 table.dbnetsuite-toolbar td .toolbar-button[button-type=cancel].toolbar-button-text,
 table.view-dialog-toolbar td .toolbar-button[button-type=cancel].toolbar-button-text,

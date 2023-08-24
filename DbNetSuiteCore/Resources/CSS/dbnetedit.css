@@ -49,6 +49,9 @@ table.dbnetedit-form input[numeric=true] {
 table.dbnetedit-form textarea {
   width: 100%;
 }
+table.dbnetedit-form select.readonly {
+  pointer-events: none;
+}
 table.dbnetedit-form .toolbar-button {
   margin-left: 2px;
 }

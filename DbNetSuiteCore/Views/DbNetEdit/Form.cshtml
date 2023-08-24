@@ -69,7 +69,7 @@
             {
                 <tr style="display:none">
                     <td colspan="@(Model.LayoutColumns*2)">
-                        @foreach(var hiddenField in hiddenFields)
+                        @foreach (var hiddenField in hiddenFields)
                         {
                             EditColumn editColumn = hiddenField.Key;
                             DataColumn dataColumn = hiddenField.Value;
@@ -164,6 +164,8 @@
     public List<string> Attributes(EditColumn editColumn, DataColumn dataColumn, int size = 0)
     {
         List<string> attributes = new List<string>();
+        List<string> classNames = new List<string>() { "dbnetedit" };
+
         string inputType = null;
         string disabled = editColumn.PrimaryKey ? "disabled" : string.Empty;
 
@@ -200,6 +202,11 @@
             attributes.Add($"pattern=\"{editColumn.Pattern}\"");
         }
 
+        if (string.IsNullOrEmpty(editColumn.Style) == false)
+        {
+            attributes.Add($"style=\"{editColumn.Style}\"");
+        }
+
         if (editColumn.IsNumeric)
         {
             attributes.Add($"numeric=\"true\"");
@@ -210,6 +217,22 @@
             if (editColumn.Required)
             {
                 attributes.Add($"required=\"true\"");
+            }
+        }
+
+        if (editColumn.ReadOnly)
+        {
+            switch (editColumn.EditControlType)
+            {
+                case EditControlType.DropDownList:
+                    classNames.Add("readonly");
+                    break;
+                case EditControlType.CheckBox:
+                    attributes.Add($"onclick=\"return false;\"");
+                    break;
+                default:
+                    attributes.Add($"readonly");
+                    break;
             }
         }
 
@@ -257,7 +280,7 @@
         }
         attributes.Add($"dataType=\"{editColumn.DataType}\"");
         attributes.Add($"columnIndex=\"{editColumn.Index}\"");
-        attributes.Add($"class=\"dbnetedit\"");
+        attributes.Add($"class=\"{string.Join(" ", classNames)}\"");
         return attributes;
     }
 

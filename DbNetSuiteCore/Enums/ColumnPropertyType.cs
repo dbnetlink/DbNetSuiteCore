@@ -27,6 +27,7 @@
         ColumnSize,
         EditControlType,
         Pattern,
+        ReadOnly,
         Required,
         Browse
     }
