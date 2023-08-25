@@ -101,13 +101,15 @@ class DbNetSuite {
         this.loadingPanel.children().first().addClass("icon");
     }
     showLoader() {
-        var _a;
+        var _a, _b;
         (_a = this.loadingPanel) === null || _a === void 0 ? void 0 : _a.addClass("display");
+        (_b = this.element) === null || _b === void 0 ? void 0 : _b.css('pointer-events', 'none');
     }
     hideLoader() {
-        var _a, _b;
+        var _a, _b, _c;
         (_a = this.element) === null || _a === void 0 ? void 0 : _a.removeClass("empty");
         (_b = this.loadingPanel) === null || _b === void 0 ? void 0 : _b.removeClass("display");
+        (_c = this.element) === null || _c === void 0 ? void 0 : _c.css('pointer-events', 'all');
     }
     post(action, request, blob = false, page = null) {
         this.showLoader();

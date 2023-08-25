@@ -1,0 +1,111 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums.DbNetGrid;
+@using DbNetSuiteCore.Enums;
+@using DbNetSuiteCore.Utilities
+@using DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid;
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model BrowseDbModel
+
+<table class="selection-table">
+    <tr>
+        <td>
+            <b>Connections</b>
+        </td>
+        <td>
+            <select class="form-select" id="connection-select">
+                @foreach (string connection in Model.Connections)
+                {
+                    <option value="@connection">@connection</option>
+                }
+            </select>
+        </td>
+        <td>&nbsp;</td>
+        <td>
+            <b>Tables</b>
+        </td>
+        <td>
+            <select class="form-select" id="table-select">
+                <option value="">Select a table ...</option>
+                @foreach (DbObject schema in Model.Tables)
+                {
+                    <option value="@schema.QualifiedTableName">@schema.TableName</option>
+                }
+            </select>
+        </td>
+
+        @if (Model.Views.Count > 0)
+        {        
+            <td>&nbsp;</td>
+            <td>
+                <b>Views</b>
+            </td>
+            <td>
+                <select class="form-select" id="view-select">
+                    <option value="">Select a view ...</option>
+                    @foreach (DbObject schema in Model.Views)
+                    {
+                        <option value="@schema.QualifiedTableName">@schema.TableName</option>
+                    }
+                </select>
+            </td>
+        }
+    </tr>
+</table>
+<hr />
+@{
+    DbNetGridCore grid = new DbNetGridCore(Model.Db, string.IsNullOrEmpty(Model.View) ? Model.Table : Model.View)
+            {
+                OptimizeForLargeDataset = true,
+                QuickSearch = true,
+                View = true
+            };
+    grid.SetColumnFilter("*");
+    grid.SetColumnView("*");
+    grid.SetColumnStyle("*", "{white-space:nowrap}");
+    @grid.Render()
+            /*
+
+        DbNetEditCore edit = new DbNetEditCore(Model.Db, string.IsNullOrEmpty(Model.View) ? Model.Table : Model.View)
+        {
+        OptimizeForLargeDataset = true,
+        QuickSearch = true,
+    LayoutColumns = 3
+            };
+    @edit.Render()
+        */
+
+
+}
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"
+        integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
+        crossorigin="anonymous"></script>
+<script type="text/javascript">
+var db = "@Model.Db"
+var table = "@Model.Table"
+var view = "@Model.View"
+var views = "@Model.Views.Count"
+
+$(document).ready(init);
+
+function init() {
+    $('#connection-select').val(db).change(function(event) { reloadPage(true) });
+        $('#table-select').val(table).change(function () {
+        $('#view-select').prop("selectedIndex", 0);    
+        reloadPage(false);
+    });
+        $('#view-select').val(view).change(function () {
+        $('#table-select').prop("selectedIndex", 0);
+        reloadPage(false);
+    });
+}
+
+
+function reloadPage(dbChange) {
+    var db = $('#connection-select').val();
+    var table = dbChange ? '' : $('#table-select').val();
+    var view = dbChange || views == 0 ? '' : $('#view-select').val();
+
+    window.location.href = window.location.href.replace(/[\?#].*|$/, "?db=" + db + "&table=" + table + "&view=" + view);
+}
+</script>

@@ -28,6 +28,7 @@ namespace DbNetSuiteCore.Services
         private string _fromPart;
         private string _primaryKey;
         private string _fixedFilterSql;
+        private bool _quickSearch;
 
         protected Dictionary<string, DataTable> _lookupTables = new Dictionary<string, DataTable>();
         protected List<DbColumn> DbColumns
@@ -75,7 +76,11 @@ namespace DbNetSuiteCore.Services
         {
             get => JsonSerializer.Deserialize<Dictionary<string, object>>(PrimaryKey);
         }
-        public bool QuickSearch { get; set; }
+        public bool QuickSearch 
+        {
+            get => _quickSearch && DbColumns.Any(c => (c as DbColumn).DataType == nameof(String));
+            set => _quickSearch = value;
+        }
         public string QuickSearchToken { get; set; } = string.Empty;
         public ParentChildRelationship? ParentChildRelationship { get; set; } = null;
         public bool Search { get; set; }
@@ -382,7 +387,7 @@ namespace DbNetSuiteCore.Services
                         break;
                 }
 
-                if (column.Download || column.Image)
+                if (column.Binary)
                 {
                     switch (Database.Database)
                     {
@@ -566,6 +571,11 @@ namespace DbNetSuiteCore.Services
                             column.DataType = nameof(String);  
                         }
                     }
+                }
+
+                if (column.Binary && string.IsNullOrEmpty(column.Extension))
+                {
+                    column.Display = false;
                 }
             }
 
@@ -801,7 +811,14 @@ namespace DbNetSuiteCore.Services
             {
                 DbColumn dbColumn = (DbColumn)o;
                 DataColumn dataColumn = new DataColumn(dbColumn.ColumnName);
-                dataColumn.DataType = GetColumnType(dbColumn.OriginalDataType == "Byte[]" ? nameof(String) : dbColumn.OriginalDataType);
+                try
+                {
+                    dataColumn.DataType = GetColumnType(dbColumn.OriginalDataType == "Byte[]" ? nameof(String) : dbColumn.OriginalDataType);
+                }
+                catch
+                {
+                    dataColumn.DataType = typeof(string);
+                }
                 dataTable.Columns.Add(dataColumn);
             }
 

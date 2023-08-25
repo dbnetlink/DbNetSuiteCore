@@ -61,7 +61,6 @@ namespace DbNetSuiteCore.Services
                 switch (Action.ToLower())
                 {
                     case RequestAction.Initialize:
-                        response.Toolbar = await Toolbar();
                         await CreateForm(response);
                         break;
                     case RequestAction.SearchDialog:
@@ -114,6 +113,8 @@ namespace DbNetSuiteCore.Services
         private async Task CreateForm(DbNetEditResponse response)
         {
             ConfigureEditColumns();
+
+            response.Toolbar = await Toolbar();
 
             string sql = $"select {BuildSelectPart(QueryBuildModes.Normal, Columns)} from {FromPart} where 1=2";
             QueryCommandConfig query = new QueryCommandConfig(sql);

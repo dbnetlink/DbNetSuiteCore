@@ -105,8 +105,7 @@ namespace DbNetSuiteCore.Services
             switch (Action.ToLower())
             {
                 case RequestAction.Initialize:
-                    response.Toolbar = await Toolbar();
-                    await Grid(response);
+                    await Grid(response, true);
                     break;
                 case RequestAction.Page:
                     await Grid(response);
@@ -855,8 +854,7 @@ namespace DbNetSuiteCore.Services
             }
         }
 
-
-        private async Task Grid(DbNetGridResponse response)
+        private async Task Grid(DbNetGridResponse response, bool initialise = false)
         {
             if (ValidateRequest(response, Columns) == false)
             {
@@ -864,7 +862,12 @@ namespace DbNetSuiteCore.Services
             }
             ConfigureGridColumns();
 
-            switch(GridGenerationMode)
+            if (initialise)
+            {
+                response.Toolbar = await Toolbar();
+            }
+
+            switch (GridGenerationMode)
             {
                 case GridGenerationMode.DataTable:
                 case GridGenerationMode.Export:

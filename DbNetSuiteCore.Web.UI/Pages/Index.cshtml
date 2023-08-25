@@ -7,7 +7,10 @@
         <h2>@component</h2>
         foreach (IFileInfo testPage in Model.TestPages[component])
         {
-            <div><a href="/@($"{component}/{testPage.Name.Split('.').First()}")">@testPage.Name.Split('.').First()</a></div>
+            if (testPage.Name.EndsWith(".cshtml"))
+            {
+                <div><a href="/@($"{component}/{testPage.Name.Split('.').First()}")">@testPage.Name.Split('.').First()</a></div>
+            }
         }
     }
 }

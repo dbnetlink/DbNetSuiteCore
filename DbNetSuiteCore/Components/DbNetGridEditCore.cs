@@ -222,16 +222,6 @@ namespace DbNetSuiteCore.Components
                     string metaDataColumnName = configuration.MetaDataColumns[fileMetaData];
                     SetColumnProperty(metaDataColumnName, ColumnPropertyType.UploadMetaData, fileMetaData);
                     SetColumnProperty(metaDataColumnName, ColumnPropertyType.UploadMetaDataColumn, columnName);
-
-                    /*
-                    if (this is DbNetGridCore)
-                    {
-                        if (Columns.Any() == false && Columns.Any(c => c.ToLower() == metaDataColumnName.ToLower()) == false)
-                        {
-                            SetColumnProperty(metaDataColumnName, ColumnPropertyType.Display, false);
-                        }
-                    }
-                    */
                 }
             }
         }

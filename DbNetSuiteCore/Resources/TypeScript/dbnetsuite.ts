@@ -151,11 +151,13 @@ class DbNetSuite {
 
     protected showLoader() {
         this.loadingPanel?.addClass("display");
+        this.element?.css('pointer-events', 'none')
     }
 
     protected hideLoader() {
         this.element?.removeClass("empty")
         this.loadingPanel?.removeClass("display");
+        this.element?.css('pointer-events', 'all')
     }
 
     protected post<T>(action: string, request: any, blob = false, page:string|null = null): Promise<T> {
