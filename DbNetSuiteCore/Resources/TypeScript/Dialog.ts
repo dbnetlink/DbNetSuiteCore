@@ -2,7 +2,6 @@
     $dialog: JQuery<HTMLElement> | undefined;
     windowWidth = $(window).width() as number;
     windowHeight = $(window).height() as number;
-
     constructor(id: string) {
         super(null);
         this.$dialog = $(`#${id}`);

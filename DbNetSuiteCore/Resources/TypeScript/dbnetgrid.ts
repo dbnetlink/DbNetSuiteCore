@@ -179,7 +179,7 @@ class DbNetGrid extends DbNetGridEdit {
 
     private configureToolbar(response: DbNetGridResponse) {
         if (response.toolbar) {
-            const buttons = ["First", "Next", "Previous", "Last", "Download", "Copy", "View", "Search", "Insert", "Update", "Delete"];
+            const buttons = ["First", "Next", "Previous", "Last", "Export", "Copy", "View", "Search", "Insert", "Update", "Delete"];
             buttons.forEach(btn =>
                 this.addEventListener(`${btn}Btn`)
             )
@@ -211,7 +211,7 @@ class DbNetGrid extends DbNetGridEdit {
         }
 
         this.disable("ViewBtn", response.totalRows == 0);
-        this.disable("DownloadBtn", response.totalRows == 0);
+        this.disable("ExportBtn", response.totalRows == 0);
         this.disable("CopyBtn", response.totalRows == 0);
         this.disable("UpdateBtn", response.totalRows == 0);
         this.disable("DeleteBtn", response.totalRows == 0);
@@ -579,7 +579,7 @@ class DbNetGrid extends DbNetGridEdit {
         event.preventDefault();
 
         switch (id) {
-            case this.controlElementId("DownloadBtn"):
+            case this.controlElementId("ExportBtn"):
                 this.download();
                 break;
             case this.controlElementId("CopyBtn"):
@@ -685,7 +685,7 @@ class DbNetGrid extends DbNetGridEdit {
     }
 
     private download() {
-        switch (this.controlElement("DownloadSelect").val()) {
+        switch (this.controlElement("ExportSelect").val()) {
             case "html":
                 this.htmlExport();
                 break;

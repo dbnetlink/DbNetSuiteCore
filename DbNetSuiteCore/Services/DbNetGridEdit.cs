@@ -556,6 +556,17 @@ namespace DbNetSuiteCore.Services
                         }
                         break;
                 }
+
+                if (Database.Database == DatabaseType.SQLite)
+                {
+                    if (column.Binary)
+                    {
+                        if (string.IsNullOrEmpty(column.Extension))
+                        {
+                            column.DataType = nameof(String);  
+                        }
+                    }
+                }
             }
 
             column.DbDataType = row.DataTypeName();
@@ -1224,6 +1235,10 @@ namespace DbNetSuiteCore.Services
 
         protected string PrimaryKeyFilter(ListDictionary parameters, Dictionary<string, object> primaryKeyValues = null)
         {
+            if (PrimaryKey == null)
+            {
+                return string.Empty;
+            }
             if (primaryKeyValues == null)
             {
                 primaryKeyValues = PrimaryKeyValues;

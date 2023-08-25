@@ -59,7 +59,7 @@
     if (Model.Export)
     {
         ToolbarSections[ToolbarSection.Output].Add(Button("Export", ToolbarSection.Output));
-        ToolbarSections[ToolbarSection.Output].Add(DownloadSelect());
+        ToolbarSections[ToolbarSection.Output].Add(ExportSelect());
     }
     if (Model.Copy)
     {
@@ -128,8 +128,8 @@
         return new HtmlString($"<td><input type=\"input\" class=\"toolbar-info\" id=\"{Model.ComponentId}_{id}\" name=\"{id}\" title=\"{@Title(id)}\"/></td>");
     }
 
-    public HtmlString DownloadSelect()
+    public HtmlString ExportSelect()
     {
-        return new HtmlString($"<td><select class=\"toolbar-select\" id=\"{Model.ComponentId}_DownloadSelect\"/><option value=\"html\">HTML</option><option value=\"excel\">Excel</option></select</td>");
+        return new HtmlString($"<td><select class=\"toolbar-select\" id=\"{Model.ComponentId}_ExportSelect\"/><option value=\"html\">HTML</option><option value=\"excel\">Excel</option></select</td>");
     }
 }

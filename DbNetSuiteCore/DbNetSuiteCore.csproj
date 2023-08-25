@@ -10,11 +10,11 @@
     <Description>Interactive database driven Razor web reporting component for ASP.NET Core.  Supports MSSQL, MySql, PostgreSQL and SQLite</Description>
     <RepositoryUrl>https://github.com/dbnetlink/DbNetSuiteCore</RepositoryUrl>
     <PackageTags>asp.net core, grid, spreadsheet</PackageTags>
-    <AssemblyVersion>0.9.449</AssemblyVersion>
-    <FileVersion>0.9.449</FileVersion>
+    <AssemblyVersion>0.9.452</AssemblyVersion>
+    <FileVersion>0.9.452</FileVersion>
     <PackageReleaseNotes>Beta version. Currently still under active development.</PackageReleaseNotes>
     <PackageProjectUrl>https://dbnetsuitecoreapp.azurewebsites.net</PackageProjectUrl>
-    <Version>0.9.449-beta</Version>
+    <Version>0.9.452-beta</Version>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageLicenseExpression> NPOSL-3.0</PackageLicenseExpression>
     <BaseOutputPath>C:\Users\robin\source\repos\DbNetSuiteCore-VS2022\DbNetSuiteCoreApp\bin</BaseOutputPath>
