@@ -13,5 +13,6 @@ namespace DbNetSuiteCore.ViewModels.DbNetGrid
         public DataTable ViewData { get; set; }
         public Dictionary<string, DataTable> LookupTables { get; set; }
         public int LayoutColumns { get; set; }
+        public int MaxImageHeight { get; set; }
     }
 }

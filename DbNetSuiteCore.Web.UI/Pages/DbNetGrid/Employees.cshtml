@@ -4,24 +4,15 @@
 @using DbNetGridEnums = DbNetSuiteCore.Enums.DbNetGrid;
 
 @{
-    // Configure the grid and render
-    DbNetGridCore employeesGrid = new DbNetGridCore("northwind","employees");
-    employeesGrid.SetColumnLookup("ReportsTo", new Lookup("employees", "employeeid", "lastname + ', ' + firstName"));
-    employeesGrid.Update = true;
-    employeesGrid.Insert = true;
-    employeesGrid.Delete = true;
-    employeesGrid.View = true;
-    employeesGrid.MaxImageHeight = 100;
-    employeesGrid.Bind(DbNetGridEnums.EventType.OnConfigureBinaryData, "configureImageFileName");
-
-   // employeesGrid.SetColumnHidden(new string[] { "photo", "notes" });
-    employeesGrid.EditControl.SetColumnHidden(new string[] { "notes" }, false);
-    employeesGrid.EditControl.SetControlType("notes", EditControlType.TextArea);
-    employeesGrid.EditControl.SetColumnLookup("ReportsTo", new Lookup("employees", "employeeid", "lastname + ', ' + firstName"));
-    employeesGrid.EditControl.Bind(EventType.OnFormElementCreated, "configureFormElement");
-    employeesGrid.EditControl.Bind(EventType.OnFileSelected, "assignFileName");
-
+    DbNetGridCore employeesGrid = new DbNetGridCore("northwind", "employees")
+            {
+                View = true
+            };
+    employeesGrid.SetColumnLookup("reportsto", new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname"));
     employeesGrid.SetColumnAsImage("Photo", new ImageConfiguration("jpg"));
+    employeesGrid.SetColumnDataOnly(new String[] { "photo", "notes", "photopath" });
+    employeesGrid.SetColumnView(new String[] { "firstname", "lastname", "photo", "notes", "photopath" });
+    employeesGrid.Bind(EventType.OnConfigureBinaryData, "configureImageFileName");
 
     @employeesGrid.Render()
 }

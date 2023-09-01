@@ -22,8 +22,7 @@ namespace DbNetSuiteCore.Services
     internal class DbNetEdit : DbNetGridEdit
     {
         private Dictionary<string, object> _resp = new Dictionary<string, object>();
-        private string _foreignKeyColumn;
-        private bool _foreignKeySupplied => string.IsNullOrEmpty(ForeignKeyColumn) == false && ForeignKeyValue != null;
+  
         public List<EditColumn> Columns { get; set; } = new List<EditColumn>();
         public Dictionary<string, object> Changes { get; set; }
         public long CurrentRow { get; set; } = 1;
@@ -38,12 +37,6 @@ namespace DbNetSuiteCore.Services
         {
         }
         public Dictionary<string, object> Params { get; set; } = new Dictionary<string, object>();
-        public string ForeignKeyColumn
-        {
-            get => EncodingHelper.Decode(_foreignKeyColumn);
-            set => _foreignKeyColumn = value;
-        }
-        public List<object> ForeignKeyValue { get; set; } = null;
         public new async Task<object> Process()
         {
             DbNetEditResponse response = new DbNetEditResponse();

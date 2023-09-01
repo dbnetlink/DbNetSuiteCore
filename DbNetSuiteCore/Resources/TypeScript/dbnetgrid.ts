@@ -988,10 +988,11 @@ class DbNetGrid extends DbNetGridEdit {
     public downloadBinaryData(element: HTMLElement, image: boolean) {
         const $viewContentContainer = $(element).closest(".view-dialog-value");
         const $cell = $(element).closest("td");
-        const $row = $(element).closest("tr");
+        let $row = $(element).closest("tr");
 
         if ($viewContentContainer.length) {
             this.columnName = $viewContentContainer.data("columnname") as string;
+            $row = $(this.selectedRow());
         }
         else {
             this.primaryKey = $row.data("pk")
@@ -1018,7 +1019,6 @@ class DbNetGrid extends DbNetGridEdit {
         const args: CellDataDownloadArgs = {
             row: $row.get(0) as HTMLTableRowElement,
             cell: $cell.get(0) as HTMLTableCellElement,
-            extension: "xlxs",
             fileName: fileName,
             columnName: this.columnName
         }
@@ -1027,6 +1027,7 @@ class DbNetGrid extends DbNetGridEdit {
 
         if (args.fileName != fileName) {
             $(element).data("filename", args.fileName);
+            fileName = args.fileName;
         }
 
         this.post<Blob>("download-column-data", this.getRequest(), true)
@@ -1060,6 +1061,10 @@ class DbNetGrid extends DbNetGridEdit {
             sender.controlElement("CancelBtn").off().on("click", () => this.editDialog?.close());
         }
         this.configureEditButtons(sender);
+    }
+
+    public viewElement(columnName: string): HTMLElement | undefined {
+        return this.viewDialog?.viewElement(columnName);
     }
 
     private nextRecord() {

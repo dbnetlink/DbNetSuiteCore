@@ -6,7 +6,9 @@
     customersGrid.Columns = new List<string>() { "CustomerId", "CompanyName", "ContactName", "ContactTitle", "Address", "City", "Region", "PostalCode", "Country", "Phone", "Fax" };
     customersGrid.QuickSearch = true;
     customersGrid.Update = true;
-    customersGrid.EditControl.SetColumnLookup("country"); 
+    customersGrid.Insert = true;
+    customersGrid.Delete = true;
+    customersGrid.EditControl.SetColumnLookup("country");
     customersGrid.EditControl.SetColumnLookup("region");
     customersGrid.EditControl.LayoutColumns = 2;
     customersGrid.View = true;

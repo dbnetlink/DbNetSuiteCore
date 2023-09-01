@@ -4,7 +4,6 @@
 @using DbNetSuiteCore.Enums;
 @using DbNetEditEnums = DbNetSuiteCore.Enums.DbNetEdit;
 @{
-
     DbNetGridCore ordersGrid = new DbNetGridCore("northwind", "orders")
     {
         Columns = new List<string> { "OrderID", "CustomerID", "EmployeeID", "OrderDate", "RequiredDate", "ShippedDate", "Freight", "ShipVia" },

@@ -19,7 +19,7 @@
         });
 
         this.$dialog?.find("img.image").get().forEach(e => {
-            this.parent.downloadBinaryData(e.parentElement!, true);
+            this.parent.downloadBinaryData(e, true);
            // $(e).on('load', (e) => this.setSize());
         });
 
@@ -30,9 +30,16 @@
 
         const args: ViewRecordSelectedArgs = {
             dialog: this.$dialog,
-            record: response.record
+            record: response.record,
+            row: this.parent.selectedRow()
         }
         this.parent.fireEvent("onViewRecordSelected", args);
+
+        this.setSize();
+    }
+
+    public viewElement(columnName: string): HTMLElement|undefined {
+        return this.$dialog?.find("table.view-content-table").find(`[data-columnname='${columnName.toLowerCase()}']`).get(0);
     }
 
     private dialogOpened(event: JQuery.TriggeredEvent): void {

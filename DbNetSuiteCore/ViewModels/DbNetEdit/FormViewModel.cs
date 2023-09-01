@@ -12,5 +12,7 @@ namespace DbNetSuiteCore.ViewModels.DbNetEdit
         public Dictionary<string, DataTable> LookupTables { get; set; }
         public int LayoutColumns { get; set; }
         public ToolbarPosition ToolbarPosition { get; set; } = ToolbarPosition.Bottom;
+        public int MaxImageHeight { get; set; }
+
     }
 }

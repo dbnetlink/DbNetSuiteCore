@@ -253,7 +253,10 @@ namespace DbNetSuiteCore.Components
                 {
                     if ((ColumnPropertyType)propertyType == ColumnPropertyType.DataOnly)
                     {
-                        Columns.Add(name);
+                        if (Columns.Any())
+                        {
+                            Columns.Add(name);
+                        }
                     }
                 }
                 return name;

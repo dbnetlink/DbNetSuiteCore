@@ -210,6 +210,7 @@ class DbNetEdit extends DbNetGridEdit {
         request.layoutColumns = this.layoutColumns;
         request.totalRows = this.totalRows;
         request.isEditDialog = this.isEditDialog;
+        request.toolbarPosition = this.toolbarPosition;
         return request;
     }
     configureToolbar(response) {

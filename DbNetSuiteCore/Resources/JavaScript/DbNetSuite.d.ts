@@ -6,7 +6,6 @@ type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPag
 interface CellDataDownloadArgs {
     row: HTMLTableRowElement;
     cell: HTMLTableCellElement;
-    extension: string;
     fileName: string;
     columnName: string;
     image?: HTMLImageElement;
@@ -14,6 +13,7 @@ interface CellDataDownloadArgs {
 interface ViewRecordSelectedArgs {
     dialog: JQuery<HTMLElement> | undefined;
     record: Dictionary<object> | undefined;
+    row: HTMLTableRowElement;
 }
 type EventHandler = {
     sender: DbNetSuite;

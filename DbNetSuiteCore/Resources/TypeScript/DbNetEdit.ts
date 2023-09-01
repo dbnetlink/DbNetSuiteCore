@@ -57,7 +57,6 @@ class DbNetEdit extends DbNetGridEdit {
                 this.browseControl = (control as DbNetGrid);
                 this.browseControl.internalBind("onRowSelected", (sender, args) => this.browseDialogRowSelected(sender, args));
                 this.browseControl.internalBind("onPageLoaded", () => this.browseControlReloaded());
-
                 this.browseControl.initialize();
             }
         });
@@ -247,6 +246,7 @@ class DbNetEdit extends DbNetGridEdit {
         request.layoutColumns = this.layoutColumns;
         request.totalRows = this.totalRows;
         request.isEditDialog = this.isEditDialog;
+        request.toolbarPosition = this.toolbarPosition;
 
         return request;
     }

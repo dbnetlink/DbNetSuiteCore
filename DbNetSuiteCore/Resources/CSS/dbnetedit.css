@@ -6,6 +6,7 @@
 table.dbnetedit-form td {
   display: table-cell;
   vertical-align: middle;
+  white-space: nowrap;
 }
 table.dbnetedit-form input, table.dbnetedit-form textarea, table.dbnetedit-form select, table.dbnetedit-form img {
   font-family: var(--main-font-family);

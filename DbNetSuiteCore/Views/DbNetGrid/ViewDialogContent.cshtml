@@ -40,17 +40,10 @@
 
                         <td class="view-dialog-label">@(gridColumn.Label)</td>
                         <td data-type="@gridColumn.DataType" style="@gridColumn.Style" data-value="@(dataRow.ItemArray[gridColumn.Index])">
-                            <div class="view-dialog-value" data-columnname="@dataColumn.ColumnName" data-dbdatatype="@gridColumn.DbDataType">
+                            <div class="view-dialog-value" data-columnname="@dataColumn.ColumnName.ToLower()" data-dbdatatype="@gridColumn.DbDataType">
                                 @if (gridColumn.DataType == "Byte[]")
                                 {
-                                    if (gridColumn.Download)
-                                    {
-                                        <button type="button" class="download">&nbsp;</button>
-                                    }
-                                    else if (gridColumn.Image)
-                                    {
-                                        <img class="image" />
-                                    }
+                                    @BlobControl(dataRow.ItemArray[gridColumn.Index], gridColumn, dataRow)
                                 }
                                 else
                                 {
@@ -73,6 +66,49 @@
 </table>
 @functions
 {
+    public HtmlString BlobControl(object dataValue, GridColumn gridColumn, DataRow row)
+    {
+        var size = (dataValue?.ToString() ?? string.Empty).Replace("0", string.Empty);
+        if (size == string.Empty)
+        {
+            return new HtmlString(string.Empty);
+        }
+        if (gridColumn.Download)
+        {
+            return new HtmlString(GetFileNameDownload(gridColumn, row));
+        }
+        else
+        {
+            string fileName = GetFileName(gridColumn, row);
+            return new HtmlString($"<img class=\"image\" data-filename=\"{fileName}\" data-extension=\"{gridColumn.Extension}\" style=\"max-height:{Model.MaxImageHeight}px\"/>");
+        }
+    }
+
+    public string GetFileNameDownload(GridColumn gridColumn, DataRow row)
+    {
+        string fileName = GetFileName(gridColumn, row);
+
+        if (fileName != null)
+        {
+            return $"<a class=\"download\" href=\"javascript:void(0)\" data-filename=\"{fileName}\">{fileName}</a>";
+        }
+
+        return $"<button type=\"button\" class=\"download\" data-extension=\"{gridColumn.Extension}\" data-filename=\"{Guid.NewGuid()}.{gridColumn.Extension}\">&nbsp;</button>";
+    }
+
+    private string GetFileName(GridColumn gridColumn, DataRow row)
+    {
+        string fileName = null;
+        GridColumn fileNameColumn = Model.Columns.FirstOrDefault(c => c.UploadMetaDataColumn?.ToLower() == gridColumn.ColumnName.ToLower() && c.UploadMetaData == FileMetaData.FileName);
+
+        if (fileNameColumn != null)
+        {
+            fileName = row.ItemArray[fileNameColumn.Index].ToString();
+        }
+
+        return fileName;
+    }
+
     public HtmlString CellValue(object dataValue, GridColumn column)
     {
         if (dataValue == null || dataValue == System.DBNull.Value)
@@ -116,7 +152,6 @@
         return new HtmlString(dataValue.ToString());
     }
 
-
     public static int PrimaryKeyIndex(DataColumnCollection columns, List<GridColumn> gridColumns)
     {
         foreach (DataColumn column in columns)
@@ -128,27 +163,5 @@
             }
         }
         return -1;
-    }
-
-    public string CellClass(object dataValue, GridColumn column)
-    {
-        List<string> classeNames = new List<string>();
-
-        if (column.DataType == nameof(Boolean) && Model.BooleanDisplayMode == BooleanDisplayMode.Checkbox)
-        {
-            classeNames.Add($"{Convert.ToBoolean(dataValue).ToString().ToLower()}-icon-cell");
-        }
-
-        if (column.DataType == "Byte[]")
-        {
-            classeNames.Add($"download");
-        }
-
-        if (classeNames.Count() == 0)
-        {
-            return null;
-        }
-
-        return string.Join(" ", classeNames.ToArray());
     }
 }

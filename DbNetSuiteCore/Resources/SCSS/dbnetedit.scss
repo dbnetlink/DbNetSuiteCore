@@ -10,6 +10,7 @@ table.dbnetedit-form {
     td {
         display: table-cell;
         vertical-align: middle;
+        white-space:nowrap;
     }
 
     input, textarea, select, img {

@@ -18,7 +18,7 @@ class ViewDialog extends Dialog {
             $(e).on("click", (e) => this.parent.downloadBinaryData(e.currentTarget, false));
         });
         (_c = this.$dialog) === null || _c === void 0 ? void 0 : _c.find("img.image").get().forEach(e => {
-            this.parent.downloadBinaryData(e.parentElement, true);
+            this.parent.downloadBinaryData(e, true);
             // $(e).on('load', (e) => this.setSize());
         });
         this.open();
@@ -26,9 +26,15 @@ class ViewDialog extends Dialog {
         (_e = this.$dialog) === null || _e === void 0 ? void 0 : _e.find(".previous-btn").prop("disabled", $row.prev('.data-row').length == 0);
         const args = {
             dialog: this.$dialog,
-            record: response.record
+            record: response.record,
+            row: this.parent.selectedRow()
         };
         this.parent.fireEvent("onViewRecordSelected", args);
+        this.setSize();
+    }
+    viewElement(columnName) {
+        var _a;
+        return (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find("table.view-content-table").find(`[data-columnname='${columnName.toLowerCase()}']`).get(0);
     }
     dialogOpened(event) {
         var _a, _b;

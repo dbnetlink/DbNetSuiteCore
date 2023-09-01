@@ -8,11 +8,14 @@
     employeesEdit.SetControlType("notes", EditControlType.TextArea);
     employeesEdit.SetColumnPattern("titleofcourtesy", "Mr.|Dr.|Ms.|Mr.");
     employeesEdit.Bind(EventType.OnFormElementCreated, "configureFormElement");
-    employeesEdit.SetColumnBrowse(new string[] { "lastname", "firstname", "titleofcourtesy" });
+    employeesEdit.SetColumnBrowse(new string[] { "lastname", "firstname", "photo" });
     employeesEdit.SetColumnRequired(new string[] { "lastname", "firstname", "titleofcourtesy" });
     employeesEdit.SetColumnAsImage("Photo", new ImageConfiguration("jpg"));
     employeesEdit.Bind(EventType.OnConfigureBinaryData, "configureImageFileName");
-
+    employeesEdit.LayoutColumns = 2;
+    employeesEdit.MaxImageHeight = 40;
+    employeesEdit.BrowseControl.MaxImageHeight = 20;
+    employeesEdit.ToolbarPosition = ToolbarPosition.Bottom;
     employeesEdit.Insert = true;
     employeesEdit.Delete = true;
     @employeesEdit.Render()
@@ -24,7 +27,7 @@
         if (args.columnName == "notes")
         {
             args.formElement.rows = 4;
-            args.formElement.cols = 50;
+            args.formElement.cols = 20;
         }
     }
 

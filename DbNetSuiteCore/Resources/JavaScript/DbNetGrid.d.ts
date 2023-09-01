@@ -123,6 +123,7 @@ declare class DbNetGrid extends DbNetGridEdit {
     downloadBinaryData(element: HTMLElement, image: boolean): void;
     configureEditButtons(edit: DbNetEdit): void;
     configureEdit(sender: DbNetEdit): void;
+    viewElement(columnName: string): HTMLElement | undefined;
     private nextRecord;
     private previousRecord;
 }

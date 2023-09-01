@@ -3,10 +3,43 @@
 @using DbNetSuiteCore.Components;
 
 @{
-    DbNetGridCore productsGrid = new DbNetGridCore("northwind","products");
-    productsGrid.SetColumnDataType("discontinued", typeof(Boolean));
-    productsGrid.SetColumnLookup("categoryid", new Lookup("Categories", "CategoryID", "CategoryName"));
-    productsGrid.SetColumnLookup("SupplierID", new Lookup("Suppliers", "SupplierID", "CompanyName"));
+	DbNetGridCore productsGrid = new DbNetGridCore("northwind", "products");
+	productsGrid.SetColumnLabel("supplierid", "Supplier");
+	productsGrid.SetColumnLabel("categoryid", "Catgeory");
+	productsGrid.SetColumnDataType("discontinued", typeof(Boolean));
+	productsGrid.SetColumnLookup("supplierid", new Lookup("suppliers", "supplierid", "companyname"));
+	productsGrid.SetColumnLookup("categoryid", new Lookup("categories", "categoryid", "categoryname"));
+	productsGrid.SetColumnFormat("unitprice", "c");
+	productsGrid.Bind(EventType.OnRowTransform, "highlightOrderLevels");
+	productsGrid.Bind(EventType.OnViewRecordSelected, "highlightViewOrderLevels");
 
-    @productsGrid.Render()
+	productsGrid.View = true;
+	productsGrid.ViewLayoutColumns = 2;
+	@productsGrid.Render()
 }
+<script type="text/javascript" class="source">
+	function highlightOrderLevels(sender, args) {
+		var unitsInStock = parseInt(sender.columnValue("UnitsInStock", args.row));
+		var reorderLevel = parseInt(sender.columnValue("ReorderLevel", args.row));
+
+		if (unitsInStock < reorderLevel) {
+			$(args.row).css("backgroundColor", "#F2D7D5").css("color", "#CD6155");
+			$(args.row.cells[sender.columnIndex("UnitsInStock")]).css("backgroundColor", "#CD6155").css("color", "#F2D7D5");
+			$(args.row.cells[sender.columnIndex("ReorderLevel")]).css("backgroundColor", "#CD6155").css("color", "#F2D7D5");
+		}
+	}
+
+	function highlightViewOrderLevels(sender, args) {
+		var unitsInStock = parseInt(sender.columnValue("UnitsInStock", args.row));
+		var reorderLevel = parseInt(sender.columnValue("ReorderLevel", args.row));
+
+		if (unitsInStock < reorderLevel) {
+			$(sender.viewElement("UnitsInStock")).css("backgroundColor", "#CD6155").css("color", "#F2D7D5");
+			$(sender.viewElement("ReorderLevel")).css("backgroundColor", "#CD6155").css("color", "#F2D7D5");
+		}
+
+		$(sender.viewElement("productname")).css("whiteSpace", "nowrap")
+		$(sender.viewElement("supplierid")).css("whiteSpace", "nowrap")
+		$(sender.viewElement("categoryid")).css("whiteSpace", "nowrap")
+	}
+</script>

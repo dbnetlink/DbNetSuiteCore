@@ -36,7 +36,7 @@ namespace DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid
         public void BrowseDbPopulate(string? db = null)
         {
             var connectonStrings = _configuration.GetSection("ConnectionStrings").GetChildren();
-            connectonStrings = connectonStrings.AsEnumerable().Where(c => FilterConnectionString(_configuration.GetConnectionString(c.Key))).ToList();
+            connectonStrings = connectonStrings.AsEnumerable().Where(c => FilterConnectionString(c)).ToList();
 
             var connectionAlias = db ?? connectonStrings.AsEnumerable().First().Key;
             var connectionString = _configuration.GetConnectionString(connectionAlias);
@@ -57,8 +57,9 @@ namespace DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid
                 Table = Tables.First().QualifiedTableName;
             }
         }
-        private bool FilterConnectionString(string path)
+        private bool FilterConnectionString(IConfigurationSection configSection)
         {
+            string path = _configuration.GetConnectionString(configSection.Key) ?? string.Empty;
             if (_webHostEnvironment.IsDevelopment())
             {
                 return true;

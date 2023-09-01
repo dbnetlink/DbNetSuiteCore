@@ -65,19 +65,19 @@
                     }
                 }
             </tr>
-            @if (hiddenFields.Any())
-            {
-                <tr style="display:none">
-                    <td colspan="@(Model.LayoutColumns*2)">
-                        @foreach (var hiddenField in hiddenFields)
-                        {
-                            EditColumn editColumn = hiddenField.Key;
-                            DataColumn dataColumn = hiddenField.Value;
-                            @FormControl(editColumn,dataColumn)
-                        }
-                    </td>
-                </tr>
-            }
+        }
+        @if (hiddenFields.Any())
+        {
+            <tr style="display:none">
+                <td colspan="@(Model.LayoutColumns*2)">
+                    @foreach (var hiddenField in hiddenFields)
+                    {
+                        EditColumn editColumn = hiddenField.Key;
+                        DataColumn dataColumn = hiddenField.Value;
+                        @FormControl(editColumn,dataColumn)
+                    }
+                </td>
+            </tr>
         }
     </tbody>
 </table>
@@ -91,187 +91,194 @@
 </div>
 @functions
 {
-        public HtmlString FormControl(EditColumn editColumn, DataColumn dataColumn)
+    public HtmlString FormControl(EditColumn editColumn, DataColumn dataColumn)
+    {
+        if (string.IsNullOrEmpty(editColumn.Lookup) == false)
         {
-            if (string.IsNullOrEmpty(editColumn.Lookup) == false)
-            {
-                switch (editColumn.EditControlType)
-                {
-                    case EditControlType.SuggestLookup:
-                        if (editColumn.LookupColumns == 1)
-                        {
-                            return DataListLookup(editColumn, dataColumn);
-                        }
-                        break;
-                    case EditControlType.DropDownList:
-                        return new HtmlString($"<select {string.Join(" ", Attributes(editColumn, dataColumn))} >{LookupOptions(Model.LookupTables[editColumn.ColumnName])}</select>");
-                }
-            }
-
-            string tagName = "input";
             switch (editColumn.EditControlType)
             {
-                case EditControlType.TextArea:
-                    tagName = "textarea";
-                    break;
-            }
-
-            string button = string.Empty;
-
-            if (editColumn.DataType.Equals(nameof(DateTime)))
-            {
-                button = AddButton("calendar", "SelectDate");
-            }
-            else if (editColumn.DataType.Equals(nameof(TimeSpan)))
-            {
-                button = AddButton("clock", "SelectTime");
-            }
-            else if (string.IsNullOrEmpty(editColumn.Lookup) == false)
-            {
-                button = AddButton("lookup", "OpenTheLookupWindow");
-            }
-
-            return new HtmlString($"<{tagName} {string.Join(" ", Attributes(editColumn, dataColumn, editColumn.ColumnSize))}></{tagName}>{button}");
-        }
-
-        public HtmlString BinaryControl(EditColumn editColumn, DataColumn dataColumn)
-        {
-            string tagName = editColumn.IsImageExtension ? "img" : "a";
-
-            string uploadButton = AddButton("upload", "Upload");
-            string deleteButton = AddButton("delete", "Delete");
-
-            string className = tagName == "img" ? " class=\"icon-container\"" : string.Empty;
-
-            return new HtmlString($"<div class=\"flex-container\"><div{className}><{tagName} {string.Join(" ", Attributes(editColumn, dataColumn, editColumn.ColumnSize))}></{tagName}></div><div>{uploadButton}</div><div>{deleteButton}</div></div>");
-        }
-
-        private HtmlString DataListLookup(EditColumn editColumn, DataColumn dataColumn)
-        {
-            var attributes = Attributes(editColumn, dataColumn);
-            string id = $"{Model.ComponentId}_{editColumn.ColumnName}";
-            attributes.Add($"list=\"{id}\"");
-            string datalist = $"<input {string.Join(" ", attributes)}></input><datalist id=\"{id}\">{LookupOptions(Model.LookupTables[editColumn.ColumnName])}</datalist>";
-            return new HtmlString(datalist);
-        }
-
-        private string AddButton(string type, string title)
-        {
-            string button = $"<button type=\"button\" class=\"toolbar-button toolbar-button-image\" title=\"{Model.Translate(title)}\" button-type=\"{type.ToLower()}\" id=\"{Model.ComponentId}_{type}Btn\"></button>";
-            return button;
-        }
-
-        public List<string> Attributes(EditColumn editColumn, DataColumn dataColumn, int size = 0)
-        {
-            List<string> attributes = new List<string>();
-            List<string> classNames = new List<string>() { "dbnetedit" };
-
-            string inputType = null;
-            string disabled = editColumn.PrimaryKey ? "disabled" : string.Empty;
-
-            switch (editColumn.EditControlType)
-            {
-                case EditControlType.Auto:
-                    inputType = "text";
-                    break;
-                case EditControlType.CheckBox:
-                    inputType = "checkbox";
-                    break;
-            }
-
-            if (editColumn.Binary && string.IsNullOrEmpty(editColumn.Extension) == false)
-            {
-                var extensions = editColumn.Extension.Split(",").Select(c => $".{c.Split('|').First()}").ToList();
-                attributes.Add($"extensions=\"{string.Join(',', extensions.ToList())}\"");
-
-                var mimeTypes = editColumn.Extension.Split(",").Select(c => c.Split("|")[1]).Where(c => String.IsNullOrEmpty(c) == false).ToList();
-                extensions.AddRange(mimeTypes);
-                attributes.Add($"accept=\"{string.Join(',', extensions.ToList())}\"");
-                attributes.Add($"isimage=\"{editColumn.IsImageExtension.ToString().ToLower()}\"");
-            }
-
-            if (editColumn.UploadMetaData.HasValue)
-            {
-                attributes.Add($"uploadmetadata=\"{editColumn.UploadMetaData}\"");
-                attributes.Add($"uploadmetadatacolumn=\"{editColumn.UploadMetaDataColumn.ToLower()}\"");
-                attributes.Add($"readonly");
-            }
-
-            if (string.IsNullOrEmpty(editColumn.Pattern) == false)
-            {
-                attributes.Add($"pattern=\"{editColumn.Pattern}\"");
-            }
-
-            if (string.IsNullOrEmpty(editColumn.Style) == false)
-            {
-                attributes.Add($"style=\"{editColumn.Style}\"");
-            }
-
-            if (editColumn.IsNumeric)
-            {
-                attributes.Add($"numeric=\"true\"");
-            }
-
-            if (editColumn.EditControlType != EditControlType.CheckBox)
-            {
-                if (editColumn.Required)
-                {
-                    attributes.Add($"required=\"true\"");
-                }
-            }
-
-            if (editColumn.ReadOnly)
-            {
-                switch (editColumn.EditControlType)
-                {
-                    case EditControlType.DropDownList:
-                        classNames.Add("readonly");
-                        break;
-                    case EditControlType.CheckBox:
-                        attributes.Add($"onclick=\"return false;\"");
-                        break;
-                    default:
-                        attributes.Add($"readonly");
-                        break;
-                }
-            }
-
-            if (editColumn.PrimaryKey)
-            {
-                attributes.Add($"primarykey=\"true\"");
-                if (editColumn.AutoIncrement)
-                {
-                    attributes.Add($"autoincrement=\"true\"");
-                }
-            }
-            if (editColumn.ForeignKey)
-            {
-                attributes.Add($"foreignkey=\"true\"");
-                if (string.IsNullOrEmpty(editColumn.ForeignKeyValue?.ToString()) == false)
-                {
-                    attributes.Add($"initialvalue=\"{editColumn.ForeignKeyValue}\"");
-                }
-            }
-
-            if (string.IsNullOrEmpty(inputType) == false)
-            {
-                attributes.Add($"type=\"{inputType}\"");
-            }
-            if (string.IsNullOrEmpty(disabled) == false)
-            {
-                attributes.Add(disabled);
-            }
-            attributes.Add($"name=\"{dataColumn.ColumnName.ToLower()}\"");
-
-            switch (editColumn.EditControlType)
-            {
-                case EditControlType.TextBox:
-                    if (size > 0)
+                case EditControlType.SuggestLookup:
+                    if (editColumn.LookupColumns == 1)
                     {
-                        attributes.Add($"size=\"{size.ToString()}\"");
+                        return DataListLookup(editColumn, dataColumn);
                     }
                     break;
+                case EditControlType.DropDownList:
+                    return new HtmlString($"<select {string.Join(" ", Attributes(editColumn, dataColumn))} >{LookupOptions(Model.LookupTables[editColumn.ColumnName])}</select>");
             }
+        }
+
+        string tagName = "input";
+        switch (editColumn.EditControlType)
+        {
+            case EditControlType.TextArea:
+                tagName = "textarea";
+                break;
+        }
+
+        string button = string.Empty;
+
+        if (editColumn.DataType.Equals(nameof(DateTime)))
+        {
+            button = AddButton("calendar", "SelectDate");
+        }
+        else if (editColumn.DataType.Equals(nameof(TimeSpan)))
+        {
+            button = AddButton("clock", "SelectTime");
+        }
+        else if (string.IsNullOrEmpty(editColumn.Lookup) == false)
+        {
+            button = AddButton("lookup", "OpenTheLookupWindow");
+        }
+
+        return new HtmlString($"<{tagName} {string.Join(" ", Attributes(editColumn, dataColumn, editColumn.ColumnSize))}></{tagName}>{button}");
+    }
+
+    public HtmlString BinaryControl(EditColumn editColumn, DataColumn dataColumn)
+    {
+        string tagName = editColumn.IsImageExtension ? "img" : "a";
+
+        string uploadButton = AddButton("upload", "Upload");
+        string deleteButton = AddButton("delete", "Delete");
+
+        string className = tagName == "img" ? " class=\"icon-container\"" : string.Empty;
+
+        return new HtmlString($"<div class=\"flex-container\"><div{className}><{tagName} {string.Join(" ", Attributes(editColumn, dataColumn, editColumn.ColumnSize))}></{tagName}></div><div>{uploadButton}</div><div>{deleteButton}</div></div>");
+    }
+
+    private HtmlString DataListLookup(EditColumn editColumn, DataColumn dataColumn)
+    {
+        var attributes = Attributes(editColumn, dataColumn);
+        string id = $"{Model.ComponentId}_{editColumn.ColumnName}";
+        attributes.Add($"list=\"{id}\"");
+        string datalist = $"<input {string.Join(" ", attributes)}></input><datalist id=\"{id}\">{LookupOptions(Model.LookupTables[editColumn.ColumnName])}</datalist>";
+        return new HtmlString(datalist);
+    }
+
+    private string AddButton(string type, string title)
+    {
+        string button = $"<button type=\"button\" class=\"toolbar-button toolbar-button-image\" title=\"{Model.Translate(title)}\" button-type=\"{type.ToLower()}\" id=\"{Model.ComponentId}_{type}Btn\"></button>";
+        return button;
+    }
+
+    public List<string> Attributes(EditColumn editColumn, DataColumn dataColumn, int size = 0)
+    {
+        List<string> attributes = new List<string>();
+        List<string> classNames = new List<string>() { "dbnetedit" };
+        List<string> styles = new List<string>();
+
+        string inputType = null;
+        string disabled = editColumn.PrimaryKey ? "disabled" : string.Empty;
+
+        switch (editColumn.EditControlType)
+        {
+            case EditControlType.Auto:
+                inputType = "text";
+                break;
+            case EditControlType.CheckBox:
+                inputType = "checkbox";
+                break;
+        }
+
+        if (editColumn.Binary && string.IsNullOrEmpty(editColumn.Extension) == false)
+        {
+            var extensions = editColumn.Extension.Split(",").Select(c => $".{c.Split('|').First()}").ToList();
+            attributes.Add($"extensions=\"{string.Join(',', extensions.ToList())}\"");
+
+            var mimeTypes = editColumn.Extension.Split(",").Select(c => c.Split("|")[1]).Where(c => String.IsNullOrEmpty(c) == false).ToList();
+            extensions.AddRange(mimeTypes);
+            attributes.Add($"accept=\"{string.Join(',', extensions.ToList())}\"");
+            attributes.Add($"isimage=\"{editColumn.IsImageExtension.ToString().ToLower()}\"");
+
+            if (editColumn.IsImageExtension)
+            {
+                styles.Add($"max-height:{Model.MaxImageHeight}px");
+            }
+        }
+
+        if (editColumn.UploadMetaData.HasValue)
+        {
+            attributes.Add($"uploadmetadata=\"{editColumn.UploadMetaData}\"");
+            attributes.Add($"uploadmetadatacolumn=\"{editColumn.UploadMetaDataColumn.ToLower()}\"");
+            attributes.Add($"readonly");
+        }
+
+        if (string.IsNullOrEmpty(editColumn.Pattern) == false)
+        {
+            attributes.Add($"pattern=\"{editColumn.Pattern}\"");
+        }
+
+        if (string.IsNullOrEmpty(editColumn.Style) == false)
+        {
+            styles.Add(editColumn.Style);
+        }
+
+        if (editColumn.IsNumeric)
+        {
+            attributes.Add($"numeric=\"true\"");
+        }
+
+        if (editColumn.EditControlType != EditControlType.CheckBox)
+        {
+            if (editColumn.Required)
+            {
+                attributes.Add($"required=\"true\"");
+            }
+        }
+
+        if (editColumn.ReadOnly)
+        {
+            switch (editColumn.EditControlType)
+            {
+                case EditControlType.DropDownList:
+                    classNames.Add("readonly");
+                    break;
+                case EditControlType.CheckBox:
+                    attributes.Add($"onclick=\"return false;\"");
+                    break;
+                default:
+                    attributes.Add($"readonly");
+                    break;
+            }
+        }
+
+        if (editColumn.PrimaryKey)
+        {
+            attributes.Add($"primarykey=\"true\"");
+            if (editColumn.AutoIncrement)
+            {
+                attributes.Add($"autoincrement=\"true\"");
+            }
+        }
+        if (editColumn.ForeignKey)
+        {
+            attributes.Add($"foreignkey=\"true\"");
+            if (string.IsNullOrEmpty(editColumn.ForeignKeyValue?.ToString()) == false)
+            {
+                attributes.Add($"initialvalue=\"{editColumn.ForeignKeyValue}\"");
+            }
+        }
+
+        if (string.IsNullOrEmpty(inputType) == false)
+        {
+            attributes.Add($"type=\"{inputType}\"");
+        }
+        if (string.IsNullOrEmpty(disabled) == false)
+        {
+            attributes.Add(disabled);
+        }
+        attributes.Add($"name=\"{dataColumn.ColumnName.ToLower()}\"");
+
+        switch (editColumn.EditControlType)
+        {
+            case EditControlType.TextBox:
+            case EditControlType.Auto:
+                if (size > 0)
+                {
+                    attributes.Add($"size=\"{size.ToString()}\"");
+                }
+                break;
+        }
 
         switch (editColumn.EditControlType)
         {
@@ -287,6 +294,11 @@
         attributes.Add($"dataType=\"{editColumn.DataType}\"");
         attributes.Add($"columnIndex=\"{editColumn.Index}\"");
         attributes.Add($"class=\"{string.Join(" ", classNames)}\"");
+
+        if (styles.Any())
+        {
+            attributes.Add($"style=\"{string.Join(";", styles)}\"");
+        }
         return attributes;
     }
 

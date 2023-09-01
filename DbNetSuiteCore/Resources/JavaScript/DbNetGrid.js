@@ -846,9 +846,10 @@ class DbNetGrid extends DbNetGridEdit {
         var _a, _b;
         const $viewContentContainer = $(element).closest(".view-dialog-value");
         const $cell = $(element).closest("td");
-        const $row = $(element).closest("tr");
+        let $row = $(element).closest("tr");
         if ($viewContentContainer.length) {
             this.columnName = $viewContentContainer.data("columnname");
+            $row = $(this.selectedRow());
         }
         else {
             this.primaryKey = $row.data("pk");
@@ -871,13 +872,13 @@ class DbNetGrid extends DbNetGridEdit {
         const args = {
             row: $row.get(0),
             cell: $cell.get(0),
-            extension: "xlxs",
             fileName: fileName,
             columnName: this.columnName
         };
         this.fireEvent("onConfigureBinaryData", args);
         if (args.fileName != fileName) {
             $(element).data("filename", args.fileName);
+            fileName = args.fileName;
         }
         this.post("download-column-data", this.getRequest(), true)
             .then((blob) => {
@@ -908,6 +909,10 @@ class DbNetGrid extends DbNetGridEdit {
             sender.controlElement("CancelBtn").off().on("click", () => { var _a; return (_a = this.editDialog) === null || _a === void 0 ? void 0 : _a.close(); });
         }
         this.configureEditButtons(sender);
+    }
+    viewElement(columnName) {
+        var _a;
+        return (_a = this.viewDialog) === null || _a === void 0 ? void 0 : _a.viewElement(columnName);
     }
     nextRecord() {
         $(this.selectedRow()).next().trigger("click");

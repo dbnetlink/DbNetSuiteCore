@@ -13,10 +13,6 @@ namespace DbNetSuiteCore.Components
     {
         internal bool _browse => _columnProperties.Any(c => c.PropertyType is ColumnPropertyType.Browse);
         internal string _browseDialogId;
-        /// <summary>
-        /// Specifies the name of the foreign key column in a linked combo
-        /// </summary>
-        public string ForeignKeyColumn { get; set; } = null;
         internal bool? IsEditDialog { get; set; } = null;
         /// <summary>
         /// Specifies the number of columns over which the edit fields are distributed
