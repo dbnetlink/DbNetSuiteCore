@@ -239,14 +239,12 @@ function init_{_id}()
 
             if (HasBrowseDialog(this))
             {
-                DbNetEditCore dbNetEditCore = (DbNetEditCore)this;
-                markup += $"<div id=\"{dbNetEditCore._browseDialogId}\" class=\"browse-dialog\" title=\"Browse\" style=\"display:none\"><section id=\"{dbNetEditCore.BrowseControl.Id}\"></section></div>";
+                markup += BrowseDialogMarkup((DbNetEditCore)this);
             }
 
             if (HasEditDialog(this))
             {
-                DbNetGridCore dbNetGridCore = (DbNetGridCore)this;
-                markup += $"<div id=\"{dbNetGridCore._editDialogId}\" class=\"edit-dialog\" title=\"Edit\" style=\"display:none\"><section id=\"{dbNetGridCore.EditControl.Id}\"></section></div>";
+                markup += EditDialogMarkup((DbNetGridCore)this);
             }
 
             foreach (var linkedControl in _linkedControls)
@@ -259,6 +257,16 @@ function init_{_id}()
             }
 
             return markup;
+        }
+
+        private string BrowseDialogMarkup(DbNetEditCore dbNetEditCore)
+        {
+            return $"<div id=\"{dbNetEditCore._browseDialogId}\" class=\"browse-dialog\" title=\"Browse\" style=\"display:none\"><section id=\"{dbNetEditCore.BrowseControl.Id}\"></section></div>";
+        }
+
+        private string EditDialogMarkup(DbNetGridCore dbNetGridCore)
+        {
+            return $"<div id=\"{dbNetGridCore._editDialogId}\" class=\"edit-dialog\" title=\"Edit\" style=\"display:none\"><section id=\"{dbNetGridCore.EditControl.Id}\"></section></div>"; ;
         }
 
         private bool IsEditDialog(DbNetSuiteCore control)
@@ -286,7 +294,7 @@ function init_{_id}()
             if (control is DbNetGridCore)
             {
                 DbNetGridCore dbNetGridCore = (DbNetGridCore)control;
-                return dbNetGridCore._hasEditDialog;
+                return dbNetGridCore._hasEditDialog || dbNetGridCore._addEditDialog;
             }
             return false;
         }

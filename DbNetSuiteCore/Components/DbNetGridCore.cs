@@ -13,6 +13,7 @@ namespace DbNetSuiteCore.Components
         internal string _editDialogId;
         internal bool? IsBrowseDialog { get; set; } = null;
         internal bool _hasEditDialog => this._linkedControls.Where(c => c is DbNetEditCore).Any(c => (c as DbNetEditCore).IsEditDialog ?? false == true);
+        internal bool _addEditDialog => Edit && this._linkedControls.Where(c => c is DbNetEditCore).Any() == false;
 
         /// <summary>
         /// Automatically selects the first row of the grid (default is true)
@@ -360,9 +361,10 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             return script;
         }
 
+
         private void AddEditDialogControl()
         {
-            if (Edit == false || this._linkedControls.Any(control => control is DbNetEditCore))
+            if (_addEditDialog == false)
             {
                 this._editDialogId = string.Empty;
                 this.Update = false;
