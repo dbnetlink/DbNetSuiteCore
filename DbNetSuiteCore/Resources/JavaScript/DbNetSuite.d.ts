@@ -41,6 +41,7 @@ declare class DbNetSuite {
     parentChildRelationship: ParentChildRelationship;
     initialised: boolean;
     protected imageViewer: ImageViewer | undefined;
+    protected parentControl: DbNetSuite | null;
     constructor(id: string | null);
     bind(event: EventName, handler: EventHandler): void;
     internalBind(event: EventName, callback: EmptyCallback): void;
@@ -55,9 +56,12 @@ declare class DbNetSuite {
     protected post<T>(action: string, request: any, blob?: boolean, page?: string | null): Promise<T>;
     controlElement(name: string): JQuery<HTMLElement>;
     protected controlElementId(name: string): string;
-    protected disable(id: string, disabled: boolean): void;
+    disable(id: string, disabled: boolean): void;
     protected setInputElement(name: string, value: number): void;
     protected configureLinkedControls(id: object | null, pk?: string | null, fk?: string | null): void;
+    protected linkedGridOrEdit(): boolean;
+    protected parentGridOrEdit(): boolean;
+    protected configureParentDeleteButton(disabled: boolean): void;
     protected info(text: string, element: JQuery<HTMLElement>): void;
     protected confirm(text: string, element: JQuery<HTMLElement>, callback: MessageBoxCallback): void;
     protected error(text: string, element?: JQuery<HTMLElement> | null): void;

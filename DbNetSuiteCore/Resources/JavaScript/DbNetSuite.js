@@ -13,6 +13,7 @@ class DbNetSuite {
         this.parentControlType = "";
         this.parentChildRelationship = null;
         this.initialised = false;
+        this.parentControl = null;
         if (id == null) {
             return;
         }
@@ -59,8 +60,8 @@ class DbNetSuite {
         }
     }
     addLinkedControl(control) {
-        //control.parentControlType = this.constructor.name;
         this.linkedControls.push(control);
+        control.parentControl = this;
     }
     fireEvent(event, params = undefined) {
         if (this.eventHandlers[event]) {
@@ -171,6 +172,22 @@ class DbNetSuite {
         this.linkedControls.forEach((control) => {
             this._configureLinkedControl(control, id, pk, fk);
         });
+    }
+    linkedGridOrEdit() {
+        let found = false;
+        this.linkedControls.forEach((control) => {
+            if (control instanceof DbNetGrid || control instanceof DbNetEdit) {
+                found = true;
+            }
+        });
+        return found;
+    }
+    parentGridOrEdit() {
+        return (this.parentControl instanceof DbNetGrid || this.parentControl instanceof DbNetEdit);
+    }
+    configureParentDeleteButton(disabled) {
+        var _a;
+        (_a = this.parentControl) === null || _a === void 0 ? void 0 : _a.disable("DeleteBtn", disabled);
     }
     info(text, element) {
         this.showMessageBox(MessageBoxType.Info, text, element);

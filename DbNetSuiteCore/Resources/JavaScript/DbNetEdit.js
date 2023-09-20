@@ -49,9 +49,6 @@ class DbNetEdit extends DbNetGridEdit {
             }
         });
     }
-    addLinkedControl(control) {
-        this.linkedControls.push(control);
-    }
     getRows(callback) {
         this.post("search", this.getRequest())
             .then((response) => {
@@ -249,9 +246,15 @@ class DbNetEdit extends DbNetGridEdit {
         this.disable("NextBtn", response.currentRow == response.totalRows);
         this.disable("LastBtn", response.currentRow == response.totalRows);
         this.disable("BrowseBtn", response.totalRows < 2);
+        if (this.linkedGridOrEdit() == false) {
+            this.disable("DeleteBtn", response.totalRows == 0);
+        }
         this.disable("DeleteBtn", response.totalRows == 0);
         this.disable("ApplyBtn", response.totalRows == 0);
         this.disable("CancelBtn", response.totalRows == 0);
+        if (this.parentGridOrEdit()) {
+            this.configureParentDeleteButton(response.totalRows > 0);
+        }
     }
     updateColumns(response) {
         var _a;

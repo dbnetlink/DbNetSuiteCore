@@ -42,7 +42,7 @@ class DbNetSuite {
     public parentChildRelationship: ParentChildRelationship = null;
     public initialised = false;
     protected imageViewer: ImageViewer | undefined;
-
+    protected parentControl: DbNetSuite | null = null;
 
     constructor(id: string | null) {
         if (id == null) {
@@ -99,8 +99,8 @@ class DbNetSuite {
     }
 
     addLinkedControl(control: DbNetSuite) {
-        //control.parentControlType = this.constructor.name;
         this.linkedControls.push(control);
+        control.parentControl = this;
     }
 
     fireEvent(event: EventName, params: object | undefined = undefined) {
@@ -214,7 +214,7 @@ class DbNetSuite {
     protected controlElementId(name: string): string {
         return `${this.id}_${name}`;
     }
-    protected disable(id: string, disabled: boolean) {
+    public disable(id: string, disabled: boolean) {
         this.controlElement(id).prop("disabled", disabled);
     }
     protected setInputElement(name: string, value: number) {
@@ -227,6 +227,25 @@ class DbNetSuite {
         this.linkedControls.forEach((control) => {
             this._configureLinkedControl(control, id, pk, fk);
         });
+    }
+
+    protected linkedGridOrEdit() {
+        let found = false;
+        this.linkedControls.forEach((control) => {
+            if (control instanceof DbNetGrid || control instanceof DbNetEdit) {
+                found = true;
+            }
+        });
+
+        return found;
+    }
+
+    protected parentGridOrEdit() {
+        return (this.parentControl instanceof DbNetGrid || this.parentControl instanceof DbNetEdit);
+    }
+
+    protected configureParentDeleteButton(disabled:boolean) {
+        this.parentControl?.disable("DeleteBtn", disabled)
     }
 
     protected info(text:string, element:JQuery<HTMLElement>) {

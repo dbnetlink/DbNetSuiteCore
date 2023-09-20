@@ -209,14 +209,20 @@ class DbNetGrid extends DbNetGridEdit {
             this.disable("NextBtn", response.currentPage == response.totalPages);
             this.disable("LastBtn", response.currentPage == response.totalPages);
         }
+        this.controlElement("QuickSearch").on("keyup", (event) => this.quickSearchKeyPress(event));
 
         this.disable("ViewBtn", response.totalRows == 0);
         this.disable("ExportBtn", response.totalRows == 0);
         this.disable("CopyBtn", response.totalRows == 0);
         this.disable("UpdateBtn", response.totalRows == 0);
-        this.disable("DeleteBtn", response.totalRows == 0);
 
-        this.controlElement("QuickSearch").on("keyup", (event) => this.quickSearchKeyPress(event));
+        if (this.linkedGridOrEdit() == false) {
+            this.disable("DeleteBtn", response.totalRows == 0);
+        }
+
+        if (this.parentGridOrEdit()) {
+            this.configureParentDeleteButton(response.totalRows > 0);
+        }
     }
 
     private configureGrid(response: DbNetGridResponse) {
