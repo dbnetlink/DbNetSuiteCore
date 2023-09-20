@@ -14,7 +14,7 @@
     <FileVersion>0.9.469</FileVersion>
     <PackageReleaseNotes>Beta version. Currently still under active development.</PackageReleaseNotes>
     <PackageProjectUrl>https://dbnetsuitecoreapp.azurewebsites.net</PackageProjectUrl>
-    <Version>0.9.469-beta</Version>
+    <Version>0.9.470-beta</Version>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageLicenseExpression> NPOSL-3.0</PackageLicenseExpression>
     <BaseOutputPath>C:\Users\robin\source\repos\DbNetSuiteCore-VS2022\DbNetSuiteCoreApp\bin</BaseOutputPath>
