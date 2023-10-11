@@ -2,8 +2,9 @@
 @using DbNetSuiteCore.Components;
 @using DbNetSuiteCore.Enums.DbNetEdit;
 @using DbNetSuiteCore.Enums;
+
 @{
-    DbNetEditCore productsEdit = new DbNetEditCore("northwind_", "products");
+    DbNetEditCore productsEdit = new DbNetEditCore("northwind", "products");
     productsEdit.SetColumnLookup("categoryid", new Lookup("Categories", "CategoryID", "CategoryName"));
     productsEdit.SetColumnLookup("SupplierID", new Lookup("Suppliers", "SupplierID", "CompanyName"));
     productsEdit.SetColumnFormat("UnitPrice", "c");
@@ -11,6 +12,8 @@
     productsEdit.SetColumnStyle("UnitPrice", "background-color:gold; font-weight:bold;");
     productsEdit.SetColumnLabel("CategoryID", "Category");
     productsEdit.SetColumnLabel("SupplierID", "Supplier");
+    productsEdit.SetColumnDataType("discontinued", typeof(Boolean));
     productsEdit.SetColumnReadOnly(new string[] { "discontinued" });
+
     @productsEdit.Render()
 }

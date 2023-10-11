@@ -8,4 +8,5 @@
     toolbarPosition: ToolbarPosition;
     formCacheKey: string;
     javascriptDate: Date;
+    lookupParameterValue: string;
 }

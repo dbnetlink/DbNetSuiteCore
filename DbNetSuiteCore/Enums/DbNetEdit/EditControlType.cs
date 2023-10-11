@@ -9,13 +9,20 @@
         CheckBox,
         DropDownList,
         RadioButtonList,
-        ListBox,
-        Label,
         TextArea,
         Password,
         Upload,
         SuggestLookup,
-        AutoCompleteLookup,
-        MultiValueTextBoxLookup
+        Color,
+        Date,
+        Email,
+        Hidden,
+        Month,
+        Number,
+        Range,
+        Tel,
+        Time,
+        Url,
+        Week
     }
 }

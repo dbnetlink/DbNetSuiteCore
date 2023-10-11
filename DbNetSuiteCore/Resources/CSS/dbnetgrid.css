@@ -1430,6 +1430,19 @@ table.lookup-dialog-toolbar td.no-records span,
   padding: 2px;
   width: fit-content;
 }
+.view-dialog .view-dialog-value[data-type=Boolean] {
+  border: 0px;
+  background-color: inherit;
+  padding: 0px;
+}
+.view-dialog .view-dialog-value input[type=checkbox].boolean-value {
+  vertical-align: middle;
+  margin-bottom: 1px;
+  height: 16px;
+  width: 16px;
+  accent-color: SteelBlue;
+  margin: 0px;
+}
 
 .lookup-dialog select {
   border: 1px solid silver;

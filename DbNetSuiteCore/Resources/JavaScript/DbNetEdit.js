@@ -113,7 +113,7 @@ class DbNetEdit extends DbNetGridEdit {
         this.updateForm(response);
     }
     configureForm() {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
         const $inputs = (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(`:input[name]`);
         for (let i = 0; i < $inputs.length; i++) {
             const $input = $($inputs[i]);
@@ -126,7 +126,8 @@ class DbNetEdit extends DbNetGridEdit {
         (_f = this.formPanel) === null || _f === void 0 ? void 0 : _f.find("[button-type='upload']").on("click", (event) => this.uploadFile(event));
         (_g = this.formPanel) === null || _g === void 0 ? void 0 : _g.find("img.dbnetedit").on("load", (event) => this.imageLoaded(event));
         (_h = this.formPanel) === null || _h === void 0 ? void 0 : _h.find("img.dbnetedit").on("click", (event) => this.viewImage(event));
-        (_j = this.formPanel) === null || _j === void 0 ? void 0 : _j.find("input[datatype='DateTime'").get().forEach(e => {
+        (_j = this.formPanel) === null || _j === void 0 ? void 0 : _j.find("select[dependentLookup]").on("change", (event) => this.updateOptions(event));
+        (_k = this.formPanel) === null || _k === void 0 ? void 0 : _k.find("input[datatype='DateTime'").get().forEach(e => {
             const $input = $(e);
             this.addDatePicker($input, this.datePickerOptions);
         });
@@ -154,6 +155,11 @@ class DbNetEdit extends DbNetGridEdit {
                 continue;
             }
             const value = record[columnName];
+            if ($input.attr("isDependentLookup")) {
+                $input.empty();
+                $input.data("value", value.toString());
+                continue;
+            }
             if ($input.attr("type") == "checkbox") {
                 const checked = (value === true);
                 $input.prop("checked", checked).data("value", checked);
@@ -163,6 +169,14 @@ class DbNetEdit extends DbNetGridEdit {
             }
             if ($input.attr("primarykey") || $input.attr("foreignkey") || $input.attr("datatype") == "Guid") {
                 $input.prop("disabled", true);
+            }
+        }
+        for (let i = 0; i < this.formElements().length; i++) {
+            const $input = this.formElements().eq(i);
+            if ($input.attr("dependentLookup") && !$input.attr("isDependentLookup")) {
+                if ($input.val() != "") {
+                    this.refreshOptions($input.attr("dependentLookup"), $input.val());
+                }
             }
         }
         const $firstElement = this.formElements().filter(':not(:disabled):first');
@@ -186,6 +200,31 @@ class DbNetEdit extends DbNetGridEdit {
         }
         this.configureLinkedControls(null, this.primaryKey);
         this.fireEvent("onRecordSelected", { formElements: this.formElements(), binaryElements: this.binaryElements() });
+    }
+    updateOptions(event) {
+        var _a;
+        const $select = $(event.target);
+        const columnName = $select.attr("dependentLookup");
+        const $dependentLookup = (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(`:input[name='${columnName.toLowerCase()}']`);
+        $dependentLookup.data("value", "");
+        this.refreshOptions(columnName, $select.val());
+    }
+    refreshOptions(columnName, parameterValue) {
+        var _a;
+        const $dependentLookup = (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(`:input[name='${columnName.toLowerCase()}']`);
+        const request = this.getRequest();
+        request.lookupColumnIndex = parseInt($dependentLookup.attr("columnIndex"));
+        request.lookupParameterValue = parameterValue;
+        this.post("get-options", request)
+            .then((response) => {
+            $dependentLookup.html(response.html);
+            $dependentLookup.val($dependentLookup.data("value"));
+            if ($dependentLookup.attr("dependentLookup") != null) {
+                columnName = $dependentLookup.attr("dependentLookup");
+                parameterValue = $dependentLookup.data("value");
+                this.refreshOptions(columnName, parameterValue);
+            }
+        });
     }
     callServer(action, callback) {
         this.post(action, this.getRequest())
@@ -374,6 +413,9 @@ class DbNetEdit extends DbNetGridEdit {
             if ($input.attr("initialvalue")) {
                 $input.val($input.attr("initialvalue"));
             }
+            if ($input.attr("isDependentLookup")) {
+                $input.empty();
+            }
         });
         (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find("button").prop("disabled", false);
         const $firstElement = this.formElements().filter(':not(:disabled):first');
@@ -402,7 +444,7 @@ class DbNetEdit extends DbNetGridEdit {
     }
     formElements() {
         var _a;
-        return (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(':input.dbnetedit,select.dbnetedit');
+        return (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(':input.dbnetedit,select.dbnetedit,textarea.dbnetedit');
     }
     binaryElements() {
         var _a;

@@ -90,7 +90,7 @@ namespace DbNetSuiteCore.Services
         {
             var request = await DeserialiseRequest<DbNetGridRequest>();
             Columns = request.Columns;
-            
+
             Initialise();
 
             DbNetGridResponse response = new DbNetGridResponse();
@@ -211,13 +211,10 @@ namespace DbNetSuiteCore.Services
                 }
             }
         }
+
         internal string DefaultOrderBy()
         {
-            return DefaultOrderBy(false);
-        }
-        internal string DefaultOrderBy(bool useColumnName)
-        {
-            return $"{Columns.First().ColumnExpression} asc";
+            return string.IsNullOrEmpty(this.InitialOrderBy) ? $"{Columns.First().ColumnExpression} asc" : this.InitialOrderBy;
         }
         internal QueryCommandConfig ProcedureCommandConfig()
         {
@@ -292,7 +289,7 @@ namespace DbNetSuiteCore.Services
 
             return filterPart;
         }
-       
+
         protected string BuildOrderPart(QueryBuildModes buildMode)
         {
             switch (buildMode)
@@ -427,12 +424,12 @@ namespace DbNetSuiteCore.Services
 
             return parameters;
         }
-     
+
         protected QueryCommandConfig BuildSql()
         {
             return BuildSql(QueryBuildModes.Normal);
         }
-       protected QueryCommandConfig BuildSql(QueryBuildModes buildMode)
+        protected QueryCommandConfig BuildSql(QueryBuildModes buildMode)
         {
             if (ProcedureName != "")
             {
@@ -478,7 +475,7 @@ namespace DbNetSuiteCore.Services
             }
             return false;
         }
-      
+
         protected string ReplaceWithCorrectParams(string sql, ListDictionary p)
         {
             Regex paramPattern = new Regex(@"Col\d{1,3}Param\d{1,3}");
@@ -492,7 +489,7 @@ namespace DbNetSuiteCore.Services
             return sql;
         }
 
-          private void ConfigureGridColumns()
+        private void ConfigureGridColumns()
         {
             if (!String.IsNullOrEmpty(ProcedureName))
             {
@@ -511,15 +508,34 @@ namespace DbNetSuiteCore.Services
 
             if (OrderBy.HasValue == false)
             {
-                OrderBy = Columns.FirstOrDefault(c => c.Display).Index + 1;
+                if (string.IsNullOrEmpty(InitialOrderBy))
+                {
+                    OrderBy = Columns.FirstOrDefault(c => c.Display).Index + 1;
+                }
+                else
+                {
+                    string orderBy = InitialOrderBy.Split(",").First();
+                    GridColumn orderByColumn = Columns.FirstOrDefault(c => c.IsMatch(InitialOrderBy.Split(" ").First()));
+                    if (orderByColumn != null)
+                    {
+                        OrderBy = orderByColumn.Index + 1;
+                        OrderByDirection = InitialOrderBy.ToLower().Split(" ").Contains("desc") ? OrderByDirection.desc : OrderByDirection.asc;
+                    }
+                }
+            }
+
+            if (OrderBy.HasValue)
+            {
+                if (Columns[OrderBy.Value - 1].OrderBy.HasValue == false)
+                {
+                    Columns[OrderBy.Value - 1].OrderBy = OrderByDirection;
+                }
             }
 
             if (Columns.Any(c => c.View) == false)
             {
                 Columns.ToList().ForEach(c => c.View = true);
             }
-
-            Columns[OrderBy.Value - 1].OrderBy = OrderByDirection;
         }
 
         protected override void AddColumn(DataRow row)
@@ -1143,7 +1159,7 @@ namespace DbNetSuiteCore.Services
         private string GetLookupValue(GridColumn column, object dataValue)
         {
             if (column.LookupColumns < 2)
-            { 
+            {
                 return dataValue?.ToString() ?? string.Empty;
             }
             DataTable lookupTable = _lookupTables[column.ColumnKey];
@@ -1156,5 +1172,5 @@ namespace DbNetSuiteCore.Services
             }
             return dataValue.ToString();
         }
-     }
+    }
 }

@@ -149,11 +149,13 @@ class DbNetEdit extends DbNetGridEdit {
         this.formPanel?.find("[button-type='upload']").on("click", (event) => this.uploadFile(event));
         this.formPanel?.find("img.dbnetedit").on("load", (event) => this.imageLoaded(event));
         this.formPanel?.find("img.dbnetedit").on("click", (event) => this.viewImage(event));
+        this.formPanel?.find("select[dependentLookup]").on("change", (event) => this.updateOptions(event));
 
         this.formPanel?.find("input[datatype='DateTime'").get().forEach(e => {
             const $input = $(e as HTMLInputElement);
             this.addDatePicker($input, this.datePickerOptions);
         });
+
     }
 
     private imageLoaded(event: JQuery.TriggeredEvent) {
@@ -177,7 +179,15 @@ class DbNetEdit extends DbNetGridEdit {
             if ($input.length == 0) {
                 continue;
             }
+
             const value = record[columnName];
+
+            if ($input.attr("isDependentLookup")) {
+                $input.empty();
+                $input.data("value", value.toString());
+                continue;
+            }
+
             if ($input.attr("type") == "checkbox") {
                 const checked = (value as unknown as boolean === true)
                 $input.prop("checked", checked).data("value", checked);
@@ -190,6 +200,17 @@ class DbNetEdit extends DbNetGridEdit {
                 $input.prop("disabled", true);
             }
         }
+
+
+        for (let i = 0; i < this.formElements().length; i++) {
+            const $input = this.formElements().eq(i);
+            if ($input.attr("dependentLookup") && !$input.attr("isDependentLookup")) {
+                if ($input.val() != "") {
+                    this.refreshOptions($input.attr("dependentLookup") as string, $input.val() as string);
+                }
+            }
+        }
+
         const $firstElement = this.formElements().filter(':not(:disabled):first') as JQuery<HTMLFormElement>;
         $firstElement.trigger("focus");
 
@@ -217,7 +238,34 @@ class DbNetEdit extends DbNetGridEdit {
         this.configureLinkedControls(null, this.primaryKey);
 
         this.fireEvent("onRecordSelected", { formElements: this.formElements(), binaryElements: this.binaryElements() });
-  }
+    }
+
+    private updateOptions(event: JQuery.TriggeredEvent): void {
+        const $select = $(event.target as HTMLSelectElement);
+        const columnName = $select.attr("dependentLookup") as string;
+        const $dependentLookup = this.formPanel?.find(`:input[name='${columnName.toLowerCase()}']`) as JQuery<HTMLFormElement>;
+        $dependentLookup.data("value", "");
+        this.refreshOptions(columnName, $select.val() as string);
+    }
+
+    private refreshOptions(columnName: string, parameterValue: string) {
+        const $dependentLookup = this.formPanel?.find(`:input[name='${columnName.toLowerCase()}']`) as JQuery<HTMLFormElement>;
+        const request = this.getRequest();
+        request.lookupColumnIndex = parseInt($dependentLookup.attr("columnIndex") as string);
+        request.lookupParameterValue = parameterValue;
+
+        this.post<DbNetEditResponse>("get-options", request)
+            .then((response) => {
+                $dependentLookup.html(response.html);
+                $dependentLookup.val($dependentLookup.data("value"));
+
+                if ($dependentLookup.attr("dependentLookup") != null) {
+                    columnName = $dependentLookup.attr("dependentLookup") as string;
+                    parameterValue = $dependentLookup.data("value");
+                    this.refreshOptions(columnName, parameterValue);
+                }
+            });
+    }
 
     private callServer(action: string, callback?: DbNetEditResponseCallback) {
         this.post<DbNetEditResponse>(action, this.getRequest())
@@ -243,7 +291,6 @@ class DbNetEdit extends DbNetGridEdit {
         request.totalRows = this.totalRows;
         request.isEditDialog = this.isEditDialog;
         request.toolbarPosition = this.toolbarPosition;
-
         return request;
     }
 
@@ -432,6 +479,10 @@ class DbNetEdit extends DbNetGridEdit {
                 if ($input.attr("initialvalue")) {
                     $input.val($input.attr("initialvalue") as string);
                 }
+
+                if ($input.attr("isDependentLookup")) {
+                    $input.empty();
+                }
             });
 
         this.formPanel?.find("button").prop("disabled", false);
@@ -468,7 +519,7 @@ class DbNetEdit extends DbNetGridEdit {
     }
 
     private formElements(): JQuery<HTMLFormElement> {
-        return this.formPanel?.find(':input.dbnetedit,select.dbnetedit') as JQuery<HTMLFormElement>;
+        return this.formPanel?.find(':input.dbnetedit,select.dbnetedit,textarea.dbnetedit') as JQuery<HTMLFormElement>;
     }
 
     private binaryElements(): JQuery<HTMLElement> {
@@ -785,7 +836,7 @@ class DbNetEdit extends DbNetGridEdit {
         }
     }
 
-    private getFileName(columnName:string) {
+    private getFileName(columnName: string) {
         return this.formElements().filter(`[uploadmetadatacolumn='${columnName}'][uploadmetadata='FileName']`).val();
     }
 

@@ -29,7 +29,8 @@ namespace DbNetSuiteCore.Services
         private string _primaryKey;
         private string _fixedFilterSql;
         private bool _quickSearch;
-
+        private string _initialOrderBy;
+        
         protected Dictionary<string, DataTable> _lookupTables = new Dictionary<string, DataTable>();
         protected List<DbColumn> DbColumns
         {
@@ -65,18 +66,23 @@ namespace DbNetSuiteCore.Services
         public int LookupColumnIndex { get; set; }
         public int MaxImageHeight { get; set; } = 40;
         public bool Navigation { get; set; }
+        public string InitialOrderBy
+        {
+            get => EncodingHelper.Decode(_initialOrderBy);
+            set => _initialOrderBy = value;
+        }
         public bool OptimizeForLargeDataset { get; set; } = false;
-
         public string PrimaryKey
         {
             get => EncodingHelper.Decode(_primaryKey);
             set => _primaryKey = value;
         }
+        public object LookupParameterValue { get; set; }
         public Dictionary<string, object> PrimaryKeyValues
         {
             get => JsonSerializer.Deserialize<Dictionary<string, object>>(PrimaryKey);
         }
-        public bool QuickSearch 
+        public bool QuickSearch
         {
             get => _quickSearch && DbColumns.Any(c => (c as DbColumn).DataType == nameof(String));
             set => _quickSearch = value;
@@ -231,6 +237,11 @@ namespace DbNetSuiteCore.Services
                 foreach (object o in columns.Where(c => string.IsNullOrEmpty((c as DbColumn).Lookup) == false))
                 {
                     DbColumn col = (DbColumn)o;
+
+                    if (col.LookupIsEnum)
+                    {
+                        continue;
+                    }
                     string sql = Database.UpdateConcatenationOperator(col.Lookup);
 
                     ListDictionary @params = Database.ParseParameters(sql);
@@ -289,6 +300,19 @@ namespace DbNetSuiteCore.Services
                     {
                         DbColumn column = (DbColumn)o;
                         column.Display = false;
+                    }
+                }
+            }
+
+            if (this is DbNetEdit)
+            {
+                foreach (object o in columns.Where(c => string.IsNullOrEmpty((c as DbColumn).LookupParameter) == false))
+                {
+                    DbColumn column = (DbColumn)o;
+                    DbColumn parentColumn = DbColumns.FirstOrDefault(c => c.IsMatch(column.LookupParameter));
+                    if ( parentColumn != null)
+                    {
+                        parentColumn.DependentLookup = column;
                     }
                 }
             }
@@ -568,7 +592,7 @@ namespace DbNetSuiteCore.Services
                     {
                         if (string.IsNullOrEmpty(column.Extension))
                         {
-                            column.DataType = nameof(String);  
+                            column.DataType = nameof(String);
                         }
                     }
                 }
@@ -725,9 +749,26 @@ namespace DbNetSuiteCore.Services
             response.Html = await HttpContext.RenderToStringAsync("Views/DbNetGrid/LookupDialogContent.cshtml", lookupDialogViewModel);
         }
 
-        private DataTable GetLookupData(int columnIndex)
+        protected async Task GetOptions(DbNetSuiteResponse response)
+        {
+            var dataTable = GetLookupData(this.LookupColumnIndex, this.LookupParameterValue);
+            string sortColumnName = dataTable.Columns[dataTable.Columns.Count - 1].ColumnName;
+            var sortedDataTable = dataTable.AsEnumerable().OrderBy(x => x.Field<string>(sortColumnName)).ToList();
+            var lookupDialogViewModel = new LookupDialogViewModel();
+            lookupDialogViewModel.LookupData = sortedDataTable;
+
+            response.Html = await HttpContext.RenderToStringAsync("Views/DbNetEdit/Options.cshtml", lookupDialogViewModel);
+        }
+
+        private DataTable GetLookupData(int columnIndex, object parameterValue = null)
         {
             DbColumn dbColumn = DbColumns.FirstOrDefault(c => c.Index == columnIndex);
+
+            if (dbColumn.LookupIsEnum)
+            {
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(dbColumn.Lookup);
+            }
+
             DataTable dataTable = new DataTable();
 
             using (Database)
@@ -735,6 +776,13 @@ namespace DbNetSuiteCore.Services
                 Database.Open();
                 QueryCommandConfig query = new QueryCommandConfig();
                 query.Sql = Database.UpdateConcatenationOperator(dbColumn!.Lookup);
+
+                string paramName = TextHelper.ParseParameter(query.Sql);
+                if (string.IsNullOrEmpty(paramName) == false)
+                {
+                    query.Params.Add(paramName, parameterValue);
+                }
+
                 Database.ExecuteQuery(query);
                 dataTable.Load(Database.Reader);
                 Database.Close();
@@ -854,6 +902,12 @@ namespace DbNetSuiteCore.Services
                     DbColumn column = (DbColumn)o;
                     if (string.IsNullOrEmpty(column.Lookup))
                     {
+                        continue;
+                    }
+
+                    if (column.LookupIsEnum)
+                    {
+                        _lookupTables.Add(column.ColumnKey, Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(column.Lookup));
                         continue;
                     }
 

@@ -21,6 +21,9 @@ namespace DbNetSuiteCore.Models
         public string BaseSchemaName { get; set; }
         public bool Browse { get; set; } = false;
         public string DataType { get; set; }
+        public DbColumn DependentLookup { get; set; }
+        public bool IsDependentLookup => string.IsNullOrEmpty(LookupParameter) == false;
+
         public string OriginalDataType { get; set; }
 
         public bool Search
@@ -57,7 +60,14 @@ namespace DbNetSuiteCore.Models
             set => _lookup = value;
         }
         public int LookupColumns => DbNetGridEdit.GetSelectColumns(Lookup).Length;
+         public bool LookupIsEnum
+        {
+            get => string.IsNullOrEmpty(Lookup) == false && Lookup.StartsWith("[{");
+        }
+
         public string LookupDataType { get; set; }
+        public string LookupParameter { get; set; }
+
         public string DbDataType { get; set; }
         public string LookupTable { get; set; }
         public string LookupValueField { get; set; }

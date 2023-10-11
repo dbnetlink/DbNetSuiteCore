@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 
 namespace DbNetSuiteCore.Helpers
@@ -15,6 +16,11 @@ namespace DbNetSuiteCore.Helpers
             }
 
             return resource;
+        }
+
+        public static string ParseParameter(string sql)
+        {
+            return sql.Split(" ").Where(w => w.StartsWith("@")).FirstOrDefault();
         }
     }
 }

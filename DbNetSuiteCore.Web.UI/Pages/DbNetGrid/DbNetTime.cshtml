@@ -1,0 +1,210 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums.DbNetEdit;
+@using DbNetGridEnums = DbNetSuiteCore.Enums.DbNetGrid;
+@using DbNetSuiteCore.Web.UI.Enums;
+
+<!--
+
+  Radio version of tabs.
+
+  Requirements:
+  - not rely on specific IDs for CSS (the CSS shouldn't need to know specific IDs)
+  - flexible for any number of unkown tabs [2-6]
+  - accessible
+
+  Caveats:
+  - since these are checkboxes the tabs not tab-able, need to use arrow keys
+
+  Also worth reading:
+  http://simplyaccessible.com/article/danger-aria-tabs/
+-->
+
+<style>
+    /*
+     CSS for the main interaction
+    */
+    .tabset > input[type="radio"] {
+        position: absolute;
+        left: -200vw;
+    }
+
+    .tabset .tab-panel {
+        display: none;
+    }
+
+    .tabset > input:first-child:checked ~ .tab-panels > .tab-panel:first-child,
+    .tabset > input:nth-child(3):checked ~ .tab-panels > .tab-panel:nth-child(2),
+    .tabset > input:nth-child(5):checked ~ .tab-panels > .tab-panel:nth-child(3),
+    .tabset > input:nth-child(7):checked ~ .tab-panels > .tab-panel:nth-child(4),
+    .tabset > input:nth-child(9):checked ~ .tab-panels > .tab-panel:nth-child(5),
+    .tabset > input:nth-child(11):checked ~ .tab-panels > .tab-panel:nth-child(6) {
+        display: block;
+    }
+
+    /*
+     Styling
+    */
+    body {
+        font: 16px/1.5em "Overpass", "Open Sans", Helvetica, sans-serif;
+        color: #333;
+        font-weight: 300;
+    }
+
+    .tabset > label {
+        position: relative;
+        display: inline-block;
+        padding: 15px 15px 25px;
+        border: 1px solid transparent;
+        border-bottom: 0;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+        .tabset > label::after {
+            content: "";
+            position: absolute;
+            left: 15px;
+            bottom: 10px;
+            width: 22px;
+            height: 4px;
+            background: #8d8d8d;
+        }
+
+    input:focus-visible + label {
+        outline: 2px solid rgba(0,102,204,1);
+        border-radius: 3px;
+    }
+
+    .tabset > label:hover,
+    .tabset > input:focus + label,
+    .tabset > input:checked + label {
+        color: #06c;
+    }
+
+        .tabset > label:hover::after,
+        .tabset > input:focus + label::after,
+        .tabset > input:checked + label::after {
+            background: #06c;
+        }
+
+    .tabset > input:checked + label {
+        border-color: #ccc;
+        border-bottom: 1px solid #fff;
+        margin-bottom: -1px;
+    }
+
+    .tab-panel {
+        padding: 30px 0;
+        border-top: 1px solid #ccc;
+    }
+
+    /*
+     Demo purposes only
+    */
+    *,
+    *:before,
+    *:after {
+        box-sizing: border-box;
+    }
+
+    body {
+        padding: 30px;
+    }
+
+    .tabset {
+        max-width: 65em;
+    }
+</style>
+
+<div class="tabset">
+    <!-- Tab 1 -->
+    <input type="radio" name="tabset" id="tab1" aria-controls="marzen" checked>
+    <label for="tab1">Users</label>
+    <!-- Tab 2 -->
+    <input type="radio" name="tabset" id="tab2" aria-controls="rauchbier">
+    <label for="tab2">Timesheet Weeks</label>
+    <!-- Tab 3 -->
+    <input type="radio" name="tabset" id="tab3" aria-controls="dunkles">
+    <label for="tab3">Timesheet Hours</label>
+
+    <div class="tab-panels">
+        <section id="marzen" class="tab-panel">
+            <div id="usersGrid"></div>
+        </section>
+        <section id="rauchbier" class="tab-panel">
+            <div id="userWeeksGrid"></div>
+        </section>
+        <section id="dunkles" class="tab-panel">
+            <div id="hoursGrid"></div>
+        </section>
+    </div>
+
+</div>
+
+@{
+    DbNetGridCore hoursGrid = new DbNetGridCore("dbnettime", "dbnettime_hours", "hoursGrid")
+            {
+                View = true,
+                Update = true,
+                Columns = new List<string>() { "id", "user_id", "project_id", "task_id", "hours_date", "start_time", "end_time", "decimal_time", "hours_note" }
+            };
+
+    hoursGrid.SetColumnLookup("user_id", new Lookup("dbnettime_user", "id", "sname + ', ' + fname"));
+    hoursGrid.SetColumnLookup("project_id", new Lookup("dbnettime_project", "id", "name"));
+    hoursGrid.SetColumnLookup("task_id", new Lookup("dbnettime_task", "id", "name"));
+    hoursGrid.SetColumnFormat("start_time", "hh:mm");
+    hoursGrid.SetColumnFormat("end_time", "hh:mm");
+    hoursGrid.SetColumnFormat("total_time", "hh:mm");
+    hoursGrid.SetColumnFormat("decimal_time", "#0.0");
+    hoursGrid.SetColumnFilter("*");
+
+    hoursGrid.SetColumnHidden(new string[] { "id" });
+    hoursGrid.SetColumnLabel("user_id", "User");
+    hoursGrid.SetColumnLabel("task_id","Task");
+    hoursGrid.SetColumnLabel("project_id", "Project");
+    hoursGrid.SetColumnLabel("decimal_time", "Hours");
+    hoursGrid.SetColumnLabel("hours_note", "Note");
+    hoursGrid.SetColumnLabel("hours_date", "Date");
+
+    hoursGrid.EditControl.SetColumnLookup("task_id", new Lookup("select id, name from dbnettime_task where project_id = @project_id"));
+    hoursGrid.EditControl.SetControlType(new string[] { "start_time", "end_time" }, EditControlType.Time);
+
+    DbNetGridCore userWeeksGrid = new DbNetGridCore("dbnettime", "dbnettime_userweek", "userWeeksGrid")
+            {
+                View = true,
+                Update = true,
+                InitialOrderBy = "week_ending desc"
+            };
+
+    userWeeksGrid.SetColumnAsForeignKey("user_id");
+
+    DbNetGridCore usersGrid = new DbNetGridCore("dbnettime", "dbnettime_user", "usersGrid")
+    {
+        View = true,
+        Update = true
+    };
+
+    usersGrid.AddLinkedControl(userWeeksGrid);
+
+    @usersGrid.Render()
+    @hoursGrid.Render()
+
+}
+<script>
+    function configureFormElement(sender, args) {
+        if (args.columnName == "notes") {
+            args.formElement.rows = 4;
+            args.formElement.cols = 50;
+        }
+    }
+
+    function configureImageFileName(sender, args) {
+        var fileName = sender.columnValue("photopath", args.row);
+        args.fileName = fileName.split('/').pop().replace(".bmp", ".jpg");
+    }
+
+    function assignFileName(sender, args) {
+        sender.setColumnValue("photopath",args.fileMetaData.fileName);
+    }
+</script>

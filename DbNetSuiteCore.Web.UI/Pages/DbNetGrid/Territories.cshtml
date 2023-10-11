@@ -1,0 +1,12 @@
+﻿@page
+@using DbNetSuiteCore.Enums.DbNetGrid;
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Web.UI.Enums;
+
+@{
+    DbNetGridCore territoriesGrid = new DbNetGridCore("northwind", "territories");
+    territoriesGrid.Update = true;
+    territoriesGrid.SetColumnLookup("RegionId", typeof(RegionEnum));
+    territoriesGrid.SetColumnLabel("RegionId", "Region");
+    @territoriesGrid.Render()
+}

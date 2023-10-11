@@ -104,7 +104,8 @@
                     }
                     break;
                 case EditControlType.DropDownList:
-                    return new HtmlString($"<select {string.Join(" ", Attributes(editColumn, dataColumn))} >{LookupOptions(Model.LookupTables[editColumn.ColumnName])}</select>");
+                    string options = editColumn.IsDependentLookup ? string.Empty : LookupOptions(Model.LookupTables[editColumn.ColumnName]);
+                    return new HtmlString($"<select {string.Join(" ", Attributes(editColumn, dataColumn))} >{options}</select>");
             }
         }
 
@@ -118,7 +119,7 @@
 
         string button = string.Empty;
 
-        if (editColumn.DataType.Equals(nameof(DateTime)))
+        if (editColumn.DataType.Equals(nameof(DateTime)) && editColumn.EditControlType == EditControlType.Auto)
         {
             button = AddButton("calendar", "SelectDate");
         }
@@ -176,7 +177,18 @@
                 inputType = "text";
                 break;
             case EditControlType.CheckBox:
-                inputType = "checkbox";
+            case EditControlType.Color:
+            case EditControlType.Date:
+            case EditControlType.Email:
+            case EditControlType.Hidden:
+            case EditControlType.Month:
+            case EditControlType.Number:
+            case EditControlType.Range:
+            case EditControlType.Tel:
+            case EditControlType.Time:
+            case EditControlType.Url:
+            case EditControlType.Week:
+                inputType = editColumn.EditControlType.ToString().ToLower();
                 break;
         }
 
@@ -206,6 +218,16 @@
         if (string.IsNullOrEmpty(editColumn.Pattern) == false)
         {
             attributes.Add($"pattern=\"{editColumn.Pattern}\"");
+        }
+
+        if (editColumn.DependentLookup != null)
+        {
+            attributes.Add($"dependentLookup=\"{editColumn.DependentLookup.ColumnName}\"");
+        }
+
+        if (editColumn.IsDependentLookup)
+        {
+            attributes.Add($"isDependentLookup=\"true\"");
         }
 
         if (string.IsNullOrEmpty(editColumn.Style) == false)

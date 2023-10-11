@@ -40,7 +40,7 @@
 
                         <td class="view-dialog-label">@(gridColumn.Label)</td>
                         <td data-type="@gridColumn.DataType" style="@gridColumn.Style" data-value="@(dataRow.ItemArray[gridColumn.Index])">
-                            <div class="view-dialog-value" data-columnname="@dataColumn.ColumnName.ToLower()" data-dbdatatype="@gridColumn.DbDataType">
+                            <div class="view-dialog-value" data-columnname="@dataColumn.ColumnName.ToLower()" data-type="@gridColumn.DataType" data-dbdatatype="@gridColumn.DbDataType">
                                 @if (gridColumn.DataType == "Byte[]")
                                 {
                                     @BlobControl(dataRow.ItemArray[gridColumn.Index], gridColumn, dataRow)
@@ -133,8 +133,9 @@
             return new HtmlString(Convert.ToDateTime(dataValue).ToString(column.Format));
         }
 
-        if (column.DataType == nameof(Boolean))
+         if (column.DataType == nameof(Boolean))
         {
+            return new HtmlString($"<input class=\"boolean-value\" type=\"checkbox\" {BooleanHelper.Checked(dataValue.ToString())} onclick=\"return false;\"></input>");
             switch (Model.BooleanDisplayMode)
             {
                 case BooleanDisplayMode.Checkbox:

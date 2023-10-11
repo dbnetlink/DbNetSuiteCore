@@ -41,11 +41,21 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public DbNetGridCore BrowseControl { get; set; }
         /// <summary>
-        /// Sets the type of edit control for the column
+        /// Sets the type of edit control type for the column
         /// </summary>
-        public void SetControlType(string columnName, object propertyValue)
+        public void SetControlType(string columnName, EditControlType editControlType)
         {
-            SetColumnProperty(columnName, ColumnPropertyType.EditControlType, (object)propertyValue);
+            SetColumnProperty(columnName, ColumnPropertyType.EditControlType, editControlType);
+        }
+        /// <summary>
+        /// Sets the type of edit control type for the columns
+        /// </summary>
+        public void SetControlType(string[] columnNames, EditControlType editControlType)
+        {
+            foreach (string columnName in columnNames)
+            {
+                SetControlType(columnName, editControlType);
+            }
         }
         /// <summary>
         /// Sets the size of the edit field

@@ -1,9 +1,12 @@
-﻿using DbNetSuiteCore.Enums;
+﻿using DbNetSuiteCore.Attributes;
+using DbNetSuiteCore.Enums;
 using DbNetSuiteCore.Helpers;
 using DbNetSuiteCore.Models;
-using DocumentFormat.OpenXml.Wordprocessing;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
 using System.Linq;
 
 namespace DbNetSuiteCore.Components
@@ -42,7 +45,11 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Maximum height in pixels for preview image in grid or edit panel
         /// </summary>
-        public int? MaxImageHeight { get; set; } = null;
+        public int? MaxImageHeight { get; set; } = null;        
+        /// <summary>
+        /// Sets initial ordering of the records e.g. last_updated desc 
+        /// </summary>
+        public string InitialOrderBy { get; set; } = null;
         /// <summary>
         /// Optimizes the performance for large datasets
         /// </summary>
@@ -79,6 +86,39 @@ namespace DbNetSuiteCore.Components
         public void SetColumnLookup(string columnName, Lookup lookup)
         {
             SetColumnProperty(columnName, ColumnPropertyType.Lookup, lookup);
+
+            if (string.IsNullOrEmpty(lookup.Parameter) == false)
+            {
+                SetColumnProperty(columnName, InternalColumnPropertyType.LookupParameter, lookup.Parameter);
+            }
+        }
+
+        /// <summary>
+        /// Assigns an enum based lookup against a column to provide a descriptive value
+        /// </summary>
+        public void SetColumnLookup(string columnName, Type lookup, bool useNameAsValue = false)
+        {
+            if (lookup.IsEnum)
+            {
+                DataTable dt = EnumToDataTable(lookup, useNameAsValue);
+                SetColumnProperty(columnName, ColumnPropertyType.Lookup, JsonConvert.SerializeObject(dt));
+            }
+        }
+
+        private DataTable EnumToDataTable(Type enumType, bool useNameAsValue)
+        {
+            DataTable dataTable = new DataTable();
+
+            dataTable.Columns.Add("value", useNameAsValue ? typeof(string) : typeof(int));
+            dataTable.Columns.Add("text", typeof(string));
+
+            foreach (Enum value in Enum.GetValues(enumType))
+            {
+                string description = value.GetAttribute<DescriptionAttribute>()?.Description ?? Enum.GetName(enumType, value);
+                dataTable.Rows.Add(useNameAsValue ? Enum.GetName(enumType, value) : Convert.ChangeType(value, value.GetTypeCode()), description);
+            }
+
+            return dataTable;
         }
 
         /// <summary>
@@ -323,6 +363,7 @@ namespace DbNetSuiteCore.Components
             AddProperty(ParentChildRelationship, nameof(ParentChildRelationship), properties);
             AddProperty(MaxImageHeight, nameof(MaxImageHeight), properties);
             AddProperty(EncodingHelper.Encode(FixedFilterSql), nameof(FixedFilterSql), properties);
+            AddProperty(EncodingHelper.Encode(InitialOrderBy), nameof(InitialOrderBy), properties);
             if (FixedFilterParams.Count > 0)
             {
                 properties.Add($"fixedFilterParams = {Serialize(FixedFilterParams)};");

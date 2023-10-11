@@ -151,7 +151,7 @@
 
     private selectTime(event: JQuery.TriggeredEvent): void {
         const $button = $(event.target as HTMLInputElement);
-        $button.parent().find("input").timepicker('open');
+        ($button.parent().find("input") as any).timepicker('open');
         event.stopPropagation();
     }
 

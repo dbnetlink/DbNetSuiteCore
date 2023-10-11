@@ -2,6 +2,7 @@
 @using DbNetSuiteCore.Components;
 @using DbNetSuiteCore.Enums.DbNetEdit;
 @using DbNetSuiteCore.Enums;
+@using DbNetSuiteCore.Web.UI.Enums;
 @{
     DbNetEditCore employeesEdit = new DbNetEditCore("northwind", "employees");
     employeesEdit.SetColumnLookup("ReportsTo", new Lookup("employees", "employeeid", "lastname + ', ' + firstname"));
@@ -18,6 +19,8 @@
     employeesEdit.ToolbarPosition = ToolbarPosition.Bottom;
     employeesEdit.Insert = true;
     employeesEdit.Delete = true;
+    employeesEdit.SetColumnLookup("country", typeof(CountryEnum), true);
+
     @employeesEdit.Render()
 }
 

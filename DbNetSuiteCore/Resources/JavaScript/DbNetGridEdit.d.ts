@@ -15,6 +15,7 @@ declare class DbNetGridEdit extends DbNetSuite {
     maxImageHeight: number;
     navigation: boolean;
     primaryKey: string | undefined;
+    initialOrderBy: string;
     optimizeForLargeDataset: boolean;
     quickSearch: boolean;
     quickSearchDelay: number;

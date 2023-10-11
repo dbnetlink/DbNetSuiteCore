@@ -10,6 +10,7 @@ namespace DbNetSuiteCore.Models.DbNetEdit
         public List<EditColumn> Columns { get; set; } = new List<EditColumn>();
         public long CurrentRow { get; set; } = 1;
         public int LayoutColumns { get; set; } = 1;
+        public object LookupParameterValue { get; set; }
         public long TotalRows { get; set; }
         public bool IsEditDialog { get; set; } = false;
         public ToolbarPosition ToolbarPosition { get; set; } = ToolbarPosition.Bottom;

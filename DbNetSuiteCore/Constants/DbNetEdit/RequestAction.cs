@@ -14,6 +14,7 @@
         public const string UploadDialog = "upload-dialog";
         public const string SaveFiles = "save-files";
         public const string ConvertDate = "convert-date";
+        public const string GetOptions = "get-options";
     }
 }
 

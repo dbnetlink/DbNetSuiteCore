@@ -12,6 +12,7 @@
     searchFilterJoin: string;
     searchParams: Array<SearchParam>;
     navigation: boolean;
+    initialOrderBy: string | undefined;
     optimizeForLargeDataset: boolean;
     parentChildRelationship: ParentChildRelationship;
     quickSearch: boolean;

@@ -33,6 +33,8 @@ declare class DbNetEdit extends DbNetGridEdit {
     private configureForm;
     private imageLoaded;
     private updateForm;
+    private updateOptions;
+    private refreshOptions;
     private callServer;
     getRequest(): DbNetEditRequest;
     private configureToolbar;

@@ -2,6 +2,7 @@
 @using DbNetSuiteCore.Components;
 @using DbNetSuiteCore.Enums.DbNetEdit;
 @using DbNetGridEnums = DbNetSuiteCore.Enums.DbNetGrid;
+@using DbNetSuiteCore.Web.UI.Enums;
 
 @{
     DbNetGridCore employeesGrid = new DbNetGridCore("northwind", "employees")
@@ -13,6 +14,7 @@
     employeesGrid.SetColumnDataOnly(new String[] { "photo", "notes", "photopath" });
     employeesGrid.SetColumnView(new String[] { "firstname", "lastname", "photo", "notes", "photopath" });
     employeesGrid.Bind(EventType.OnConfigureBinaryData, "configureImageFileName");
+    employeesGrid.SetColumnLookup("country", typeof(CountryEnum), true);
 
     @employeesGrid.Render()
 }

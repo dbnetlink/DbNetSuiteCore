@@ -10,11 +10,11 @@
     <Description>Interactive database driven Razor web reporting component for ASP.NET Core.  Supports MSSQL, MySql, PostgreSQL and SQLite</Description>
     <RepositoryUrl>https://github.com/dbnetlink/DbNetSuiteCore</RepositoryUrl>
     <PackageTags>asp.net core, grid, spreadsheet</PackageTags>
-    <AssemblyVersion>0.9.469</AssemblyVersion>
-    <FileVersion>0.9.469</FileVersion>
+    <AssemblyVersion>0.9.471</AssemblyVersion>
+    <FileVersion>0.9.471</FileVersion>
     <PackageReleaseNotes>Beta version. Currently still under active development.</PackageReleaseNotes>
     <PackageProjectUrl>https://dbnetsuitecoreapp.azurewebsites.net</PackageProjectUrl>
-    <Version>0.9.470-beta</Version>
+    <Version>0.9.471-beta</Version>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageLicenseExpression> NPOSL-3.0</PackageLicenseExpression>
     <BaseOutputPath>C:\Users\robin\source\repos\DbNetSuiteCore-VS2022\DbNetSuiteCoreApp\bin</BaseOutputPath>
@@ -118,6 +118,7 @@
     <None Remove="Views\DbNetCombo\Options.cshtml" />
     <None Remove="Views\DbNetEdit\Form.cshtml" />
     <None Remove="Views\DbNetEdit\HtmlEditor.cshtml" />
+    <None Remove="Views\DbNetEdit\Options.cshtml" />
     <None Remove="Views\DbNetEdit\Toolbar.cshtml" />
     <None Remove="Views\DbNetEdit\UploadDialog.cshtml" />
     <None Remove="Views\DbNetGrid\DataTable.cshtml" />
@@ -218,6 +219,10 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\DbNetEdit\Form.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\DbNetEdit\Options.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </EmbeddedResource>

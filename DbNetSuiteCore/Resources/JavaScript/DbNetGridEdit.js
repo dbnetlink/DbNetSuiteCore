@@ -11,6 +11,7 @@ class DbNetGridEdit extends DbNetSuite {
         this.maxImageHeight = 40;
         this.navigation = true;
         this.primaryKey = undefined;
+        this.initialOrderBy = "";
         this.optimizeForLargeDataset = false;
         this.quickSearch = false;
         this.quickSearchDelay = 1000;
@@ -174,6 +175,7 @@ class DbNetGridEdit extends DbNetSuite {
             fixedFilterSql: this.fixedFilterSql,
             insert: this.insert,
             delete: this._delete,
+            initialOrderBy: this.initialOrderBy,
             parentControlType: this.parentControlType,
             parentChildRelationship: this.parentChildRelationship,
             maxImageHeight: this.maxImageHeight

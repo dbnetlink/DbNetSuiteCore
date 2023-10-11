@@ -220,7 +220,7 @@ class DbNetSuite {
     protected setInputElement(name: string, value: number) {
         const el = this.controlElement(name);
         el.val(value.toString());
-        el.width(`${value.toString().length}em`);
+        el.width(`${(value.toString().length*8)+8}px`);
     }
 
     protected configureLinkedControls(id: object | null, pk:string | null = null, fk:string | null = null) {

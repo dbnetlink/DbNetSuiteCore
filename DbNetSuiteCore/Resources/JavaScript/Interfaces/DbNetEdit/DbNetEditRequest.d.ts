@@ -8,4 +8,5 @@ interface DbNetEditRequest extends DbNetGridEditRequest {
     toolbarPosition: ToolbarPosition;
     formCacheKey: string;
     javascriptDate: Date;
+    lookupParameterValue: string;
 }

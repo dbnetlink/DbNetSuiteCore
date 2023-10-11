@@ -443,6 +443,21 @@ table.lookup-dialog-toolbar,
         border: 1px solid #90A4AE;
         padding: 2px;
         width: fit-content;
+
+        &[data-type=Boolean] {
+            border: 0px;
+            background-color: inherit;
+            padding: 0px;
+        }
+
+        input[type='checkbox'].boolean-value {
+            vertical-align: middle;
+            margin-bottom: 1px;
+            height: 16px;
+            width: 16px;
+            accent-color: SteelBlue;
+            margin: 0px;
+        }
     }
 }
 

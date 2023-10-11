@@ -166,7 +166,7 @@ class DbNetSuite {
     setInputElement(name, value) {
         const el = this.controlElement(name);
         el.val(value.toString());
-        el.width(`${value.toString().length}em`);
+        el.width(`${(value.toString().length * 8) + 8}px`);
     }
     configureLinkedControls(id, pk = null, fk = null) {
         this.linkedControls.forEach((control) => {

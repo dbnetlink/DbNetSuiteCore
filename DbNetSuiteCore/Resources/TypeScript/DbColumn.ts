@@ -11,6 +11,7 @@
     index?: number;
     label?: string;
     lookup?: string;
+    lookupParameter?: string;
     primaryKey?: boolean;
     columnSize?: number;
     search?: boolean;

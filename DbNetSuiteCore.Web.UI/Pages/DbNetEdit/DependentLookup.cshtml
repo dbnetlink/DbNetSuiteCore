@@ -1,0 +1,15 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums.DbNetEdit;
+@using DbNetSuiteCore.Enums;
+@{
+    DbNetEditCore customersEdit = new DbNetEditCore("northwind", "customers");
+    customersEdit.Columns = new List<string>() { "CustomerId", "CompanyName", "Region", "Country", "City" };
+    customersEdit.SetColumnLookup("region");
+    customersEdit.SetColumnLookup("country", new Lookup("select distinct country from customers where region = @region"));
+    customersEdit.SetColumnLookup("city", new Lookup("select distinct city from customers where country = @country"));
+
+    customersEdit.SetColumnHidden("CustomerId");
+
+    @customersEdit.Render()
+}

@@ -85,6 +85,9 @@ namespace DbNetSuiteCore.Services
                     case RequestAction.ConvertDate:
                         ConvertDate(response);
                         break;
+                    case RequestAction.GetOptions:
+                        await GetOptions(response);
+                        break;
                 }
             }
 
