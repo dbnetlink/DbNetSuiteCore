@@ -5,19 +5,17 @@
 @{
     DbNetEditCore customersEdit = new DbNetEditCore("northwind", "customers");
     customersEdit.Columns = new List<string>() { "CustomerId", "CompanyName", "ContactName", "ContactTitle", "Address", "City", "Region", "PostalCode", "Country", "Phone", "Fax" };
-    customersEdit.SetColumnLookup("country");
-    customersEdit.SetColumnLookup("region");
-    customersEdit.SetControlType("region", EditControlType.SuggestLookup);
-    customersEdit.SetControlType("country", EditControlType.TextBoxLookup);
-    customersEdit.SetColumnSize("address", 40);
+    customersEdit.Column("country").Lookup().ControlType(EditControlType.TextBoxLookup);
+    customersEdit.Column("region").Lookup().ControlType(EditControlType.SuggestLookup); ;
+    customersEdit.Column("address").Size(40);
     customersEdit.QuickSearch = true;
     customersEdit.LayoutColumns = 3;
     customersEdit.Insert = true;
     customersEdit.Delete = true;
     customersEdit.ToolbarPosition = ToolbarPosition.Top;
     customersEdit.ToolbarButtonStyle = ToolbarButtonStyle.Text;
-    customersEdit.SetColumnBrowse(new string[] { "companyname", "city", "country", "region" });
-    customersEdit.SetColumnHidden("CustomerId");
+    customersEdit.Column(new string[] { "companyname", "city", "country", "region" }).Browse();
+    customersEdit.Column("CustomerId").Hidden();
 
     @customersEdit.Render()
 }

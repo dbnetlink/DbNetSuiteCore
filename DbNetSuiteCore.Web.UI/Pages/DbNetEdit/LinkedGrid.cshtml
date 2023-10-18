@@ -13,11 +13,11 @@
         Update = true
     };
 
-    ordersGrid.SetColumnAsForeignKey("CustomerID");
-    ordersGrid.SetColumnLookup("EmployeeID", new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname"));
-    ordersGrid.SetColumnLookup("ShipVia", new Lookup("Shippers", "ShipperId", "CompanyName"));
-    ordersGrid.SetColumnFormat("Freight", "c");
-    ordersGrid.SetColumnLabel("EmployeeID", "Employee");
+    ordersGrid.Column("CustomerID").ForeignKey();
+    ordersGrid.Column("EmployeeID").Lookup(new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname"));
+    ordersGrid.Column("ShipVia").Lookup(new Lookup("Shippers", "ShipperId", "CompanyName"));
+    ordersGrid.Column("Freight").Format("c");
+    ordersGrid.Column("EmployeeID").Label("Employee");
 
     DbNetEditCore customersEdit = new DbNetEditCore("northwind", "customers")
     {
@@ -27,7 +27,7 @@
         Delete = true
     };
 
-    customersEdit.SetColumnHidden("CustomerID");
+    customersEdit.Column("CustomerID").Hidden();
     customersEdit.AddLinkedControl(ordersGrid);
 
     @customersEdit.Render()

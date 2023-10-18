@@ -5,12 +5,13 @@ table.dbnetedit-form {
         font-family: var(--main-font-family);
         font-size: var(--main-font-size);
         font-weight: 600;
+        padding-top: 4px;
     }
 
     td {
         display: table-cell;
-        vertical-align: middle;
-        white-space:nowrap;
+        vertical-align: top;
+        white-space: nowrap;
     }
 
     input, textarea, select, img {
@@ -47,6 +48,13 @@ table.dbnetedit-form {
         cursor: pointer;
     }
 
+    input.range-output,
+    input.color-output {
+        vertical-align: top;
+        margin-left: 5px;
+        text-align: center;
+    }
+
     input, select {
         height: 24px;
     }
@@ -55,6 +63,10 @@ table.dbnetedit-form {
         transform: scale(1.5);
         vertical-align: middle;
         margin-left: 3px;
+    }
+
+    input[type='number'] {
+        width: 6em;
     }
 
     input[numeric='true'] {
@@ -76,6 +88,14 @@ table.dbnetedit-form {
     .flex-container {
         display: flex;
         flex-wrap: nowrap;
+    }
+
+    .annotation {
+        font-family: var(--main-font-family);
+        display: block;
+        color: #616161;
+        padding: 2px 0px;
+        font-size: 70%;
     }
 }
 

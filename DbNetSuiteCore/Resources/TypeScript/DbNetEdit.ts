@@ -1,5 +1,6 @@
 type DbNetEditResponseCallback = (response: DbNetEditResponse) => void;
 type EditMode = "update" | "insert"
+type ValidationMessageType = "Native" | "Application"
 
 class DbNetEdit extends DbNetGridEdit {
     browseControl: DbNetGrid | undefined;
@@ -19,6 +20,7 @@ class DbNetEdit extends DbNetGridEdit {
     totalRows = 0;
     isEditDialog = false;
     uploadDialog: UploadDialog | undefined;
+    validationMessageType: ValidationMessageType = "Application";
 
     constructor(id: string) {
         super(id);
@@ -143,7 +145,6 @@ class DbNetEdit extends DbNetGridEdit {
         }
 
         this.formPanel?.find("[button-type='calendar']").on("click", (event) => this.selectDate(event));
-        this.formPanel?.find("[button-type='clock']").on("click", (event) => this.selectTime(event));
         this.formPanel?.find("[button-type='lookup']").on("click", (event) => this.editLookup(event));
         this.formPanel?.find("[button-type='delete']").on("click", (event) => this.deleteFile(event));
         this.formPanel?.find("[button-type='upload']").on("click", (event) => this.uploadFile(event));
@@ -211,6 +212,10 @@ class DbNetEdit extends DbNetGridEdit {
             }
         }
 
+        const outputTypes = ['range', 'color'];
+        for (let i = 0; i < outputTypes.length; i++) {
+            this.formElements().filter(`:input[type='${outputTypes[i]}']`).trigger("change");
+        }
         const $firstElement = this.formElements().filter(':not(:disabled):first') as JQuery<HTMLFormElement>;
         $firstElement.trigger("focus");
 
@@ -373,7 +378,10 @@ class DbNetEdit extends DbNetGridEdit {
                 pattern: col.pattern,
                 browse: col.browse,
                 search: col.search,
-                autoIncrement: col.autoIncrement
+                autoIncrement: col.autoIncrement,
+                annotation: col.annotation,
+                placeholder: col.placeholder,
+                inputValidation: col.inputValidation
             } as unknown as EditColumnResponse;
             this.columns.push(new EditColumn(properties));
         });
@@ -587,20 +595,29 @@ class DbNetEdit extends DbNetGridEdit {
             return;
         }
 
-        $formElements.filter('[pattern]').each(
+        $formElements.each(
             function () {
-                const $input = $(this) as JQuery<HTMLFormElement>;
+                const input = this as HTMLFormElement;
+                const $input = $(input);
                 const name = $input.attr("name") as string;
-                if (!(this as HTMLFormElement).reportValidity()) {
-                    validationMessage = { key: name, value: `Entry does not match the input pattern (${$input.attr("pattern")})` } as ValidationMessage;
+                if (!input.checkValidity()) {
+                    validationMessage = { key: name, value: input.validationMessage } as ValidationMessage;
                     return false;
                 }
             }
         );
 
         if (validationMessage != null) {
-            this.message((validationMessage as ValidationMessage).value);
-            this.highlightField((validationMessage as ValidationMessage).key.toLowerCase())
+            this.fireEvent("onFormElementValidationFailed", validationMessage);
+            const columnName = (validationMessage as ValidationMessage).key.toLowerCase();
+            if (this.validationMessageType == "Native") {
+                (this.formElement(columnName).get(0) as HTMLInputElement).reportValidity();
+            }
+            else {
+                this.message((validationMessage as ValidationMessage).value);
+                this.highlightField(columnName)
+            }
+
             return;
         }
 
@@ -724,8 +741,12 @@ class DbNetEdit extends DbNetGridEdit {
         this.editPanel?.find(".message").html("&nbsp;").removeClass("highlight");
     }
 
+    private formElement(columnName: string): JQuery<HTMLElement> {
+        return this.formElements().filter(`[name='${columnName}']`);
+    }
+
     private highlightField(columnName: string): void {
-        this.formElements().filter(`[name='${columnName}']`).addClass("highlight");
+        this.formElement(columnName).addClass("highlight");
         setTimeout(() => this.clearHighlightedFields(), 3000);
     }
 
@@ -766,12 +787,6 @@ class DbNetEdit extends DbNetGridEdit {
     protected deleteFile(event: JQuery.TriggeredEvent) {
         const $img = ($(event.currentTarget) as JQuery<HTMLButtonElement>).closest("td").find("img");
         this.saveFile($img, null);
-    }
-
-    private selectTime(event: JQuery.TriggeredEvent): void {
-        const $button = $(event.target as HTMLInputElement);
-        $button.parent().find("input").timepicker('open');
-        event.stopPropagation();
     }
 
     private uuid() {

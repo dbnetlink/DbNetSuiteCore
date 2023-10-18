@@ -150,34 +150,29 @@
                 Columns = new List<string>() { "id", "user_id", "project_id", "task_id", "hours_date", "start_time", "end_time", "decimal_time", "hours_note" }
             };
 
-    hoursGrid.SetColumnLookup("user_id", new Lookup("dbnettime_user", "id", "sname + ', ' + fname"));
-    hoursGrid.SetColumnLookup("project_id", new Lookup("dbnettime_project", "id", "name"));
-    hoursGrid.SetColumnLookup("task_id", new Lookup("dbnettime_task", "id", "name"));
-    hoursGrid.SetColumnFormat("start_time", "hh:mm");
-    hoursGrid.SetColumnFormat("end_time", "hh:mm");
-    hoursGrid.SetColumnFormat("total_time", "hh:mm");
-    hoursGrid.SetColumnFormat("decimal_time", "#0.0");
-    hoursGrid.SetColumnFilter("*");
+    hoursGrid.Column("user_id").Lookup(new Lookup("dbnettime_user", "id", "sname + ', ' + fname")).Label("User");
+    hoursGrid.Column("project_id").Lookup(new Lookup("dbnettime_project", "id", "name")).Label("Project");
+    hoursGrid.Column("task_id").Lookup(new Lookup("dbnettime_task", "id", "name")).Label("Task");
+    hoursGrid.Column("start_time").Format("hh:mm");
+    hoursGrid.Column("end_time").Format("hh:mm");
+    hoursGrid.Column("total_time").Format("hh:mm");
+    hoursGrid.Column("decimal_time").Format("#0.0").Label("Hours");
+    hoursGrid.Column("*").Filter();
+    hoursGrid.Column("id").Hidden();
+    hoursGrid.Column("hours_note").Label("Note");
+    hoursGrid.Column("hours_date").Label("Date");
 
-    hoursGrid.SetColumnHidden(new string[] { "id" });
-    hoursGrid.SetColumnLabel("user_id", "User");
-    hoursGrid.SetColumnLabel("task_id","Task");
-    hoursGrid.SetColumnLabel("project_id", "Project");
-    hoursGrid.SetColumnLabel("decimal_time", "Hours");
-    hoursGrid.SetColumnLabel("hours_note", "Note");
-    hoursGrid.SetColumnLabel("hours_date", "Date");
-
-    hoursGrid.EditControl.SetColumnLookup("task_id", new Lookup("select id, name from dbnettime_task where project_id = @project_id"));
-    hoursGrid.EditControl.SetControlType(new string[] { "start_time", "end_time" }, EditControlType.Time);
+    hoursGrid.EditControl.Column("task_id").Lookup(new Lookup("select id, name from dbnettime_task where project_id = @project_id"));
+    hoursGrid.EditControl.Column(new string[] { "start_time", "end_time" }).ControlType(EditControlType.Time);
 
     DbNetGridCore userWeeksGrid = new DbNetGridCore("dbnettime", "dbnettime_userweek", "userWeeksGrid")
-            {
-                View = true,
-                Update = true,
-                InitialOrderBy = "week_ending desc"
-            };
+    {
+        View = true,
+        Update = true,
+        InitialOrderBy = "week_ending desc"
+    };
 
-    userWeeksGrid.SetColumnAsForeignKey("user_id");
+    userWeeksGrid.Column("user_id").ForeignKey();
 
     DbNetGridCore usersGrid = new DbNetGridCore("dbnettime", "dbnettime_user", "usersGrid")
     {

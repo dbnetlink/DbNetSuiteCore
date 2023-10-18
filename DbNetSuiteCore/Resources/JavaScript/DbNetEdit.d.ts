@@ -4,6 +4,7 @@
 /// <reference types="bootstrap" />
 type DbNetEditResponseCallback = (response: DbNetEditResponse) => void;
 type EditMode = "update" | "insert";
+type ValidationMessageType = "Native" | "Application";
 declare class DbNetEdit extends DbNetGridEdit {
     browseControl: DbNetGrid | undefined;
     browseDialog: BrowseDialog | undefined;
@@ -22,6 +23,7 @@ declare class DbNetEdit extends DbNetGridEdit {
     totalRows: number;
     isEditDialog: boolean;
     uploadDialog: UploadDialog | undefined;
+    validationMessageType: ValidationMessageType;
     constructor(id: string);
     initialize(primaryKey?: string | null): void;
     getRows(callback?: DbNetEditResponseCallback): void;
@@ -61,13 +63,13 @@ declare class DbNetEdit extends DbNetGridEdit {
     private browseDialogRowSelected;
     private message;
     private clearMessage;
+    private formElement;
     private highlightField;
     private clearHighlightedFields;
     private selectDate;
     private editLookup;
     protected uploadFile(event: JQuery.TriggeredEvent): void;
     protected deleteFile(event: JQuery.TriggeredEvent): void;
-    private selectTime;
     private uuid;
     private configureBinaryData;
     private getFileName;

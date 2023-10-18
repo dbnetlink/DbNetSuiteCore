@@ -76,6 +76,9 @@ table.dbnetgrid-table th[orderby=desc] {
 table.dbnetgrid-table tr.odd {
   background-color: #F5F5F5;
 }
+table.dbnetgrid-table tr.even {
+  background-color: #FFF;
+}
 table.dbnetgrid-table tr.group-header-row {
   background-color: LightBlue;
   color: SlateGray;
@@ -144,7 +147,8 @@ table.dbnetgrid-table button.nested-grid-button.open {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='16' width='16' viewBox='0 -960 960 960' fill='SteelBlue'><path d='M168-428v-106h624v106H168Z'/></svg>");
 }
 table.dbnetgrid-table td.nested-grid-cell {
-  padding: 10px;
+  padding: 5px;
+  background-color: #ECEFF1;
 }
 table.dbnetgrid-table td {
   background-position: center center;

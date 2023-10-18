@@ -45,7 +45,7 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Maximum height in pixels for preview image in grid or edit panel
         /// </summary>
-        public int? MaxImageHeight { get; set; } = null;        
+        public int? MaxImageHeight { get; set; } = null;
         /// <summary>
         /// Sets initial ordering of the records e.g. last_updated desc 
         /// </summary>
@@ -79,7 +79,6 @@ namespace DbNetSuiteCore.Components
         {
             _fromPart = fromPart;
         }
-
         /// <summary>
         /// Assigns a foreign key based lookup against a column to provide a descriptive value
         /// </summary>
@@ -163,6 +162,24 @@ namespace DbNetSuiteCore.Components
         }
 
         /// <summary>
+        /// Specifies the column to be shown in the Search dialog
+        /// </summary>
+        public void SetColumnSearch(string columnName)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.Search, true);
+        }
+        /// <summary>
+        /// Specifies the columns to be shown in the Search dialog
+        /// </summary>
+        public void SetColumnSearch(string[] columnNames)
+        {
+            foreach (var columnName in columnNames)
+            {
+                SetColumnSearch(columnName);
+            }
+        }
+
+        /// <summary>
         /// Sets a CSS style for the specified column e.g. "background-color:gold; color:steelblue"
         /// </summary>
         public void SetColumnStyle(string columnName, string style)
@@ -205,7 +222,7 @@ namespace DbNetSuiteCore.Components
         {
             SetColumnProperty(columnName, ColumnPropertyType.ForeignKey, true);
         }
-        
+
         /// <summary>
         /// Sets the display format for the date/numeric column
         /// </summary>
@@ -339,9 +356,14 @@ namespace DbNetSuiteCore.Components
                 {
                     return value.ToString()!.ToLower();
                 }
-                if (propertyType.ToString() == ColumnPropertyType.Lookup.ToString())
+
+                switch (propertyType)
                 {
-                    value = EncodingHelper.Encode(value.ToString());
+                    case ColumnPropertyType.Lookup:
+                        value = EncodingHelper.Encode(value.ToString());
+                        break;
+                    case ColumnPropertyType.InputValidation:
+                        return Serialize(value);
                 }
 
                 return $"\"{value}\"";

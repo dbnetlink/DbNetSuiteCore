@@ -35,7 +35,7 @@
         </td>
 
         @if (Model.Views.Count > 0)
-        {        
+        {
             <td>&nbsp;</td>
             <td>
                 <b>Views</b>
@@ -60,20 +60,8 @@
                 QuickSearch = true,
                 View = true
             };
-    grid.SetColumnFilter("*");
-    grid.SetColumnView("*");
-    grid.SetColumnStyle("*", "{white-space:nowrap}");
+    grid.Column("*").Filter().View().Style("{white-space:nowrap}");
     @grid.Render()
-            /*
-
-        DbNetEditCore edit = new DbNetEditCore(Model.Db, string.IsNullOrEmpty(Model.View) ? Model.Table : Model.View)
-        {
-        OptimizeForLargeDataset = true,
-        QuickSearch = true,
-    LayoutColumns = 3
-            };
-    @edit.Render()
-        */
 
 
 }
@@ -81,31 +69,31 @@
         integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
         crossorigin="anonymous"></script>
 <script type="text/javascript">
-var db = "@Model.Db"
-var table = "@Model.Table"
-var view = "@Model.View"
-var views = "@Model.Views.Count"
+    var db = "@Model.Db"
+    var table = "@Model.Table"
+    var view = "@Model.View"
+    var views = "@Model.Views.Count"
 
-$(document).ready(init);
+    $(document).ready(init);
 
-function init() {
-    $('#connection-select').val(db).change(function(event) { reloadPage(true) });
+    function init() {
+        $('#connection-select').val(db).change(function (event) { reloadPage(true) });
         $('#table-select').val(table).change(function () {
-        $('#view-select').prop("selectedIndex", 0);    
-        reloadPage(false);
-    });
+            $('#view-select').prop("selectedIndex", 0);
+            reloadPage(false);
+        });
         $('#view-select').val(view).change(function () {
-        $('#table-select').prop("selectedIndex", 0);
-        reloadPage(false);
-    });
-}
+            $('#table-select').prop("selectedIndex", 0);
+            reloadPage(false);
+        });
+    }
 
 
-function reloadPage(dbChange) {
-    var db = $('#connection-select').val();
-    var table = dbChange ? '' : $('#table-select').val();
-    var view = dbChange || views == 0 ? '' : $('#view-select').val();
+    function reloadPage(dbChange) {
+        var db = $('#connection-select').val();
+        var table = dbChange ? '' : $('#table-select').val();
+        var view = dbChange || views == 0 ? '' : $('#view-select').val();
 
-    window.location.href = window.location.href.replace(/[\?#].*|$/, "?db=" + db + "&table=" + table + "&view=" + view);
-}
+        window.location.href = window.location.href.replace(/[\?#].*|$/, "?db=" + db + "&table=" + table + "&view=" + view);
+    }
 </script>

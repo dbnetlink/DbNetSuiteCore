@@ -6,6 +6,7 @@
         OnFormElementCreated,
         OnRecordSelected, 
         OnFileSelected, 
-        OnConfigureBinaryData
+        OnConfigureBinaryData,
+        OnFormElementValidationFailed
     }
 }

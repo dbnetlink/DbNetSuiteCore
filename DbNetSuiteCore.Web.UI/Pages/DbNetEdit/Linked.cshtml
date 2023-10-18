@@ -11,10 +11,10 @@
                 Delete = true
             };
 
-    orderDetailsEdit.SetColumnAsForeignKey("OrderID");
-    orderDetailsEdit.SetColumnLookup("ProductID", new Lookup("Products", "ProductId", "ProductName"));
-    orderDetailsEdit.SetColumnFormat("UnitPrice", "c");
-    orderDetailsEdit.SetColumnLabel("ProductID", "Product");
+    orderDetailsEdit.Column("OrderID").ForeignKey();
+    orderDetailsEdit.Column("ProductID").Lookup(new Lookup("Products", "ProductId", "ProductName"));
+    orderDetailsEdit.Column("UnitPrice").Format("c");
+    orderDetailsEdit.Column("ProductID").Label("Product");
 
     DbNetEditCore ordersEdit = new DbNetEditCore("northwind", "orders")
             {
@@ -24,11 +24,11 @@
                 Delete = true
             };
 
-    ordersEdit.SetColumnAsForeignKey("CustomerID");
-    ordersEdit.SetColumnLookup("EmployeeID", new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname"));
-    ordersEdit.SetColumnLookup("ShipVia", new Lookup("Shippers", "ShipperId", "CompanyName"));
-    ordersEdit.SetColumnFormat("Freight", "c");
-    ordersEdit.SetColumnLabel("EmployeeID", "Employee");
+    ordersEdit.Column("CustomerID").ForeignKey();
+    ordersEdit.Column("EmployeeID").Lookup(new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname"));
+    ordersEdit.Column("ShipVia").Lookup(new Lookup("Shippers", "ShipperId", "CompanyName"));
+    ordersEdit.Column("Freight").Format("c");
+    ordersEdit.Column("EmployeeID").Label("Employee");
     ordersEdit.AddLinkedControl(orderDetailsEdit);
 
     DbNetEditCore customersEdit = new DbNetEditCore("northwind", "customers")
@@ -39,7 +39,7 @@
                 Delete = true
             };
 
-    customersEdit.SetColumnHidden("CustomerID");
+    customersEdit.Column("CustomerID").Hidden();
     customersEdit.AddLinkedControl(ordersEdit);
 
     @customersEdit.Render()

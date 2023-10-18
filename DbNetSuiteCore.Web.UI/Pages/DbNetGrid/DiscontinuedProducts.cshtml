@@ -4,11 +4,10 @@
 
 @{
     DbNetGridCore productsGrid = new DbNetGridCore("northwind","products");
-    productsGrid.SetColumnDataType("discontinued", typeof(Boolean));
-    productsGrid.SetColumnLookup("categoryid", new Lookup("Categories", "CategoryID", "CategoryName"));
-    productsGrid.SetColumnLookup("SupplierID", new Lookup("Suppliers", "SupplierID", "CompanyName"));
+    productsGrid.Column("discontinued").DataType(typeof(Boolean));
+    productsGrid.Column("categoryid").Lookup(new Lookup("Categories", "CategoryID", "CategoryName"));
+    productsGrid.Column("SupplierID").Lookup(new Lookup("Suppliers", "SupplierID", "CompanyName"));
     productsGrid.FixedFilterSql = "discontinued = @discontinued";
     productsGrid.FixedFilterParams["discontinued"] = true;
-
     @productsGrid.Render()
 }

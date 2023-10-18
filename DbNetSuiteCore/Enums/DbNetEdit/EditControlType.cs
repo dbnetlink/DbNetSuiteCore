@@ -1,4 +1,6 @@
-﻿namespace DbNetSuiteCore.Enums.DbNetEdit
+﻿using System.ComponentModel;
+
+namespace DbNetSuiteCore.Enums.DbNetEdit
 {
     public enum EditControlType
     {
@@ -23,6 +25,8 @@
         Tel,
         Time,
         Url,
-        Week
+        Week,
+        [Description("datetime-local")]
+        DateTime
     }
 }

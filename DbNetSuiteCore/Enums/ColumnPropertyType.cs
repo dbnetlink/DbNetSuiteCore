@@ -26,9 +26,11 @@
         UploadMetaDataColumn,
         ColumnSize,
         EditControlType,
-        Pattern,
         ReadOnly,
         Required,
-        Browse
+        Browse,
+        Annotation,
+        Placeholder,
+        InputValidation
     }
 }

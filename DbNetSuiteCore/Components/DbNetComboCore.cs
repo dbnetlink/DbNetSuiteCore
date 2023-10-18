@@ -78,7 +78,7 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public void Bind(EventType eventType, string functionName)
         {
-            base.Bind(eventType, functionName);
+            base.BindEvent(eventType, functionName);
         }
 
         public HtmlString Render()

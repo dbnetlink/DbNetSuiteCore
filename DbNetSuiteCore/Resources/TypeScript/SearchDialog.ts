@@ -10,7 +10,6 @@
         this.parent = parent;
         this.$dialog?.find("select.search-operator").on("change", (event) => this.configureForOperator(event));
         this.$dialog?.find("[button-type='calendar']").on("click", (event) => this.selectDate(event));
-        this.$dialog?.find("[button-type='clock']").on("click", (event) => this.selectTime(event));
         this.$dialog?.find("[button-type='lookup']").on("click", (event) => this.lookup(event));
 
         this.$dialog?.find("input").get().forEach(e => {
@@ -25,10 +24,6 @@
         this.$dialog?.find("input[datatype='DateTime'").get().forEach(e => {
             const $input = $(e as HTMLInputElement);
             this.addDatePicker($input, this.parent.datePickerOptions);
-        });
-        this.$dialog?.find("input[datatype='TimeSpan'").get().forEach(e => {
-            const $input = $(e as HTMLInputElement);
-            this.addTimePicker($input);
         });
 
         this.$dialog?.find("[button-type='clear']").on("click", () => this.clear());

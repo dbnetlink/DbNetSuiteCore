@@ -1,10 +1,9 @@
 ﻿@page
 @using DbNetSuiteCore.Components;
 @{
-    // Configure the grid and render
     DbNetGridCore customersGrid = new DbNetGridCore("northwind", "customers");
     customersGrid.Search = true;
     customersGrid.View = true;
-    customersGrid.SetColumnSearch("CompanyName");
+    customersGrid.Column("CompanyName").Search();
     @customersGrid.Render()
 }

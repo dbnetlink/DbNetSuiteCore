@@ -2,7 +2,7 @@
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
 /// <reference types="bootstrap" />
-type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onConfigureBinaryData" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted" | "onRecordDeleted" | "onInsertInitalize" | "onRecordSelected" | "onFileSelected";
+type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onConfigureBinaryData" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted" | "onRecordDeleted" | "onInsertInitalize" | "onRecordSelected" | "onFileSelected" | "onFormElementValidationFailed";
 interface CellDataDownloadArgs {
     row: HTMLTableRowElement;
     cell: HTMLTableCellElement;
@@ -68,7 +68,6 @@ declare class DbNetSuite {
     private showMessageBox;
     protected addDatePicker($input: JQuery<HTMLInputElement>, datePickerOptions: JQueryUI.DatepickerOptions): void;
     private pickerSelected;
-    protected addTimePicker($input: JQuery<HTMLInputElement>): void;
     private _configureLinkedControl;
     private _getRequest;
     protected highlight(): void;

@@ -657,8 +657,11 @@ class DbNetGrid extends DbNetGridEdit {
         }
         this.openEditDialog(false);
     }
-    primaryKeyCheck() {
-        if ($(this.selectedRow()).data('pk') == null) {
+    primaryKeyCheck($row = undefined) {
+        if (!$row) {
+            $row = $(this.selectedRow());
+        }
+        if ($row.data('pk') == null) {
             this.error("A primary key has not been included in the grid columns");
             return false;
         }
@@ -761,14 +764,14 @@ class DbNetGrid extends DbNetGridEdit {
         this.controlElement(id).on(eventName, (event) => this.handleClick(event));
     }
     openNestedGrid(event) {
-        if (!this.primaryKeyCheck()) {
-            return;
-        }
         const $button = $(event.currentTarget);
         const row = $button.closest("tr");
         if ($button.hasClass("open")) {
             $button.removeClass("open");
             row.next().hide();
+            return;
+        }
+        if (!this.primaryKeyCheck(row)) {
             return;
         }
         const table = $button.closest("table");
@@ -779,13 +782,14 @@ class DbNetGrid extends DbNetGridEdit {
         }
         const newRow = table[0].insertRow(row[0].rowIndex + 1);
         newRow.className = "nested-grid-row";
-        const cell = newRow.insertCell(-1);
-        cell.className = "nested-grid-cell";
-        cell.colSpan = row[0].cells.length;
+        newRow.insertCell(-1);
+        const gridCell = newRow.insertCell(-1);
+        gridCell.className = "nested-grid-cell";
+        gridCell.colSpan = row[0].cells.length - 1;
         const handlers = this.eventHandlers["onNestedClick"];
         for (let i = 0; i < handlers.length; i++) {
             if (handlers[i]) {
-                this.configureNestedGrid(handlers[i], cell, row.data("id"));
+                this.configureNestedGrid(handlers[i], gridCell, row.data("id"));
             }
         }
     }

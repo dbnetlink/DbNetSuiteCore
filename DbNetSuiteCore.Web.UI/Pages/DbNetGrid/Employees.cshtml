@@ -9,13 +9,13 @@
             {
                 View = true
             };
-    employeesGrid.SetColumnLookup("reportsto", new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname"));
-    employeesGrid.SetColumnAsImage("Photo", new ImageConfiguration("jpg"));
-    employeesGrid.SetColumnDataOnly(new String[] { "photo", "notes", "photopath" });
-    employeesGrid.SetColumnView(new String[] { "firstname", "lastname", "photo", "notes", "photopath" });
-    employeesGrid.Bind(EventType.OnConfigureBinaryData, "configureImageFileName");
-    employeesGrid.SetColumnLookup("country", typeof(CountryEnum), true);
 
+    employeesGrid.Column("ReportsTo").Lookup(new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname"));
+    employeesGrid.Column("Photo").Image(new ImageConfiguration("jpg"));
+    employeesGrid.Column(new String[] { "photo", "notes", "photopath" }).DataOnly();
+    employeesGrid.Column(new String[] { "firstname", "lastname", "photo", "notes", "photopath" }).View();
+    employeesGrid.Bind(DbNetGridEnums.EventType.OnConfigureBinaryData, "configureImageFileName");
+    employeesGrid.Column("country").Lookup(typeof(CountryEnum), true);
     @employeesGrid.Render()
 }
 <script>
@@ -32,6 +32,6 @@
     }
 
     function assignFileName(sender, args) {
-        sender.setColumnValue("photopath",args.fileMetaData.fileName);
+        sender.setColumnValue("photopath", args.fileMetaData.fileName);
     }
 </script>

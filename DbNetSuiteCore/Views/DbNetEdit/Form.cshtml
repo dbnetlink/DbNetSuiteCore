@@ -49,11 +49,17 @@
                         <td class="label">@(editColumn.Label)</td>
                         if (editColumn.Binary)
                         {
-                            <td class="control">@BinaryControl(editColumn,dataColumn)</td>
+                            <td class="control">
+                                @BinaryControl(editColumn,dataColumn)
+                                @Annotation(editColumn)
+                            </td>
                         }
                         else
                         {
-                            <td class="control">@FormControl(editColumn,dataColumn)</td>
+                            <td class="control">
+                                @FormControl(editColumn,dataColumn)
+                                @Annotation(editColumn)
+                            </td>
                         }
                     }
                 }
@@ -118,21 +124,28 @@
         }
 
         string button = string.Empty;
+        string output = string.Empty;
 
         if (editColumn.DataType.Equals(nameof(DateTime)) && editColumn.EditControlType == EditControlType.Auto)
         {
             button = AddButton("calendar", "SelectDate");
-        }
-        else if (editColumn.DataType.Equals(nameof(TimeSpan)))
-        {
-            button = AddButton("clock", "SelectTime");
         }
         else if (string.IsNullOrEmpty(editColumn.Lookup) == false)
         {
             button = AddButton("lookup", "OpenTheLookupWindow");
         }
 
-        return new HtmlString($"<{tagName} {string.Join(" ", Attributes(editColumn, dataColumn, editColumn.ColumnSize))}></{tagName}>{button}");
+        switch (editColumn.EditControlType)
+        {
+            case EditControlType.Range:
+                output = $"<input type=\"text\" class=\"range-output\" tabindex=\"-1\" size=\"{(editColumn.InputValidation?.Max ?? 10000).ToString().Length}\" readonly/>";
+                break;
+            case EditControlType.Color:
+                output = $"<input type=\"text\" class=\"color-output\" tabindex=\"-1\" size=\"6\" readonly/>";
+                break;
+        }
+
+        return new HtmlString($"<{tagName} {string.Join(" ", Attributes(editColumn, dataColumn, editColumn.ColumnSize))}></{tagName}>{button}{output}");
     }
 
     public HtmlString BinaryControl(EditColumn editColumn, DataColumn dataColumn)
@@ -145,6 +158,16 @@
         string className = tagName == "img" ? " class=\"icon-container\"" : string.Empty;
 
         return new HtmlString($"<div class=\"flex-container\"><div{className}><{tagName} {string.Join(" ", Attributes(editColumn, dataColumn, editColumn.ColumnSize))}></{tagName}></div><div>{uploadButton}</div><div>{deleteButton}</div></div>");
+    }
+
+    public HtmlString Annotation(EditColumn editColumn)
+    {
+        if (string.IsNullOrEmpty(editColumn.Annotation))
+        {
+            return new HtmlString(string.Empty);
+        }
+
+        return new HtmlString($"<div class=\"annotation\">{editColumn.Annotation}</div>");
     }
 
     private HtmlString DataListLookup(EditColumn editColumn, DataColumn dataColumn)
@@ -188,7 +211,9 @@
             case EditControlType.Time:
             case EditControlType.Url:
             case EditControlType.Week:
-                inputType = editColumn.EditControlType.ToString().ToLower();
+            case EditControlType.Password:
+            case EditControlType.DateTime:
+                inputType = editColumn.EditControlTypeName;
                 break;
         }
 
@@ -233,6 +258,11 @@
         if (string.IsNullOrEmpty(editColumn.Style) == false)
         {
             styles.Add(editColumn.Style);
+        }
+
+        if (string.IsNullOrEmpty(editColumn.Placeholder) == false)
+        {
+            attributes.Add($"placeholder=\"{editColumn.Placeholder}\"");
         }
 
         if (editColumn.IsNumeric)
@@ -295,10 +325,14 @@
         {
             case EditControlType.TextBox:
             case EditControlType.Auto:
-                if (size > 0)
+                 if (size > 0)
                 {
                     attributes.Add($"size=\"{size.ToString()}\"");
                 }
+                break;
+            case EditControlType.Range:
+            case EditControlType.Color:
+                attributes.Add($"onchange=\"this.nextElementSibling.value=this.value\"");
                 break;
         }
 
@@ -320,6 +354,38 @@
         if (styles.Any())
         {
             attributes.Add($"style=\"{string.Join(";", styles)}\"");
+        }
+
+        attributes.AddRange(InputValidationAttributes(editColumn.InputValidation));
+        return attributes;
+    }
+
+    public List<string> InputValidationAttributes(Components.InputValidation inputValidation)
+    {
+        List<string> attributes = new List<string>();
+
+        if (inputValidation != null)
+        {
+            if (inputValidation.Min.HasValue)
+            {
+                attributes.Add($"min={inputValidation.Min}");
+            }
+            if (inputValidation.Max.HasValue)
+            {
+                attributes.Add($"max={inputValidation.Max}");
+            }
+            if (inputValidation.Step.HasValue)
+            {
+                attributes.Add($"step={inputValidation.Step}");
+            }
+            if (inputValidation.MinLength.HasValue)
+            {
+                attributes.Add($"minlength={inputValidation.MinLength}");
+            }
+            if (inputValidation.MaxLength.HasValue)
+            {
+                attributes.Add($"maxlength={inputValidation.MaxLength}");
+            }
         }
         return attributes;
     }

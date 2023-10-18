@@ -6,7 +6,6 @@
 @{
     DbNetGridCore territoriesGrid = new DbNetGridCore("northwind", "territories");
     territoriesGrid.Update = true;
-    territoriesGrid.SetColumnLookup("RegionId", typeof(RegionEnum));
-    territoriesGrid.SetColumnLabel("RegionId", "Region");
+    territoriesGrid.Column("RegionId").Lookup(typeof(RegionEnum)).Label("Region");
     @territoriesGrid.Render()
 }

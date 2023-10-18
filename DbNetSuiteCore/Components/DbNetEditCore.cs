@@ -18,6 +18,8 @@ namespace DbNetSuiteCore.Components
         /// Specifies the number of columns over which the edit fields are distributed
         /// </summary>
         public int? LayoutColumns { get; set; }
+        public ValidationMessageType? ValidationMessageType { get; set; }
+
 
         public DbNetEditCore(string connection, string fromPart, string id = null) : base(connection, fromPart, id)
         {
@@ -27,19 +29,28 @@ namespace DbNetSuiteCore.Components
 
         internal DbNetEditCore(string connection, string fromPart, bool editControl) : base(connection, fromPart)
         {
- 
         }
         /// <summary>
         /// Binds an event to a named client-side JavaScript function
         /// </summary>
         public void Bind(EventType eventType, string functionName)
         {
-            base.Bind(eventType, functionName);
+            base.BindEvent(eventType, functionName);
         }
         /// <summary>
         /// Browse control
         /// </summary>
         public DbNetGridCore BrowseControl { get; set; }
+  
+        public DbNetEditCoreColumn Column(string columnName)
+        {
+            return Column(new string[] { columnName });
+        }
+
+        public DbNetEditCoreColumn Column(string[] columnNames)
+        {
+            return new DbNetEditCoreColumn(columnNames, _columnProperties, _fromPart, Columns);
+        }
         /// <summary>
         /// Sets the type of edit control type for the column
         /// </summary>
@@ -63,13 +74,6 @@ namespace DbNetSuiteCore.Components
         public void SetColumnSize(string columnName, int size)
         {
             SetColumnProperty(columnName, ColumnPropertyType.ColumnSize, size);
-        }
-        /// <summary>
-        /// Sets the size of the edit field
-        /// </summary>
-        public void SetColumnPattern(string columnName, string pattern)
-        {
-            SetColumnProperty(columnName, ColumnPropertyType.Pattern, pattern);
         }
         /// <summary>
         /// Specifies the columns that will be displayed in the browse dialog
@@ -107,6 +111,30 @@ namespace DbNetSuiteCore.Components
         public void SetColumnReadOnly(string columnName)
         {
             SetColumnProperty(columnName, ColumnPropertyType.ReadOnly, true);
+        }
+
+        /// <summary>
+        /// Assigns placeholder text for the input field
+        /// </summary>
+        public void SetColumnPlaceholder(string columnName, string text)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.Placeholder, text);
+        }
+
+        /// <summary>
+        /// Assigns annotation(help) text to be displayed alognside input field
+        /// </summary>
+        public void SetColumnAnnotation(string columnName, string text)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.Annotation, text);
+        }
+
+        /// <summary>
+        /// Assigns input validation properties. Used in conjunction with EditControlType
+        /// </summary>
+        public void SetColumnValidation(string columnName, InputValidation inputValidation)
+        {
+            SetColumnProperty(columnName, ColumnPropertyType.InputValidation, inputValidation);
         }
         public HtmlString Render()
         {
@@ -183,6 +211,8 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             AddProperty(LayoutColumns, nameof(LayoutColumns), properties);
             AddProperty(IsEditDialog, nameof(IsEditDialog), properties);
             AddProperty(_browseDialogId, "BrowseDialogId", properties);
+            AddProperty(ValidationMessageType, nameof(ValidationMessageType), properties);
+
             AddProperties(properties);
 
             properties.Add($"datePickerOptions = {DatePickerOptions()};");

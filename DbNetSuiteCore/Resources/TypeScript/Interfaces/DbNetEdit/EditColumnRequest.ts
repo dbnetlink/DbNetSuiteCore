@@ -5,4 +5,7 @@
     required?: boolean;
     autoIncrement?: boolean;
     readOnly?: boolean;
+    annotation?: string;
+    placeholder: string;
+    inputValidation: object;
 }

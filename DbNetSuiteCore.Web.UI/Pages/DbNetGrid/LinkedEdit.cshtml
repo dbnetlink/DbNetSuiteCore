@@ -7,12 +7,12 @@
     DbNetEditCore ordersEdit = new DbNetEditCore("northwind", "orders");
     ordersEdit.LayoutColumns = 3;
     ordersEdit.Insert = true;
-    ordersEdit.SetColumnAsForeignKey("customerid");
+    ordersEdit.Column("customerid").ForeignKey();
 
     DbNetGridCore customersGrid = new DbNetGridCore("northwind", "customers") { PageSize = 10};
     customersGrid.Columns = new List<string>() { "CustomerId","CompanyName", "ContactName", "ContactTitle", "Address", "City", "Region", "PostalCode", "Country", "Phone", "Fax" };
-    customersGrid.SetColumnLookup("country");
-    customersGrid.SetColumnLookup("region");
+    customersGrid.Column("country").Lookup();
+    customersGrid.Column("region").Lookup();
 
     customersGrid.QuickSearch = true;
     customersGrid.View = true;

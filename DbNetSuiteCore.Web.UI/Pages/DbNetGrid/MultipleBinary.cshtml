@@ -9,9 +9,9 @@
     imagesGrid.Delete = true;
     for (var i = 1; i <= 3; i++)
     {
-        imagesGrid.SetColumnAsImage($"Content_{i}", new ImageConfiguration(new List<string>() { "jpg", "png" }, new Dictionary<FileMetaData, string>() { { FileMetaData.FileName, $"FileName_{i}" }, { FileMetaData.ContentType, $"ContentType_{i}" }, { FileMetaData.LastModified, $"LastModified_{i}" }, { FileMetaData.Size, $"Size_{i}" } }));
-        imagesGrid.SetColumnDisplay(new string[] { $"ContentType_{i}", $"LastModified_{i}", $"Size_{i}" }, false);
-        imagesGrid.EditControl.SetColumnDisplay(new string[] { $"ContentType_{i}", $"LastModified_{i}", $"Size_{i}" }, true);
+        imagesGrid.Column($"Content_{i}").Image(new ImageConfiguration(new List<string>() { "jpg", "png" }, new Dictionary<FileMetaData, string>() { { FileMetaData.FileName, $"FileName_{i}" }, { FileMetaData.ContentType, $"ContentType_{i}" }, { FileMetaData.LastModified, $"LastModified_{i}" }, { FileMetaData.Size, $"Size_{i}" } }));
+        imagesGrid.Column(new string[] { $"ContentType_{i}", $"LastModified_{i}", $"Size_{i}" }).Hidden();
+        imagesGrid.EditControl.Column(new string[] { $"ContentType_{i}", $"LastModified_{i}", $"Size_{i}" }).Display();
     }
     imagesGrid.EditControl.LayoutColumns = 3;
 
@@ -24,9 +24,9 @@
     filesGrid.Delete = true;
     for (var i = 1; i <= 3; i++)
     {
-        filesGrid.SetColumnAsFile($"Content_{i}", new FileConfiguration("pdf", new Dictionary<FileMetaData, string>() { { FileMetaData.FileName, $"FileName_{i}" }, { FileMetaData.ContentType, $"ContentType_{i}" }, { FileMetaData.LastModified, $"LastModified_{i}" }, { FileMetaData.Size, $"Size_{i}" } }));
-        filesGrid.SetColumnDisplay(new string[] { $"ContentType_{i}", $"LastModified_{i}", $"Size_{i}" }, false);
-        filesGrid.EditControl.SetColumnDisplay(new string[] { $"ContentType_{i}", $"LastModified_{i}", $"Size_{i}" }, true);
+        filesGrid.Column($"Content_{i}").File(new FileConfiguration("pdf", new Dictionary<FileMetaData, string>() { { FileMetaData.FileName, $"FileName_{i}" }, { FileMetaData.ContentType, $"ContentType_{i}" }, { FileMetaData.LastModified, $"LastModified_{i}" }, { FileMetaData.Size, $"Size_{i}" } }));
+        filesGrid.Column(new string[] { $"ContentType_{i}", $"LastModified_{i}", $"Size_{i}" }).Hidden();
+        filesGrid.EditControl.Column(new string[] { $"ContentType_{i}", $"LastModified_{i}", $"Size_{i}" }).Display();
     }
     filesGrid.EditControl.LayoutColumns = 3;
 

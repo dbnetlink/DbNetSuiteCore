@@ -29,17 +29,16 @@
 
 @{
     DbNetEditCore orderDetailsEdit = new DbNetEditCore("northwind", "[order details]", "orderDetailsEdit")
-            {
-                Columns = new List<string> { "OrderID", "ProductID", "Quantity", "UnitPrice" },
-                Insert = true,
-                QuickSearch = true,
-                Delete = true
-            };
+    {
+        Columns = new List<string> { "OrderID", "ProductID", "Quantity", "UnitPrice" },
+        Insert = true,
+        QuickSearch = true,
+        Delete = true
+    };
 
-    orderDetailsEdit.SetColumnAsForeignKey("OrderID");
-    orderDetailsEdit.SetColumnLookup("ProductID", new Lookup("Products", "ProductId", "ProductName"));
-    orderDetailsEdit.SetColumnFormat("UnitPrice", "c");
-    orderDetailsEdit.SetColumnLabel("ProductID", "Product");
+    orderDetailsEdit.Column("OrderID").ForeignKey();
+    orderDetailsEdit.Column("ProductID").Lookup(new Lookup("Products", "ProductId", "ProductName")).Label("Product");
+    orderDetailsEdit.Column("UnitPrice").Format("c");
 
     DbNetEditCore ordersEdit = new DbNetEditCore("northwind", "orders", "ordersEdit")
             {
@@ -49,19 +48,18 @@
                 Delete = true
             };
 
-    ordersEdit.SetColumnAsForeignKey("CustomerID");
-    ordersEdit.SetColumnLookup("EmployeeID", new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname"));
-    ordersEdit.SetColumnLookup("ShipVia", new Lookup("Shippers", "ShipperId", "CompanyName"));
-    ordersEdit.SetColumnFormat("Freight", "c");
-    ordersEdit.SetColumnLabel("EmployeeID", "Employee");
+    ordersEdit.Column("CustomerID").ForeignKey();
+    ordersEdit.Column("EmployeeID").Lookup(new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname")).Label("Employee");
+    ordersEdit.Column("ShipVia").Lookup(new Lookup("Shippers", "ShipperId", "CompanyName"));
+    ordersEdit.Column("Freight").Format("c");
 
     DbNetEditCore customersEdit = new DbNetEditCore("northwind", "customers", "customersEdit")
-            {
-                Columns = new List<string> { "CustomerID", "CompanyName", "Address", "City" },
-                Insert = true,
-                QuickSearch = true,
-                Delete = true
-            };
+    {
+        Columns = new List<string> { "CustomerID", "CompanyName", "Address", "City" },
+        Insert = true,
+        QuickSearch = true,
+        Delete = true
+    };
 
     customersEdit.SetColumnHidden("CustomerID");
 
@@ -73,10 +71,9 @@
                 Delete = true
             };
 
-    orderDetailsGrid.SetColumnAsForeignKey("OrderID");
-    orderDetailsGrid.SetColumnLookup("ProductID", new Lookup("Products", "ProductId", "ProductName"));
-    orderDetailsGrid.SetColumnFormat("UnitPrice", "c");
-    orderDetailsGrid.SetColumnLabel("ProductID", "Product");
+    orderDetailsGrid.Column("OrderID").ForeignKey();
+    orderDetailsGrid.Column("ProductID").Lookup(new Lookup("Products", "ProductId", "ProductName")).Label("Product");
+    orderDetailsGrid.Column("UnitPrice").Format("c");
     orderDetailsGrid.AddLinkedControl(orderDetailsEdit);
 
     DbNetGridCore ordersGrid = new DbNetGridCore("northwind", "orders", "ordersGrid")
@@ -87,11 +84,10 @@
                 Delete = true
             };
 
-    ordersGrid.SetColumnAsForeignKey("CustomerID");
-    ordersGrid.SetColumnLookup("EmployeeID", new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname"));
-    ordersGrid.SetColumnLookup("ShipVia", new Lookup("Shippers", "ShipperId", "CompanyName"));
-    ordersGrid.SetColumnFormat("Freight", "c");
-    ordersGrid.SetColumnLabel("EmployeeID", "Employee");
+    ordersGrid.Column("CustomerID").ForeignKey();
+    ordersGrid.Column("EmployeeID").Lookup(new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname")).Label("Employee");
+    ordersGrid.Column("ShipVia").Lookup(new Lookup("Shippers", "ShipperId", "CompanyName"));
+    ordersGrid.Column("Freight").Format("c");
     ordersGrid.AddLinkedControl(orderDetailsGrid);
     ordersGrid.AddLinkedControl(ordersEdit);
 
@@ -103,7 +99,7 @@
                 Delete = true
             };
 
-    customersGrid.SetColumnHidden("CustomerID");
+    customersGrid.Column("CustomerID").Hidden();
     customersGrid.AddLinkedControl(ordersGrid);
     customersGrid.AddLinkedControl(customersEdit);
 

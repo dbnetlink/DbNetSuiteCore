@@ -1,0 +1,36 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums;
+@using DbNetSuiteCore.Enums.DbNetEdit;
+
+@{
+    DbNetEditCore inputTypesEdit = new DbNetEditCore("dbnetsuitecore","inputtypes");
+    inputTypesEdit.Insert = true;
+    inputTypesEdit.Delete = true;
+    inputTypesEdit.ValidationMessageType = ValidationMessageType.Application;
+    inputTypesEdit.LayoutColumns = 2;
+
+    inputTypesEdit.Column("Range").
+        ControlType(EditControlType.Range).
+        Validation(new InputValidation(0, 100, 10)).
+        Annotation("This range has a minimum of 0 and maximum of 100 and increments of 10");
+
+    inputTypesEdit.Column("Phone").
+        ControlType(EditControlType.Tel).
+        Placeholder("Please enter your mobile number").
+        Annotation("Phone number must be in US format e.g. 123-456-7890").
+        Validation(new InputValidation("\\d{3}[\\-]\\d{3}[\\-]\\d{4}"));
+
+    inputTypesEdit.Column("Email").ControlType(EditControlType.Email);
+    inputTypesEdit.Column("Url").ControlType(EditControlType.Url);
+    inputTypesEdit.Column("AppointmentDate").ControlType(EditControlType.Date).DataType(typeof(DateTime));
+    inputTypesEdit.Column("AppointmentTime").ControlType(EditControlType.Time).DataType(typeof(TimeSpan));
+    inputTypesEdit.Column("WeekNumber").ControlType(EditControlType.Week);
+    inputTypesEdit.Column("Month").ControlType(EditControlType.Month);
+    inputTypesEdit.Column("ExpiryDateTime").ControlType(EditControlType.DateTime);
+    inputTypesEdit.Column("Colour").ControlType(EditControlType.Color);
+    inputTypesEdit.Column("Password").ControlType(EditControlType.Password);
+    inputTypesEdit.Column("Quantity").ControlType(EditControlType.Number);
+
+    @inputTypesEdit.Render()
+}

@@ -20,6 +20,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using DbNetSuiteCore.Constants;
 using DbNetSuiteCore.Enums.DbNetEdit;
+using System.Globalization;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace DbNetSuiteCore.Services
 {
@@ -30,7 +32,7 @@ namespace DbNetSuiteCore.Services
         private string _fixedFilterSql;
         private bool _quickSearch;
         private string _initialOrderBy;
-        
+
         protected Dictionary<string, DataTable> _lookupTables = new Dictionary<string, DataTable>();
         protected List<DbColumn> DbColumns
         {
@@ -310,7 +312,7 @@ namespace DbNetSuiteCore.Services
                 {
                     DbColumn column = (DbColumn)o;
                     DbColumn parentColumn = DbColumns.FirstOrDefault(c => c.IsMatch(column.LookupParameter));
-                    if ( parentColumn != null)
+                    if (parentColumn != null)
                     {
                         parentColumn.DependentLookup = column;
                     }
@@ -602,6 +604,7 @@ namespace DbNetSuiteCore.Services
                     column.Display = false;
                 }
             }
+
 
             column.DbDataType = row.DataTypeName();
 
@@ -1120,38 +1123,67 @@ namespace DbNetSuiteCore.Services
                         paramValue = TimeSpan.Parse(DateTime.Parse(value.ToString()).ToString(column.Format));
                         break;
                     case nameof(DateTime):
-                        paramValue = Convert.ChangeType(value, Type.GetType($"System.{nameof(DateTime)}"));
-                        //paramValue = DateTime.ParseExact(value.ToString(), column.Format, CultureInfo.InvariantCulture);
-                        break;
-                    case nameof(Byte):
-                        paramValue = value;
-                        break;
-                    case nameof(Guid):
-                        paramValue = new Guid(value.ToString());
-                        break;
-                    case nameof(Int16):
-                    case nameof(Int32):
-                    case nameof(Int64):
-                    case nameof(Decimal):
-                    case nameof(Single):
-                    case nameof(Double):
-                        if (string.IsNullOrEmpty(column.Format) == false)
+                        if (string.IsNullOrEmpty(column.Format))
                         {
-                            var cultureInfo = Thread.CurrentThread.CurrentCulture;
-                            value = value.ToString().Replace(cultureInfo.NumberFormat.CurrencySymbol, "");
+                            paramValue = Convert.ChangeType(value, Type.GetType($"System.{nameof(DateTime)}"));
                         }
-                        paramValue = Convert.ChangeType(value, GetColumnType(dataType));
-                        break;
-                    case nameof(UInt16):
-                    case nameof(UInt32):
-                    case nameof(UInt64):
-                        paramValue = Convert.ChangeType(value, GetColumnType(dataType.Replace("U", string.Empty)));
-                        break;
-                    default:
-                        paramValue = Convert.ChangeType(value, GetColumnType(dataType));
-                        break;
-                }
-            }
+                        else
+                        {
+                            if (column is EditColumn)
+                            {
+                                switch ((column as EditColumn).EditControlType)
+                                {
+                                    case EditControlType.DateTime:
+                                    case EditControlType.Date:
+                                        paramValue = DateTime.Parse(value.ToString(), null, DateTimeStyles.RoundtripKind);
+                                        break;
+                                    default:
+                                        paramValue = DateTime.ParseExact(value.ToString(), column.Format, CultureInfo.CurrentCulture);
+                                        break;
+                                }
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    paramValue = DateTime.ParseExact(value.ToString(), column.Format, CultureInfo.CurrentCulture);
+                                }
+                                catch
+                                {
+                                    paramValue = DateTime.Parse(value.ToString(), CultureInfo.CurrentCulture);
+                                }
+                            }
+                        }
+                            break;
+                    case nameof(Byte):
+                                paramValue = value;
+                                break;
+                            case nameof(Guid):
+                                paramValue = new Guid(value.ToString());
+                                break;
+                            case nameof(Int16):
+                            case nameof(Int32):
+                            case nameof(Int64):
+                            case nameof(Decimal):
+                            case nameof(Single):
+                            case nameof(Double):
+                                if (string.IsNullOrEmpty(column.Format) == false)
+                                {
+                                    var cultureInfo = Thread.CurrentThread.CurrentCulture;
+                                    value = value.ToString().Replace(cultureInfo.NumberFormat.CurrencySymbol, "");
+                                }
+                                paramValue = Convert.ChangeType(value, GetColumnType(dataType));
+                                break;
+                            case nameof(UInt16):
+                            case nameof(UInt32):
+                            case nameof(UInt64):
+                                paramValue = Convert.ChangeType(value, GetColumnType(dataType.Replace("U", string.Empty)));
+                                break;
+                            default:
+                                paramValue = Convert.ChangeType(value, GetColumnType(dataType));
+                                break;
+                            }
+                        }
             catch (Exception e)
             {
                 ThrowException(e.Message, "ConvertToDbParam: Value: " + value.ToString() + " DataType:" + dataType);

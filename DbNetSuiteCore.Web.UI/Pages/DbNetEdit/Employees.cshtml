@@ -5,21 +5,22 @@
 @using DbNetSuiteCore.Web.UI.Enums;
 @{
     DbNetEditCore employeesEdit = new DbNetEditCore("northwind", "employees");
-    employeesEdit.SetColumnLookup("ReportsTo", new Lookup("employees", "employeeid", "lastname + ', ' + firstname"));
-    employeesEdit.SetControlType("notes", EditControlType.TextArea);
-    employeesEdit.SetColumnPattern("titleofcourtesy", "Mr.|Dr.|Ms.|Mr.");
+    employeesEdit.Column("ReportsTo").Lookup(new Lookup("employees", "employeeid", "lastname + ', ' + firstname"));
+    employeesEdit.Column("notes").ControlType(EditControlType.TextArea);
+    employeesEdit.Column("titleofcourtesy").Validation(new InputValidation("Mr.|Dr.|Ms.|Mrs."));
+    employeesEdit.Column(new string[] { "lastname", "firstname", "photo" }).Browse();
+    employeesEdit.Column(new string[] { "lastname", "firstname", "titleofcourtesy" }).Required();
+    employeesEdit.Column("Photo").Image(new ImageConfiguration("jpg"));
+    employeesEdit.Column("country").Lookup(typeof(CountryEnum), true);
     employeesEdit.Bind(EventType.OnFormElementCreated, "configureFormElement");
-    employeesEdit.SetColumnBrowse(new string[] { "lastname", "firstname", "photo" });
-    employeesEdit.SetColumnRequired(new string[] { "lastname", "firstname", "titleofcourtesy" });
-    employeesEdit.SetColumnAsImage("Photo", new ImageConfiguration("jpg"));
     employeesEdit.Bind(EventType.OnConfigureBinaryData, "configureImageFileName");
+    employeesEdit.Bind(EventType.OnFormElementValidationFailed, "configureValidationMessage");
     employeesEdit.LayoutColumns = 2;
     employeesEdit.MaxImageHeight = 40;
     employeesEdit.BrowseControl.MaxImageHeight = 20;
     employeesEdit.ToolbarPosition = ToolbarPosition.Bottom;
     employeesEdit.Insert = true;
     employeesEdit.Delete = true;
-    employeesEdit.SetColumnLookup("country", typeof(CountryEnum), true);
 
     @employeesEdit.Render()
 }
@@ -37,5 +38,19 @@
     function configureImageFileName(sender, args) {
         var fileName = sender.columnValue("photopath");
         args.fileName = fileName.split('/').pop().replace(".bmp",".jpg");
+    }
+
+    String.prototype.replaceLast = function (what, replacement) {
+        var pcs = this.split(what);
+        var lastPc = pcs.pop();
+        return pcs.join(what) + replacement + lastPc;
+    };
+
+    function configureValidationMessage(sender, args) {
+        if (args.key == "titleofcourtesy") { 
+            const pattern = sender.formElement(args.key).attr("pattern");
+            const readablePattern = pattern.split('|').join(', ').replaceLast(",", " or");
+            args.value = `Title Of Courtesy should have a value of: ${readablePattern}`
+        }
     }
 </script>

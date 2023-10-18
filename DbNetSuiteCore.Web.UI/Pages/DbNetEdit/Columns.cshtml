@@ -6,14 +6,12 @@
     DbNetEditCore productsEdit = new DbNetEditCore("northwind", "products");
     productsEdit.Columns = new List<string>() { "ProductId", "ProductName", "CategoryID", "SupplierID", "UnitPrice" };
 
-    productsEdit.SetColumnLookup("categoryid", new Lookup("Categories", "CategoryID", "CategoryName"));
-    productsEdit.SetColumnLookup("SupplierID", new Lookup("Suppliers", "SupplierID", "CompanyName"));
-    productsEdit.SetColumnFormat("UnitPrice", "c");
-    productsEdit.SetColumnDataType("UnitPrice", typeof(Decimal));  // SQLite only
-    productsEdit.SetColumnHidden("ProductId");
-
-    productsEdit.SetColumnLabel("CategoryID", "Category");
-    productsEdit.SetColumnLabel("SupplierID", "Supplier");
+    productsEdit.Column("categoryid").Lookup(new Lookup("Categories", "CategoryID", "CategoryName"));
+    productsEdit.Column("SupplierID").Lookup(new Lookup("Suppliers", "SupplierID", "CompanyName"));
+    productsEdit.Column("UnitPrice").Format("c").DataType(typeof(Decimal));
+    productsEdit.Column("ProductId").Hidden();
+    productsEdit.Column("CategoryID").Label("Category");
+    productsEdit.Column("SupplierID").Label("Supplier");
 
     @productsEdit.Render()
 

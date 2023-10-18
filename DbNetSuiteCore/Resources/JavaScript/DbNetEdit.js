@@ -12,6 +12,7 @@ class DbNetEdit extends DbNetGridEdit {
         this.search = true;
         this.totalRows = 0;
         this.isEditDialog = false;
+        this.validationMessageType = "Application";
         if (this.toolbarPosition == undefined) {
             this.toolbarPosition = "Bottom";
         }
@@ -113,21 +114,20 @@ class DbNetEdit extends DbNetGridEdit {
         this.updateForm(response);
     }
     configureForm() {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
         const $inputs = (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(`:input[name]`);
         for (let i = 0; i < $inputs.length; i++) {
             const $input = $($inputs[i]);
             this.fireEvent("onFormElementCreated", { formElement: $input[0], columnName: $input.attr("name") });
         }
         (_b = this.formPanel) === null || _b === void 0 ? void 0 : _b.find("[button-type='calendar']").on("click", (event) => this.selectDate(event));
-        (_c = this.formPanel) === null || _c === void 0 ? void 0 : _c.find("[button-type='clock']").on("click", (event) => this.selectTime(event));
-        (_d = this.formPanel) === null || _d === void 0 ? void 0 : _d.find("[button-type='lookup']").on("click", (event) => this.editLookup(event));
-        (_e = this.formPanel) === null || _e === void 0 ? void 0 : _e.find("[button-type='delete']").on("click", (event) => this.deleteFile(event));
-        (_f = this.formPanel) === null || _f === void 0 ? void 0 : _f.find("[button-type='upload']").on("click", (event) => this.uploadFile(event));
-        (_g = this.formPanel) === null || _g === void 0 ? void 0 : _g.find("img.dbnetedit").on("load", (event) => this.imageLoaded(event));
-        (_h = this.formPanel) === null || _h === void 0 ? void 0 : _h.find("img.dbnetedit").on("click", (event) => this.viewImage(event));
-        (_j = this.formPanel) === null || _j === void 0 ? void 0 : _j.find("select[dependentLookup]").on("change", (event) => this.updateOptions(event));
-        (_k = this.formPanel) === null || _k === void 0 ? void 0 : _k.find("input[datatype='DateTime'").get().forEach(e => {
+        (_c = this.formPanel) === null || _c === void 0 ? void 0 : _c.find("[button-type='lookup']").on("click", (event) => this.editLookup(event));
+        (_d = this.formPanel) === null || _d === void 0 ? void 0 : _d.find("[button-type='delete']").on("click", (event) => this.deleteFile(event));
+        (_e = this.formPanel) === null || _e === void 0 ? void 0 : _e.find("[button-type='upload']").on("click", (event) => this.uploadFile(event));
+        (_f = this.formPanel) === null || _f === void 0 ? void 0 : _f.find("img.dbnetedit").on("load", (event) => this.imageLoaded(event));
+        (_g = this.formPanel) === null || _g === void 0 ? void 0 : _g.find("img.dbnetedit").on("click", (event) => this.viewImage(event));
+        (_h = this.formPanel) === null || _h === void 0 ? void 0 : _h.find("select[dependentLookup]").on("change", (event) => this.updateOptions(event));
+        (_j = this.formPanel) === null || _j === void 0 ? void 0 : _j.find("input[datatype='DateTime'").get().forEach(e => {
             const $input = $(e);
             this.addDatePicker($input, this.datePickerOptions);
         });
@@ -178,6 +178,10 @@ class DbNetEdit extends DbNetGridEdit {
                     this.refreshOptions($input.attr("dependentLookup"), $input.val());
                 }
             }
+        }
+        const outputTypes = ['range', 'color'];
+        for (let i = 0; i < outputTypes.length; i++) {
+            this.formElements().filter(`:input[type='${outputTypes[i]}']`).trigger("change");
         }
         const $firstElement = this.formElements().filter(':not(:disabled):first');
         $firstElement.trigger("focus");
@@ -316,7 +320,10 @@ class DbNetEdit extends DbNetGridEdit {
                 pattern: col.pattern,
                 browse: col.browse,
                 search: col.search,
-                autoIncrement: col.autoIncrement
+                autoIncrement: col.autoIncrement,
+                annotation: col.annotation,
+                placeholder: col.placeholder,
+                inputValidation: col.inputValidation
             };
             this.columns.push(new EditColumn(properties));
         });
@@ -502,17 +509,25 @@ class DbNetEdit extends DbNetGridEdit {
             setTimeout(() => this.clearHighlightedFields(), 3000);
             return;
         }
-        $formElements.filter('[pattern]').each(function () {
-            const $input = $(this);
+        $formElements.each(function () {
+            const input = this;
+            const $input = $(input);
             const name = $input.attr("name");
-            if (!this.reportValidity()) {
-                validationMessage = { key: name, value: `Entry does not match the input pattern (${$input.attr("pattern")})` };
+            if (!input.checkValidity()) {
+                validationMessage = { key: name, value: input.validationMessage };
                 return false;
             }
         });
         if (validationMessage != null) {
-            this.message(validationMessage.value);
-            this.highlightField(validationMessage.key.toLowerCase());
+            this.fireEvent("onFormElementValidationFailed", validationMessage);
+            const columnName = validationMessage.key.toLowerCase();
+            if (this.validationMessageType == "Native") {
+                this.formElement(columnName).get(0).reportValidity();
+            }
+            else {
+                this.message(validationMessage.value);
+                this.highlightField(columnName);
+            }
             return;
         }
         $formElements.each(function () {
@@ -619,8 +634,11 @@ class DbNetEdit extends DbNetGridEdit {
         var _a;
         (_a = this.editPanel) === null || _a === void 0 ? void 0 : _a.find(".message").html("&nbsp;").removeClass("highlight");
     }
+    formElement(columnName) {
+        return this.formElements().filter(`[name='${columnName}']`);
+    }
     highlightField(columnName) {
-        this.formElements().filter(`[name='${columnName}']`).addClass("highlight");
+        this.formElement(columnName).addClass("highlight");
         setTimeout(() => this.clearHighlightedFields(), 3000);
     }
     clearHighlightedFields() {
@@ -656,11 +674,6 @@ class DbNetEdit extends DbNetGridEdit {
     deleteFile(event) {
         const $img = $(event.currentTarget).closest("td").find("img");
         this.saveFile($img, null);
-    }
-    selectTime(event) {
-        const $button = $(event.target);
-        $button.parent().find("input").timepicker('open');
-        event.stopPropagation();
     }
     uuid() {
         function getRandomSymbol(symbol) {

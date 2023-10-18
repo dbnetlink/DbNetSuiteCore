@@ -97,7 +97,7 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Binds an event to a named client-side JavaScript function
         /// </summary>
-        public void Bind(Enum eventType, string functionName)
+        protected void BindEvent(Enum eventType, string functionName)
         {
             _eventBindings.Add(new EventBinding(eventType, functionName));
         }

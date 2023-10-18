@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.StaticFiles;
+using System;
 using System.Linq;
 using System.Text;
 
@@ -21,6 +22,18 @@ namespace DbNetSuiteCore.Helpers
         public static string ParseParameter(string sql)
         {
             return sql.Split(" ").Where(w => w.StartsWith("@")).FirstOrDefault();
+        }
+
+        public static string GetMimeTypeForFileExtension(string extension)
+        {
+            var provider = new FileExtensionContentTypeProvider();
+
+            if (!provider.TryGetContentType($".{extension}", out string contentType))
+            {
+                contentType = string.Empty;
+            }
+
+            return contentType;
         }
     }
 }

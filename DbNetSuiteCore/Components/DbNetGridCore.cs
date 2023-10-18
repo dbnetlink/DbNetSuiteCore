@@ -115,7 +115,16 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public void Bind(EventType eventType, string functionName)
         {
-            base.Bind(eventType, functionName);
+            base.BindEvent(eventType, functionName);
+        }
+        public DbNetGridCoreColumn Column(string columnName)
+        {
+            return Column(new string[] { columnName });
+        }
+
+        public DbNetGridCoreColumn Column(string[] columnNames)
+        {
+            return new DbNetGridCoreColumn(columnNames, _columnProperties, _fromPart, Columns);
         }
         /// <summary>
         /// Specifies the column that should have duplicate adjacent values cleared for readability.
@@ -219,24 +228,6 @@ namespace DbNetSuiteCore.Components
             foreach (var columnName in columnNames)
             {
                 SetColumnAggregate(columnName, aggregateType);
-            }
-        }
-        
-        /// <summary>
-        /// Specifies the column to be shown in the Search dialog
-        /// </summary>
-        public void SetColumnSearch(string columnName)
-        {
-            SetColumnProperty(columnName, ColumnPropertyType.Search, true);
-        }
-        /// <summary>
-        /// Specifies the columns to be shown in the Search dialog
-        /// </summary>
-        public void SetColumnSearch(string[] columnNames)
-        {
-            foreach (var columnName in columnNames)
-            {
-                SetColumnSearch(columnName);
             }
         }
         /// <summary>

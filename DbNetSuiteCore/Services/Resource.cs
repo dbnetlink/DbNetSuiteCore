@@ -51,8 +51,7 @@ namespace DbNetSuiteCore.Services
             string[] libraries = new string[]
             {
                 "libraries.jquery-3.6.1.min",
-                "libraries.jquery-ui.min",
-                "libraries.jquery.timepicker.min"
+                "libraries.jquery-ui.min"
             };
             string[] appScripts = {
                 "DbNetSuite",
@@ -98,7 +97,6 @@ namespace DbNetSuiteCore.Services
             string[] styleSheetNames = new string[] {
 				"libraries.jquery-ui.min",
                 "libraries.jquery-ui.theme.min",
-                "libraries.jquery.timepicker.min",
                 "_reboot",
                 "dbnetsuite",
                 "dbnetgrid",

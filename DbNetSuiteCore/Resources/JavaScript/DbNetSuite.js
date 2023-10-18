@@ -233,11 +233,6 @@ class DbNetSuite {
             $select.prop("selectedIndex", 1);
         }
     }
-    addTimePicker($input) {
-        const options = { "zindex": 100000 };
-        options.change = this.pickerSelected;
-        $input.timepicker(options);
-    }
     _configureLinkedControl(control, id, pk, fk) {
         if (this instanceof DbNetGrid) {
             this.configureLinkedControl(control, id, pk, fk);

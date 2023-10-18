@@ -1,4 +1,4 @@
-type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onConfigureBinaryData" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted" | "onRecordDeleted" | "onInsertInitalize" | "onRecordSelected" | "onFileSelected"
+type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onConfigureBinaryData" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted" | "onRecordDeleted" | "onInsertInitalize" | "onRecordSelected" | "onFileSelected" | "onFormElementValidationFailed"
 
 interface CellDataDownloadArgs {
     row: HTMLTableRowElement,
@@ -298,12 +298,6 @@ class DbNetSuite {
         if ($select.val() == "") {
             $select.prop("selectedIndex", 1)
         }
-    }
-
-    protected addTimePicker($input: JQuery<HTMLInputElement>) {
-        const options = { "zindex": 100000 };
-        options.change = this.pickerSelected;
-        $input.timepicker(options);
     }
 
     private _configureLinkedControl(control: DbNetSuite, id: object | null, pk: string | null, fk: object | null) {

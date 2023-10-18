@@ -4,9 +4,9 @@
 
 @{
     DbNetEditCore productsEdit = new DbNetEditCore("northwind","products");
-    productsEdit.SetColumnDataType("discontinued", typeof(Boolean));
-    productsEdit.SetColumnLookup("categoryid", new Lookup("Categories", "CategoryID", "CategoryName"));
-    productsEdit.SetColumnLookup("SupplierID", new Lookup("Suppliers", "SupplierID", "CompanyName"));
+    productsEdit.Column("discontinued").DataType(typeof(Boolean));
+    productsEdit.Column("categoryid").Lookup(new Lookup("Categories", "CategoryID", "CategoryName"));
+    productsEdit.Column("SupplierID").Lookup(new Lookup("Suppliers", "SupplierID", "CompanyName"));
     productsEdit.FixedFilterSql = "discontinued = @discontinued";
     productsEdit.FixedFilterParams["discontinued"] = true;
 

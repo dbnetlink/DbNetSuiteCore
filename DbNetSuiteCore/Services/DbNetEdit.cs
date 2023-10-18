@@ -274,6 +274,19 @@ namespace DbNetSuiteCore.Services
         private void ConfigureEditColumns()
         {
             Columns = ConfigureColumns(Columns);
+
+            foreach (EditColumn editColumn in Columns)
+            {
+                switch (editColumn.EditControlType)
+                {
+                    case Enums.DbNetEdit.EditControlType.Date:
+                        editColumn.Format = "yyyy-MM-dd";
+                        break;
+                    case Enums.DbNetEdit.EditControlType.DateTime:
+                        editColumn.Format = "yyyy-MM-ddTHH:mm:ss";
+                        break;
+                }
+            }
         }
         protected override void AddColumn(DataRow row)
         {
@@ -343,6 +356,8 @@ namespace DbNetSuiteCore.Services
 
         private void UpdateRecord(DbNetEditResponse response)
         {
+            ConfigureEditColumns();
+
             if (CheckForPrimaryKey(response) == false) {
                 return;
             }
@@ -411,6 +426,8 @@ namespace DbNetSuiteCore.Services
 
         private void InsertRecord(DbNetEditResponse response)
         {
+            ConfigureEditColumns();
+
             List<string> columnNames = new List<string>();
             List<string> paramNames = new List<string>();
             CommandConfig insertCommand = new CommandConfig();

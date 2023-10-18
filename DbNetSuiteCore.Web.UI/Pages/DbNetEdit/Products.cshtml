@@ -5,15 +5,14 @@
 
 @{
     DbNetEditCore productsEdit = new DbNetEditCore("northwind", "products");
-    productsEdit.SetColumnLookup("categoryid", new Lookup("Categories", "CategoryID", "CategoryName"));
-    productsEdit.SetColumnLookup("SupplierID", new Lookup("Suppliers", "SupplierID", "CompanyName"));
-    productsEdit.SetColumnFormat("UnitPrice", "c");
-    productsEdit.SetColumnBrowse(new string[] { "ProductName", "CategoryID", "SupplierID" });
-    productsEdit.SetColumnStyle("UnitPrice", "background-color:gold; font-weight:bold;");
-    productsEdit.SetColumnLabel("CategoryID", "Category");
-    productsEdit.SetColumnLabel("SupplierID", "Supplier");
-    productsEdit.SetColumnDataType("discontinued", typeof(Boolean));
-    productsEdit.SetColumnReadOnly(new string[] { "discontinued" });
+    productsEdit.Column("categoryid").Lookup(new Lookup("Categories", "CategoryID", "CategoryName"));
+    productsEdit.Column("SupplierID").Lookup(new Lookup("Suppliers", "SupplierID", "CompanyName"));
+    productsEdit.Column("UnitPrice").Format("c");
+    productsEdit.Column(new string[] { "ProductName", "CategoryID", "SupplierID" }).Browse();
+    productsEdit.Column("UnitPrice").Style("background-color:gold; font-weight:bold;").Search();
+    productsEdit.Column("CategoryID").Label("Category");
+    productsEdit.Column("SupplierID").Label("Supplier");
+    productsEdit.Column("discontinued").DataType(typeof(Boolean)).ReadOnly();
 
     @productsEdit.Render()
 }

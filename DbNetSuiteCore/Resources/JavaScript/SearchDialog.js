@@ -1,16 +1,15 @@
 "use strict";
 class SearchDialog extends Dialog {
     constructor(id, parent) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
         super(id);
         this.inputBuffer = {};
         (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.on("dialogopen", (event) => this.dialogOpened(event));
         this.parent = parent;
         (_b = this.$dialog) === null || _b === void 0 ? void 0 : _b.find("select.search-operator").on("change", (event) => this.configureForOperator(event));
         (_c = this.$dialog) === null || _c === void 0 ? void 0 : _c.find("[button-type='calendar']").on("click", (event) => this.selectDate(event));
-        (_d = this.$dialog) === null || _d === void 0 ? void 0 : _d.find("[button-type='clock']").on("click", (event) => this.selectTime(event));
-        (_e = this.$dialog) === null || _e === void 0 ? void 0 : _e.find("[button-type='lookup']").on("click", (event) => this.lookup(event));
-        (_f = this.$dialog) === null || _f === void 0 ? void 0 : _f.find("input").get().forEach(e => {
+        (_d = this.$dialog) === null || _d === void 0 ? void 0 : _d.find("[button-type='lookup']").on("click", (event) => this.lookup(event));
+        (_e = this.$dialog) === null || _e === void 0 ? void 0 : _e.find("input").get().forEach(e => {
             const $input = $(e);
             $input.width(240);
             $input.on("keyup", (event) => this.criteriaEntered(event.target));
@@ -18,17 +17,13 @@ class SearchDialog extends Dialog {
                 $input.on("keypress", (event) => this.filterNumericKeyPress(event));
             }
         });
-        (_g = this.$dialog) === null || _g === void 0 ? void 0 : _g.find("input[datatype='DateTime'").get().forEach(e => {
+        (_f = this.$dialog) === null || _f === void 0 ? void 0 : _f.find("input[datatype='DateTime'").get().forEach(e => {
             const $input = $(e);
             this.addDatePicker($input, this.parent.datePickerOptions);
         });
-        (_h = this.$dialog) === null || _h === void 0 ? void 0 : _h.find("input[datatype='TimeSpan'").get().forEach(e => {
-            const $input = $(e);
-            this.addTimePicker($input);
-        });
-        (_j = this.$dialog) === null || _j === void 0 ? void 0 : _j.find("[button-type='clear']").on("click", () => this.clear());
-        (_k = this.$dialog) === null || _k === void 0 ? void 0 : _k.find("[button-type='apply']").on("click", () => this.apply());
-        (_l = this.$dialog) === null || _l === void 0 ? void 0 : _l.find("[button-type='cancel']").on("click", () => this.close());
+        (_g = this.$dialog) === null || _g === void 0 ? void 0 : _g.find("[button-type='clear']").on("click", () => this.clear());
+        (_h = this.$dialog) === null || _h === void 0 ? void 0 : _h.find("[button-type='apply']").on("click", () => this.apply());
+        (_j = this.$dialog) === null || _j === void 0 ? void 0 : _j.find("[button-type='cancel']").on("click", () => this.close());
     }
     dialogOpened(event) {
         var _a, _b;
