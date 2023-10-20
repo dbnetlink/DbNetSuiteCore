@@ -61,7 +61,7 @@
         Delete = true
     };
 
-    customersEdit.SetColumnHidden("CustomerID");
+    customersEdit.Column("CustomerID").Hidden();
 
     DbNetGridCore orderDetailsGrid = new DbNetGridCore("northwind", "[order details]", "orderDetailsGrid")
             {

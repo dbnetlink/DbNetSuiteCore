@@ -126,7 +126,7 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Specifies the column that should trigger a summary aggregatre when the value changes.
         /// </summary>
-        public DbNetGridCoreColumn Break()
+        public DbNetGridCoreColumn TotalBreak()
         {
             SetColumnProperty(ColumnPropertyType.TotalBreak, true);
             return this;

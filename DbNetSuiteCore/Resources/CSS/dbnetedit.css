@@ -22,14 +22,14 @@ table.dbnetedit-form input:focus, table.dbnetedit-form textarea:focus, table.dbn
   background-color: #FFE082;
   outline: none;
 }
-table.dbnetedit-form a {
+table.dbnetedit-form a.dbnetedit {
   font-family: var(--main-font-family);
   font-size: var(--main-font-size);
   display: table-cell;
   vertical-align: middle;
   margin-right: 5px;
 }
-table.dbnetedit-form a [href]:not([href=""]) {
+table.dbnetedit-form a.dbnetedit [href]:not([href=""]) {
   color: blue !important;
 }
 table.dbnetedit-form img.dbnetedit {
@@ -76,6 +76,7 @@ table.dbnetedit-form .annotation {
   color: #616161;
   padding: 2px 0px;
   font-size: 70%;
+  white-space: normal;
 }
 
 .dbnetedit-form .message,

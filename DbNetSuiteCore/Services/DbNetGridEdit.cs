@@ -624,22 +624,22 @@ namespace DbNetSuiteCore.Services
             if (column.ColumnSize == 0)
             {
                 column.ColumnSize = row.ColumnSize();
-            }
 
-            switch (column.DataType)
-            {
-                case nameof(DateTime):
-                    column.ColumnSize = 8;
-                    break;
-                case nameof(Guid):
-                    column.ColumnSize = 36;
-                    break;
-                default:
-                    if (column.ColumnSize < 10)
-                    {
-                        column.ColumnSize = column.IsNumeric ? 10 : 20;
-                    }
-                    break;
+                switch (column.DataType)
+                {
+                    case nameof(DateTime):
+                        column.ColumnSize = 8;
+                        break;
+                    case nameof(Guid):
+                        column.ColumnSize = 36;
+                        break;
+                    default:
+                        if (column.ColumnSize < 10)
+                        {
+                            column.ColumnSize = column.IsNumeric ? 10 : 20;
+                        }
+                        break;
+                }
             }
         }
 

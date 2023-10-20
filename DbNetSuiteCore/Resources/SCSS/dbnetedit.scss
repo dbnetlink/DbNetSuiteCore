@@ -30,7 +30,7 @@ table.dbnetedit-form {
         }
     }
 
-    a {
+    a.dbnetedit {
         font-family: var(--main-font-family);
         font-size: var(--main-font-size);
         display: table-cell;
@@ -96,6 +96,7 @@ table.dbnetedit-form {
         color: #616161;
         padding: 2px 0px;
         font-size: 70%;
+        white-space:normal;
     }
 }
 

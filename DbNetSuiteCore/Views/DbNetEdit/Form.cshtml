@@ -7,6 +7,7 @@
 @using DbNetSuiteCore.Models
 @using System.Data
 @using System.Linq
+@using System.Web
 @using Microsoft.AspNetCore.Html
 @using System.Text;
 @using DbNetSuiteCore.Extensions
@@ -34,59 +35,62 @@
     <div class="toolbar-container"></div>
     <hr class="toolbar" />
 }
-<table class="dbnetedit-form">
-    <tbody>
-        @for (int r = 0; r < rows; r++)
-        {
-            <tr class="form-row">
-                @for (int c = 1; c <= Model.LayoutColumns; c++)
-                {
-                    int i = r + ((c - 1) * rows);
-                    if (i < fields.Count)
+<form>
+    <table class="dbnetedit-form">
+        <tbody>
+            @for (int r = 0; r < rows; r++)
+            {
+                <tr class="form-row">
+                    @for (int c = 1; c <= Model.LayoutColumns; c++)
                     {
-                        EditColumn editColumn = fields[i].Key;
-                        DataColumn dataColumn = fields[i].Value;
-                        <td class="label">@(editColumn.Label)</td>
-                        if (editColumn.Binary)
+                        int i = r + ((c - 1) * rows);
+                        if (i < fields.Count)
                         {
-                            <td class="control">
-                                @BinaryControl(editColumn,dataColumn)
-                                @Annotation(editColumn)
-                            </td>
+                            int tabIndex = i;
+                            EditColumn editColumn = fields[i].Key;
+                            DataColumn dataColumn = fields[i].Value;
+                            <td class="label">@(editColumn.Label)</td>
+                            if (editColumn.Binary)
+                            {
+                                <td class="control">
+                                    @BinaryControl(editColumn,dataColumn)
+                                    @Annotation(editColumn)
+                                </td>
+                            }
+                            else
+                            {
+                                <td class="control">
+                                    @FormControl(editColumn,dataColumn, tabIndex)
+                                    @Annotation(editColumn)
+                                </td>
+                            }
                         }
-                        else
+                    }
+                    @if (remainder > 0)
+                    {
+                        for (int i = 0; i < Model.LayoutColumns - remainder; i++)
                         {
-                            <td class="control">
-                                @FormControl(editColumn,dataColumn)
-                                @Annotation(editColumn)
-                            </td>
+                            <td colspan="2"></td>
                         }
                     }
-                }
-                @if (remainder > 0)
-                {
-                    for (int i = 0; i < Model.LayoutColumns - remainder; i++)
-                    {
-                        <td colspan="2"></td>
-                    }
-                }
-            </tr>
-        }
-        @if (hiddenFields.Any())
-        {
-            <tr style="display:none">
-                <td colspan="@(Model.LayoutColumns*2)">
-                    @foreach (var hiddenField in hiddenFields)
-                    {
-                        EditColumn editColumn = hiddenField.Key;
-                        DataColumn dataColumn = hiddenField.Value;
-                        @FormControl(editColumn,dataColumn)
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                </tr>
+            }
+            @if (hiddenFields.Any())
+            {
+                <tr style="display:none">
+                    <td colspan="@(Model.LayoutColumns*2)">
+                        @foreach (var hiddenField in hiddenFields)
+                        {
+                            EditColumn editColumn = hiddenField.Key;
+                            DataColumn dataColumn = hiddenField.Value;
+                            @FormControl(editColumn,dataColumn)
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>
 @if (Model.ToolbarPosition != Enums.ToolbarPosition.Top)
 {
     <hr class="toolbar" />
@@ -97,7 +101,7 @@
 </div>
 @functions
 {
-    public HtmlString FormControl(EditColumn editColumn, DataColumn dataColumn)
+    public HtmlString FormControl(EditColumn editColumn, DataColumn dataColumn, int tabIndex = -1)
     {
         if (string.IsNullOrEmpty(editColumn.Lookup) == false)
         {
@@ -111,7 +115,7 @@
                     break;
                 case EditControlType.DropDownList:
                     string options = editColumn.IsDependentLookup ? string.Empty : LookupOptions(Model.LookupTables[editColumn.ColumnName]);
-                    return new HtmlString($"<select {string.Join(" ", Attributes(editColumn, dataColumn))} >{options}</select>");
+                    return new HtmlString($"<select {string.Join(" ", Attributes(editColumn, dataColumn, tabIndex, tabIndex))} >{options}</select>");
             }
         }
 
@@ -145,7 +149,7 @@
                 break;
         }
 
-        return new HtmlString($"<{tagName} {string.Join(" ", Attributes(editColumn, dataColumn, editColumn.ColumnSize))}></{tagName}>{button}{output}");
+        return new HtmlString($"<{tagName} {string.Join(" ", Attributes(editColumn, dataColumn, editColumn.ColumnSize, tabIndex))}></{tagName}>{button}{output}");
     }
 
     public HtmlString BinaryControl(EditColumn editColumn, DataColumn dataColumn)
@@ -167,7 +171,7 @@
             return new HtmlString(string.Empty);
         }
 
-        return new HtmlString($"<div class=\"annotation\">{editColumn.Annotation}</div>");
+        return new HtmlString($"<div class=\"annotation\">{HttpUtility.HtmlDecode(editColumn.Annotation)}</div>");
     }
 
     private HtmlString DataListLookup(EditColumn editColumn, DataColumn dataColumn)
@@ -185,7 +189,7 @@
         return button;
     }
 
-    public List<string> Attributes(EditColumn editColumn, DataColumn dataColumn, int size = 0)
+    public List<string> Attributes(EditColumn editColumn, DataColumn dataColumn, int size = 0, int tabIndex = -1)
     {
         List<string> attributes = new List<string>();
         List<string> classNames = new List<string>() { "dbnetedit" };
@@ -319,13 +323,22 @@
         {
             attributes.Add(disabled);
         }
+        /*
+        else
+        {
+            attributes.Add($"tabIndex=\"{tabIndex}\"");
+        }
+        */
         attributes.Add($"name=\"{dataColumn.ColumnName.ToLower()}\"");
 
         switch (editColumn.EditControlType)
         {
             case EditControlType.TextBox:
             case EditControlType.Auto:
-                 if (size > 0)
+            case EditControlType.Tel:
+            case EditControlType.Email:
+            case EditControlType.Url:
+                if (size > 0)
                 {
                     attributes.Add($"size=\"{size.ToString()}\"");
                 }

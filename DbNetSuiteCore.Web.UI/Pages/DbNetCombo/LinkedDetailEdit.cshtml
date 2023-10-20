@@ -3,7 +3,7 @@
 @using DbNetSuiteCore.Enums;
 @{
     DbNetEditCore ordersEdit = new DbNetEditCore("northwind", "orders");
-    ordersEdit.SetColumnAsForeignKey("customerid");
+    ordersEdit.Column("customerid").ForeignKey();
     DbNetComboCore customersCombo = new DbNetComboCore("northwind", "customers", "customerid", "companyname");
     customersCombo.AddLinkedControl(ordersEdit);
     @customersCombo.Render()

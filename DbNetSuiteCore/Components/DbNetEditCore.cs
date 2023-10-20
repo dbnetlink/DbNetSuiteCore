@@ -20,7 +20,6 @@ namespace DbNetSuiteCore.Components
         public int? LayoutColumns { get; set; }
         public ValidationMessageType? ValidationMessageType { get; set; }
 
-
         public DbNetEditCore(string connection, string fromPart, string id = null) : base(connection, fromPart, id)
         {
             BrowseControl = new DbNetGridCore(connection, fromPart, true);
@@ -51,91 +50,7 @@ namespace DbNetSuiteCore.Components
         {
             return new DbNetEditCoreColumn(columnNames, _columnProperties, _fromPart, Columns);
         }
-        /// <summary>
-        /// Sets the type of edit control type for the column
-        /// </summary>
-        public void SetControlType(string columnName, EditControlType editControlType)
-        {
-            SetColumnProperty(columnName, ColumnPropertyType.EditControlType, editControlType);
-        }
-        /// <summary>
-        /// Sets the type of edit control type for the columns
-        /// </summary>
-        public void SetControlType(string[] columnNames, EditControlType editControlType)
-        {
-            foreach (string columnName in columnNames)
-            {
-                SetControlType(columnName, editControlType);
-            }
-        }
-        /// <summary>
-        /// Sets the size of the edit field
-        /// </summary>
-        public void SetColumnSize(string columnName, int size)
-        {
-            SetColumnProperty(columnName, ColumnPropertyType.ColumnSize, size);
-        }
-        /// <summary>
-        /// Specifies the columns that will be displayed in the browse dialog
-        /// </summary>
-        public void SetColumnBrowse(string[] columnNames)
-        {
-            foreach (string columnName in columnNames)
-            {
-                SetColumnProperty(columnName, ColumnPropertyType.Browse, true);
-            }
-        }
-        /// <summary>
-        /// Indicates the columns that are required in the edit form
-        /// </summary>
-        public void SetColumnRequired(string[] columnNames)
-        {
-            foreach (string columnName in columnNames)
-            {
-                SetColumnProperty(columnName, ColumnPropertyType.Required, true);
-            }
-        }
-        /// <summary>
-        /// Disables the ability to modify the fields in the form
-        /// </summary>
-        public void SetColumnReadOnly(string[] columnNames)
-        {
-            foreach (string columnName in columnNames)
-            {
-                SetColumnReadOnly(columnName);
-            }
-        }
-        /// <summary>
-        /// Disables the ability to modify the field in the form
-        /// </summary>
-        public void SetColumnReadOnly(string columnName)
-        {
-            SetColumnProperty(columnName, ColumnPropertyType.ReadOnly, true);
-        }
-
-        /// <summary>
-        /// Assigns placeholder text for the input field
-        /// </summary>
-        public void SetColumnPlaceholder(string columnName, string text)
-        {
-            SetColumnProperty(columnName, ColumnPropertyType.Placeholder, text);
-        }
-
-        /// <summary>
-        /// Assigns annotation(help) text to be displayed alognside input field
-        /// </summary>
-        public void SetColumnAnnotation(string columnName, string text)
-        {
-            SetColumnProperty(columnName, ColumnPropertyType.Annotation, text);
-        }
-
-        /// <summary>
-        /// Assigns input validation properties. Used in conjunction with EditControlType
-        /// </summary>
-        public void SetColumnValidation(string columnName, InputValidation inputValidation)
-        {
-            SetColumnProperty(columnName, ColumnPropertyType.InputValidation, inputValidation);
-        }
+     
         public HtmlString Render()
         {
             string message = ValidateProperties();

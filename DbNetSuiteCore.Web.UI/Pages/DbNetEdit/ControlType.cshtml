@@ -7,30 +7,48 @@
     DbNetEditCore inputTypesEdit = new DbNetEditCore("dbnetsuitecore","inputtypes");
     inputTypesEdit.Insert = true;
     inputTypesEdit.Delete = true;
-    inputTypesEdit.ValidationMessageType = ValidationMessageType.Application;
+    inputTypesEdit.ValidationMessageType = ValidationMessageType.Native;
     inputTypesEdit.LayoutColumns = 2;
+    inputTypesEdit.Column("Id").Hidden();
 
     inputTypesEdit.Column("Range").
         ControlType(EditControlType.Range).
         Validation(new InputValidation(0, 100, 10)).
-        Annotation("This range has a minimum of 0 and maximum of 100 and increments of 10");
+        Annotation("This <a href='https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/range' target='_blank'>Range</a> type uses a slider to set a numeric value and can be given minimum and maximum values along with an increment");
 
     inputTypesEdit.Column("Phone").
         ControlType(EditControlType.Tel).
         Placeholder("Please enter your mobile number").
-        Annotation("Phone number must be in US format e.g. 123-456-7890").
+        Annotation("Phone number must be in US format e.g. 123-456-7890 which is enforced by a regular expression").
         Validation(new InputValidation("\\d{3}[\\-]\\d{3}[\\-]\\d{4}"));
 
-    inputTypesEdit.Column("Email").ControlType(EditControlType.Email);
-    inputTypesEdit.Column("Url").ControlType(EditControlType.Url);
-    inputTypesEdit.Column("AppointmentDate").ControlType(EditControlType.Date).DataType(typeof(DateTime));
-    inputTypesEdit.Column("AppointmentTime").ControlType(EditControlType.Time).DataType(typeof(TimeSpan));
-    inputTypesEdit.Column("WeekNumber").ControlType(EditControlType.Week);
-    inputTypesEdit.Column("Month").ControlType(EditControlType.Month);
-    inputTypesEdit.Column("ExpiryDateTime").ControlType(EditControlType.DateTime);
-    inputTypesEdit.Column("Colour").ControlType(EditControlType.Color);
-    inputTypesEdit.Column("Password").ControlType(EditControlType.Password);
-    inputTypesEdit.Column("Quantity").ControlType(EditControlType.Number);
+    inputTypesEdit.Column("Email").
+        ControlType(EditControlType.Email).
+        Size(40).
+        Annotation("The <a href='https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/email' target='_blank'>Email</a> type automatically validates the input to ensure it is a valid email address");
+
+    inputTypesEdit.Column("Url").
+        ControlType(EditControlType.Url).
+        Size(40).
+        Annotation("Like the <b>Email</b> type <a href='https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/url' target='_blank'>Url</a> type automatically validates the input to ensure it is a valid url");
+
+    inputTypesEdit.Column("AppointmentDate").
+        ControlType(EditControlType.Date).
+        DataType(typeof(DateTime)).
+        Annotation("You can use the native data picker and validation by setting the control type to <a href='https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date' target='_blank'>Date</a>"); 
+
+    inputTypesEdit.Column("AppointmentTime").
+        ControlType(EditControlType.Time).
+        DataType(typeof(TimeSpan)).
+        Annotation("The <a href='https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/time' target='_blank'>Time</a> control type can be used to manage the input of time values");
+
+    inputTypesEdit.Column("WeekNumber").ControlType(EditControlType.Week).Annotation("The <a href='https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/week' target='_blank'>Week</a> control type can be used to manage the input of week number values");
+
+    inputTypesEdit.Column("Month").ControlType(EditControlType.Month).Annotation("The <a href='https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/month' target='_blank'>Month</a> control type can be used to manage the input of year/month values");
+    inputTypesEdit.Column("ExpiryDateTime").ControlType(EditControlType.DateTime).Annotation("The <a href='https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/datetime' target='_blank'>Month</a> control type can be used to manage the input of date/time values");
+    inputTypesEdit.Column("Colour").ControlType(EditControlType.Color).Annotation("The <a href='https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/color' target='_blank'>Color</a> control type includes a color picker and stores the value as a 6 characater hex code");
+    inputTypesEdit.Column("Password").ControlType(EditControlType.Password).Annotation("The <a href='https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/password' target='_blank'>Password</a> control type hides the text entered by the user");
+    inputTypesEdit.Column("Quantity").ControlType(EditControlType.Number).Annotation("The <a href='https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/number' target='_blank'>Number</a> control type restricts entry to numeric values only and can be further validated using max, min and step constraints");
 
     @inputTypesEdit.Render()
 }
