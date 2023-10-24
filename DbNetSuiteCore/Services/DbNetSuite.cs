@@ -46,7 +46,7 @@ namespace DbNetSuiteCore.Services
         }
         public string Culture { get; set; } = String.Empty;
         protected DbNetDataCore Database { get; set; }
-
+        public DataProvider? DataProvider { get; set; }
         public string Id => ComponentId;
         public ComponentType? ParentControlType { get; set; }
         public ResourceManager ResourceManager { get; set; }
@@ -142,7 +142,7 @@ namespace DbNetSuiteCore.Services
 
         protected void Initialise()
         {
-            Database = new DbNetDataCore(ConnectionString, Env, Configuration);
+            Database = new DbNetDataCore(ConnectionString, Env, Configuration, DataProvider);
             ResourceManager = new ResourceManager("DbNetSuiteCore.Resources.Localization.default", typeof(DbNetSuite).Assembly);
 
             if (string.IsNullOrEmpty(Culture) == false)

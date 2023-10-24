@@ -722,15 +722,18 @@ class DbNetGrid extends DbNetGridEdit {
 
     private getViewContent() {
         const $row = this.assignPrimaryKey();
-
         this.post<DbNetGridResponse>("view-content", this.getRequest())
             .then((response) => {
-                if (!this.viewDialog) {
-                    this.element?.append(response.toolbar);
-                    this.viewDialog = new ViewDialog(`${this.id}_view_dialog`, this);
-                }
-                this.viewDialog.update(response, $row)
+                this.configureViewDialog(response, $row);
             });
+    }
+
+    private configureViewDialog(response: DbNetGridResponse, $row: JQuery<HTMLTableRowElement>) {
+        if (!this.viewDialog) {
+            this.element?.append(response.dialog);
+            this.viewDialog = new ViewDialog(`${this.id}_view_dialog`, this);
+        }
+        this.viewDialog.update(response, $row)
     }
 
     private assignPrimaryKey(): JQuery<HTMLTableRowElement> {
@@ -1015,7 +1018,7 @@ class DbNetGrid extends DbNetGridEdit {
             const $image = $(element);
             fileName = $image.data("filename").split('|')[0];
         }
-        else { 
+        else {
             const $button = $(element);
 
             if ($button[0].tagName == 'a') {
@@ -1046,7 +1049,7 @@ class DbNetGrid extends DbNetGridEdit {
                     if (image) {
                         const $img = $cell.find("img") as JQuery<HTMLImageElement>;
                         $img.attr("src", window.URL.createObjectURL(blob));
-                        $img.on("click", (event) => this.viewImage(event) )
+                        $img.on("click", (event) => this.viewImage(event))
                     }
                     else {
                         const link = document.createElement("a");

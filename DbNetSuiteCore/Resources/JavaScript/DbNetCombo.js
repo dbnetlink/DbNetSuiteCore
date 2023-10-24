@@ -170,27 +170,22 @@ class DbNetCombo extends DbNetSuite {
         });
     }
     getRequest() {
-        const request = {
-            componentId: this.id,
-            connectionString: this.connectionString,
-            culture: this.culture,
-            dataOnlyColumns: this.dataOnlyColumns,
-            parentControlType: this.parentControlType,
-            fromPart: this.fromPart,
-            valueColumn: this.valueColumn,
-            textColumn: this.textColumn,
-            procedureParams: this.procedureParams,
-            addEmptyOption: this.addEmptyOption,
-            emptyOptionText: this.emptyOptionText,
-            addFilter: this.addFilter,
-            filterToken: this.filterToken,
-            foreignKeyColumn: this.foreignKeyColumn,
-            foreignKeyValue: this.foreignKeyValue,
-            size: this.size,
-            multipleSelect: this.multipleSelect,
-            procedureName: this.procedureName,
-            distinct: this.distinct
-        };
+        const request = this._getRequest();
+        request.dataOnlyColumns = this.dataOnlyColumns;
+        request.fromPart = this.fromPart;
+        request.valueColumn = this.valueColumn;
+        request.textColumn = this.textColumn;
+        request.procedureParams = this.procedureParams;
+        request.addEmptyOption = this.addEmptyOption;
+        request.emptyOptionText = this.emptyOptionText;
+        request.addFilter = this.addFilter;
+        request.filterToken = this.filterToken;
+        request.foreignKeyColumn = this.foreignKeyColumn;
+        request.foreignKeyValue = this.foreignKeyValue;
+        request.size = this.size;
+        request.multipleSelect = this.multipleSelect;
+        request.procedureName = this.procedureName;
+        request.distinct = this.distinct;
         return request;
     }
 }

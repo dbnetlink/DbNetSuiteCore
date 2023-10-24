@@ -13,22 +13,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
 using DbNetSuiteCore.Enums;
-using System.Security.Principal;
-using DocumentFormat.OpenXml.VariantTypes;
 
 namespace DbNetSuiteCore.Utilities
 {
     public class DbNetDataCore : IDisposable
     {
         private readonly Hashtable _reservedWords = new Hashtable();
-        public enum DatabaseType
-        {
-            MySql,
-            Oracle,
-            PostgreSql,
-            SQLite,
-            SqlServer
-        }
+      
         public enum MetaDataType
         {
             MetaDataCollections,
@@ -123,8 +114,8 @@ namespace DbNetSuiteCore.Utilities
         public Hashtable ReservedWords => GetReservedWords();
         public string DatabaseName => Connection?.Database;
 
-        public DbNetDataCore(string connectionString, IWebHostEnvironment env, IConfiguration configuration)
-            : this(configuration.GetConnectionString(connectionString), DeriveProvider(configuration.GetConnectionString(connectionString)), env)
+        public DbNetDataCore(string connectionString, IWebHostEnvironment env, IConfiguration configuration, DataProvider? dataProvider)
+            : this(configuration.GetConnectionString(connectionString), DeriveProvider(configuration.GetConnectionString(connectionString), dataProvider), env)
         {
 
         }
@@ -135,10 +126,10 @@ namespace DbNetSuiteCore.Utilities
 
         }
 
-        public DbNetDataCore(string connectionString, DataProvider provider, IWebHostEnvironment env, DatabaseType? database = null)
+        public DbNetDataCore(string connectionString, DataProvider dataProvider, IWebHostEnvironment env, DatabaseType? database = null)
         {
             Env = env;
-            Provider = provider;
+            Provider = dataProvider;
             ConnectionString = MapDatabasePath(connectionString);
             CustomDataProvider customDataProvider = null;
 
@@ -154,16 +145,20 @@ namespace DbNetSuiteCore.Utilities
                     case DataProvider.SqlClient:
                         Connection = new SqlConnection(ConnectionString);
                         Adapter = new SqlDataAdapter();
-                        Database = DatabaseType.SqlServer;
+                        Database = DatabaseType.MSSqlServer;
                         ProviderAssembly = Assembly.GetAssembly(typeof(SqlConnection));
                         break;
                     case DataProvider.MySql:
                         customDataProvider = new CustomDataProvider("MySql.Data", "MySqlClient.MySqlConnection");
-                        Database = DatabaseType.MySql;
+                        Database = DatabaseType.MySQL;
                         break;
                     case DataProvider.Npgsql:
                         customDataProvider = new CustomDataProvider("Npgsql", "NpgsqlConnection");
-                        Database = DatabaseType.PostgreSql;
+                        Database = DatabaseType.PostgreSQL;
+                        break;
+                    case DataProvider.MySqlConnector:
+                        customDataProvider = new CustomDataProvider("MySqlConnector", "MySqlConnection");
+                        Database = DatabaseType.MySQL;
                         break;
                 }
             }
@@ -174,15 +169,15 @@ namespace DbNetSuiteCore.Utilities
 
             switch (Database)
             {
-                case DatabaseType.SqlServer:
+                case DatabaseType.MSSqlServer:
                 case DatabaseType.SQLite:
                     NameDelimiterTemplate = "[{0}]";
                     break;
-                case DatabaseType.PostgreSql:
-                case DatabaseType.Oracle:
+                case DatabaseType.PostgreSQL:
+              //  case DatabaseType.Oracle:
                     NameDelimiterTemplate = "\"{0}\"";
                     break;
-                case DatabaseType.MySql:
+                case DatabaseType.MySQL:
                     NameDelimiterTemplate = "`{0}`";
                     break;
             }
@@ -307,7 +302,7 @@ namespace DbNetSuiteCore.Utilities
             long identity = -1;
             try
             {
-                if (this.Database == DatabaseType.PostgreSql && autoIncrementColumnName != null)
+                if (this.Database == DatabaseType.PostgreSQL && autoIncrementColumnName != null)
                 {
                     commandConfig.Sql = $"{commandConfig.Sql} returning {autoIncrementColumnName}";
                     identity = this.ExecuteScalar(commandConfig);
@@ -333,8 +328,8 @@ namespace DbNetSuiteCore.Utilities
             string Sql = "";
             switch (this.Database)
             {
-                case DatabaseType.MySql:
-                case DatabaseType.SqlServer:
+                case DatabaseType.MySQL:
+                case DatabaseType.MSSqlServer:
                     Sql = "SELECT @@IDENTITY";
                     break;
                 case DatabaseType.SQLite:
@@ -376,13 +371,11 @@ namespace DbNetSuiteCore.Utilities
 
             switch (Provider)
             {
-                case DataProvider.OleDb:
-                    typeName = "OleDbCommandBuilder";
-                    break;
                 case DataProvider.SqlClient:
                     typeName = "SqlCommandBuilder";
                     break;
                 case DataProvider.MySql:
+                case DataProvider.MySqlConnector:
                     typeName = "MySqlCommandBuilder";
                     break;
                 case DataProvider.Npgsql:
@@ -452,7 +445,7 @@ namespace DbNetSuiteCore.Utilities
                 if (ParameterTemplate.Substring(0, 1) == key.Substring(0, 1))
                     return key;
             /*
-            if (parameterValue && Database == DatabaseType.MySql)
+            if (parameterValue && Database == DatabaseType.MySQL)
             {
                 return CleanParameterName(key);
             }
@@ -504,7 +497,7 @@ namespace DbNetSuiteCore.Utilities
 
             Reader.Close();
 
-            if (Database == DatabaseType.SqlServer && tableName.Length > 0)
+            if (Database == DatabaseType.MSSqlServer && tableName.Length > 0)
             {
                 sql =
                     $"SELECT K.COLUMN_NAME FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS T INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE K ON T.CONSTRAINT_NAME = K.CONSTRAINT_NAME WHERE T.CONSTRAINT_TYPE = 'PRIMARY KEY' AND T.TABLE_NAME = '{tableName[tableName.Length - 1]}'";
@@ -548,7 +541,7 @@ namespace DbNetSuiteCore.Utilities
                 }
             }
 
-            if (Database == DatabaseType.SqlServer)
+            if (Database == DatabaseType.MSSqlServer)
             {
                 sql = $"SELECT COLUMN_NAME, COLUMN_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{dataTable.Rows[0]["BaseTableName"]}'";
 
@@ -572,7 +565,7 @@ namespace DbNetSuiteCore.Utilities
 
             switch (Database)
             {
-                case DatabaseType.MySql:
+                case DatabaseType.MySQL:
                     dataTable.Columns["ColumnSize"].ReadOnly = false;
 
                     foreach (DataRow Row in dataTable.Rows)
@@ -592,7 +585,7 @@ namespace DbNetSuiteCore.Utilities
                     }
                     break;
               
-                case DatabaseType.PostgreSql:
+                case DatabaseType.PostgreSQL:
                     dataTable.Columns["ColumnSize"].ReadOnly = false;
 
                     foreach (DataRow Row in dataTable.Rows)
@@ -618,10 +611,10 @@ namespace DbNetSuiteCore.Utilities
                         case DatabaseType.SQLite:
                             dbObjects = SqliteMasterQuery("table");
                             break;
-                        case DatabaseType.MySql:
+                        case DatabaseType.MySQL:
                             dbObjects = MySqlInformationSchemaQuery("BASE TABLE");
                             break;
-                        case DatabaseType.PostgreSql:
+                        case DatabaseType.PostgreSQL:
                             dbObjects = PostGresInformationSchemaQuery("BASE TABLE");
                             break;
                         default:
@@ -635,10 +628,10 @@ namespace DbNetSuiteCore.Utilities
                         case DatabaseType.SQLite:
                             dbObjects = SqliteMasterQuery("view");
                             break;
-                        case DatabaseType.MySql:
+                        case DatabaseType.MySQL:
                             dbObjects = MySqlInformationSchemaQuery("VIEW");
                             break;
-                        case DatabaseType.PostgreSql:
+                        case DatabaseType.PostgreSQL:
                             dbObjects = PostGresInformationSchemaQuery("VIEW");
                             break;
                         default:
@@ -695,7 +688,7 @@ namespace DbNetSuiteCore.Utilities
                     case MetaDataType.Functions:
                         switch (Database)
                         {
-                            case DatabaseType.SqlServer:
+                            case DatabaseType.MSSqlServer:
                                 DataRow[] PRows = schema.Select("ROUTINE_TYPE = '" + collectionType.ToString().ToUpper().Replace("S", "") + "'");
                                 DataTable PT = schema.Clone();
                                 foreach (DataRow R in PRows)
@@ -770,8 +763,12 @@ namespace DbNetSuiteCore.Utilities
             connectionString = Regex.Replace(connectionString, dataSourcePropertyName + "=~", dataSourcePropertyName + "=" + currentPath, RegexOptions.IgnoreCase).Replace("=//", "=/");
             return connectionString;
         }
-        private static DataProvider DeriveProvider(string connectionString)
+        private static DataProvider DeriveProvider(string connectionString, DataProvider? dataProvider = null)
         {
+            if (dataProvider.HasValue)
+            {
+                return dataProvider.Value;
+            }
             if (!connectionString.EndsWith(";"))
                 connectionString += ";";
 
@@ -795,15 +792,6 @@ namespace DbNetSuiteCore.Utilities
         public string CleanParameterName(string key)
         {
             key = Regex.Replace(key, "[^a-zA-Z0-9_]", "_");
-
-            switch (Database)
-            {
-                case DatabaseType.Oracle:
-                    if (IsReservedWord(key))
-                        key += "_X";
-                    break;
-            }
-
             return key;
         }
 
@@ -862,8 +850,8 @@ namespace DbNetSuiteCore.Utilities
         {
             switch (Database)
             {
-                case DatabaseType.Oracle:
-                case DatabaseType.MySql:
+               // case DatabaseType.Oracle:
+                case DatabaseType.MySQL:
                     foreach (DataRow row in schema.Rows)
                     {
                         if (row["CreateParameters"].ToString() == "size")

@@ -1,10 +1,12 @@
 ﻿@page
 @using Microsoft.Extensions.FileProviders;
 @model DbNetSuiteCore.Web.UI.Pages.IndexModel
+<div style="column-count:3">
 @{
+    
     foreach (var component in Model.TestPages.Keys)
     {
-        <h2>@component</h2>
+        <h3>@component</h3>
         foreach (IFileInfo testPage in Model.TestPages[component])
         {
             if (testPage.Name.EndsWith(".cshtml"))
@@ -14,3 +16,4 @@
         }
     }
 }
+</div>

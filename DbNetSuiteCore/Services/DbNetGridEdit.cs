@@ -418,11 +418,11 @@ namespace DbNetSuiteCore.Services
                     switch (Database.Database)
                     {
                         case DatabaseType.SQLite:
-                        case DatabaseType.MySql:
-                        case DatabaseType.PostgreSql:
+                        case DatabaseType.MySQL:
+                        case DatabaseType.PostgreSQL:
                             columnExpression = $"length({columnExpression}) {columnExpression}";
                             break;
-                        case DatabaseType.SqlServer:
+                        case DatabaseType.MSSqlServer:
                             columnExpression = $"datalength({columnExpression}) {columnExpression}";
                             break;
                     }
@@ -1366,14 +1366,16 @@ namespace DbNetSuiteCore.Services
 
             switch (Database.Database)
             {
-                case DatabaseType.SqlServer:
+                case DatabaseType.MSSqlServer:
                     if (col.DbDataType != "31") // "Date"
                         columnExpression = $"CONVERT(DATE,{columnExpression})";
                     break;
+                    /*
                 case DatabaseType.Oracle:
                     columnExpression = $"trunc({columnExpression})";
                     break;
-                case DatabaseType.PostgreSql:
+                    */
+                case DatabaseType.PostgreSQL:
                     columnExpression = $"date_trunc('day',{columnExpression})";
                     break;
             }

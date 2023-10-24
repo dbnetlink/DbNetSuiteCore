@@ -7,13 +7,13 @@ class DbNetSuite {
         this.internalEventHandlers = {};
         this.id = "";
         this.connectionString = "";
-        this.connectionType = "SqlServer";
         this.culture = "";
         this.linkedControls = [];
         this.parentControlType = "";
         this.parentChildRelationship = null;
         this.initialised = false;
         this.parentControl = null;
+        this.dataProvider = null;
         if (id == null) {
             return;
         }
@@ -249,7 +249,8 @@ class DbNetSuite {
             componentId: this.id,
             connectionString: this.connectionString,
             culture: this.culture,
-            parentControlType: this.parentControlType
+            parentControlType: this.parentControlType,
+            dataProvider: this.dataProvider
         };
         return request;
     }

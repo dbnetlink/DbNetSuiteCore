@@ -6,7 +6,7 @@ namespace DbNetSuiteCore.Models
     {
         public string ComponentId { get; set; }
         public string ConnectionString { get; set; }
-        public string ConnectionType { get; set; }
+        public DataProvider? DataProvider { get; set; }
         public string Culture { get; set; }
         public ComponentType? ParentControlType { get; set; }
     }

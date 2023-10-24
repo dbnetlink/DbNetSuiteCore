@@ -3,6 +3,7 @@
 /// <reference types="jqueryui" />
 /// <reference types="bootstrap" />
 type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onConfigureBinaryData" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted" | "onRecordDeleted" | "onInsertInitalize" | "onRecordSelected" | "onFileSelected" | "onFormElementValidationFailed";
+type DataProvider = "SqlClient" | "SQLite" | "MySqlConnector" | "Npgsql" | "MySql" | null;
 interface CellDataDownloadArgs {
     row: HTMLTableRowElement;
     cell: HTMLTableCellElement;
@@ -33,7 +34,6 @@ declare class DbNetSuite {
     protected id: string;
     protected loadingPanel: JQuery<HTMLElement> | undefined;
     protected connectionString: string;
-    protected connectionType: DbConnectionType;
     protected culture: string;
     protected linkedControls: Array<DbNetSuite>;
     protected messageBox: MessageBox | undefined;
@@ -42,6 +42,7 @@ declare class DbNetSuite {
     initialised: boolean;
     protected imageViewer: ImageViewer | undefined;
     protected parentControl: DbNetSuite | null;
+    protected dataProvider: DataProvider | null;
     constructor(id: string | null);
     bind(event: EventName, handler: EventHandler): void;
     internalBind(event: EventName, callback: EmptyCallback): void;
@@ -69,7 +70,7 @@ declare class DbNetSuite {
     protected addDatePicker($input: JQuery<HTMLInputElement>, datePickerOptions: JQueryUI.DatepickerOptions): void;
     private pickerSelected;
     private _configureLinkedControl;
-    private _getRequest;
+    protected _getRequest(): DbNetSuiteRequest;
     protected highlight(): void;
     protected viewImage(event: JQuery.ClickEvent<HTMLElement>): void;
 }

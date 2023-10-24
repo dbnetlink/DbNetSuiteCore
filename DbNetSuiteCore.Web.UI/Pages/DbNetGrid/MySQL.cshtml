@@ -1,0 +1,28 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums;
+@{
+    DbNetGridCore customersGrid = new DbNetGridCore("sakila(mysql)", "customer")
+    {
+        Update = true,
+        PageSize = 10
+    };
+    customersGrid.Column("store_id").ForeignKey();
+
+    DbNetGridCore inventoryGrid = new DbNetGridCore("sakila(mysql)", "inventory")
+            {
+                Update = true,
+                PageSize = 10
+            }; 
+    inventoryGrid.Column("store_id").ForeignKey();
+
+
+    DbNetGridCore storeGrid = new DbNetGridCore("sakila(mysql)", "store")
+    {
+        DatabaseType = DatabaseType.MySQL,
+    };
+    
+    storeGrid.AddLinkedControl(customersGrid);
+    storeGrid.AddLinkedControl(inventoryGrid);
+    @storeGrid.Render()
+}

@@ -1,9 +1,18 @@
 ﻿@page
+@using DbNetSuiteCore.Enums.DbNetGrid;
 @using DbNetSuiteCore.Components;
 @{
-    DbNetGridCore customersGrid = new DbNetGridCore("northwind", "customers");
-    customersGrid.Search = true;
-    customersGrid.View = true;
-    customersGrid.Column("CompanyName").Search();
-    @customersGrid.Render()
+    DbNetGridCore employeesGrid = new DbNetGridCore("northwind", "employees");
+    employeesGrid.Search = true;
+    employeesGrid.View = true;
+    employeesGrid.ViewLayoutColumns = 2;
+    employeesGrid.Bind(EventType.OnViewRecordSelected, "configureNotesElement");
+
+    @employeesGrid.Render()
 }
+
+<script>
+    function configureNotesElement(grid, args) {
+        $(grid.viewElement("notes")).width(200).height(100).css("overflow","auto");
+    }
+</script>

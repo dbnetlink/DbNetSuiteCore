@@ -1,0 +1,9 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums;
+@{
+    DbNetGridCore mostExpensiveProductsGrid = new DbNetGridCore("northwind(msql)", "[Ten Most Expensive Products]", null, DataSourceType.StoredProcedure);
+    mostExpensiveProductsGrid.Column("TenMostExpensiveProducts").Label("Product");
+    mostExpensiveProductsGrid.Column("unitprice").Format("c");
+    @mostExpensiveProductsGrid.Render()
+}

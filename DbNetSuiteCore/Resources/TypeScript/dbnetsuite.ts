@@ -1,5 +1,6 @@
 type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onConfigureBinaryData" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted" | "onRecordDeleted" | "onInsertInitalize" | "onRecordSelected" | "onFileSelected" | "onFormElementValidationFailed"
 
+type DataProvider = "SqlClient" | "SQLite" | "MySqlConnector" | "Npgsql" | "MySql" | null
 interface CellDataDownloadArgs {
     row: HTMLTableRowElement,
     cell: HTMLTableCellElement,
@@ -34,7 +35,6 @@ class DbNetSuite {
     protected id = "";
     protected loadingPanel: JQuery<HTMLElement> | undefined;
     protected connectionString = "";
-    protected connectionType: DbConnectionType = "SqlServer";
     protected culture = "";
     protected linkedControls: Array<DbNetSuite> = [];
     protected messageBox: MessageBox | undefined;
@@ -43,7 +43,7 @@ class DbNetSuite {
     public initialised = false;
     protected imageViewer: ImageViewer | undefined;
     protected parentControl: DbNetSuite | null = null;
-
+    protected dataProvider: DataProvider | null = null;
     constructor(id: string | null) {
         if (id == null) {
             return;
@@ -312,12 +312,13 @@ class DbNetSuite {
         }
     }
 
-    private _getRequest(): DbNetSuiteRequest {
+    protected _getRequest(): DbNetSuiteRequest {
         const request: DbNetSuiteRequest = {
             componentId: this.id,
             connectionString: this.connectionString,
             culture: this.culture,
-            parentControlType: this.parentControlType
+            parentControlType: this.parentControlType,
+            dataProvider: this.dataProvider
         };
 
         return request;

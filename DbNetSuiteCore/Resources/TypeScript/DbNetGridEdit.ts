@@ -1,4 +1,5 @@
 type ParentChildRelationship = "OneToOne" | "OneToMany" | null
+
 class DbNetGridEdit extends DbNetSuite {
     columnName: string | undefined = undefined;
     columns: DbColumn[];
@@ -179,30 +180,26 @@ class DbNetGridEdit extends DbNetSuite {
     }
 
     protected baseRequest(): DbNetGridEditRequest {
-        const request: DbNetGridEditRequest = {
-            componentId: this.id,
-            connectionString: this.connectionString,
-            fromPart: this.fromPart,
-            toolbarButtonStyle: this.toolbarButtonStyle,
-            quickSearch: this.quickSearch,
-            quickSearchToken: this.quickSearchToken,
-            optimizeForLargeDataset: this.optimizeForLargeDataset,
-            primaryKey: this.primaryKey as string,
-            columnName: this.columnName,
-            search: this.search,
-            searchFilterJoin: this.searchFilterJoin,
-            searchParams: this.searchParams,
-            navigation: this.navigation,
-            culture: this.culture,
-            fixedFilterParams: this.fixedFilterParams,
-            fixedFilterSql: this.fixedFilterSql,
-            insert: this.insert,
-            delete: this._delete,
-            initialOrderBy: this.initialOrderBy,
-            parentControlType: this.parentControlType,
-            parentChildRelationship: this.parentChildRelationship,
-            maxImageHeight: this.maxImageHeight
-        };
+        const request = this._getRequest() as DbNetGridEditRequest;
+
+        request.fromPart = this.fromPart;
+        request.toolbarButtonStyle = this.toolbarButtonStyle;
+        request.quickSearch = this.quickSearch;
+        request.quickSearchToken = this.quickSearchToken;
+        request.optimizeForLargeDataset = this.optimizeForLargeDataset;
+        request.primaryKey = this.primaryKey as string;
+        request.columnName = this.columnName;
+        request.search = this.search;
+        request.searchFilterJoin = this.searchFilterJoin;
+        request.searchParams = this.searchParams;
+        request.navigation = this.navigation;
+        request.fixedFilterParams = this.fixedFilterParams;
+        request.fixedFilterSql = this.fixedFilterSql;
+        request.insert = this.insert;
+        request.delete = this._delete;
+        request.initialOrderBy = this.initialOrderBy;
+        request.parentChildRelationship = this.parentChildRelationship;
+        request.maxImageHeight = this.maxImageHeight;
 
         return request;
     }

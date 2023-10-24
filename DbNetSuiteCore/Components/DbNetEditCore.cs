@@ -20,13 +20,30 @@ namespace DbNetSuiteCore.Components
         public int? LayoutColumns { get; set; }
         public ValidationMessageType? ValidationMessageType { get; set; }
 
-        public DbNetEditCore(string connection, string fromPart, string id = null) : base(connection, fromPart, id)
+        /// <summary>
+        /// Creates a new instance of the form control
+        /// </summary>
+        /// <param name="connection">the name of the connection alias defined in appsettings.json</param>
+        /// <param name="fromPart">the table to be updated</param>
+        /// <param name="id">the Id of the HTML element that is the container for the grid (optional)</param>
+        /// <param name="databaseType">the type database to be connected to (optional)</param>
+        public DbNetEditCore(string connection, string fromPart, string id = null, DatabaseType? databaseType = null) : base(connection, fromPart, id, databaseType)
         {
-            BrowseControl = new DbNetGridCore(connection, fromPart, true);
+            BrowseControl = new DbNetGridCore(connection, fromPart, true, databaseType);
             this._browseDialogId = $"{this.Id}_browse_dialog";
         }
+        /// <summary>
+        /// Creates a new instance of the form control
+        /// </summary>
+        /// <param name="connection">the name of the connection alias defined in appsettings.json</param>
+        /// <param name="databaseType">the type database to be connected to</param>
+        /// <param name="fromPart">the table to be updated</param>
+        /// <param name="id">the Id of the HTML element that is the container for the grid (optional)</param>
+        public DbNetEditCore(string connection, DatabaseType databaseType, string fromPart, string id = null) : this(connection, fromPart, id, databaseType)
+        {
+        }
 
-        internal DbNetEditCore(string connection, string fromPart, bool editControl) : base(connection, fromPart)
+        internal DbNetEditCore(string connection, string fromPart, DatabaseType? databaseType) : base(connection, fromPart, null, databaseType)
         {
         }
         /// <summary>

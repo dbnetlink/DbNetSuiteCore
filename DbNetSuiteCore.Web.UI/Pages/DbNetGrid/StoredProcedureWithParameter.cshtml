@@ -1,0 +1,11 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums;
+@{
+    // Stored procedure data source
+    DbNetGridCore salesForYearGrid = new DbNetGridCore("northwind(msql)", "[Sales by Year]", null, DataSourceType.StoredProcedure);
+    salesForYearGrid.ProcedureParams["beginning_date"] = new DateTime(1997, 1, 1);
+    salesForYearGrid.ProcedureParams["ending_dates"] = new DateTime(1998, 1, 1);
+    salesForYearGrid.Column("subtotal").Format("c");
+    @salesForYearGrid.Render()
+}

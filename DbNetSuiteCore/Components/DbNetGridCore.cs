@@ -92,20 +92,41 @@ namespace DbNetSuiteCore.Components
         /// Specifies the number of columns in the View dialog layout 
         /// </summary>
         public int? ViewLayoutColumns { get; set; } = null;
-        public DbNetGridCore(string connection, string fromPart, string id = null, DataSourceType dataSourceType = DataSourceType.TableOrView) : base(connection, fromPart, id)
+        /// <summary>
+        /// Creates a new instance of the grid control
+        /// </summary>
+        /// <param name="connection">the name of the connection alias defined in appsettings.json</param>
+        /// <param name="fromPart">table, view, sql or stored procedure name</param>
+        /// <param name="id">the Id of the HTML element that is the container for the grid</param>
+        /// <param name="dataSourceType">the type of data source. Specify StoredProcedure if fromPart is a stored procedure name</param>
+        /// <param name="databaseType">the type database to be connected to (optional)</param>
+        public DbNetGridCore(string connection, string fromPart, string id = null, DataSourceType dataSourceType = DataSourceType.TableOrView, DatabaseType? databaseType = null) : base(connection, fromPart, id, databaseType)
         {
             if (dataSourceType == DataSourceType.StoredProcedure)
             {
                 ProcedureName = fromPart;
             }
-
-            EditControl = new DbNetEditCore(connection, fromPart, true);
+            
+            EditControl = new DbNetEditCore(connection, fromPart, databaseType);
             EditControl.IsEditDialog = true;
 
             this._editDialogId = $"{this.Id}_edit_dialog";
         }
 
-        internal DbNetGridCore(string connection, string fromPart, bool browseControl) : base(connection, fromPart)
+        /// <summary>
+        /// Creates a new instance of the grid control
+        /// </summary>
+        /// <param name="connection">the name of the connection alias defined in appsettings.json</param>
+        /// <param name="databaseType">the type database to be connected to (optional)</param>
+        /// <param name="databaseType">the type of database being connected to</param>
+        /// <param name="fromPart">table, view, sql or stored procedure name</param>
+        /// <param name="id">the Id of the HTML element that is the container for the grid</param>
+        /// <param name="dataSourceType">the type of data source. Specify StoredProcedure if fromPart is a stored procedure name</param>
+        public DbNetGridCore(string connection, DatabaseType databaseType, string fromPart, string id = null, DataSourceType dataSourceType = DataSourceType.TableOrView) : this(connection, fromPart, id, dataSourceType, databaseType)
+        {
+        }
+
+        internal DbNetGridCore(string connection, string fromPart, bool browseControl, DatabaseType? databaseType = null) : base(connection, fromPart, null, databaseType)
         {
             IsBrowseDialog = browseControl;
         }

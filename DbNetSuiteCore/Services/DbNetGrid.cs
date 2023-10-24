@@ -16,7 +16,6 @@ using DbNetSuiteCore.Helpers;
 using DbNetSuiteCore.Models;
 using DbNetSuiteCore.ViewModels.DbNetGrid;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.StaticFiles;
 using GridColumn = DbNetSuiteCore.Models.DbNetGrid.GridColumn;
 using static DbNetSuiteCore.Utilities.DbNetDataCore;
 using DbNetSuiteCore.Constants.DbNetGrid;
@@ -218,7 +217,9 @@ namespace DbNetSuiteCore.Services
         }
         internal QueryCommandConfig ProcedureCommandConfig()
         {
-            QueryCommandConfig queryCommandConfig = new QueryCommandConfig(this.ProcedureName);
+            QueryCommandConfig queryCommandConfig = new QueryCommandConfig(ProcedureName);
+
+            List<string> parameterNames = new List<string>();
 
             using (Database)
             {
@@ -226,12 +227,20 @@ namespace DbNetSuiteCore.Services
                 try
                 {
                     queryCommandConfig.Params = Database.DeriveParameters(queryCommandConfig.Sql);
+                    parameterNames = queryCommandConfig.Params.Keys.Cast<string>().Select(k => k.ToLower()).ToList();
                 }
-                catch (Exception) { }
+                catch (Exception){}
             }
 
             foreach (string paramName in this.ProcedureParams.Keys)
             {
+                if (parameterNames.Any())
+                {
+                    if (parameterNames.Contains(paramName.ToLower()) == false)
+                    {
+                        throw new Exception($"Parameter [{paramName}] is not a valid parameter name for stored procedure [{ProcedureName}]");
+                    }
+                }
                 Database.SetParamValue(queryCommandConfig.Params, paramName, ProcedureParams[paramName]);
             }
 
@@ -1111,7 +1120,7 @@ namespace DbNetSuiteCore.Services
 
             ReflectionHelper.CopyProperties(this, viewModel);
 
-            response.Toolbar = await HttpContext.RenderToStringAsync("Views/DbNetGrid/ViewDialog.cshtml", viewModel);
+            response.Dialog = await HttpContext.RenderToStringAsync("Views/DbNetGrid/ViewDialog.cshtml", viewModel);
 
             viewModel.ViewData = GetViewData();
             viewModel.Columns = Columns;

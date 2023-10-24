@@ -62,7 +62,17 @@ namespace DbNetSuiteCore.Components
         /// Allows the selection of multiple options
         /// </summary>
         public bool? MultipleSelect { get; set; } = null;
-        public DbNetComboCore(string connection, string fromPart, string valueColumn, string textColumn = null, string id = null, DataSourceType dataSourceType = DataSourceType.TableOrView) : base(connection, id)
+        /// <summary>
+        /// Creates a new instance of the combo control
+        /// </summary>
+        /// <param name="connection">the name of the connection alias defined in appsettings.json</param>
+        /// <param name="fromPart">table, view, sql or stored procedure name</param>
+        /// <param name="valueColumn">the name of the column that contains the value</param>
+        /// <param name="textColumn">the name of the column that contains the description</param>
+        /// <param name="id">the Id of the HTML element that is the container for the grid</param>
+        /// <param name="dataSourceType">the type of data source. Specify StoredProcedure if fromPart is a stored procedure name</param>
+        /// <param name="databaseType">the type database to be connected to (optional)</param>
+        public DbNetComboCore(string connection, string fromPart, string valueColumn, string textColumn = null, string id = null, DataSourceType dataSourceType = DataSourceType.TableOrView, DatabaseType? databaseType = null) : base(connection, id, databaseType)
         {
             _fromPart = fromPart;
             _valueColumn = valueColumn;
@@ -71,6 +81,19 @@ namespace DbNetSuiteCore.Components
             {
                 _procedureName = fromPart;
             }
+        }
+
+        /// <summary>
+        /// Creates a new instance of the grid control
+        /// </summary>
+        /// <param name="connection">the name of the connection alias defined in appsettings.json</param>
+        /// <param name="databaseType">the type database to be connected to (optional)</param>
+        /// <param name="valueColumn">the name of the column that contains the value</param>
+        /// <param name="textColumn">the name of the column that contains the description</param>
+        /// <param name="id">the Id of the HTML element that is the container for the grid</param>
+        /// <param name="dataSourceType">the type of data source. Specify StoredProcedure if fromPart is a stored procedure name</param>
+        public DbNetComboCore(string connection, DatabaseType databaseType, string fromPart, string valueColumn, string textColumn = null, string id = null, DataSourceType dataSourceType = DataSourceType.TableOrView) : this(connection, fromPart, valueColumn, textColumn, id, dataSourceType, databaseType)
+        {
         }
 
         /// <summary>
@@ -147,6 +170,7 @@ valueColumn = '{EncodingHelper.Encode(_valueColumn)}';
         private string Properties()
         {
             List<string> properties = new List<string>();
+            AddProperty(DataProvider, nameof(DataProvider), properties);
             AddProperty(AddEmptyOption, nameof(AddEmptyOption), properties);
             AddProperty(AutoRowSelect, nameof(AutoRowSelect), properties);
             AddProperty(EmptyOptionText, nameof(EmptyOptionText), properties);

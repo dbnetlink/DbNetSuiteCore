@@ -438,6 +438,8 @@ table.lookup-dialog-toolbar,
         font-family: var(--main-font-family);
         font-size: var(--main-font-size);
         white-space: nowrap;
+        vertical-align: top;
+        padding-top: 4px;
     }
 
     .view-dialog-value {

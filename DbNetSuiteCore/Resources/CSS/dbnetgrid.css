@@ -1424,6 +1424,8 @@ table.lookup-dialog-toolbar td.no-records span,
   font-family: var(--main-font-family);
   font-size: var(--main-font-size);
   white-space: nowrap;
+  vertical-align: top;
+  padding-top: 4px;
 }
 .view-dialog .view-dialog-value {
   border-radius: 2px;

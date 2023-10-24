@@ -103,6 +103,7 @@ declare class DbNetGrid extends DbNetGridEdit {
     private htmlExport;
     private downloadSpreadsheet;
     private getViewContent;
+    private configureViewDialog;
     private assignPrimaryKey;
     private refreshRow;
     private openEditDialog;

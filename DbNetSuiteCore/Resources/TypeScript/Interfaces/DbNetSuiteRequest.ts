@@ -2,7 +2,7 @@
 {
     componentId: string;
     connectionString: string;
-    connectionType?: string;
+    dataProvider?: string;
     culture: string;
     parentControlType: string;
 }

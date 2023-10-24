@@ -611,13 +611,16 @@ class DbNetGrid extends DbNetGridEdit {
         const $row = this.assignPrimaryKey();
         this.post("view-content", this.getRequest())
             .then((response) => {
-            var _a;
-            if (!this.viewDialog) {
-                (_a = this.element) === null || _a === void 0 ? void 0 : _a.append(response.toolbar);
-                this.viewDialog = new ViewDialog(`${this.id}_view_dialog`, this);
-            }
-            this.viewDialog.update(response, $row);
+            this.configureViewDialog(response, $row);
         });
+    }
+    configureViewDialog(response, $row) {
+        var _a;
+        if (!this.viewDialog) {
+            (_a = this.element) === null || _a === void 0 ? void 0 : _a.append(response.dialog);
+            this.viewDialog = new ViewDialog(`${this.id}_view_dialog`, this);
+        }
+        this.viewDialog.update(response, $row);
     }
     assignPrimaryKey() {
         const $row = $(this.selectedRow());

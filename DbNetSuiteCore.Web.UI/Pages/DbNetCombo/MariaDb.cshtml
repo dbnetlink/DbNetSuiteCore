@@ -1,0 +1,7 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums;
+@{
+    DbNetComboCore customersCombo = new DbNetComboCore("northwind(mariadb)", DatabaseType.MariaDB, "customers", "id", "company");
+    @customersCombo.Render()
+}

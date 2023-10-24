@@ -76,7 +76,7 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public ToolbarPosition? ToolbarPosition { get; set; } = null;
 
-        public DbNetGridEditCore(string connection, string fromPart, string id = null) : base(connection, id)
+        public DbNetGridEditCore(string connection, string fromPart, string id = null, DatabaseType? databaseType = null) : base(connection, id, databaseType)
         {
             _fromPart = fromPart;
         }
@@ -136,6 +136,7 @@ namespace DbNetSuiteCore.Components
 
         protected void AddProperties(List<string> properties)
         {
+            AddProperty(DataProvider, nameof(DataProvider), properties);
             AddProperty(ToolbarButtonStyle, nameof(ToolbarButtonStyle), properties);
             AddProperty(ToolbarPosition, nameof(ToolbarPosition), properties);
             AddProperty(Search, nameof(Search), properties);

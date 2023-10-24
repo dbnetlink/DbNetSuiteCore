@@ -1,0 +1,33 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums;
+@{
+    // Configure the grid and render
+
+
+    DbNetGridCore orderDetailsGrid = new DbNetGridCore("northwind(mariadb)", "order_details")
+            {
+
+                Update = true
+            };
+
+    orderDetailsGrid.Column("order_id").ForeignKey();
+
+    DbNetGridCore ordersGrid = new DbNetGridCore("northwind(mariadb)", "orders")
+    {
+        Update = true
+    };
+
+    ordersGrid.Column("customer_id").ForeignKey();
+
+    DbNetGridCore customersGrid = new DbNetGridCore("northwind(mariadb)", "customers")
+    {
+        DatabaseType = DatabaseType.MariaDB,
+    };
+   
+    
+    customersGrid.AddLinkedControl(ordersGrid);
+    ordersGrid.AddLinkedControl(orderDetailsGrid);
+
+    @customersGrid.Render()
+}

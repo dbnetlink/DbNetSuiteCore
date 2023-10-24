@@ -29,19 +29,21 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public string Culture { get; set; } = null;
         public string Id => _id;
+        internal DataProvider? DataProvider => GetDataProvider();
         /// <summary>
-        /// Specifies the type of provider for the database connection
+        /// Specifies the type of database to be connected to
         /// </summary>
-        public DataProvider? DataProvider { get; set; } = null;
+        public DatabaseType? DatabaseType { get; set; } = null;
         public string ParentControlType { get; set; } = null;
         public ParentChildRelationship? ParentChildRelationship { get; set; } = null;
 
-        public DbNetSuiteCore(string connection, string id = null)
+        public DbNetSuiteCore(string connection, string id = null, DatabaseType? databaseType = null)
         {
             _idSupplied = id != null;
             _id = id ?? $"{ComponentTypeName.ToLower()}{Guid.NewGuid().ToString().Split("-").First()}";
             _connection = connection;
             _configuration = LoadConfiguration();
+            DatabaseType = databaseType;
         }
         public static HtmlString StyleSheet(string fontSize = null, string fontFamily = null)
         {
@@ -70,6 +72,8 @@ namespace DbNetSuiteCore.Components
         {
             linkedControl.ParentControlType = this.GetType().Name.Replace("Core", string.Empty);
             linkedControl._isChildControl = true;
+            linkedControl.DatabaseType = this.DatabaseType;
+
             if (linkedControl.ParentChildRelationship.HasValue == false)
             {
                 if ((this is DbNetGridEditCore || this is DbNetComboCore) && linkedControl is DbNetGridEditCore)
@@ -84,12 +88,12 @@ namespace DbNetSuiteCore.Components
                         fromPart = (this as DbNetComboCore).FromPart.ToLower();
                     }
                     linkedControl.ParentChildRelationship = fromPart == (linkedControl as DbNetGridEditCore).FromPart.ToLower() ? Enums.ParentChildRelationship.OneToOne : Enums.ParentChildRelationship.OneToMany;
-/*
-                    if (this is DbNetComboCore && linkedControl is DbNetEditCore && linkedControl.ParentChildRelationship == Enums.ParentChildRelationship.OneToOne)
-                    {
-                        (linkedControl as DbNetEditCore).Navigation = false;
-                    }
-*/
+                    /*
+                                        if (this is DbNetComboCore && linkedControl is DbNetEditCore && linkedControl.ParentChildRelationship == Enums.ParentChildRelationship.OneToOne)
+                                        {
+                                            (linkedControl as DbNetEditCore).Navigation = false;
+                                        }
+                    */
                 }
             }
             _linkedControls.Add(linkedControl);
@@ -319,6 +323,24 @@ function init_{_id}()
             }
 
             return contentType;
+        }
+
+        private DataProvider? GetDataProvider()
+        {
+            if (DatabaseType.HasValue)
+            {
+                switch (DatabaseType.Value)
+                {
+                    case Enums.DatabaseType.PostgreSQL:
+                        return Enums.DataProvider.Npgsql;
+                    case Enums.DatabaseType.MySQL:
+                        return Enums.DataProvider.MySql;
+                    case Enums.DatabaseType.MariaDB:
+                        return Enums.DataProvider.MySqlConnector;
+                }
+            }
+
+            return null;
         }
     }
 }
