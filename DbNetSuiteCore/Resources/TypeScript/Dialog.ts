@@ -1,7 +1,7 @@
 ﻿class Dialog extends DbNetSuite {
     $dialog: JQuery<HTMLElement> | undefined;
-    windowWidth = $(window).width() as number;
-    windowHeight = $(window).height() as number;
+    windowWidth = screen.availWidth;
+    windowHeight = screen.availHeight;
     constructor(id: string) {
         super(null);
         this.$dialog = $(`#${id}`);

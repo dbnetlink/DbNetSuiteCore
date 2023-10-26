@@ -8,5 +8,6 @@ declare class ImageViewer extends Dialog {
     fileName: string;
     constructor(id: string);
     show($img: JQuery<HTMLImageElement>): void;
+    private openViewer;
     private download;
 }

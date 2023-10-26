@@ -1449,6 +1449,9 @@ table.lookup-dialog-toolbar td.no-records span,
   accent-color: SteelBlue;
   margin: 0px;
 }
+.view-dialog .view-dialog-value img {
+  cursor: pointer;
+}
 
 .lookup-dialog select {
   border: 1px solid silver;

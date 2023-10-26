@@ -3,8 +3,8 @@ class Dialog extends DbNetSuite {
     constructor(id) {
         var _a;
         super(null);
-        this.windowWidth = $(window).width();
-        this.windowHeight = $(window).height();
+        this.windowWidth = screen.availWidth;
+        this.windowHeight = screen.availHeight;
         this.$dialog = $(`#${id}`);
         if (this.$dialog.length == 0) {
             alert(`Unable to find dialog with Id => ${id}`);
