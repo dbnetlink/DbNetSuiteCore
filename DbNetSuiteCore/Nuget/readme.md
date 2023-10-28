@@ -1,8 +1,9 @@
 
 # DbNetSuiteCore
 
-**DbNetSuiteCore** is a .Net Core middleware Nuget package that can be used to add database driven web-reporting to any ASP.NET Core web application in minutes with just a few lines of code.
+**DbNetSuiteCore** is a set of ASP.Net Core application development components designed to enable the rapid development of database driven web applications. **DbNetSuiteCore** currently supports MS SQL, MySQL, MariaDB, PostgreSQL and SQLite databases.
 
+Simply add DbNetSuiteCore to your pipeline as follows:
 ```c#
 {
     using DbNetLink.Middleware;           // <= Add this line
@@ -29,7 +30,27 @@
     app.Run();
 }
 ```
-   
-The solution comprises of the **DbNetSuiteCore** library and a sample application running against an SQLite database
-
-For more information and demos [click here](https://dbnetsuitecoreapp.azurewebsites.net/).
+You can then add a component to your Razor page as follows:
+```c#
+@page
+@using DbNetSuiteCore.Components;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Customers</title>
+    @DbNetSuiteCore.StyleSheet()
+</head>
+<body>
+    <div>
+        <main>
+            @{
+                DbNetGridCore customersGrid = new DbNetGridCore("northwind","customers");
+                @customersGrid.Render()
+            }
+        </main>
+    </div>
+    @DbNetSuiteCore.ClientScript()
+</body>
+</html>
+```
+For a comprehensive set of demos [click here](https://dbnetsuitecore.com/) and for the documentation  [click here](https://dbnetsuitecore.z35.web.core.windows.net/) 
