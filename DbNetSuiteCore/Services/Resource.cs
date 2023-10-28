@@ -59,6 +59,7 @@ namespace DbNetSuiteCore.Services
                 "DbNetGrid",
                 "DbNetCombo",
                 "DbNetEdit",
+                "DbNetFile",
                 "DbColumn",               
 				"GridColumn",
                 "EditColumn",

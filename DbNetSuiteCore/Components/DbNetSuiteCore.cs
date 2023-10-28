@@ -45,6 +45,12 @@ namespace DbNetSuiteCore.Components
             _configuration = LoadConfiguration();
             DatabaseType = databaseType;
         }
+
+        public DbNetSuiteCore(string id = null)
+        {
+            _id = id ?? $"{ComponentTypeName.ToLower()}{Guid.NewGuid().ToString().Split("-").First()}";
+            _configuration = LoadConfiguration();
+        }
         public static HtmlString StyleSheet(string fontSize = null, string fontFamily = null)
         {
             List<string> url = new List<string>() { "~/resource.dbnetsuite?action=css" };
@@ -130,11 +136,14 @@ namespace DbNetSuiteCore.Components
         {
             string message = string.Empty;
 
-            string connectionString = _configuration.GetConnectionString(_connection);
-
-            if (connectionString == null)
+            if ((this is DbNetFileCore) == false)
             {
-                message = $"Connection string [{_connection}] not found. Please check the connection strings in your appsettings.json file";
+                string connectionString = _configuration.GetConnectionString(_connection);
+
+                if (connectionString == null)
+                {
+                    message = $"Connection string [{_connection}] not found. Please check the connection strings in your appsettings.json file";
+                }
             }
 
             if (_isChildControl)

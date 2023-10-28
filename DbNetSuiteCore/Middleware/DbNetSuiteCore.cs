@@ -66,6 +66,10 @@ namespace DbNetLink.Middleware
                     var dbnetsuite = new DbNetSuite(services);
                     response = await dbnetsuite.Process();
                     break;
+                case "dbnetfile":
+                    var dbnetfile = new DbNetFile(services);
+                    response = await dbnetfile.Process();
+                    break;
             }
 
             if (response == null)

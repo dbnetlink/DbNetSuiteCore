@@ -179,7 +179,7 @@ table.dbnetgrid-table {
 
     td.nested-grid-cell {
         padding: 5px;
-        background-color:#ECEFF1;
+        background-color: #ECEFF1;
     }
 
     td {
@@ -335,7 +335,7 @@ table.lookup-dialog-toolbar,
                     $iconColor: map-get(( apply : "%23388E3C", cancel : "%23D32F2F", ), $toolbarButton);
 
                     @if ($iconColor == null) {
-                        $iconColor : "steelblue"
+                        $iconColor: "steelblue"
                     }
 
                     background-image: svgUrl($toolbarButton, "24", $iconColor);
@@ -414,7 +414,7 @@ table.lookup-dialog-toolbar,
 .search-dialog {
     .layout {
         .toolbar-button {
-            margin-left:2px;
+            margin-left: 2px;
         }
     }
 }
@@ -500,8 +500,10 @@ table.lookup-dialog-toolbar,
     }
 
     .toolbar {
-        text-align:right;
+        text-align: right;
     }
+
+    overflow:hidden !important;
 }
 
 .search-dialog {
@@ -548,8 +550,8 @@ table.lookup-dialog-toolbar,
             outline: none;
         }
 
-        &[dataType=Boolean]{
-            display:none;
+        &[dataType=Boolean] {
+            display: none;
         }
     }
 
@@ -598,8 +600,8 @@ table.lookup-dialog-toolbar,
 
 table.view-dialog-toolbar,
 table.search-dialog-toolbar,
-table.lookup-dialog-toolbar, 
-.upload-dialog{
+table.lookup-dialog-toolbar,
+.upload-dialog {
     td {
         .toolbar-button[button-type=apply] {
             background-image: svgUrl("apply", "24", "%23388E3C") !important;

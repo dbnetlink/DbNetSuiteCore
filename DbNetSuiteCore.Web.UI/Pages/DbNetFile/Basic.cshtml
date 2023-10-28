@@ -1,0 +1,7 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums;
+@{
+    DbNetFileCore folderView = new DbNetFileCore("/");
+    @folderView.Render()
+}

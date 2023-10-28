@@ -1,0 +1,27 @@
+﻿@using DbNetSuiteCore.Helpers;
+@using DbNetSuiteCore.ViewModels.DbNetCombo;
+@using System.Data
+@using DbNetSuiteCore.ViewModels.DbNetFile;
+@using Microsoft.AspNetCore.Html;
+@using System.Text.Json;
+@model FileViewModel
+@{
+    <table>
+
+        <tr>
+            @foreach (DataColumn dataColumn in Model.DataView.Table.Columns)
+            {
+                <th>@(dataColumn.ColumnName)</th>
+            }
+        </tr>
+        @foreach (DataRow dataRow in Model.DataView.Table.Rows)
+        {
+            <tr>
+                @foreach (DataColumn dataColumn in Model.DataView.Table.Columns)
+                {
+                    <td>@(dataRow[dataColumn.ColumnName] ?? "&nbsp;")</td>
+                }
+            </tr>
+        }
+    </table>
+}

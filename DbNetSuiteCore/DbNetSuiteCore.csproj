@@ -10,11 +10,11 @@
     <Description>Interactive database driven Razor web reporting component for ASP.NET Core.  Supports MSSQL, MySql, PostgreSQL and SQLite</Description>
     <RepositoryUrl>https://github.com/dbnetlink/DbNetSuiteCore</RepositoryUrl>
     <PackageTags>asp.net core, grid, spreadsheet</PackageTags>
-    <AssemblyVersion>0.9.474</AssemblyVersion>
-    <FileVersion>0.9.474</FileVersion>
+    <AssemblyVersion>0.9.478</AssemblyVersion>
+    <FileVersion>0.9.478</FileVersion>
     <PackageReleaseNotes>Beta version. Currently still under active development.</PackageReleaseNotes>
     <PackageProjectUrl>https://dbnetsuitecoreapp.azurewebsites.net</PackageProjectUrl>
-    <Version>0.9.474-beta</Version>
+    <Version>0.9.478-beta</Version>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageLicenseExpression> NPOSL-3.0</PackageLicenseExpression>
     <BaseOutputPath>C:\Users\robin\source\repos\DbNetSuiteCore-VS2022\DbNetSuiteCoreApp\bin</BaseOutputPath>
@@ -73,6 +73,8 @@
     <None Remove="Resources\JavaScript\DbNetCombo.min.js" />
     <None Remove="Resources\JavaScript\DbNetEdit.js" />
     <None Remove="Resources\JavaScript\DbNetEdit.min.js" />
+    <None Remove="Resources\JavaScript\DbNetFile.js" />
+    <None Remove="Resources\JavaScript\DbNetFile.min.js" />
     <None Remove="Resources\JavaScript\dbnetgrid.js" />
     <None Remove="Resources\JavaScript\DbNetGrid.min.js" />
     <None Remove="Resources\JavaScript\DbNetGridEdit.js" />
@@ -110,6 +112,7 @@
     <None Remove="Resources\tsconfig.json" />
     <None Remove="Resources\TypeScript\DbNetCombo.ts" />
     <None Remove="Resources\TypeScript\DbNetEdit.ts" />
+    <None Remove="Resources\TypeScript\DbNetFile.ts" />
     <None Remove="Resources\TypeScript\dbnetgrid.ts" />
     <None Remove="Resources\TypeScript\DbNetGridEdit.ts" />
     <None Remove="Resources\TypeScript\dbnetsuite.ts" />
@@ -120,6 +123,7 @@
     <None Remove="Views\DbNetEdit\Options.cshtml" />
     <None Remove="Views\DbNetEdit\Toolbar.cshtml" />
     <None Remove="Views\DbNetEdit\UploadDialog.cshtml" />
+    <None Remove="Views\DbNetFile\Page.cshtml" />
     <None Remove="Views\DbNetGrid\DataTable.cshtml" />
     <None Remove="Views\DbNetGrid\Grid.cshtml" />
     <None Remove="Views\DbNetGrid\HtmlExport.cshtml" />
@@ -161,6 +165,8 @@
     <EmbeddedResource Include="Resources\JavaScript\DbNetCombo.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetEdit.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetEdit.min.js" />
+    <EmbeddedResource Include="Resources\JavaScript\DbNetFile.js" />
+    <EmbeddedResource Include="Resources\JavaScript\DbNetFile.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetGrid.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetGridEdit.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetGridEdit.min.js" />
@@ -201,9 +207,14 @@
     <EmbeddedResource Include="Resources\JavaScript\libraries\jquery-ui.min.js" />
     <EmbeddedResource Include="Resources\SCSS\dbnetcombo.scss" />
     <EmbeddedResource Include="Resources\SCSS\_reboot.scss" />
+    <EmbeddedResource Include="Resources\TypeScript\DbNetFile.ts" />
     <EmbeddedResource Include="Resources\TypeScript\DbNetEdit.ts" />
     <EmbeddedResource Include="Resources\TypeScript\DbNetCombo.ts" />
     <EmbeddedResource Include="Resources\TypeScript\DbNetGridEdit.ts" />
+    <EmbeddedResource Include="Views\DbNetFile\Page.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\DbNetCombo\Options.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

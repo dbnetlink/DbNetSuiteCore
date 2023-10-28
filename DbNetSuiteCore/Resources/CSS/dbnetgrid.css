@@ -1465,6 +1465,9 @@ table.lookup-dialog-toolbar td.no-records span,
   outline-width: thin;
 }
 
+.image-viewer {
+  overflow: hidden !important;
+}
 .image-viewer .image-wrapper {
   overflow: auto;
   height: 60vh;

@@ -1,0 +1,2 @@
+interface DbNetFileResponse extends DbNetSuiteResponse {
+}
