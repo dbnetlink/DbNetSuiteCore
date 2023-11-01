@@ -179,9 +179,9 @@ namespace DbNetSuiteCore.UI.Tests
 
                 IWebElement div = viewDialog.FindElements(By.CssSelector($"div[data-columnname='lastname']")).First();
  //               IWebElement div = row.FindElement(By.CssSelector("div.view-dialog-value"));
-                Assert.Equal("Davolio", div.Text);
+                Assert.Equal("Buchanan", div.Text);
                 var parentCell = div.FindElement(By.XPath("./.."));
-                Assert.Equal("Davolio", parentCell.GetAttribute("data-value"));
+                Assert.Equal("Buchanan", parentCell.GetAttribute("data-value"));
             }
         }
 

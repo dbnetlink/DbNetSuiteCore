@@ -36,7 +36,7 @@ namespace DbNetSuiteCore.Models
         {
             get => _userAssignedSearch && Search;
         }
-        public bool AddedByUser { get; set; }
+        public bool AddedByUser { get; set; } = true;
         public string Format { get; set; } = string.Empty;
         public string ColumnExpression
         {
@@ -78,7 +78,8 @@ namespace DbNetSuiteCore.Models
         public bool Unmatched { get; set; }
         public bool Binary => DataType == "Byte[]";
         public int Index { get; set; } = -1;
-        public bool Display { get; set; } = true;
+        public bool? Display { get; set; } = null;
+        public bool Show => Display.HasValue ?  Display.Value : false;
         public bool QuickSearch { get; set; } = false;
         public bool IsNumeric => _numericDataTypes.Contains(DataType);
         public bool AllowsNull { get; set; }
@@ -89,6 +90,7 @@ namespace DbNetSuiteCore.Models
         public FileMetaData? UploadMetaData { get; set; }
         public string UploadMetaDataColumn { get; set; }
         public string Style { get; set; }
+        public bool IsKey => PrimaryKey || ForeignKey;
 
 
         public DbColumn()

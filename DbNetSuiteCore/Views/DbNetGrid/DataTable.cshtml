@@ -17,7 +17,7 @@
             @foreach (DataColumn column in Model.GridData.Columns)
             {
                 GridColumn gridColumn = Model.Columns[column.Ordinal];
-                if (gridColumn.Display && gridColumn.DataType != "Byte[]")
+                if (gridColumn.Show && gridColumn.DataType != "Byte[]")
                 {
                     <th>@gridColumn.Label</th>
                 }
@@ -32,7 +32,7 @@
                     @foreach (DataColumn column in Model.GridData.Columns)
                     {
                         GridColumn gridColumn = Model.Columns[column.Ordinal];
-                        if (gridColumn.Display && gridColumn.DataType != "Byte[]")
+                        if (gridColumn.Show && gridColumn.DataType != "Byte[]")
                         {
                             <td data-order="@CellValue(row, gridColumn, true)">@CellValue(row, gridColumn)</td>
                         }

@@ -28,7 +28,7 @@
             @foreach (DataColumn column in Model.GridData.Columns)
             {
                 GridColumn gridColumn = Model.Columns[column.Ordinal];
-                if (gridColumn.Display)
+                if (gridColumn.Show)
                 {
                     <th data-columnname="@column.ColumnName" data-columnordinal="@(gridColumn.Index + 1)" data-dbdatatype="@gridColumn.DbDataType" orderby=@gridColumn.OrderBy class="@HeaderCellClass(gridColumn)">@gridColumn.Label</th>
                 }
@@ -49,7 +49,7 @@
                 @foreach (DataColumn column in Model.GridData.Columns)
                 {
                     GridColumn gridColumn = Model.Columns.First(c => c.IsMatch(column.ColumnName));
-                    if (gridColumn.Display)
+                    if (gridColumn.Show)
                     {
                         @ColumnFilter(gridColumn)
                     }
@@ -67,7 +67,7 @@
             if (Model.FixedOrderChange(rowIdx, true) && Model.GroupHeaderColumns.Any())
             {
                 <tr class="group-header-row">
-                    <td colspan="@Model.Columns.Where(c => c.Display).Count()">@HeaderCellValues(row)</td>
+                    <td colspan="@Model.Columns.Count(c => c.Show)">@HeaderCellValues(row)</td>
                 </tr>
             }
 
@@ -91,7 +91,7 @@
                 @foreach (DataColumn column in Model.GridData.Columns)
                 {
                     GridColumn gridColumn = Model.Columns[column.Ordinal];
-                    if (gridColumn.Display)
+                    if (gridColumn.Show)
                     {
                         <td data-type="@gridColumn.DataType" style="@gridColumn.Style" class="@CellClass(row.ItemArray[gridColumn.Index], gridColumn)" data-value="@(row.ItemArray[gridColumn.Index])">@Html.Raw(CellContent(row, gridColumn, rowIdx))</td>
                     }

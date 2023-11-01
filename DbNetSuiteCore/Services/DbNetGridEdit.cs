@@ -157,6 +157,19 @@ namespace DbNetSuiteCore.Services
                     column.AutoIncrement = row.IsAutoIncrement();
                 }
 
+                if (column.Display.HasValue == false)
+                {
+                    if (column.AddedByUser == false && this is DbNetGrid)
+                    {
+                        column.Display = column.IsKey == false;
+                        (column as GridColumn).View = column.Show;
+                    }
+                    else
+                    {
+                        column.Display = true;
+                    }
+                }
+
                 column.AllowsNull = row.AllowsNull();
 
                 if (column is GridColumn)
@@ -1154,36 +1167,36 @@ namespace DbNetSuiteCore.Services
                                 }
                             }
                         }
-                            break;
+                        break;
                     case nameof(Byte):
-                                paramValue = value;
-                                break;
-                            case nameof(Guid):
-                                paramValue = new Guid(value.ToString());
-                                break;
-                            case nameof(Int16):
-                            case nameof(Int32):
-                            case nameof(Int64):
-                            case nameof(Decimal):
-                            case nameof(Single):
-                            case nameof(Double):
-                                if (string.IsNullOrEmpty(column.Format) == false)
-                                {
-                                    var cultureInfo = Thread.CurrentThread.CurrentCulture;
-                                    value = value.ToString().Replace(cultureInfo.NumberFormat.CurrencySymbol, "");
-                                }
-                                paramValue = Convert.ChangeType(value, GetColumnType(dataType));
-                                break;
-                            case nameof(UInt16):
-                            case nameof(UInt32):
-                            case nameof(UInt64):
-                                paramValue = Convert.ChangeType(value, GetColumnType(dataType.Replace("U", string.Empty)));
-                                break;
-                            default:
-                                paramValue = Convert.ChangeType(value, GetColumnType(dataType));
-                                break;
-                            }
+                        paramValue = value;
+                        break;
+                    case nameof(Guid):
+                        paramValue = new Guid(value.ToString());
+                        break;
+                    case nameof(Int16):
+                    case nameof(Int32):
+                    case nameof(Int64):
+                    case nameof(Decimal):
+                    case nameof(Single):
+                    case nameof(Double):
+                        if (string.IsNullOrEmpty(column.Format) == false)
+                        {
+                            var cultureInfo = Thread.CurrentThread.CurrentCulture;
+                            value = value.ToString().Replace(cultureInfo.NumberFormat.CurrencySymbol, "");
                         }
+                        paramValue = Convert.ChangeType(value, GetColumnType(dataType));
+                        break;
+                    case nameof(UInt16):
+                    case nameof(UInt32):
+                    case nameof(UInt64):
+                        paramValue = Convert.ChangeType(value, GetColumnType(dataType.Replace("U", string.Empty)));
+                        break;
+                    default:
+                        paramValue = Convert.ChangeType(value, GetColumnType(dataType));
+                        break;
+                }
+            }
             catch (Exception e)
             {
                 ThrowException(e.Message, "ConvertToDbParam: Value: " + value.ToString() + " DataType:" + dataType);
@@ -1370,11 +1383,11 @@ namespace DbNetSuiteCore.Services
                     if (col.DbDataType != "31") // "Date"
                         columnExpression = $"CONVERT(DATE,{columnExpression})";
                     break;
-                    /*
-                case DatabaseType.Oracle:
-                    columnExpression = $"trunc({columnExpression})";
-                    break;
-                    */
+                /*
+            case DatabaseType.Oracle:
+                columnExpression = $"trunc({columnExpression})";
+                break;
+                */
                 case DatabaseType.PostgreSQL:
                     columnExpression = $"date_trunc('day',{columnExpression})";
                     break;

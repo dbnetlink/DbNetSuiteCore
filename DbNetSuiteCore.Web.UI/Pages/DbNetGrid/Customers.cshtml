@@ -8,6 +8,7 @@
     customersGrid.Update = true;
     customersGrid.Insert = true;
     customersGrid.Delete = true;
+    customersGrid.Column("CustomerId").Display();
     customersGrid.EditControl.Column("country").Lookup();
     customersGrid.EditControl.Column("region").Lookup();
     customersGrid.EditControl.LayoutColumns = 2;

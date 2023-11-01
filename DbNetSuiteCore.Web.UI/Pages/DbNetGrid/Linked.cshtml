@@ -11,7 +11,7 @@
                 Delete = true
             };
 
-    orderDetailsGrid.Column("OrderID").ForeignKey();
+    orderDetailsGrid.Column("OrderID").ForeignKey().Hidden();
     orderDetailsGrid.Column("ProductID").Lookup(new Lookup("Products", "ProductId", "ProductName"));
     orderDetailsGrid.Column("UnitPrice").Format("c");
     orderDetailsGrid.Column("ProductID").Label("Product");
@@ -23,8 +23,8 @@
         QuickSearch = true,
         Delete = true
     };
-
-    ordersGrid.Column("CustomerID").ForeignKey();
+    ordersGrid.Column("OrderID").Hidden();
+    ordersGrid.Column("CustomerID").ForeignKey().Hidden();
     ordersGrid.Column("EmployeeID").Lookup(new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname")).Label("Employee");
     ordersGrid.Column("ShipVia").Lookup(new Lookup("Shippers", "ShipperId", "CompanyName"));
     ordersGrid.Column("Freight").Format("c");

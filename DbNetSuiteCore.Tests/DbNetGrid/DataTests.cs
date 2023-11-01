@@ -24,9 +24,9 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
 
             DbNetGridResponse? dbNetGridResponse = await GetResponse(request, "initialize");
 
-            Assert.Equal(11, dbNetGridResponse?.Columns.Count);
-            Assert.Equal("CustomerID", dbNetGridResponse?.Columns.First().ColumnName);
-            Assert.Equal("Customer ID", dbNetGridResponse?.Columns.First().Label);
+            Assert.Equal(10, dbNetGridResponse?.Columns.Count(c => c.Show));
+            Assert.Equal("CompanyName", dbNetGridResponse?.Columns.First(c => c.Show).ColumnName);
+            Assert.Equal("Company Name", dbNetGridResponse?.Columns.First(c => c.Show).Label);
             Assert.Equal(true, dbNetGridResponse?.Columns.First().PrimaryKey);
 
             var parser = new HtmlParser();
@@ -37,7 +37,7 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
             var tbody = document.QuerySelector("tbody");
             Assert.Equal((int)request.PageSize, tbody?.Children.Length);
             var tr = tbody?.Children.First();
-            Assert.Equal(11, tr?.Children.Length);
+            Assert.Equal(10, tr?.Children.Length);
 
             request.CurrentPage = 5;
             request.Columns = dbNetGridResponse!.Columns;
@@ -174,7 +174,7 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
             var tbody = document.QuerySelector("tbody");
             IElement tr = tbody!.Children.First();
             IElement td = tr!.Children.First();
-            Assert.Equal(dbNetGridResponse!.Columns.Count + 1, tr!.Children.Count());
+            Assert.Equal(dbNetGridResponse!.Columns.Count(c => c.Show) + 1, tr!.Children.Count());
             Assert.Equal("BUTTON", td!.Children.First().TagName);
         }
 
@@ -193,6 +193,9 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
 
                 switch(column)
                 {
+                    case "ProductID":
+                        gridColumn.Display = true;
+                        break;
                     case "SupplierID":
                         gridColumn.Lookup = EncodingHelper.Encode("select SupplierId, CompanyName from Suppliers");
                         break;

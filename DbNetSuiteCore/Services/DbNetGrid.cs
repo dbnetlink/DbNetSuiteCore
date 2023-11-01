@@ -519,7 +519,7 @@ namespace DbNetSuiteCore.Services
             {
                 if (string.IsNullOrEmpty(InitialOrderBy))
                 {
-                    OrderBy = Columns.FirstOrDefault(c => c.Display).Index + 1;
+                    OrderBy = Columns.FirstOrDefault(c => c.Display.Value).Index + 1;
                 }
                 else
                 {
