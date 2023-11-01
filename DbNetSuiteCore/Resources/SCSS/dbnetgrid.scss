@@ -316,6 +316,11 @@ table.lookup-dialog-toolbar,
                 padding-left: 20px;
             }
 
+            &.toolbar-button-textandimage {
+                background-position: center right;
+                padding-right: 22px;
+            }
+
             &:disabled {
                 background-color: #F5F5F5;
                 color: #CCC;
@@ -335,7 +340,7 @@ table.lookup-dialog-toolbar,
                     $iconColor: map-get(( apply : "%23388E3C", cancel : "%23D32F2F", ), $toolbarButton);
 
                     @if ($iconColor == null) {
-                        $iconColor : "steelblue"
+                        $iconColor: "steelblue"
                     }
 
                     background-image: svgUrl($toolbarButton, "24", $iconColor);

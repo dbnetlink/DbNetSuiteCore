@@ -8,7 +8,8 @@ type ToolbarPosition = "Top" | "Bottom" | "Hidden" | undefined;
 declare enum ToolbarButtonStyle {
     Image = 0,
     Text = 1,
-    ImageAndText = 2
+    ImageAndText = 2,
+    TextAndImage = 3
 }
 declare enum BooleanDisplayMode {
     TrueFalse = 0,

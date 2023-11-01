@@ -7,4 +7,5 @@ interface EditColumnRequest extends GridColumnRequest {
     annotation?: string;
     placeholder: string;
     inputValidation: object;
+    textTransform?: TextTransform;
 }

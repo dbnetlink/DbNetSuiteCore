@@ -274,6 +274,11 @@
             attributes.Add($"numeric=\"true\"");
         }
 
+        if (editColumn.TextTransform.HasValue)
+        {
+            attributes.Add($"textTransform=\"{editColumn.TextTransform.Value}\"");
+        }
+
         if (editColumn.EditControlType != EditControlType.CheckBox)
         {
             if (editColumn.Required)

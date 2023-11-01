@@ -4,6 +4,7 @@ var ToolbarButtonStyle;
     ToolbarButtonStyle[ToolbarButtonStyle["Image"] = 0] = "Image";
     ToolbarButtonStyle[ToolbarButtonStyle["Text"] = 1] = "Text";
     ToolbarButtonStyle[ToolbarButtonStyle["ImageAndText"] = 2] = "ImageAndText";
+    ToolbarButtonStyle[ToolbarButtonStyle["TextAndImage"] = 3] = "TextAndImage";
 })(ToolbarButtonStyle || (ToolbarButtonStyle = {}));
 var BooleanDisplayMode;
 (function (BooleanDisplayMode) {

@@ -158,7 +158,7 @@ namespace DbNetSuiteCore.Services
 
         private DataTable GetDataTable(QueryCommandConfig query)
         {
-            DataTable dataTable = new DataTable();
+            DataTable dataTable = InitialiseDataTable();
 
             using (Database)
             {

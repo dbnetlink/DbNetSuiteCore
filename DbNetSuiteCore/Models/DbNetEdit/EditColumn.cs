@@ -27,6 +27,7 @@ namespace DbNetSuiteCore.Models.DbNetEdit
         public bool ReadOnly { get; set; } = false;
 
         public string Annotation { get; set; }
+        public TextTransform? TextTransform { get; set; }
 
         public EditColumn()
         {

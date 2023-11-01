@@ -151,6 +151,7 @@ class DbNetEdit extends DbNetGridEdit {
         this.formPanel?.find("img.dbnetedit").on("load", (event) => this.imageLoaded(event));
         this.formPanel?.find("img.dbnetedit").on("click", (event) => this.viewImage(event));
         this.formPanel?.find("select[dependentLookup]").on("change", (event) => this.updateOptions(event));
+        this.formPanel?.find("input[texttransform]").on("input", (event) => this.textTransform(event));
 
         this.formPanel?.find("input[datatype='DateTime'").get().forEach(e => {
             const $input = $(e as HTMLInputElement);
@@ -251,6 +252,28 @@ class DbNetEdit extends DbNetGridEdit {
         const $dependentLookup = this.formPanel?.find(`:input[name='${columnName.toLowerCase()}']`) as JQuery<HTMLFormElement>;
         $dependentLookup.data("value", "");
         this.refreshOptions(columnName, $select.val() as string);
+    }
+
+    private textTransform(event: JQuery.TriggeredEvent): void {
+        const input = event.target;
+        const p = input.selectionStart;
+        switch ($(input).attr("texttransform")) {
+            case "Uppercase":
+                input.value = input.value.toUpperCase();
+                break;
+            case "Lowercase":
+                input.value = input.value.toLowerCase();
+                break;
+            case "Capitalize":
+                input.value = this.toTitleCase(input.value);
+                break;
+        }
+        input.setSelectionRange(p, p);
+    }
+
+    private toTitleCase(phrase: string)
+    {
+        return phrase.toLowerCase().split(' ').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     }
 
     private refreshOptions(columnName: string, parameterValue: string) {
@@ -381,7 +404,8 @@ class DbNetEdit extends DbNetGridEdit {
                 autoIncrement: col.autoIncrement,
                 annotation: col.annotation,
                 placeholder: col.placeholder,
-                inputValidation: col.inputValidation
+                inputValidation: col.inputValidation,
+                textTransform: col.textTransform
             } as unknown as EditColumnResponse;
             this.columns.push(new EditColumn(properties));
         });

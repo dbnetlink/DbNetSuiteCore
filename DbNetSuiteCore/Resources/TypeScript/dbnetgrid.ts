@@ -5,7 +5,8 @@ type ToolbarPosition = "Top" | "Bottom" | "Hidden" | undefined
 enum ToolbarButtonStyle {
     Image,
     Text,
-    ImageAndText
+    ImageAndText,
+    TextAndImage
 }
 
 enum BooleanDisplayMode {

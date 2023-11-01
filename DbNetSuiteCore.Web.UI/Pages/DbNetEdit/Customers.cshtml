@@ -8,6 +8,9 @@
     customersEdit.Column("country").Lookup().ControlType(EditControlType.TextBoxLookup);
     customersEdit.Column("region").Lookup().ControlType(EditControlType.SuggestLookup); ;
     customersEdit.Column("address").Size(40);
+    customersEdit.Column("postalcode").TextTransform(TextTransform.Uppercase);
+    customersEdit.Column("Address").TextTransform(TextTransform.Capitalize);
+
     customersEdit.QuickSearch = true;
     customersEdit.LayoutColumns = 3;
     customersEdit.Insert = true;

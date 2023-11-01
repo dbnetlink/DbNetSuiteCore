@@ -877,7 +877,14 @@ namespace DbNetSuiteCore.Services
                 DataColumn dataColumn = new DataColumn(dbColumn.ColumnName);
                 try
                 {
-                    dataColumn.DataType = GetColumnType(dbColumn.OriginalDataType == "Byte[]" ? nameof(String) : dbColumn.OriginalDataType);
+                    if (dbColumn.DataType == "Byte[]" || dbColumn.DbDataType == "TEXT")
+                    {
+                        dataColumn.DataType = GetColumnType(nameof(String));
+                    }
+                    else
+                    {
+                        dataColumn.DataType = GetColumnType(dbColumn.DataType);
+                    }
                 }
                 catch
                 {

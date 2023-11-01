@@ -114,7 +114,7 @@ class DbNetEdit extends DbNetGridEdit {
         this.updateForm(response);
     }
     configureForm() {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
         const $inputs = (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(`:input[name]`);
         for (let i = 0; i < $inputs.length; i++) {
             const $input = $($inputs[i]);
@@ -127,7 +127,8 @@ class DbNetEdit extends DbNetGridEdit {
         (_f = this.formPanel) === null || _f === void 0 ? void 0 : _f.find("img.dbnetedit").on("load", (event) => this.imageLoaded(event));
         (_g = this.formPanel) === null || _g === void 0 ? void 0 : _g.find("img.dbnetedit").on("click", (event) => this.viewImage(event));
         (_h = this.formPanel) === null || _h === void 0 ? void 0 : _h.find("select[dependentLookup]").on("change", (event) => this.updateOptions(event));
-        (_j = this.formPanel) === null || _j === void 0 ? void 0 : _j.find("input[datatype='DateTime'").get().forEach(e => {
+        (_j = this.formPanel) === null || _j === void 0 ? void 0 : _j.find("input[texttransform]").on("input", (event) => this.textTransform(event));
+        (_k = this.formPanel) === null || _k === void 0 ? void 0 : _k.find("input[datatype='DateTime'").get().forEach(e => {
             const $input = $(e);
             this.addDatePicker($input, this.datePickerOptions);
         });
@@ -212,6 +213,25 @@ class DbNetEdit extends DbNetGridEdit {
         const $dependentLookup = (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(`:input[name='${columnName.toLowerCase()}']`);
         $dependentLookup.data("value", "");
         this.refreshOptions(columnName, $select.val());
+    }
+    textTransform(event) {
+        const input = event.target;
+        const p = input.selectionStart;
+        switch ($(input).attr("texttransform")) {
+            case "Uppercase":
+                input.value = input.value.toUpperCase();
+                break;
+            case "Lowercase":
+                input.value = input.value.toLowerCase();
+                break;
+            case "Capitalize":
+                input.value = this.toTitleCase(input.value);
+                break;
+        }
+        input.setSelectionRange(p, p);
+    }
+    toTitleCase(phrase) {
+        return phrase.toLowerCase().split(' ').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     }
     refreshOptions(columnName, parameterValue) {
         var _a;
@@ -323,7 +343,8 @@ class DbNetEdit extends DbNetGridEdit {
                 autoIncrement: col.autoIncrement,
                 annotation: col.annotation,
                 placeholder: col.placeholder,
-                inputValidation: col.inputValidation
+                inputValidation: col.inputValidation,
+                textTransform: col.textTransform
             };
             this.columns.push(new EditColumn(properties));
         });

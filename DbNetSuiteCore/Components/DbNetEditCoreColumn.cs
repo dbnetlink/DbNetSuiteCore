@@ -182,5 +182,14 @@ namespace DbNetSuiteCore.Components
             SetColumnProperty(ColumnPropertyType.InputValidation, inputValidation); 
             return this;
         }
+
+        /// <summary>
+        /// Sets the case of the edit input to be uppercase, lowercase or capitalized
+        /// </summary>
+        public DbNetEditCoreColumn TextTransform(TextTransform textTransform)
+        {
+            SetColumnProperty(ColumnPropertyType.TextTransform, textTransform);
+            return this;
+        }
     }
 }

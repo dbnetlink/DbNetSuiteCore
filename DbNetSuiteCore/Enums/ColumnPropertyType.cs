@@ -31,6 +31,7 @@
         Browse,
         Annotation,
         Placeholder,
-        InputValidation
+        InputValidation,
+        TextTransform
     }
 }

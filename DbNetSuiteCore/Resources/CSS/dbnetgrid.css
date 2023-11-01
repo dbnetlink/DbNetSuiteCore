@@ -316,6 +316,18 @@ table.lookup-dialog-toolbar td .toolbar-button.toolbar-button-imageandtext,
   background-position: center left;
   padding-left: 20px;
 }
+table.dbnetsuite-toolbar td .toolbar-button.toolbar-button-textandimage,
+table.view-dialog-toolbar td .toolbar-button.toolbar-button-textandimage,
+table.search-dialog-toolbar td .toolbar-button.toolbar-button-textandimage,
+table.lookup-dialog-toolbar td .toolbar-button.toolbar-button-textandimage,
+.search-dialog td .toolbar-button.toolbar-button-textandimage,
+.dbnetedit-form td .toolbar-button.toolbar-button-textandimage,
+.message-box td .toolbar-button.toolbar-button-textandimage,
+.upload-dialog td .toolbar-button.toolbar-button-textandimage,
+.image-viewer td .toolbar-button.toolbar-button-textandimage {
+  background-position: center right;
+  padding-right: 22px;
+}
 table.dbnetsuite-toolbar td .toolbar-button:disabled,
 table.view-dialog-toolbar td .toolbar-button:disabled,
 table.search-dialog-toolbar td .toolbar-button:disabled,
