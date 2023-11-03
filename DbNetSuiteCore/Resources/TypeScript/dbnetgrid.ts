@@ -50,6 +50,7 @@ class DbNetGrid extends DbNetGridEdit {
     gridGenerationMode: GridGenerationMode = GridGenerationMode.Display;
     gridPanel: JQuery<HTMLElement> | undefined;
     groupBy = false;
+    height = 0;
     isBrowseDialog = false;
     multiRowSelect = false;
     multiRowSelectLocation: MultiRowSelectLocation = MultiRowSelectLocation.Left;
@@ -84,6 +85,10 @@ class DbNetGrid extends DbNetGridEdit {
             this.toolbarPanel = this.addPanel("toolbar");
         }
         this.gridPanel = this.addPanel("grid");
+
+        if (this.height) {
+            this.gridPanel.css("max-height", this.height).css("overflow", "auto");
+        }
         if (this.toolbarPosition == "Bottom") {
             this.toolbarPanel = this.addPanel("toolbar");
         }

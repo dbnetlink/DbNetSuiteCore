@@ -48,6 +48,7 @@ declare class DbNetGrid extends DbNetGridEdit {
     gridGenerationMode: GridGenerationMode;
     gridPanel: JQuery<HTMLElement> | undefined;
     groupBy: boolean;
+    height: number;
     isBrowseDialog: boolean;
     multiRowSelect: boolean;
     multiRowSelectLocation: MultiRowSelectLocation;

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Html;
 using DbNetSuiteCore.Enums.DbNetGrid;
 using System.Linq;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace DbNetSuiteCore.Components
 {
@@ -14,6 +15,7 @@ namespace DbNetSuiteCore.Components
         internal bool? IsBrowseDialog { get; set; } = null;
         internal bool _hasEditDialog => this._linkedControls.Where(c => c is DbNetEditCore).Any(c => (c as DbNetEditCore).IsEditDialog ?? false == true);
         internal bool _addEditDialog => Edit && this._linkedControls.Where(c => c is DbNetEditCore).Any() == false;
+        private int? _height = null;
 
         /// <summary>
         /// Automatically selects the first row of the grid (default is true)
@@ -52,6 +54,18 @@ namespace DbNetSuiteCore.Components
         /// Groups the returned data by all the columns not identified as aggregates
         /// </summary>
         public bool? GroupBy { get; set; } = null;
+        /// <summary>
+        /// Fixes the height of the grid and makes the headers 'sticky'
+        /// </summary>
+        public int? Height
+        {
+            get => _height;
+            set
+            {
+                _height = value;
+                FrozenHeader = _height.HasValue;
+            }
+        }
         /// <summary>
         /// Enables selection of multiple rows
         /// </summary>
@@ -272,6 +286,7 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
         private string Properties()
         {
             List<string> properties = new List<string>();
+            AddProperty(Height, nameof(Height), properties);
             AddProperty(FrozenHeader, nameof(FrozenHeader), properties);
             AddProperty(PageSize, nameof(PageSize), properties);
             AddProperty(MultiRowSelect, nameof(MultiRowSelect), properties);

@@ -40,6 +40,7 @@ class DbNetGrid extends DbNetGridEdit {
         this.googleChartOptions = undefined;
         this.gridGenerationMode = GridGenerationMode.Display;
         this.groupBy = false;
+        this.height = 0;
         this.isBrowseDialog = false;
         this.multiRowSelect = false;
         this.multiRowSelectLocation = MultiRowSelectLocation.Left;
@@ -68,6 +69,9 @@ class DbNetGrid extends DbNetGridEdit {
             this.toolbarPanel = this.addPanel("toolbar");
         }
         this.gridPanel = this.addPanel("grid");
+        if (this.height) {
+            this.gridPanel.css("max-height", this.height).css("overflow", "auto");
+        }
         if (this.toolbarPosition == "Bottom") {
             this.toolbarPanel = this.addPanel("toolbar");
         }

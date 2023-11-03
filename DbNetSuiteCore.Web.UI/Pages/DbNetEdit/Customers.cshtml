@@ -18,7 +18,6 @@
     customersEdit.ToolbarPosition = ToolbarPosition.Top;
     customersEdit.ToolbarButtonStyle = ToolbarButtonStyle.Text;
     customersEdit.Column(new string[] { "companyname", "city", "country", "region" }).Browse();
-    customersEdit.Column("CustomerId").Hidden();
 
     @customersEdit.Render()
 }
