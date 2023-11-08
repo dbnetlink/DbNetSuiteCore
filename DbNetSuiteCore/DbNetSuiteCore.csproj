@@ -47,6 +47,8 @@
     <None Remove="Resources\CSS\dbnetcombo.min.css" />
     <None Remove="Resources\CSS\dbnetedit.css" />
     <None Remove="Resources\CSS\dbnetedit.min.css" />
+    <None Remove="Resources\CSS\dbnetfile.css" />
+    <None Remove="Resources\CSS\dbnetfile.min.css" />
     <None Remove="Resources\CSS\dbnetgrid.css" />
     <None Remove="Resources\CSS\dbnetgrid.min.css" />
     <None Remove="Resources\CSS\dbnetsuite.css" />
@@ -106,6 +108,7 @@
     <None Remove="Resources\JavaScript\ViewDialog.min.js" />
     <None Remove="Resources\SCSS\dbnetcombo.scss" />
     <None Remove="Resources\SCSS\dbnetedit.scss" />
+    <None Remove="Resources\SCSS\dbnetfile.scss" />
     <None Remove="Resources\SCSS\dbnetgrid.scss" />
     <None Remove="Resources\SCSS\_reboot.scss" />
     <None Remove="Resources\SCSS\_variables.scss" />
@@ -151,6 +154,8 @@
     <EmbeddedResource Include="Resources\CSS\dbnetcombo.min.css" />
     <EmbeddedResource Include="Resources\CSS\dbnetedit.css" />
     <EmbeddedResource Include="Resources\CSS\dbnetedit.min.css" />
+    <EmbeddedResource Include="Resources\CSS\dbnetfile.css" />
+    <EmbeddedResource Include="Resources\CSS\dbnetfile.min.css" />
     <EmbeddedResource Include="Resources\CSS\dbnetgrid.css" />
     <EmbeddedResource Include="Resources\CSS\dbnetgrid.min.css" />
     <EmbeddedResource Include="Resources\CSS\libraries\cleanslate.css" />
@@ -191,6 +196,7 @@
     <EmbeddedResource Include="Resources\JavaScript\ViewDialog.js" />
     <EmbeddedResource Include="Resources\JavaScript\ViewDialog.min.js" />
     <EmbeddedResource Include="Resources\SCSS\dbnetedit.scss" />
+    <EmbeddedResource Include="Resources\SCSS\dbnetfile.scss" />
     <EmbeddedResource Include="Resources\SCSS\dbnetgrid.scss" />
     <EmbeddedResource Include="Resources\SCSS\_variables.scss" />
     <EmbeddedResource Include="Resources\SCSS\dbnetsuite.scss" />

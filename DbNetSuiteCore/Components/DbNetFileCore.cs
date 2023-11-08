@@ -1,13 +1,9 @@
 ﻿using DbNetSuiteCore.Helpers;
-using DbNetSuiteCore.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Html;
-using System.Data;
-using DocumentFormat.OpenXml.Drawing;
-using DbNetSuiteCore.Enums;
-using DbNetSuiteCore.Enums.DbNetCombo;
+using DbNetSuiteCore.Enums.DbNetFile;
+using System.Linq;
 
 namespace DbNetSuiteCore.Components
 {
@@ -19,6 +15,10 @@ namespace DbNetSuiteCore.Components
             _folder = folder;
         }
         public string Folder => _folder;
+        /// <summary>
+        /// Selects the columns to be displayed in the grid
+        /// </summary>
+        public List<FileInfoProperties> Columns { get; set; } = new List<FileInfoProperties>();
 
         /// <summary>
         /// Binds an event to a named client-side JavaScript function
@@ -27,7 +27,20 @@ namespace DbNetSuiteCore.Components
         {
             base.BindEvent(eventType, functionName);
         }
-
+        /// <summary>
+        /// Returns a reference to an instance of a given column for assigment of properties
+        /// </summary>
+        public DbNetFileCoreColumn Column(FileInfoProperties columnType)
+        {
+            return Column(new FileInfoProperties[] { columnType });
+        }
+        /// <summary>
+        /// Returns a reference to an array of columns for assigment of properties
+        /// </summary>
+        public DbNetFileCoreColumn Column(FileInfoProperties[] columnTypes)
+        {
+            return new DbNetFileCoreColumn(columnTypes, _columnProperties);
+        }
         public HtmlString Render()
         {
             string message = ValidateProperties();
@@ -83,6 +96,8 @@ with ({_id})
         {
             var script = @$" 
 folder = '{EncodingHelper.Encode(_folder)}';
+{ColumnTypes()}
+{ColumnProperties()}
 {EventBindings()}
 {Properties()}
 {LinkedControls()}";
@@ -93,6 +108,15 @@ folder = '{EncodingHelper.Encode(_folder)}';
         {
             List<string> properties = new List<string>();
             return string.Join(Environment.NewLine, properties);
+        }
+
+        private string ColumnTypes()
+        {
+            if (Columns.Any() == false)
+            {
+                return string.Empty;
+            }
+            return $"setColumnTypes(\"{string.Join("\",\"", Columns.Select(c => c.ToString()).ToList())}\");";
         }
     }
 }

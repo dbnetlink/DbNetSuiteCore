@@ -18,5 +18,9 @@
   {
     "outputFile": "Resources/CSS/_reboot.css",
     "inputFile": "Resources/SCSS/_reboot.scss"
+  },
+  {
+    "outputFile": "Resources/CSS/dbnetfile.css",
+    "inputFile": "Resources/SCSS/dbnetfile.scss"
   }
 ]

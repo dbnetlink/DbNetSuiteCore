@@ -1,27 +1,98 @@
-﻿@using DbNetSuiteCore.Helpers;
+﻿@using DbNetSuiteCore.Enums.DbNetFile;
+@using DbNetSuiteCore.Helpers;
+@using DbNetSuiteCore.Models.DbNetFile;
 @using DbNetSuiteCore.ViewModels.DbNetCombo;
 @using System.Data
 @using DbNetSuiteCore.ViewModels.DbNetFile;
 @using Microsoft.AspNetCore.Html;
 @using System.Text.Json;
 @model FileViewModel
-@{
-    <table>
 
-        <tr>
-            @foreach (DataColumn dataColumn in Model.DataView.Table.Columns)
+@{
+    int rowIdx = 0;
+}
+<table class="dbnetfile-table">
+    <thead>
+        <tr class="path-row">
+            <td colspan="@(Model.Columns.Count()+1)">
+                <div class="current-path">@CurrentPath()</div>
+            </td>
+        </tr>
+        <tr class="header-row">
+            <th>&nbsp;</th>
+            @foreach (FileColumn fileColumn in Model.Columns)
             {
-                <th>@(dataColumn.ColumnName)</th>
+                <th>@(fileColumn.Label)</th>
             }
         </tr>
-        @foreach (DataRow dataRow in Model.DataView.Table.Rows)
+    </thead>
+    @foreach (DataRow dataRow in Model.DataView.Table.Rows)
+    {
+        <tr class="data-row @(rowIdx++ % 2 == 0 ? "even" : "odd")">
+            <td class="icon-cell @IconClass(dataRow)">&nbsp;</td>
+            @foreach (FileColumn fileColumn in Model.Columns)
+            {
+                <td>@CellContent(dataRow,fileColumn)</td>
+            }
+        </tr>
+    }
+</table>
+
+@functions
+{
+    public HtmlString CellContent(DataRow dataRow, FileColumn fileColumn)
+    {
+        string html = string.Empty;
+        object value = dataRow[fileColumn.Type.ToString()] ?? "&nbsp;";
+        switch (fileColumn.Type)
         {
-            <tr>
-                @foreach (DataColumn dataColumn in Model.DataView.Table.Columns)
+            case FileInfoProperties.Name:
+                if (Convert.ToBoolean(dataRow[FileInfoProperties.IsDirectory.ToString()]))
                 {
-                    <td>@(dataRow[dataColumn.ColumnName] ?? "&nbsp;")</td>
+                    html = FolderLink($"{Model.Folder}/{value.ToString()}");
                 }
-            </tr>
+                else
+                {
+                    html = value.ToString();
+                }
+                break;
+            default:
+                if (Convert.ToBoolean(dataRow[FileInfoProperties.IsDirectory.ToString()]) == false)
+                {
+                    html = value.ToString();
+                }
+                break;
         }
-    </table>
+        return new HtmlString(html);
+    }
+
+    public string IconClass(DataRow dataRow)
+    {
+        if (Convert.ToBoolean(dataRow[FileInfoProperties.IsDirectory.ToString()]))
+        {
+            return "folder";
+        }
+
+        return string.Empty;
+    }
+
+    public HtmlString CurrentPath()
+    {
+        List<string> folders = Model.Folder.Split("/").ToList();
+        string separator = "<span class=\"folder-separator\">/</span>";
+        string html = separator;
+        string currentFolder = string.Empty;
+        foreach(string folder in folders.Skip(1))
+        {
+            currentFolder += $"/{folder}";
+            html += $"<span class=\"folder-name\">{((currentFolder.Length < Model.RootFolder.Length) ? folder : FolderLink(currentFolder))}</span>{separator}";
+        }
+
+        return new HtmlString(html);
+    }
+
+    public string FolderLink(string folder)
+    {
+        return $"<a class=\"folder-link\" data-folder=\"{EncodingHelper.Encode(folder)}\" href=\"javascript:void()\">{folder.Split("/").Last()}</a>";
+    }
 }

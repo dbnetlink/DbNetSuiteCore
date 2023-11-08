@@ -8,12 +8,12 @@ using DbNetSuiteCore.Models;
 using DbNetSuiteCore.Constants.DbNetCombo;
 using DbNetSuiteCore.Models.DbNetFile;
 using Microsoft.Extensions.FileProviders;
-using System.ComponentModel;
-using DbNetSuiteCore.ViewModels.DbNetCombo;
 using Microsoft.AspNetCore.Mvc;
 using DbNetSuiteCore.ViewModels.DbNetFile;
 using DbNetSuiteCore.Enums.DbNetFile;
 using System.IO;
+using DocumentFormat.OpenXml.Spreadsheet;
+using System.Linq;
 
 namespace DbNetSuiteCore.Services
 {
@@ -22,7 +22,10 @@ namespace DbNetSuiteCore.Services
         private Dictionary<string, object> _resp = new Dictionary<string, object>();
 
         private string _folder;
+        private string _rootFolder;
+
         private readonly IFileProvider _fileProvider;
+        public List<FileColumn> Columns { get; set; } = new List<FileColumn>();
 
         public DbNetFile(AspNetCoreServices services) : base(services)
         {
@@ -35,13 +38,19 @@ namespace DbNetSuiteCore.Services
             get => EncodingHelper.Decode(_folder);
             set => _folder = value;
         }
-
+        public string RootFolder
+        {
+            get => EncodingHelper.Decode(_rootFolder);
+            set => _rootFolder = value;
+        }
         public new async Task<object> Process()
         {
             await DeserialiseRequest<DbNetFileRequest>();
             Initialise();
 
             DbNetFileResponse response = new DbNetFileResponse();
+
+            ConfigureColumns();
 
             switch (Action.ToLower())
             {
@@ -83,10 +92,12 @@ namespace DbNetSuiteCore.Services
 
                 if (fileInfo.IsDirectory)
                 {
+                    /*
                     DirectoryInfo systemDirectoryInfo = new DirectoryInfo(fileInfo.PhysicalPath);
                     row[FileInfoProperties.Created.ToString()] = systemDirectoryInfo.CreationTime;
                     row[FileInfoProperties.LastAccessed.ToString()] = systemDirectoryInfo.LastAccessTime;
                     row[FileInfoProperties.Extension.ToString()] = systemDirectoryInfo.Extension;
+                    */
                 }
                 else
                 {
@@ -101,11 +112,27 @@ namespace DbNetSuiteCore.Services
 
             var viewModel = new FileViewModel
             {
-                DataView = new DataView(dataTable)
+                DataView = new DataView(dataTable),
+                Columns = Columns,
+                RootFolder = RootFolder
             };
 
             ReflectionHelper.CopyProperties(this, viewModel);
             response.Html = await HttpContext.RenderToStringAsync($"Views/DbNetFile/Page.cshtml", viewModel);
+        }
+        private void ConfigureColumns()
+        {
+            if (Columns.Any() == false)
+            {
+                Columns = new List<FileColumn>()
+                {
+                    new FileColumn(FileInfoProperties.Name),                    
+                    new FileColumn(FileInfoProperties.Created),
+                    new FileColumn(FileInfoProperties.LastModified),
+                    new FileColumn(FileInfoProperties.LastAccessed),
+                    new FileColumn(FileInfoProperties.Length)
+                };
+            }
         }
     }
 }
