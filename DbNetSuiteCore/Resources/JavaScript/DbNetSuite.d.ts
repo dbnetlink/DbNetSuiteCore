@@ -43,6 +43,11 @@ declare class DbNetSuite {
     protected imageViewer: ImageViewer | undefined;
     protected parentControl: DbNetSuite | null;
     protected dataProvider: DataProvider | null;
+    quickSearch: boolean;
+    quickSearchDelay: number;
+    quickSearchMinChars: number;
+    quickSearchTimerId: number | undefined;
+    quickSearchToken: string;
     constructor(id: string | null);
     bind(event: EventName, handler: EventHandler): void;
     internalBind(event: EventName, callback: EmptyCallback): void;
@@ -73,4 +78,6 @@ declare class DbNetSuite {
     protected _getRequest(): DbNetSuiteRequest;
     protected highlight(): void;
     protected viewImage(event: JQuery.ClickEvent<HTMLElement>): void;
+    protected quickSearchKeyPress(event: JQuery.TriggeredEvent): void;
+    private runQuickSearch;
 }

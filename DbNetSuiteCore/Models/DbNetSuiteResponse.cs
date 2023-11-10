@@ -6,6 +6,6 @@
         public string Message { get; set; }
         public string Html { get; set; }
         public string Dialog { get; set; }
-
+        public string Toolbar { get; set; }
     }
 }

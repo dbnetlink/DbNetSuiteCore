@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Html;
 using DbNetSuiteCore.Enums.DbNetFile;
 using System.Linq;
+using DbNetSuiteCore.Enums;
 
 namespace DbNetSuiteCore.Components
 {
@@ -13,7 +14,39 @@ namespace DbNetSuiteCore.Components
         public DbNetFileCore(string folder, string id = null) : base(id)
         {
             _folder = folder;
-        }
+        }        
+        /// <summary>
+        /// Allows a user to do a wildcard search against file and folders names
+        /// </summary>
+        public bool? QuickSearch { get; set; }
+        /// <summary>
+        /// Controls the style of the toolbutton style
+        /// </summary>
+        public ToolbarButtonStyle? ToolbarButtonStyle { get; set; }
+        /// <summary>
+        /// Allows access to the search dialog for more comprehensive search capabilities
+        /// </summary>
+        public bool? Search { get; set; }
+        /// <summary>
+        /// Paging and navigation to the list of files and folders
+        /// </summary>
+        public bool? Navigation { get; set; }
+        /// <summary>
+        /// Export of the folder contents 
+        /// </summary>
+        public bool? Export { get; set; }
+        /// <summary>
+        /// Copies the folder contents to the clipboard
+        /// </summary>
+        public bool? Copy { get; set; }
+        /// <summary>
+        /// Upload a new file to the folder
+        /// </summary>
+        public bool? Upload { get; set; }
+        /// <summary>
+        /// Adds a caption to the top of the list of files and folders
+        /// </summary>
+        public string Caption { get; set; }
         public string Folder => _folder;
         /// <summary>
         /// Selects the columns to be displayed in the grid
@@ -107,6 +140,15 @@ folder = '{EncodingHelper.Encode(_folder)}';
         private string Properties()
         {
             List<string> properties = new List<string>();
+            AddProperty(Copy, nameof(Copy), properties);
+            AddProperty(Export, $"{nameof(Export)}_", properties);
+            AddProperty(Navigation, $"{nameof(Navigation)}", properties);
+            AddProperty(QuickSearch, $"{nameof(QuickSearch)}", properties);
+            AddProperty(Search, $"{nameof(Search)}", properties);
+            AddProperty(Upload, $"{nameof(Upload)}", properties);
+            AddProperty(Caption, $"{nameof(Caption)}", properties);
+            AddProperty(ToolbarButtonStyle, $"{nameof(ToolbarButtonStyle)}", properties);
+
             return string.Join(Environment.NewLine, properties);
         }
 

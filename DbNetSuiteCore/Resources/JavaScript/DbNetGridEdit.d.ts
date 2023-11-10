@@ -17,11 +17,6 @@ declare class DbNetGridEdit extends DbNetSuite {
     primaryKey: string | undefined;
     initialOrderBy: string;
     optimizeForLargeDataset: boolean;
-    quickSearch: boolean;
-    quickSearchDelay: number;
-    quickSearchMinChars: number;
-    quickSearchTimerId: number | undefined;
-    quickSearchToken: string;
     search: boolean;
     searchDialog: SearchDialog | undefined;
     searchFilterJoin: string;
@@ -36,8 +31,6 @@ declare class DbNetGridEdit extends DbNetSuite {
     setColumnProperty(columnName: string | Array<string>, property: string, propertyValue: object): void;
     setColumnProperties(columnName: string, properties: object): void;
     protected openSearchDialog(request: DbNetGridEditRequest): void;
-    protected quickSearchKeyPress(event: JQuery.TriggeredEvent): void;
-    private runQuickSearch;
     lookup($input: JQuery<HTMLInputElement>, request: DbNetGridEditRequest): void;
     private newColumn;
     private matchingColumn;

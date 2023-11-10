@@ -6,18 +6,33 @@
 @using DbNetSuiteCore.ViewModels.DbNetFile;
 @using Microsoft.AspNetCore.Html;
 @using System.Text.Json;
+@using DbNetSuiteCore.Extensions;
 @model FileViewModel
 
 @{
     int rowIdx = 0;
 }
 <table class="dbnetfile-table">
+    @if (string.IsNullOrEmpty(Model.Caption) == false)
+    {
+        <caption>@Model.Caption</caption>
+    }
+    <colgroup>
+        <col />
+        @foreach (FileColumn fileColumn in Model.Columns)
+        {
+            <col column-type="@fileColumn.Type" />
+        }
+    </colgroup>
     <thead>
-        <tr class="path-row">
-            <td colspan="@(Model.Columns.Count()+1)">
-                <div class="current-path">@CurrentPath()</div>
-            </td>
-        </tr>
+        @if (Model.Nested == false)
+        {
+            <tr class="path-row">
+                <td colspan="@(Model.Columns.Count()+1)">
+                    <div class="current-path">@CurrentPath()</div>
+                </td>
+            </tr>
+        }
         <tr class="header-row">
             <th>&nbsp;</th>
             @foreach (FileColumn fileColumn in Model.Columns)
@@ -26,21 +41,26 @@
             }
         </tr>
     </thead>
-    @foreach (DataRow dataRow in Model.DataView.Table.Rows)
+    @foreach (DataRowView dataRow in Model.DataView)
     {
-        <tr class="data-row @(rowIdx++ % 2 == 0 ? "even" : "odd")">
-            <td class="icon-cell @IconClass(dataRow)">&nbsp;</td>
-            @foreach (FileColumn fileColumn in Model.Columns)
-            {
-                <td>@CellContent(dataRow,fileColumn)</td>
-            }
-        </tr>
+        rowIdx++;
+
+        if (rowIdx >= Model.FirstRow && rowIdx <= Model.LastRow)
+        {
+            <tr class="data-row @(rowIdx % 2 == 0 ? "even" : "odd")">
+                <td class="@IconClass(dataRow)" data-folder="@NestedFolderPath(dataRow)">&nbsp;</td>
+                @foreach (FileColumn fileColumn in Model.Columns)
+                {
+                    <td column-type="@fileColumn.Type">@CellContent(dataRow,fileColumn)</td>
+                }
+            </tr>
+        }
     }
 </table>
 
 @functions
 {
-    public HtmlString CellContent(DataRow dataRow, FileColumn fileColumn)
+    public HtmlString CellContent(DataRowView dataRow, FileColumn fileColumn)
     {
         string html = string.Empty;
         object value = dataRow[fileColumn.Type.ToString()] ?? "&nbsp;";
@@ -56,6 +76,12 @@
                     html = value.ToString();
                 }
                 break;
+            case FileInfoProperties.Length:
+                if (Convert.ToBoolean(dataRow[FileInfoProperties.IsDirectory.ToString()]) == false)
+                {
+                    html = FileSizeExtension.ToFileSizeUnit(Convert.ToInt64(value));
+                }
+                break;
             default:
                 if (Convert.ToBoolean(dataRow[FileInfoProperties.IsDirectory.ToString()]) == false)
                 {
@@ -66,14 +92,26 @@
         return new HtmlString(html);
     }
 
-    public string IconClass(DataRow dataRow)
+    public string IconClass(DataRowView dataRow)
     {
+        List<string> classes = new List<string>() { "icon-cell" };
         if (Convert.ToBoolean(dataRow[FileInfoProperties.IsDirectory.ToString()]))
         {
-            return "folder";
+            classes.Add("folder");
         }
 
-        return string.Empty;
+        return string.Join(" ", classes);
+    }
+
+    public string NestedFolderPath(DataRowView dataRow)
+    {
+        List<string> classes = new List<string>() { "icon-cell" };
+        if (Convert.ToBoolean(dataRow[FileInfoProperties.IsDirectory.ToString()]))
+        {
+            return EncodingHelper.Encode($"{Model.Folder}/{dataRow[FileInfoProperties.Name.ToString()]}");
+        }
+
+        return null;
     }
 
     public HtmlString CurrentPath()
@@ -82,7 +120,7 @@
         string separator = "<span class=\"folder-separator\">/</span>";
         string html = separator;
         string currentFolder = string.Empty;
-        foreach(string folder in folders.Skip(1))
+        foreach (string folder in folders.Skip(1))
         {
             currentFolder += $"/{folder}";
             html += $"<span class=\"folder-name\">{((currentFolder.Length < Model.RootFolder.Length) ? folder : FolderLink(currentFolder))}</span>{separator}";

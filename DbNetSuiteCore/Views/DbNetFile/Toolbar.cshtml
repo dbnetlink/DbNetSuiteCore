@@ -1,6 +1,6 @@
 ﻿@namespace DbNetSuiteCore.Views.DbNetGrid
 @using DbNetSuiteCore.Enums;
-@using DbNetSuiteCore.ViewModels.DbNetGrid
+@using DbNetSuiteCore.ViewModels.DbNetFile
 @using Microsoft.AspNetCore.Html
 @model ToolbarViewModel
 
@@ -20,21 +20,9 @@
     {
         ToolbarSections[ToolbarSection.Search].Add(Model.QuickSearchInput());
     }
-    if (Model.View)
+    if (Model.Upload)
     {
-        ToolbarSections[ToolbarSection.View].Add(Model.Button("View", ToolbarSection.View));
-    }
-    if (Model.Insert)
-    {
-        ToolbarSections[ToolbarSection.Edit].Add(Model.Button("Insert", ToolbarSection.Edit));
-    }
-    if (Model.Update)
-    {
-        ToolbarSections[ToolbarSection.Edit].Add(Model.Button("Update", ToolbarSection.Edit));
-    }
-    if (Model.Delete)
-    {
-        ToolbarSections[ToolbarSection.Edit].Add(Model.Button("Delete", ToolbarSection.Edit));
+        ToolbarSections[ToolbarSection.Edit].Add(Model.Button("Upload", ToolbarSection.Edit));
     }
     if (Model.Navigation)
     {
@@ -67,7 +55,7 @@
     }
 }
 <div class="dbnetsuite-toolbar-panel">
-    <table class="dbnetsuite-toolbar" id="@(Model.ComponentId)_dbnetgrid-toolbar">
+    <table class="dbnetsuite-toolbar" id="@(Model.ComponentId)_dbnetfile-toolbar">
         <tbody>
             <tr>
                 @foreach (ToolbarSection section in ToolbarSections.Keys)
