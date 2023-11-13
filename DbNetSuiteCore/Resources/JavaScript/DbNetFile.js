@@ -105,15 +105,15 @@ class DbNetFile extends DbNetSuite {
         }
         const $table = $cell.closest("table");
         $cell.addClass("open");
-        if ($row.next().hasClass("nested-folder-row")) {
+        if ($row.next().hasClass("nested-component-row")) {
             $row.next().show();
             return;
         }
         const newRow = $table[0].insertRow($row[0].rowIndex + 1);
-        newRow.className = "nested-folder-row";
+        newRow.className = "nested-component-row";
         newRow.insertCell(-1);
         const newCell = newRow.insertCell(-1);
-        newCell.className = "nested-folder-cell";
+        newCell.className = "nested-component-cell";
         newCell.colSpan = $row[0].cells.length - 1;
         const id = `dbnetfile${new Date().valueOf()}`;
         jQuery(document.createElement("div")).attr("id", id).appendTo($(newCell));

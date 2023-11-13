@@ -25,8 +25,8 @@ table.dbnetfile-table {
         font-weight: bold;
         border: 1px solid #c0c0c0;
         border-bottom: none;
-        background-color:whitesmoke;
-        padding:5px;
+        background-color: whitesmoke;
+        padding: 5px;
     }
 
     tr.header-row {
@@ -79,7 +79,16 @@ table.dbnetfile-table {
 
         &.folder {
             background-image: svgFileIconUrl("folder","16");
-            cursor:pointer;
+            cursor: pointer;
+
+            &.open {
+                background-image: svgFileIconUrl("openfolder","16");
+                cursor: pointer;
+            }
+        }
+
+        &.image {
+            background-image: svgFileIconUrl("folder","16");
         }
 
         &.csv {

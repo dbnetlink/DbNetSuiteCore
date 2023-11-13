@@ -177,11 +177,6 @@ table.dbnetgrid-table {
         }
     }
 
-    td.nested-grid-cell {
-        padding: 5px;
-        background-color: #ECEFF1;
-    }
-
     td {
         background-position: center center;
         background-repeat: no-repeat;
@@ -279,7 +274,7 @@ table.lookup-dialog-toolbar,
 
     td {
         vertical-align: middle;
-        border: 0px;
+        border: 0px !important;
 
         &.separator {
             width: 10px !important;

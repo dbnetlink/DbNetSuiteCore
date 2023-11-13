@@ -8,7 +8,7 @@
     customersGrid.Column("CustomerID").Hidden();
 
     DbNetGridCore ordersGrid = new DbNetGridCore("northwind", "orders");
-    ordersGrid.ToolbarPosition = ToolbarPosition.Hidden;
+ //   ordersGrid.ToolbarPosition = ToolbarPosition.Hidden;
     ordersGrid.Columns = new List<string>() { "OrderID", "CustomerID", "EmployeeID", "OrderDate", "RequiredDate", "ShippedDate", "ShipVia", "Freight", "ShipName", "ShipAddress", "ShipCity", "ShipRegion", "ShipPostalCode", "ShipCountry" };
     ordersGrid.Column("CustomerID").ForeignKey();
     ordersGrid.Column("CustomerID").Hidden();
@@ -18,7 +18,7 @@
     customersGrid.NestedGrid = ordersGrid;
 
     DbNetGridCore orderDetailsGrid = new DbNetGridCore("northwind", "[order details]");
-    orderDetailsGrid.ToolbarPosition = ToolbarPosition.Hidden;
+ //   orderDetailsGrid.ToolbarPosition = ToolbarPosition.Hidden;
     orderDetailsGrid.Columns = new List<string>() { "OrderID", "ProductID", "Quantity", "UnitPrice" };
     orderDetailsGrid.Column("OrderID").ForeignKey();
     orderDetailsGrid.Column("OrderID").Hidden();
