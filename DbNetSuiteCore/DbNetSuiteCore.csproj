@@ -10,11 +10,11 @@
     <Description>Interactive database driven Razor web application development components for ASP.NET Core.  Supports MSSQL, MySQL MariaDB, PostgreSQL and SQLite. </Description>
     <RepositoryUrl>https://github.com/dbnetlink/DbNetSuiteCore</RepositoryUrl>
     <PackageTags>asp.netcore;components;component;asp.net;core;razor;blazor;react;spreadsheet;excel;grid;form;drop-down; list;application;svelte;data-driven;</PackageTags>
-    <AssemblyVersion>1.0.02</AssemblyVersion>
-    <FileVersion>1.0.02</FileVersion>
+    <AssemblyVersion>1.0.03</AssemblyVersion>
+    <FileVersion>1.0.03</FileVersion>
     <PackageReleaseNotes>Initial version comprising of DbNetGridCore, DbNetEditCore and DbNetComboCore</PackageReleaseNotes>
     <PackageProjectUrl>https://dbnetsuitecore.com</PackageProjectUrl>
-    <Version>1.0.02</Version>
+    <Version>1.0.03</Version>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageLicenseExpression> NPOSL-3.0</PackageLicenseExpression>
     <BaseOutputPath>C:\Users\robin\source\repos\DbNetSuiteCore-VS2022\DbNetSuiteCoreApp\bin</BaseOutputPath>

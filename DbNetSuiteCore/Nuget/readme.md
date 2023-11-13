@@ -53,4 +53,4 @@ You can then add a component to your Razor page as follows:
 </body>
 </html>
 ```
-For a comprehensive set of demos [click here](https://dbnetsuitecore.com/) and for the documentation  [click here](https://dbnetsuitecore.z35.web.core.windows.net/) 
+For a comprehensive set of demos [click here](https://www.dbnetsuitecore.com/) and for the documentation  [click here](https://docs.dbnetsuitecore.com/) 
