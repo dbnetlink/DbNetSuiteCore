@@ -23,6 +23,7 @@ using DbNetSuiteCore.Constants.DbNetSuite;
 using DbNetSuiteCore.Enums;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
+using System.Linq;
 
 namespace DbNetSuiteCore.Services
 {
@@ -37,6 +38,7 @@ namespace DbNetSuiteCore.Services
         protected readonly IMemoryCache Cache;
 
         private string _connectionString;
+        private string _culture;
 
         public string ComponentId { get; set; } = String.Empty;
         public string ConnectionString
@@ -44,7 +46,11 @@ namespace DbNetSuiteCore.Services
             get => EncodingHelper.Decode(_connectionString);
             set => _connectionString = value;
         }
-        public string Culture { get; set; } = String.Empty;
+        public string Culture
+        {
+            get => string.IsNullOrEmpty(_culture) ? Settings.Culture : _culture;
+            set => _culture = value;
+        }
         protected DbNetDataCore Database { get; set; }
         public DataProvider? DataProvider { get; set; }
         public string Id => ComponentId;
@@ -144,13 +150,7 @@ namespace DbNetSuiteCore.Services
         {
             Database = new DbNetDataCore(ConnectionString, Env, Configuration, DataProvider);
             ResourceManager = new ResourceManager("DbNetSuiteCore.Resources.Localization.default", typeof(DbNetSuite).Assembly);
-
-            if (string.IsNullOrEmpty(Culture) == false)
-            {
-                CultureInfo ci = new CultureInfo(Culture);
-                Thread.CurrentThread.CurrentCulture = ci;
-                Thread.CurrentThread.CurrentUICulture = ci;
-            }
+            SetCulture();
         }
 
         protected async Task<T> DeserialiseRequest<T>()
@@ -191,6 +191,29 @@ namespace DbNetSuiteCore.Services
         public string Translate(string key)
         {
             return ResourceManager.GetString(key) ?? (Settings.Debug ? $"*{key}*" : key);
+        }
+
+        private void SetCulture()
+        {
+            if (string.IsNullOrEmpty(Culture))
+            {
+                return;
+            }
+            if (Culture == "client")
+            {
+                if (string.IsNullOrEmpty(HttpContext.Request.Headers["Accept-Language"]) == false)
+                {
+                    Culture = HttpContext.Request.Headers["Accept-Language"].ToString().Split(",").First();
+                }
+            }
+            try
+            {
+                CultureInfo ci = new CultureInfo(Culture);
+                Thread.CurrentThread.CurrentCulture = ci;
+                Thread.CurrentThread.CurrentUICulture = ci;
+            }
+            catch
+            { }
         }
     }
 }
