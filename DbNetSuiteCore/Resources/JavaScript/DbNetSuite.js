@@ -14,6 +14,10 @@ class DbNetSuite {
         this.initialised = false;
         this.parentControl = null;
         this.dataProvider = null;
+        this.quickSearch = false;
+        this.quickSearchDelay = 1000;
+        this.quickSearchMinChars = 3;
+        this.quickSearchToken = "";
         if (id == null) {
             return;
         }
@@ -274,6 +278,28 @@ class DbNetSuite {
                 this.imageViewer.show($(event.currentTarget));
             }
         });
+    }
+    quickSearchKeyPress(event) {
+        const el = event.target;
+        window.clearTimeout(this.quickSearchTimerId);
+        if (el.value.length >= this.quickSearchMinChars || el.value.length == 0 || event.key == 'Enter')
+            this.quickSearchTimerId = window.setTimeout(() => { this.runQuickSearch(el.value); }, this.quickSearchDelay);
+    }
+    runQuickSearch(token) {
+        this.quickSearchToken = token;
+        if (this instanceof DbNetGrid) {
+            const grid = this;
+            grid.reload();
+        }
+        else if (this instanceof DbNetEdit) {
+            const edit = this;
+            edit.currentRow = 1;
+            edit.getRows();
+        }
+        else if (this instanceof DbNetFile) {
+            const file = this;
+            file.reload();
+        }
     }
 }
 DbNetSuite.DBNull = "DBNull";

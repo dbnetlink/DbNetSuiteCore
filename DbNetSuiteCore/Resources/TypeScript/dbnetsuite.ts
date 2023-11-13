@@ -44,6 +44,11 @@ class DbNetSuite {
     protected imageViewer: ImageViewer | undefined;
     protected parentControl: DbNetSuite | null = null;
     protected dataProvider: DataProvider | null = null;
+    quickSearch = false;
+    quickSearchDelay = 1000;
+    quickSearchMinChars = 3;
+    quickSearchTimerId: number | undefined;
+    quickSearchToken = "";
     constructor(id: string | null) {
         if (id == null) {
             return;
@@ -318,7 +323,7 @@ class DbNetSuite {
             connectionString: this.connectionString,
             culture: this.culture,
             parentControlType: this.parentControlType,
-            dataProvider: this.dataProvider
+            dataProvider: this.dataProvider as string
         };
 
         return request;
@@ -344,6 +349,31 @@ class DbNetSuite {
                     this.imageViewer.show($(event.currentTarget));
                 }
             })
+    }
+
+    protected quickSearchKeyPress(event: JQuery.TriggeredEvent): void {
+        const el = event.target as HTMLInputElement;
+        window.clearTimeout(this.quickSearchTimerId);
+
+        if (el.value.length >= this.quickSearchMinChars || el.value.length == 0 || event.key == 'Enter')
+            this.quickSearchTimerId = window.setTimeout(() => { this.runQuickSearch(el.value) }, this.quickSearchDelay);
+    }
+
+    private runQuickSearch(token: string) {
+        this.quickSearchToken = token;
+        if (this instanceof DbNetGrid) {
+            const grid = this as DbNetGrid;
+            grid.reload();
+        }
+        else if (this instanceof DbNetEdit) {
+            const edit = this as DbNetEdit;
+            edit.currentRow = 1;
+            edit.getRows();
+        }
+        else if (this instanceof DbNetFile) {
+            const file = this as DbNetFile;
+            file.reload();
+        }
     }
 }
 

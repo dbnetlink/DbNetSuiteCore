@@ -14,11 +14,6 @@ class DbNetGridEdit extends DbNetSuite {
     primaryKey: string | undefined = undefined;
     initialOrderBy = "";
     optimizeForLargeDataset = false;
-    quickSearch = false;
-    quickSearchDelay = 1000;
-    quickSearchMinChars = 3;
-    quickSearchTimerId: number | undefined;
-    quickSearchToken = "";
     search = true;
     searchDialog: SearchDialog | undefined;
     searchFilterJoin = "";
@@ -86,28 +81,6 @@ class DbNetGridEdit extends DbNetSuite {
                 this.searchDialog = new SearchDialog(`${this.id}_search_dialog`, this);
                 this.searchDialog.open();
             });
-    }
-
-    protected quickSearchKeyPress(event: JQuery.TriggeredEvent): void {
-        const el = event.target as HTMLInputElement;
-        window.clearTimeout(this.quickSearchTimerId);
-
-        if (el.value.length >= this.quickSearchMinChars || el.value.length == 0 || event.key == 'Enter')
-            this.quickSearchTimerId = window.setTimeout(() => { this.runQuickSearch(el.value) }, this.quickSearchDelay);
-    }
-
-    private runQuickSearch(token: string) {
-        this.quickSearchToken = token;
-        if (this instanceof DbNetGrid) {
-            const grid = this as DbNetGrid;
-            grid.currentPage = 1;
-            grid.getPage();
-        }
-        else if (this instanceof DbNetEdit) {
-            const edit = this as DbNetEdit;
-            edit.currentRow = 1;
-            edit.getRows();
-        }
     }
 
     public lookup($input: JQuery<HTMLInputElement>, request: DbNetGridEditRequest) {

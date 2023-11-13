@@ -4,6 +4,7 @@
     {
         DbNetGrid,
         DbNetEdit,
-        DbNetCombo
+        DbNetCombo,
+        DbNetFile
     }
 }

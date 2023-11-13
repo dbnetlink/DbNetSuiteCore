@@ -1,0 +1,79 @@
+﻿@namespace DbNetSuiteCore.Views.DbNetGrid
+@using DbNetSuiteCore.Enums;
+@using DbNetSuiteCore.ViewModels.DbNetFile
+@using Microsoft.AspNetCore.Html
+@model ToolbarViewModel
+
+@{
+    Dictionary<ToolbarSection, List<HtmlString>> ToolbarSections = new Dictionary<ToolbarSection, List<HtmlString>>();
+    bool elementRendered = false;
+    foreach (ToolbarSection toolbarSection in Enum.GetValues<ToolbarSection>())
+    {
+        ToolbarSections.Add(toolbarSection, new List<HtmlString>());
+    }
+
+    if (Model.Search)
+    {
+        ToolbarSections[ToolbarSection.Search].Add(Model.Button("Search", ToolbarSection.Search));
+    }
+    if (Model.QuickSearch)
+    {
+        ToolbarSections[ToolbarSection.Search].Add(Model.QuickSearchInput());
+    }
+    if (Model.Upload)
+    {
+        ToolbarSections[ToolbarSection.Edit].Add(Model.Button("Upload", ToolbarSection.Edit));
+    }
+    if (Model.Navigation)
+    {
+        ToolbarSections[ToolbarSection.Navigation].Add(Model.Button("First", ToolbarSection.Navigation));
+        ToolbarSections[ToolbarSection.Navigation].Add(Model.Button("Previous", ToolbarSection.Navigation));
+    }
+    ToolbarSections[ToolbarSection.Navigation].Add(Model.NoRecords());
+    if (Model.Navigation)
+    {
+        ToolbarSections[ToolbarSection.Navigation].Add(Model.Text("Page"));
+        ToolbarSections[ToolbarSection.Navigation].Add(Model.Input("PageNumber"));
+        ToolbarSections[ToolbarSection.Navigation].Add(Model.Text("Of"));
+        ToolbarSections[ToolbarSection.Navigation].Add(Model.Input("PageCount"));
+    }
+    ToolbarSections[ToolbarSection.Navigation].Add(Model.Text("Rows"));
+    ToolbarSections[ToolbarSection.Navigation].Add(Model.Input("Rows"));
+    if (Model.Navigation)
+    {
+        ToolbarSections[ToolbarSection.Navigation].Add(Model.Button("Next", ToolbarSection.Navigation));
+        ToolbarSections[ToolbarSection.Navigation].Add(Model.Button("Last", ToolbarSection.Navigation));
+    }
+    if (Model.Export)
+    {
+        ToolbarSections[ToolbarSection.Output].Add(Model.Button("Export", ToolbarSection.Output));
+        ToolbarSections[ToolbarSection.Output].Add(Model.ExportSelect());
+    }
+    if (Model.Copy)
+    {
+        ToolbarSections[ToolbarSection.Output].Add(Model.Button("Copy", ToolbarSection.Output));
+    }
+}
+<div class="dbnetsuite-toolbar-panel">
+    <table class="dbnetsuite-toolbar" id="@(Model.ComponentId)_dbnetfile-toolbar">
+        <tbody>
+            <tr>
+                @foreach (ToolbarSection section in ToolbarSections.Keys)
+                {
+                    if (ToolbarSections[section].Any())
+                    {
+                        if (elementRendered)
+                        {
+                            <td class="separator"></td>
+                        }
+                        foreach (HtmlString cell in ToolbarSections[section])
+                        {
+                            @cell
+                            elementRendered = true;
+                        }
+                    }
+                }
+            </tr>
+        </tbody>
+    </table>
+</div>

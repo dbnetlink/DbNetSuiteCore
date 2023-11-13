@@ -16,7 +16,6 @@ namespace DbNetSuiteCore.Components
     {
         protected readonly string _fromPart;
 
-        internal List<ColumnProperty> _columnProperties { get; set; } = new List<ColumnProperty>();
         internal string FromPart => _fromPart;
 
         /// <summary>
@@ -104,34 +103,6 @@ namespace DbNetSuiteCore.Components
                 return string.Empty;
             }
             return $"setColumnLabels(\"{string.Join("\",\"", Labels)}\");";
-        }
-
-        protected string ColumnProperties()
-        {
-            var script = _columnProperties.Select(x => $"setColumnProperty(\"{EncodingHelper.Encode(x.ColumnName)}\",\"{LowerCaseFirstLetter(x.PropertyType.ToString())}\",{PropertyValue(x.PropertyValue, x.PropertyType)});").ToList();
-            return string.Join(Environment.NewLine, script);
-
-            string PropertyValue(object value, Enum propertyType)
-            {
-                if (value is bool)
-                {
-                    return value.ToString()!.ToLower();
-                }
-
-                switch (propertyType)
-                {
-                    case ColumnPropertyType.Lookup:
-                        value = EncodingHelper.Encode(value.ToString());
-                        break;
-                    case ColumnPropertyType.Annotation:
-                        value = HttpUtility.HtmlEncode(value.ToString());
-                        break;
-                    case ColumnPropertyType.InputValidation:
-                        return Serialize(value);
-                }
-
-                return $"\"{value}\"";
-            }
         }
 
         protected void AddProperties(List<string> properties)

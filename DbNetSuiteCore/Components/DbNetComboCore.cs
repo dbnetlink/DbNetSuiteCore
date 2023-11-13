@@ -18,8 +18,7 @@ namespace DbNetSuiteCore.Components
         private readonly string _textColumn;
         private readonly string _procedureName;
 
-        private List<EventBinding> _eventBindings { get; set; } = new List<EventBinding>();
-        /// <summary>
+         /// <summary>
         /// Automatically selects the first row of the combo. Only applicable where Size is greater than 1.
         /// </summary>
         public bool? AutoRowSelect { get; set; } = null;

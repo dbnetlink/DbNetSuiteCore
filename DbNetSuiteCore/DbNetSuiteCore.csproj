@@ -48,6 +48,8 @@
     <None Remove="Resources\CSS\dbnetcombo.min.css" />
     <None Remove="Resources\CSS\dbnetedit.css" />
     <None Remove="Resources\CSS\dbnetedit.min.css" />
+    <None Remove="Resources\CSS\dbnetfile.css" />
+    <None Remove="Resources\CSS\dbnetfile.min.css" />
     <None Remove="Resources\CSS\dbnetgrid.css" />
     <None Remove="Resources\CSS\dbnetgrid.min.css" />
     <None Remove="Resources\CSS\dbnetsuite.css" />
@@ -74,6 +76,8 @@
     <None Remove="Resources\JavaScript\DbNetCombo.min.js" />
     <None Remove="Resources\JavaScript\DbNetEdit.js" />
     <None Remove="Resources\JavaScript\DbNetEdit.min.js" />
+    <None Remove="Resources\JavaScript\DbNetFile.js" />
+    <None Remove="Resources\JavaScript\DbNetFile.min.js" />
     <None Remove="Resources\JavaScript\dbnetgrid.js" />
     <None Remove="Resources\JavaScript\DbNetGrid.min.js" />
     <None Remove="Resources\JavaScript\DbNetGridEdit.js" />
@@ -105,12 +109,14 @@
     <None Remove="Resources\JavaScript\ViewDialog.min.js" />
     <None Remove="Resources\SCSS\dbnetcombo.scss" />
     <None Remove="Resources\SCSS\dbnetedit.scss" />
+    <None Remove="Resources\SCSS\dbnetfile.scss" />
     <None Remove="Resources\SCSS\dbnetgrid.scss" />
     <None Remove="Resources\SCSS\_reboot.scss" />
     <None Remove="Resources\SCSS\_variables.scss" />
     <None Remove="Resources\tsconfig.json" />
     <None Remove="Resources\TypeScript\DbNetCombo.ts" />
     <None Remove="Resources\TypeScript\DbNetEdit.ts" />
+    <None Remove="Resources\TypeScript\DbNetFile.ts" />
     <None Remove="Resources\TypeScript\dbnetgrid.ts" />
     <None Remove="Resources\TypeScript\DbNetGridEdit.ts" />
     <None Remove="Resources\TypeScript\dbnetsuite.ts" />
@@ -121,6 +127,8 @@
     <None Remove="Views\DbNetEdit\Options.cshtml" />
     <None Remove="Views\DbNetEdit\Toolbar.cshtml" />
     <None Remove="Views\DbNetEdit\UploadDialog.cshtml" />
+    <None Remove="Views\DbNetFile\Page.cshtml" />
+    <None Remove="Views\DbNetFile\Toolbar.cshtml" />
     <None Remove="Views\DbNetGrid\DataTable.cshtml" />
     <None Remove="Views\DbNetGrid\Grid.cshtml" />
     <None Remove="Views\DbNetGrid\HtmlExport.cshtml" />
@@ -148,6 +156,8 @@
     <EmbeddedResource Include="Resources\CSS\dbnetcombo.min.css" />
     <EmbeddedResource Include="Resources\CSS\dbnetedit.css" />
     <EmbeddedResource Include="Resources\CSS\dbnetedit.min.css" />
+    <EmbeddedResource Include="Resources\CSS\dbnetfile.css" />
+    <EmbeddedResource Include="Resources\CSS\dbnetfile.min.css" />
     <EmbeddedResource Include="Resources\CSS\dbnetgrid.css" />
     <EmbeddedResource Include="Resources\CSS\dbnetgrid.min.css" />
     <EmbeddedResource Include="Resources\CSS\libraries\cleanslate.css" />
@@ -162,6 +172,8 @@
     <EmbeddedResource Include="Resources\JavaScript\DbNetCombo.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetEdit.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetEdit.min.js" />
+    <EmbeddedResource Include="Resources\JavaScript\DbNetFile.js" />
+    <EmbeddedResource Include="Resources\JavaScript\DbNetFile.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetGrid.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetGridEdit.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetGridEdit.min.js" />
@@ -186,6 +198,7 @@
     <EmbeddedResource Include="Resources\JavaScript\ViewDialog.js" />
     <EmbeddedResource Include="Resources\JavaScript\ViewDialog.min.js" />
     <EmbeddedResource Include="Resources\SCSS\dbnetedit.scss" />
+    <EmbeddedResource Include="Resources\SCSS\dbnetfile.scss" />
     <EmbeddedResource Include="Resources\SCSS\dbnetgrid.scss" />
     <EmbeddedResource Include="Resources\SCSS\_variables.scss" />
     <EmbeddedResource Include="Resources\SCSS\dbnetsuite.scss" />
@@ -202,9 +215,14 @@
     <EmbeddedResource Include="Resources\JavaScript\libraries\jquery-ui.min.js" />
     <EmbeddedResource Include="Resources\SCSS\dbnetcombo.scss" />
     <EmbeddedResource Include="Resources\SCSS\_reboot.scss" />
+    <EmbeddedResource Include="Resources\TypeScript\DbNetFile.ts" />
     <EmbeddedResource Include="Resources\TypeScript\DbNetEdit.ts" />
     <EmbeddedResource Include="Resources\TypeScript\DbNetCombo.ts" />
     <EmbeddedResource Include="Resources\TypeScript\DbNetGridEdit.ts" />
+    <EmbeddedResource Include="Views\DbNetFile\Page.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\DbNetCombo\Options.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
@@ -230,6 +248,10 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\DbNetEdit\Toolbar.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\DbNetFile\Toolbar.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </EmbeddedResource>

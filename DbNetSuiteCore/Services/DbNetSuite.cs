@@ -148,7 +148,10 @@ namespace DbNetSuiteCore.Services
 
         protected void Initialise()
         {
-            Database = new DbNetDataCore(ConnectionString, Env, Configuration, DataProvider);
+            if ((this is DbNetFile) == false)
+            {
+                Database = new DbNetDataCore(ConnectionString, Env, Configuration, DataProvider);
+            }
             ResourceManager = new ResourceManager("DbNetSuiteCore.Resources.Localization.default", typeof(DbNetSuite).Assembly);
             SetCulture();
         }

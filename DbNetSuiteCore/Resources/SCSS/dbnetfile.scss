@@ -1,0 +1,118 @@
+﻿@import "_variables.scss";
+
+table.dbnetfile-table {
+    width: auto;
+    border-collapse: collapse;
+    border: 1px solid #c0c0c0;
+
+    td,
+    th {
+        border: 1px solid #c0c0c0;
+        font-family: var(--main-font-family);
+        font-size: var(--main-font-size);
+        padding: 2px;
+
+        &.sticky {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+    }
+
+    caption {
+        font-family: var(--main-font-family);
+        font-size: var(--main-font-size);
+        font-weight: bold;
+        border: 1px solid #c0c0c0;
+        border-bottom: none;
+        background-color: whitesmoke;
+        padding: 5px;
+    }
+
+    tr.header-row {
+        th {
+            background-color: gainsboro;
+            cursor: pointer;
+            text-align: left;
+        }
+    }
+
+    th[orderby] {
+        background-repeat: no-repeat;
+        background-position: right 2px center;
+        padding-right: 20px;
+        background-size: 12px;
+    }
+
+    th[orderby=asc] {
+        background-image: svgUrl("up", "16","SteelBlue","");
+    }
+
+    th[orderby=desc] {
+        background-image: svgUrl("down", "16","SteelBlue","");
+    }
+
+    tr.odd {
+        background-color: #F5F5F5;
+    }
+
+    tr.even {
+        background-color: #FFF;
+    }
+
+    tr.highlight {
+        background-color: PaleGoldenRod;
+    }
+
+    tr.selected {
+        background-color: SteelBlue !important;
+
+        td {
+            color: white !important;
+        }
+    }
+
+    td.icon-cell {
+        width: 24px;
+        background-position: center center;
+        background-repeat: no-repeat;
+
+        &.folder {
+            background-image: svgFileIconUrl("folder","16");
+            cursor: pointer;
+
+            &.open {
+                background-image: svgFileIconUrl("openfolder","16");
+                cursor: pointer;
+            }
+        }
+
+        &.image {
+            background-image: svgFileIconUrl("folder","16");
+        }
+
+        &.csv {
+            background-image: svgFileIconUrl("csv");
+        }
+
+        &.pdf {
+            background-image: svgFileIconUrl("pdf");
+        }
+    }
+
+    td[column-type=Length] {
+        text-align: right;
+    }
+
+    div.current-path {
+        background-color: whitesmoke;
+        border: 1px solid gainsboro;
+        border-radius: 2px;
+        padding: 5px;
+        margin: 5px;
+
+        span.folder-name {
+            margin: 0px 5px;
+        }
+    }
+}

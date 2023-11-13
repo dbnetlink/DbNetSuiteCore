@@ -94,6 +94,11 @@ section.dbnetsuite {
     }
 }
 
+td.nested-component-cell {
+    padding: 5px !important;
+    background-color: #ECEFF1;
+}
+
 .next-icon-left-svg {
     background-image: svgUrl("next", "20");
 }

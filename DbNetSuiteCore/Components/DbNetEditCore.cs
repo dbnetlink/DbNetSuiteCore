@@ -57,12 +57,16 @@ namespace DbNetSuiteCore.Components
         /// Browse control
         /// </summary>
         public DbNetGridCore BrowseControl { get; set; }
-  
+        /// <summary>
+        /// Returns a reference to an instance of a named column for assigment of properties
+        /// </summary>
         public DbNetEditCoreColumn Column(string columnName)
         {
             return Column(new string[] { columnName });
         }
-
+        /// <summary>
+        /// Returns a reference to an array of named columns for assigment of properties
+        /// </summary>
         public DbNetEditCoreColumn Column(string[] columnNames)
         {
             return new DbNetEditCoreColumn(columnNames, _columnProperties, _fromPart, Columns);

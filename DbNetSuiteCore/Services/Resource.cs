@@ -59,6 +59,7 @@ namespace DbNetSuiteCore.Services
                 "DbNetGrid",
                 "DbNetCombo",
                 "DbNetEdit",
+                "DbNetFile",
                 "DbColumn",               
 				"GridColumn",
                 "EditColumn",
@@ -101,7 +102,8 @@ namespace DbNetSuiteCore.Services
                 "dbnetsuite",
                 "dbnetgrid",
                 "dbnetcombo",
-                "dbnetedit"
+                "dbnetedit",
+                "dbnetfile"
             };
 			List<string> scripts = new List<string>();
 

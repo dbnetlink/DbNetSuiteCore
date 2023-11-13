@@ -1,4 +1,5 @@
 ﻿using DbNetSuiteCore.Enums;
+using DbNetSuiteCore.Helpers;
 using DbNetSuiteCore.Models;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.StaticFiles;
@@ -8,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Web;
 
 namespace DbNetSuiteCore.Components
 {
@@ -19,6 +21,7 @@ namespace DbNetSuiteCore.Components
         protected readonly IConfigurationRoot _configuration;
         protected readonly bool _idSupplied = false;
         internal bool _isChildControl = false;
+        internal List<ColumnProperty> _columnProperties { get; set; } = new List<ColumnProperty>();
 
         protected List<DbNetSuiteCore> _linkedControls { get; set; } = new List<DbNetSuiteCore>();
 
@@ -44,6 +47,12 @@ namespace DbNetSuiteCore.Components
             _connection = connection;
             _configuration = LoadConfiguration();
             DatabaseType = databaseType;
+        }
+
+        public DbNetSuiteCore(string id = null)
+        {
+            _id = id ?? $"{ComponentTypeName.ToLower()}{Guid.NewGuid().ToString().Split("-").First()}";
+            _configuration = LoadConfiguration();
         }
         public static HtmlString StyleSheet(string fontSize = null, string fontFamily = null)
         {
@@ -125,16 +134,46 @@ namespace DbNetSuiteCore.Components
 
             return _DbNetSuiteCoreSettings;
         }
+        protected string ColumnProperties()
+        {
+            var script = _columnProperties.Select(x => $"setColumnProperty(\"{EncodingHelper.Encode(x.ColumnName)}\",\"{LowerCaseFirstLetter(x.PropertyType.ToString())}\",{PropertyValue(x.PropertyValue, x.PropertyType)});").ToList();
+            return string.Join(Environment.NewLine, script);
+
+            string PropertyValue(object value, Enum propertyType)
+            {
+                if (value is bool)
+                {
+                    return value.ToString()!.ToLower();
+                }
+
+                switch (propertyType)
+                {
+                    case ColumnPropertyType.Lookup:
+                        value = EncodingHelper.Encode(value.ToString());
+                        break;
+                    case ColumnPropertyType.Annotation:
+                        value = HttpUtility.HtmlEncode(value.ToString());
+                        break;
+                    case ColumnPropertyType.InputValidation:
+                        return Serialize(value);
+                }
+
+                return $"\"{value}\"";
+            }
+        }
 
         protected string ValidateProperties()
         {
             string message = string.Empty;
 
-            string connectionString = _configuration.GetConnectionString(_connection);
-
-            if (connectionString == null)
+            if ((this is DbNetFileCore) == false)
             {
-                message = $"Connection string [{_connection}] not found. Please check the connection strings in your appsettings.json file";
+                string connectionString = _configuration.GetConnectionString(_connection);
+
+                if (connectionString == null)
+                {
+                    message = $"Connection string [{_connection}] not found. Please check the connection strings in your appsettings.json file";
+                }
             }
 
             if (_isChildControl)

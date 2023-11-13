@@ -920,16 +920,16 @@ class DbNetGrid extends DbNetGridEdit {
 
         $button.addClass("open");
 
-        if (row.next().hasClass("nested-grid-row")) {
+        if (row.next().hasClass("nested-component-row")) {
             row.next().show();
             return;
         }
 
         const newRow = table[0].insertRow(row[0].rowIndex + 1);
-        newRow.className = "nested-grid-row";
+        newRow.className = "nested-component-row";
         newRow.insertCell(-1);
         const gridCell = newRow.insertCell(-1);
-        gridCell.className = "nested-grid-cell";
+        gridCell.className = "nested-component-cell";
         gridCell.colSpan = row[0].cells.length - 1;
 
         const handlers = this.eventHandlers["onNestedClick"]
