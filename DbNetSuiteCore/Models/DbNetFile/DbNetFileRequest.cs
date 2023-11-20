@@ -6,6 +6,7 @@ namespace DbNetSuiteCore.Models.DbNetFile
     public class DbNetFileRequest : DbNetSuiteRequest
     {
         public string Folder { get; set; }
+        public string FileName { get; set; }
         public string RootFolder { get; set; }
         public List<FileColumn> Columns { get; set; } = new List<FileColumn>();
         public bool QuickSearch { get; set; }
@@ -18,5 +19,8 @@ namespace DbNetSuiteCore.Models.DbNetFile
         public int CurrentPage { get; set; }
         public string Caption { get; set; }
         public bool Nested { get; set; }
+        public string QuickSearchToken { get; set; }
+        public string OrderBy { get; set; }
+        public OrderByDirection? OrderByDirection { get; set; }
     }
 }

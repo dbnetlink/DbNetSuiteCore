@@ -1,0 +1,10 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums;
+@using DbNetSuiteCore.Enums.DbNetFile;
+@{
+    DbNetFileCore folderView = new DbNetFileCore("/dbnetfile/documents/sampleimages");
+    folderView.Columns = new List<FileInfoProperties>() { FileInfoProperties.Name, FileInfoProperties.Length, FileInfoProperties.Preview };
+    folderView.Column(FileInfoProperties.Preview).Label("Thumbnail");
+    @folderView.Render()
+}

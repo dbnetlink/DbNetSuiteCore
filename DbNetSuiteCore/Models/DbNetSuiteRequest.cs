@@ -9,5 +9,7 @@ namespace DbNetSuiteCore.Models
         public DataProvider? DataProvider { get; set; }
         public string Culture { get; set; }
         public ComponentType? ParentControlType { get; set; }
+        public string QuickSearchToken { get; set; }
+
     }
 }

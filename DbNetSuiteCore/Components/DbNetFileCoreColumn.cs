@@ -25,7 +25,16 @@ namespace DbNetSuiteCore.Components
             return this;
         }
 
-        protected void SetColumnProperty(Enum propertyType, object propertyValue)
+        /// <summary>
+        /// Sets the heading label for the column
+        /// </summary>
+        public DbNetFileCoreColumn Label(string label)
+        {
+            SetColumnProperty(ColumnPropertyType.Label, label);
+            return this;
+        }
+
+        private void SetColumnProperty(Enum propertyType, object propertyValue)
         {
             foreach (FileInfoProperties columnType in _columnTypes)
             {

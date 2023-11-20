@@ -14,7 +14,7 @@ using DbNetSuiteCore.Enums.DbNetFile;
 using System.IO;
 using System.Linq;
 using DbNetSuiteCore.Enums;
-using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.AspNetCore.Http;
 
 namespace DbNetSuiteCore.Services
 {
@@ -23,6 +23,7 @@ namespace DbNetSuiteCore.Services
         private Dictionary<string, object> _resp = new Dictionary<string, object>();
 
         private string _folder;
+        private string _fileName;
         private string _rootFolder;
 
         private readonly IFileProvider _fileProvider;
@@ -38,6 +39,12 @@ namespace DbNetSuiteCore.Services
             get => EncodingHelper.Decode(_folder);
             set => _folder = value;
         }
+
+        public string FileName
+        {
+            get => EncodingHelper.Decode(_fileName);
+            set => _fileName = value;
+        }
         public string RootFolder
         {
             get => EncodingHelper.Decode(_rootFolder);
@@ -47,7 +54,6 @@ namespace DbNetSuiteCore.Services
         public int PageSize { get; set; } = 20;
         public int TotalRows { get; set; }
         public int TotalPages { get; set; }
-
         public bool QuickSearch { get; set; }
         public ToolbarButtonStyle ToolbarButtonStyle { get; set; }
         public bool Search { get; set; }
@@ -57,6 +63,9 @@ namespace DbNetSuiteCore.Services
         public bool Upload { get; set; }
         public string Caption { get; set; }
         public bool Nested { get; set; }
+        public string QuickSearchToken { get; set; }
+        public string OrderBy { get; set; }
+        public OrderByDirection? OrderByDirection { get; set; }
 
         public new async Task<object> Process()
         {
@@ -75,6 +84,8 @@ namespace DbNetSuiteCore.Services
                 case RequestAction.Page:
                     await Page(response);
                     break;
+                case RequestAction.DownloadFile:
+                    return DownloadBinaryFile();
             }
 
             var serializeOptions = new JsonSerializerOptions
@@ -84,7 +95,7 @@ namespace DbNetSuiteCore.Services
             return JsonSerializer.Serialize(response, serializeOptions);
         }
 
-        private async Task Page(DbNetFileResponse response, bool inititialise = false )
+        private async Task Page(DbNetFileResponse response, bool inititialise = false)
         {
             if (inititialise)
             {
@@ -113,7 +124,32 @@ namespace DbNetSuiteCore.Services
                 dataTable.Rows.Add(row);
             }
 
-            TotalRows = dataTable.Rows.Count; 
+            DataView dataView = new DataView(dataTable);
+            if (string.IsNullOrEmpty(OrderBy))
+            {
+                OrderBy = FileInfoProperties.Name.ToString();
+            }
+            if (OrderByDirection.HasValue == false)
+            {
+                OrderByDirection = Enums.OrderByDirection.asc;
+            }
+
+            dataView.Sort = $"IsDirectory DESC, {OrderBy} {OrderByDirection}";
+
+            FileColumn orderByColumn = Columns.FirstOrDefault(c => c.Type.ToString() == OrderBy) ?? Columns.First();
+            orderByColumn.OrderBy = OrderByDirection;
+
+            if (string.IsNullOrEmpty(QuickSearchToken) == false)
+            {
+                QuickSearchToken = QuickSearchToken.Replace("%", "*");
+                if (QuickSearchToken.Contains("*") == false)
+                {
+                    QuickSearchToken = $"*{QuickSearchToken}*";
+                }
+                dataView.RowFilter = $"{FileInfoProperties.Name} LIKE '{QuickSearchToken}'";
+            }
+
+            TotalRows = dataView.Count;
             if (PageSize <= 0)
             {
                 PageSize = TotalRows;
@@ -129,8 +165,6 @@ namespace DbNetSuiteCore.Services
             response.TotalPages = TotalPages;
             response.TotalRows = TotalRows;
 
-            DataView dataView = new DataView(dataTable);
-            dataView.Sort = "IsDirectory DESC, Name ASC";
             var viewModel = new FileViewModel
             {
                 DataView = dataView,
@@ -152,6 +186,15 @@ namespace DbNetSuiteCore.Services
             return contents;
         }
 
+        protected byte[] DownloadBinaryFile()
+        {
+            string url = $"{Folder}/{FileName}";
+            IFileInfo fileInfo = _fileProvider.GetFileInfo(url);
+            byte[] fileBytes = File.ReadAllBytes(fileInfo.PhysicalPath);
+            HttpContext.Response.ContentType = GetMimeTypeForFileExtension($".{FileName.Split(".").Last()}");
+            return fileBytes;
+        }
+        
         private DataTable CreateDataTable()
         {
             DataTable dataTable = new DataTable();
@@ -178,6 +221,26 @@ namespace DbNetSuiteCore.Services
                     new FileColumn(FileInfoProperties.LastAccessed),
                     new FileColumn(FileInfoProperties.Length)
                 };
+            }
+
+            if (Columns.Any( c => c.Type == FileInfoProperties.Name) == false)
+            {
+                Columns.Insert(0, new FileColumn(FileInfoProperties.Name));
+            }
+
+            foreach (var column in Columns)
+            {
+                if (string.IsNullOrEmpty(column.Label))
+                {
+                    if (column.Type == FileInfoProperties.Length)
+                    {
+                        column.Label = "Size";
+                    }
+                    else
+                    {
+                        column.Label = GenerateLabel(column.Type.ToString());
+                    }
+                }
             }
         }
     }

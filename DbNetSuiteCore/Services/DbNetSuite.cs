@@ -24,6 +24,7 @@ using DbNetSuiteCore.Enums;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace DbNetSuiteCore.Services
 {
@@ -194,6 +195,16 @@ namespace DbNetSuiteCore.Services
         public string Translate(string key)
         {
             return ResourceManager.GetString(key) ?? (Settings.Debug ? $"*{key}*" : key);
+        }
+
+        static public string GenerateLabel(string label)
+        {
+            label = Regex.Replace(label, @"((?<=\p{Ll})\p{Lu})|((?!\A)\p{Lu}(?>\p{Ll}))", " $0");
+            return Capitalise(label.Replace("_", " ").Replace(".", " "));
+        }
+        internal static string Capitalise(string text)
+        {
+            return Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(text);
         }
 
         private void SetCulture()

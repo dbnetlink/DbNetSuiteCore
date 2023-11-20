@@ -14,4 +14,7 @@ interface DbNetFileRequest extends DbNetSuiteRequest {
     currentPage: number;
     caption: string;
     nested: boolean;
+    fileName: string;
+    orderBy: string;
+    orderByDirection: string;
 }

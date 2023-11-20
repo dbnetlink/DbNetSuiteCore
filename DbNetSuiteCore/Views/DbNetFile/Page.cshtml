@@ -7,6 +7,8 @@
 @using Microsoft.AspNetCore.Html;
 @using System.Text.Json;
 @using DbNetSuiteCore.Extensions;
+@using DbNetSuiteCore.Constants.DbNetFile;
+
 @model FileViewModel
 
 @{
@@ -37,7 +39,7 @@
             <th>&nbsp;</th>
             @foreach (FileColumn fileColumn in Model.Columns)
             {
-                <th>@(fileColumn.Label)</th>
+                <th data-type="@fileColumn.Type" orderby=@fileColumn.OrderBy class="@HeaderCellClass(fileColumn)">@(fileColumn.Label)</th>
             }
         </tr>
     </thead>
@@ -51,7 +53,14 @@
                 <td class="@IconClass(dataRow)" data-folder="@NestedFolderPath(dataRow)">&nbsp;</td>
                 @foreach (FileColumn fileColumn in Model.Columns)
                 {
-                    <td column-type="@fileColumn.Type">@CellContent(dataRow,fileColumn)</td>
+                    if (dataRow.IsDirectory())
+                    {
+                        <td>@CellContent(dataRow,fileColumn)</td>
+                    }
+                    else
+                    {
+                        <td column-type="@fileColumn.Type">@CellContent(dataRow,fileColumn)</td>
+                    }
                 }
             </tr>
         }
@@ -63,27 +72,51 @@
     public HtmlString CellContent(DataRowView dataRow, FileColumn fileColumn)
     {
         string html = string.Empty;
-        object value = dataRow[fileColumn.Type.ToString()] ?? "&nbsp;";
+        object value = "&nbsp;";
+
+        if (dataRow.Row.Table.Columns.Contains(fileColumn.Type.ToString()))
+        {
+            value = dataRow[fileColumn.Type.ToString()] ?? "&nbsp;";
+        }
         switch (fileColumn.Type)
         {
             case FileInfoProperties.Name:
-                if (Convert.ToBoolean(dataRow[FileInfoProperties.IsDirectory.ToString()]))
+                if (dataRow.IsDirectory())
                 {
                     html = FolderLink($"{Model.Folder}/{value.ToString()}");
                 }
                 else
                 {
-                    html = value.ToString();
+                    html = FileLink(value.ToString(), dataRow.Extension());
                 }
                 break;
             case FileInfoProperties.Length:
-                if (Convert.ToBoolean(dataRow[FileInfoProperties.IsDirectory.ToString()]) == false)
+                if (dataRow.IsDirectory() == false)
                 {
                     html = FileSizeExtension.ToFileSizeUnit(Convert.ToInt64(value));
                 }
                 break;
+            case FileInfoProperties.LastModified:
+            case FileInfoProperties.Created:
+            case FileInfoProperties.LastAccessed:
+                if (value is DateTimeOffset)
+                {
+                    value = ((DateTimeOffset)value).UtcDateTime;
+                }
+                if (dataRow.IsDirectory() == false)
+                {
+                    if (string.IsNullOrEmpty(fileColumn.Format))
+                    {
+                        html = $"{Convert.ToDateTime(value).ToString("d")} {Convert.ToDateTime(value).ToString("t")}";
+                    }
+                    else
+                    {
+                        html = Convert.ToDateTime(value).ToString(fileColumn.Format);
+                    }
+                }
+                break;
             default:
-                if (Convert.ToBoolean(dataRow[FileInfoProperties.IsDirectory.ToString()]) == false)
+                if (dataRow.IsDirectory() == false)
                 {
                     html = value.ToString();
                 }
@@ -95,9 +128,14 @@
     public string IconClass(DataRowView dataRow)
     {
         List<string> classes = new List<string>() { "icon-cell" };
-        if (Convert.ToBoolean(dataRow[FileInfoProperties.IsDirectory.ToString()]))
+        if (dataRow.IsDirectory())
         {
             classes.Add("folder");
+        }
+        else
+        {
+            classes.Add("file");
+            classes.Add(GetFileType(dataRow.FileName()).ToString().ToLower());
         }
 
         return string.Join(" ", classes);
@@ -106,9 +144,9 @@
     public string NestedFolderPath(DataRowView dataRow)
     {
         List<string> classes = new List<string>() { "icon-cell" };
-        if (Convert.ToBoolean(dataRow[FileInfoProperties.IsDirectory.ToString()]))
+        if (dataRow.IsDirectory())
         {
-            return EncodingHelper.Encode($"{Model.Folder}/{dataRow[FileInfoProperties.Name.ToString()]}");
+            return EncodingHelper.Encode($"{Model.Folder}/{dataRow.FileName()}");
         }
 
         return null;
@@ -117,13 +155,17 @@
     public HtmlString CurrentPath()
     {
         List<string> folders = Model.Folder.Split("/").ToList();
+        List<string> rootFolders = Model.RootFolder.Split("/").ToList();
         string separator = "<span class=\"folder-separator\">/</span>";
         string html = separator;
-        string currentFolder = string.Empty;
-        foreach (string folder in folders.Skip(1))
+        string currentFolder = string.Join("/",rootFolders.Take(rootFolders.Count - 1));
+        var folderCount = folders.Count;
+        for (var f = rootFolders.Count-1; f < folderCount; f++)
         {
+            var lastFolder = f == folderCount - 1;
+            var folder = folders[f];
             currentFolder += $"/{folder}";
-            html += $"<span class=\"folder-name\">{((currentFolder.Length < Model.RootFolder.Length) ? folder : FolderLink(currentFolder))}</span>{separator}";
+            html += $"<span class=\"folder-name{(lastFolder ? " last" : string.Empty)}\">{((f == 0 || lastFolder) ? folder : FolderLink(currentFolder))}</span>{separator}";
         }
 
         return new HtmlString(html);
@@ -131,6 +173,49 @@
 
     public string FolderLink(string folder)
     {
-        return $"<a class=\"folder-link\" data-folder=\"{EncodingHelper.Encode(folder)}\" href=\"javascript:void()\">{folder.Split("/").Last()}</a>";
+        return $"<a class=\"folder-link\" data-folder=\"{EncodingHelper.Encode(folder)}\" href=\"#\">{folder.Split("/").Last()}</a>";
+    }
+
+    public FileType GetFileType(string fileName)
+    {
+        FileType fileType = FileType.Download;
+        string ext = fileName.Split(".").Last();
+
+        foreach (FileType key in Extensions.FileTypeExtensions.Keys)
+        {
+            if (Extensions.FileTypeExtensions[key].Contains(ext))
+            {
+                fileType = key;
+                break;
+            }
+        }
+
+        return fileType;
+    }
+
+    public string FileLink(string fileName, string extension)
+    {
+        FileType fileType = GetFileType(fileName);
+
+        string mimeType = TextHelper.GetMimeTypeForFileExtension(extension);
+
+        return $"<a class=\"file-link\" data-filetype=\"{fileType}\" data-file=\"{EncodingHelper.Encode(fileName)}\" data-mimetype=\"{mimeType}\" href=\"#\">{fileName}</a>";
+    }
+
+    public string HeaderCellClass(FileColumn column)
+    {
+        List<string> classNames = new List<string>();
+        /*
+        if (Model.FrozenHeader)
+        {
+            classNames.Add("sticky");
+        }
+        */
+        if (classNames.Any())
+        {
+            return string.Join(" ", classNames.ToArray());
+        }
+
+        return null;
     }
 }

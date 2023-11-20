@@ -21,7 +21,6 @@ using System.Threading.Tasks;
 using DbNetSuiteCore.Constants;
 using DbNetSuiteCore.Enums.DbNetEdit;
 using System.Globalization;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace DbNetSuiteCore.Services
 {
@@ -701,17 +700,6 @@ namespace DbNetSuiteCore.Services
                 baseTableName = tableName.ToString();
 
             return baseTableName;
-        }
-
-        static public string GenerateLabel(string label)
-        {
-            label = Regex.Replace(label, @"((?<=\p{Ll})\p{Lu})|((?!\A)\p{Lu}(?>\p{Ll}))", " $0");
-            return Capitalise(label.Replace("_", " ").Replace(".", " "));
-        }
-
-        internal static string Capitalise(string text)
-        {
-            return Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(text);
         }
 
         internal static string[] GetSelectColumns(string sql)

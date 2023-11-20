@@ -2,6 +2,13 @@
   width: auto;
   border-collapse: collapse;
   border: 1px solid #c0c0c0;
+  /*
+  tr.selected {
+      td.icon-cell {
+          filter: invert(100%) sepia(100%) saturate(8%) hue-rotate(128deg) brightness(102%) contrast(103%);
+      }
+  }
+  */
 }
 table.dbnetfile-table td,
 table.dbnetfile-table th {
@@ -52,7 +59,7 @@ table.dbnetfile-table tr.highlight {
   background-color: PaleGoldenRod;
 }
 table.dbnetfile-table tr.selected {
-  background-color: SteelBlue !important;
+  background-color: #B0BEC5 !important;
 }
 table.dbnetfile-table tr.selected td {
   color: white !important;
@@ -70,17 +77,28 @@ table.dbnetfile-table td.icon-cell.folder.open {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='16' width='16' viewBox='0 -960 960 960' fill='SteelBlue'><path d='M154-128q-43.725 0-74.862-31.137Q48-190.275 48-234v-492q0-43.725 31.138-74.862Q110.275-832 154-832h220l106 106h326q43.725 0 74.862 31.138Q912-663.725 912-620H436L330-726H154v479l85-293h711l-92 315q-15 53-46.5 75T719-128H154Zm107-106h489l58-200H319l-58 200Zm0 0 58-200-58 200ZM154-620v-106 106Z'/></svg>");
   cursor: pointer;
 }
-table.dbnetfile-table td.icon-cell.image {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='16' width='16' viewBox='0 -960 960 960' fill='SteelBlue'><path d='M154-128q-43.725 0-74.862-31.137Q48-190.275 48-234v-492q0-43.725 31.138-74.862Q110.275-832 154-832h220l106 106h326q43.725 0 74.862 31.138Q912-663.725 912-620v386q0 43.725-31.138 74.863Q849.725-128 806-128H154Zm0-106h652v-386H436L330-726H154v492Zm0 0v-492 492Z'/></svg>");
+table.dbnetfile-table td.icon-cell.download {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='16' width='16' viewBox='0 -960 960 960' fill='SteelBlue'><path d='M236-48q-43.725 0-74.863-31.138Q130-110.275 130-154v-652q0-43.725 31.137-74.862Q192.275-912 236-912h312l282 281v477q0 43.725-31.138 74.862Q767.725-48 724-48H236Zm260-530v-228H236v652h488v-424H496ZM236-806v228-228 652-652Z'/></svg>");
 }
-table.dbnetfile-table td.icon-cell.csv {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='48' width='48' viewBox='0 -960 960 960' fill='SteelBlue'><path d='M230-357h127v-50H247v-146h110v-50H230q-14.025 0-23.512 9.775Q197-583.45 197-569v179q0 14.025 9.488 23.513Q215.975-357 230-357Zm161 0h137q14.025 0 23.513-9.487Q561-375.975 561-390v-78q0-13-9.487-21.5Q542.025-498 528-498h-87v-55.37h120V-603H424q-14.025 0-23.513 9.487Q391-584.025 391-570v78q0 14 9.487 23.5Q409.975-459 424-459h87v52H391v50Zm264 0h57l75-246h-50l-53 183-47-183h-50l68 246ZM140-148q-28.725 0-50.862-22.137Q67-192.275 67-221v-518q0-28.725 22.138-50.862Q111.275-812 140-812h680q28.725 0 50.862 22.138Q893-767.725 893-739v518q0 28.725-22.138 50.863Q848.725-148 820-148H140Zm0-73h680v-518H140v518Zm0 0v-518 518Z'/></svg>");
+table.dbnetfile-table td.icon-cell.image {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='16' width='16' viewBox='0 -960 960 960' fill='SteelBlue'><path d='M200-94q-43.725 0-74.863-31.137Q94-156.275 94-200v-560q0-43.725 31.137-74.862Q156.275-866 200-866h560q43.725 0 74.862 31.138Q866-803.725 866-760v560q0 43.725-31.138 74.863Q803.725-94 760-94H200Zm0-106h560v-560H200v560Zm22-64h516L572-486 450-322l-92-122-136 180Zm-22 64v-560 560Z'/></svg>");
+}
+table.dbnetfile-table td.icon-cell.audio {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='16' width='16' viewBox='0 -960 960 960' fill='SteelBlue'><path d='M544-57v-108q110-26 179-115t69-202q0-112-69.5-200T544-796v-108q155 26 254.5 145.5T898-482q0 158-99.5 278.5T544-57ZM62-340v-280h174l228-230v740L236-340H62Zm482 32v-344q51 23 81.5 69.5T656-480q0 56-30.5 102.5T544-308ZM358-594l-78 80H168v68h112l78 80v-228Zm-95 114Z'/></svg>");
+}
+table.dbnetfile-table td.icon-cell.video {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='16' width='16' viewBox='0 -960 960 960' fill='SteelBlue'><path d='M212-302h358v-142.4L748-302v-356L570-516v-142H212v356Zm-58 172q-43.725 0-74.862-31.137Q48-192.275 48-236v-488q0-43.725 31.138-74.862Q110.275-830 154-830h652q43.725 0 74.862 31.138Q912-767.725 912-724v488q0 43.725-31.138 74.863Q849.725-130 806-130H154Zm0-106h652v-488H154v488Zm0-488v488-488Z'/></svg>");
 }
 table.dbnetfile-table td.icon-cell.pdf {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='48' width='48' viewBox='0 -960 960 960' fill='SteelBlue'><path d='M334-429h40v-84h46q16.7 0 28.85-11.775Q461-536.55 461-553v-45q0-16.7-12.15-28.85Q436.7-639 420-639h-86v210Zm40-124v-45h46v45h-46Zm130 124h84.526Q605-429 617.5-440.5T630-469v-129q0-16.7-12.638-28.85Q604.725-639 589-639h-85v210Zm40-40v-129h45v129h-45Zm132 40h40v-84h46v-40h-46v-45h46v-41h-86v210ZM265-185q-29.363 0-51.181-22.137Q192-229.275 192-258v-564q0-28.725 21.819-50.862Q235.637-895 265-895h564q28.725 0 50.862 22.138Q902-850.725 902-822v564q0 28.725-22.138 50.863Q857.725-185 829-185H265Zm0-73h564v-564H265v564ZM132-52q-29.363 0-51.181-22.138Q59-96.275 59-125v-637h73v637h637v73H132Zm133-770v564-564Z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='16' width='16' viewBox='0 -960 960 960' fill='SteelBlue'><path d='M365-455h46v-82h37q19.975 0 33.487-13.5Q495-564 495-583v-35q0-19.975-13.513-33.487Q467.975-665 448-665h-83v210Zm46-128v-35h37v35h-37Zm122 128h83q19 0 33-13.513 14-13.512 14-33.487v-116q0-19.975-14-33.487Q635-665 616-665h-83v210Zm46-47v-116h37v116h-37Zm119 47h46v-82h32v-46h-32v-35h32v-47h-78v210ZM329-210q-43.725 0-74.863-31.137Q223-272.275 223-316v-488q0-43.725 31.137-74.862Q285.275-910 329-910h488q43.725 0 74.862 31.138Q923-847.725 923-804v488q0 43.725-31.138 74.863Q860.725-210 817-210H329Zm0-106h488v-488H329v488ZM143-24q-43.725 0-74.862-31.138Q37-86.275 37-130v-594h106v594h594v106H143Zm186-780v488-488Z'/></svg>");
 }
 table.dbnetfile-table td[column-type=Length] {
   text-align: right;
+}
+table.dbnetfile-table td[column-type=Preview] img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 table.dbnetfile-table div.current-path {
   background-color: whitesmoke;
@@ -91,4 +109,7 @@ table.dbnetfile-table div.current-path {
 }
 table.dbnetfile-table div.current-path span.folder-name {
   margin: 0px 5px;
+}
+table.dbnetfile-table div.current-path span.folder-name.last {
+  font-weight: bold;
 }

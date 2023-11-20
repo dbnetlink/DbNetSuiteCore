@@ -261,8 +261,7 @@ class DbNetGrid extends DbNetGridEdit {
         this.gridPanel?.find("tr.data-row").get().forEach((tr) => {
             this.addRowEventHandlers($(tr));
             this.fireEvent("onRowTransform", { row: tr });
-        }
-        );
+        });
 
         if (this.dragAndDrop && this.procedureName == "" && this.isBrowseDialog == false) {
             this.gridPanel?.find("tr.header-row th")

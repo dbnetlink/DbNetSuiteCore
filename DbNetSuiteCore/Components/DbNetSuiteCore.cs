@@ -136,7 +136,7 @@ namespace DbNetSuiteCore.Components
         }
         protected string ColumnProperties()
         {
-            var script = _columnProperties.Select(x => $"setColumnProperty(\"{EncodingHelper.Encode(x.ColumnName)}\",\"{LowerCaseFirstLetter(x.PropertyType.ToString())}\",{PropertyValue(x.PropertyValue, x.PropertyType)});").ToList();
+            var script = _columnProperties.Select(x => $"setColumnProperty(\"{EncodeColumnName(x.ColumnName)}\",\"{LowerCaseFirstLetter(x.PropertyType.ToString())}\",{PropertyValue(x.PropertyValue, x.PropertyType)});").ToList();
             return string.Join(Environment.NewLine, script);
 
             string PropertyValue(object value, Enum propertyType)
@@ -160,6 +160,11 @@ namespace DbNetSuiteCore.Components
 
                 return $"\"{value}\"";
             }
+        }
+
+        private string EncodeColumnName(string columnName)
+        {
+            return this is DbNetFileCore ? columnName : EncodingHelper.Encode(columnName);
         }
 
         protected string ValidateProperties()

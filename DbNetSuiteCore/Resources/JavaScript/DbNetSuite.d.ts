@@ -78,6 +78,8 @@ declare class DbNetSuite {
     protected _getRequest(): DbNetSuiteRequest;
     protected highlight(): void;
     protected viewImage(event: JQuery.ClickEvent<HTMLElement>): void;
+    protected viewUrl(url: string, fileName: string, type?: string): void;
+    private openImageViewer;
     protected quickSearchKeyPress(event: JQuery.TriggeredEvent): void;
     private runQuickSearch;
 }

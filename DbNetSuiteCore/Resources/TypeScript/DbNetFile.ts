@@ -1,5 +1,6 @@
 class DbNetFile extends DbNetSuite {
     rootFolder = "";
+    fileName = "";
     folder = "";
     folderPanel: JQuery<HTMLElement> | undefined;
     toolbarPanel: JQuery<HTMLElement> | undefined;
@@ -16,8 +17,12 @@ class DbNetFile extends DbNetSuite {
     totalPages = 0;
     currentPage = 1;
     pageSize = 20;
+    previewHeight = 30;
     caption = "";
     nested = false;
+    orderBy = "";
+    orderByDirection = "asc";
+
 
     constructor(id: string) {
         super(id);
@@ -44,7 +49,23 @@ class DbNetFile extends DbNetSuite {
         });
     }
 
+    setColumnProperty(columnType: string, property: string, propertyValue: object): void {
+        let matchingColumn = this.columns.find((col) => { return col.type == columnType });
+
+        if (matchingColumn == undefined) {
+            matchingColumn = new FileColumn(columnType);
+            this.columns.push(matchingColumn);
+        }
+
+        (matchingColumn as any)[property] = propertyValue;
+    }
+
     reload() {
+        this.currentPage = 1;
+        this.getPage();
+    }
+
+    getPage() {
         this.callServer("page");
     }
 
@@ -86,7 +107,7 @@ class DbNetFile extends DbNetSuite {
         this.disable("CopyBtn", response.totalRows == 0);
         this.disable("UpdateBtn", response.totalRows == 0);
     }
-  
+
     private configurePage(response: DbNetFileResponse) {
         if (this.toolbarPanel) {
             if (response.toolbar) {
@@ -101,13 +122,113 @@ class DbNetFile extends DbNetSuite {
         this.folderPanel?.find("td.folder").get().forEach(e => {
             $(e).on("click", (e) => this.openNestedFolder(e));
         });
-        this.fireEvent("onPageLoaded", { });
+        this.folderPanel?.find("a.file-link").get().forEach(e => {
+            $(e).on("click", (e) => this.selectFile(e));
+        });
+        this.folderPanel?.find("tr.data-row").get().forEach((tr) => {
+            this.addRowEventHandlers($(tr));
+        });
+        this.folderPanel?.find("tr.header-row th").get().forEach(th => {
+            $(th).on("click", () => this.handleHeaderClick($(th)));
+        });
+
+        this.folderPanel?.find("td[column-type='Preview']").get().forEach(td => this.loadPreview($(td)));
+        this.fireEvent("onPageLoaded", {});
     }
 
     private selectFolder(event: JQuery.ClickEvent<HTMLElement>) {
         const $anchor = $(event.currentTarget);
         this.folder = $anchor.data("folder");
+        this.currentPage = 1;
         this.callServer("page");
+    }
+
+    private loadPreview($td : JQuery<HTMLElement>) {
+        const $anchor = $td.parent().find("a[data-filetype='Image']");
+        if ($anchor) {
+            this.fileName = $anchor.data("file");
+            this.post<Blob>("download-file", this.getRequest(), true)
+                .then((blob) => {
+                    if (blob.size) {
+                        const $image = $(new Image());
+                        $image.hide();
+                        $image.attr("src", window.URL.createObjectURL(blob));
+                        $image.on("load", (event) => this.setPreviewHeight(event) );
+                        $td.empty().append($image);
+                    }
+                });
+        }
+    }
+
+    private setPreviewHeight(event: JQuery.TriggeredEvent<HTMLImageElement>) {
+        const $img = $(event.currentTarget) as JQuery<HTMLImageElement>;
+        const height = $img?.height() as number;
+        if (height > this.previewHeight) {
+            $img.height(this.previewHeight);
+        }
+        $img.show();
+    }
+
+    private selectFile(event: JQuery.ClickEvent<HTMLElement>) {
+        const $anchor = $(event.currentTarget);
+        this.fileName = $anchor.data("file");
+        const fileType = $anchor.data("filetype");
+        const fileName = $anchor.text();
+        this.post<Blob>("download-file", this.getRequest(), true)
+            .then((blob) => {
+                if (blob.size) {
+                    switch (fileType) {
+                        case "Image":
+                        case "Video":
+                        case "Audio":
+                            this.viewUrl(window.URL.createObjectURL(blob), fileName, fileType);
+                            break;
+                        case "Html":
+                        case "Pdf":
+                            this.viewInTab(blob);
+                            break;
+                        default:
+                            this.downloadBlob(blob, fileName);
+                            break;
+                    }
+                }
+            });
+    }
+
+    private addRowEventHandlers($tr: JQuery<HTMLElement>) {
+        $tr.on("mouseover", (e) => $(e.currentTarget).addClass("highlight"));
+        $tr.on("mouseout", (e) => $(e.currentTarget).removeClass("highlight"));
+        $tr.on("click", (e) => this.handleRowClick($(e.currentTarget)));
+    }
+
+    private handleRowClick(tr: JQuery<HTMLElement>) {
+        tr.parent().find("tr.data-row").removeClass("selected");
+        tr.addClass("selected");
+        this.fireEvent("onRowSelected", { row: tr[0] });
+    }
+
+    private handleHeaderClick(th: JQuery<HTMLElement>) {
+        this.orderBy = th.data('type') as string;
+
+        this.orderByDirection = "asc";
+        if (th.attr("orderby")) {
+            this.orderByDirection = th.attr("orderby") == "asc" ? "desc" : "asc";
+        }
+        this.getPage();
+    }
+
+    private downloadBlob(blob: Blob, fileName: string) {
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = fileName;
+        link.click();
+    }
+
+    private viewInTab(blob: Blob) {
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.target = "_blank";
+        link.click();
     }
 
     private openNestedFolder(event: JQuery.ClickEvent<HTMLElement>) {
@@ -146,7 +267,7 @@ class DbNetFile extends DbNetSuite {
         dbnetfile.initialize();
     }
 
-    public callServer(action:string) {
+    public callServer(action: string) {
         this.post<DbNetFileResponse>(action, this.getRequest())
             .then((response) => {
                 if (response.error == false) {
@@ -181,19 +302,19 @@ class DbNetFile extends DbNetSuite {
 
         switch (id) {
             case this.controlElementId("ExportBtn"):
-        //        this.download();
+                //        this.download();
                 break;
             case this.controlElementId("CopyBtn"):
-         //       this.copyGrid();
+                //       this.copyGrid();
                 break;
             case this.controlElementId("SearchBtn"):
-         //       this.openSearchDialog(this.getRequest());
+                //       this.openSearchDialog(this.getRequest());
                 break;
             case this.controlElementId("UploadBtn"):
-     //           this.uploadFile();
+                //           this.uploadFile();
                 break;
             default:
-                this.reload();
+                this.getPage();
                 break;
         }
     }
@@ -214,7 +335,20 @@ class DbNetFile extends DbNetSuite {
         request.pageSize = this.pageSize;
         request.currentPage = this.currentPage;
         request.caption = this.caption;
+        request.fileName = this.fileName;
+        request.orderBy = this.orderBy;
+        request.orderByDirection = this.orderByDirection;
 
         return request;
     }
- }
+}
+
+class FileColumn {
+    type?: string;
+    format?: string;
+    label?: string;
+
+    constructor(type: string) {
+        this.type = type;
+    }
+}

@@ -265,8 +265,15 @@ class DbNetSuite {
         window.setTimeout(() => { var _a; (_a = this.element) === null || _a === void 0 ? void 0 : _a.removeClass(className); }, 3000);
     }
     viewImage(event) {
+        const $img = $(event.currentTarget);
+        this.openImageViewer($img.attr("src"), $img.data("filename"));
+    }
+    viewUrl(url, fileName, type = "Image") {
+        this.openImageViewer(url, fileName, type);
+    }
+    openImageViewer(src, fileName, type = "Image") {
         if (this.imageViewer) {
-            this.imageViewer.show($(event.currentTarget));
+            this.imageViewer.show(src, fileName, type);
             return;
         }
         this.post("image-viewer", this._getRequest(), false, "dbnetsuite")
@@ -275,7 +282,7 @@ class DbNetSuite {
             if (!this.imageViewer) {
                 (_a = this.element) === null || _a === void 0 ? void 0 : _a.append(response.html);
                 this.imageViewer = new ImageViewer(`${this.id}_image_viewer`);
-                this.imageViewer.show($(event.currentTarget));
+                this.imageViewer.show(src, fileName, type);
             }
         });
     }

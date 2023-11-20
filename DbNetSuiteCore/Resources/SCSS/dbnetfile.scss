@@ -65,7 +65,7 @@ table.dbnetfile-table {
     }
 
     tr.selected {
-        background-color: SteelBlue !important;
+        background-color: #B0BEC5 !important;
 
         td {
             color: white !important;
@@ -87,21 +87,43 @@ table.dbnetfile-table {
             }
         }
 
-        &.image {
-            background-image: svgFileIconUrl("folder","16");
+        &.download {
+            background-image: svgFileIconUrl("file","16");
         }
 
-        &.csv {
-            background-image: svgFileIconUrl("csv");
+        &.image {
+            background-image: svgFileIconUrl("image","16");
+        }
+
+        &.audio {
+            background-image: svgFileIconUrl("audio","16");
+        }
+
+        &.video {
+            background-image: svgFileIconUrl("video","16");
         }
 
         &.pdf {
-            background-image: svgFileIconUrl("pdf");
+            background-image: svgFileIconUrl("pdf","16");
         }
     }
-
+    /*
+    tr.selected {
+        td.icon-cell {
+            filter: invert(100%) sepia(100%) saturate(8%) hue-rotate(128deg) brightness(102%) contrast(103%);
+        }
+    }
+    */
     td[column-type=Length] {
         text-align: right;
+    }
+
+    td[column-type=Preview] {
+        img {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
     }
 
     div.current-path {
@@ -113,6 +135,10 @@ table.dbnetfile-table {
 
         span.folder-name {
             margin: 0px 5px;
+
+            &.last {
+                font-weight: bold;
+            }
         }
     }
 }

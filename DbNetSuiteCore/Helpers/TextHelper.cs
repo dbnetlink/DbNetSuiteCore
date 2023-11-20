@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.StaticFiles;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -26,13 +27,19 @@ namespace DbNetSuiteCore.Helpers
 
         public static string GetMimeTypeForFileExtension(string extension)
         {
+            Dictionary<string, string> mimeTypes = new Dictionary<string, string>();
+
+            if (mimeTypes.ContainsKey(extension))
+            {
+                return mimeTypes[extension];
+            }
             var provider = new FileExtensionContentTypeProvider();
 
             if (!provider.TryGetContentType($".{extension}", out string contentType))
             {
                 contentType = string.Empty;
             }
-
+            mimeTypes[extension] = contentType;
             return contentType;
         }
     }

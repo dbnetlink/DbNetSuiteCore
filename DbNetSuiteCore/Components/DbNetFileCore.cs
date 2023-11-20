@@ -52,7 +52,10 @@ namespace DbNetSuiteCore.Components
         /// Selects the columns to be displayed in the grid
         /// </summary>
         public List<FileInfoProperties> Columns { get; set; } = new List<FileInfoProperties>();
-
+        /// <summary>
+        /// Maximum height in pixels of the preview image
+        /// </summary>
+        public int? PreviewHeight { get; set; }
         /// <summary>
         /// Binds an event to a named client-side JavaScript function
         /// </summary>
@@ -148,6 +151,7 @@ folder = '{EncodingHelper.Encode(_folder)}';
             AddProperty(Upload, $"{nameof(Upload)}", properties);
             AddProperty(Caption, $"{nameof(Caption)}", properties);
             AddProperty(ToolbarButtonStyle, $"{nameof(ToolbarButtonStyle)}", properties);
+            AddProperty(PreviewHeight, $"{nameof(PreviewHeight)}", properties);
 
             return string.Join(Environment.NewLine, properties);
         }

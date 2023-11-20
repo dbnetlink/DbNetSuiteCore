@@ -9,6 +9,7 @@
         Exists,
         Created,
         LastAccessed,
-        Extension
+        Extension,
+        Preview
     }
 }
