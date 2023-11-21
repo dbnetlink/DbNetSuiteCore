@@ -90,6 +90,8 @@
     <None Remove="Resources\JavaScript\EditColumn.min.js" />
     <None Remove="Resources\JavaScript\EditDialog.js" />
     <None Remove="Resources\JavaScript\EditDialog.min.js" />
+    <None Remove="Resources\JavaScript\FileSearchDialog.js" />
+    <None Remove="Resources\JavaScript\FileSearchDialog.min.js" />
     <None Remove="Resources\JavaScript\GridColumn.js" />
     <None Remove="Resources\JavaScript\GridColumn.min.js" />
     <None Remove="Resources\JavaScript\ImageViewer.js" />
@@ -128,6 +130,7 @@
     <None Remove="Views\DbNetEdit\Toolbar.cshtml" />
     <None Remove="Views\DbNetEdit\UploadDialog.cshtml" />
     <None Remove="Views\DbNetFile\Page.cshtml" />
+    <None Remove="Views\DbNetFile\SearchDialog.cshtml" />
     <None Remove="Views\DbNetFile\Toolbar.cshtml" />
     <None Remove="Views\DbNetGrid\DataTable.cshtml" />
     <None Remove="Views\DbNetGrid\Grid.cshtml" />
@@ -184,6 +187,8 @@
     <EmbeddedResource Include="Resources\JavaScript\EditColumn.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\EditDialog.js" />
     <EmbeddedResource Include="Resources\JavaScript\EditDialog.min.js" />
+    <EmbeddedResource Include="Resources\JavaScript\FileSearchDialog.js" />
+    <EmbeddedResource Include="Resources\JavaScript\FileSearchDialog.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\GridColumn.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\ImageViewer.js" />
     <EmbeddedResource Include="Resources\JavaScript\ImageViewer.min.js" />
@@ -248,6 +253,10 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\DbNetEdit\Toolbar.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\DbNetFile\SearchDialog.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </EmbeddedResource>

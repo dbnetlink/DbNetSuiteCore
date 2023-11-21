@@ -1,0 +1,182 @@
+﻿@namespace DbNetSuiteCore.Views.DbNetFile
+@using DbNetSuiteCore.Enums
+@using DbNetSuiteCore.Enums.DbNetFile;
+@using DbNetSuiteCore.Extensions;
+@using DbNetSuiteCore.Helpers
+@using DbNetSuiteCore.Models
+@using DbNetSuiteCore.Models.DbNetFile;
+@using DbNetSuiteCore.Models.DbNetGrid;
+@using Microsoft.AspNetCore.Html;
+@model DbNetSuiteCore.ViewModels.DbNetFile.SearchDialogViewModel
+
+<div id="@(Model.ComponentId)_search_dialog" class="search-dialog" title="Search">
+    <div class="content">
+        <table>
+            @foreach (FileColumn fileColumn in Model.Columns.Where(c => c.Search))
+            {
+                <tr columntype="@fileColumn.Type">
+                    <td class="label">@fileColumn.Label</td>
+                    <td>
+                        <select name="searchOperator(@fileColumn.Type)" class="search-operator">
+                            @SearchOperators(fileColumn)
+                        </select>
+                    </td>
+                    <td>
+                        <table class="layout">
+                            <tr class="search-row" columntype="@fileColumn.Type">
+                                <td>
+                                    @AddInputControl(fileColumn)
+                                </td>
+                                <td class="between" style="display:none;"><span>&nbsp;and&nbsp;</span></td>
+                                <td class="between" style="display:none;">
+                                    @AddInputControl(fileColumn, true)
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+    <hr />
+    <div>
+        <table>
+            <tr>
+                <td>
+                    <select id="searchFilterJoin">
+                        <option value="and">@Model.Translate("MatchAllCriteria")</option>
+                        <option value="or">@Model.Translate("MatchAtLeastOneCriteria")</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <hr />
+    <div class="dialog-toolbar-panel">
+        <table class="search-dialog-toolbar">
+            <tr>
+                @Button("Clear", ToolbarButtonStyle.ImageAndText, "ClearTheSearchCriteria")
+                <td style="width:100%">&nbsp;</td>
+                @Button("Apply", ToolbarButtonStyle.ImageAndText,"ApplyTheEnteredSearchCriteria")
+            </tr>
+        </table>
+    </div>
+    <div>
+        <div class="message"></div>
+    </div>
+</div>
+
+@functions
+{
+    public HtmlString Button(string type, ToolbarButtonStyle buttonStyle, string title)
+    {
+        return new HtmlString($"<td><button type=\"button\" class=\"{type.ToLower()}-btn toolbar-button toolbar-button-{buttonStyle.ToString().ToLower()}\" title=\"{@Model.Translate(title)}\" button-type=\"{type.ToLower()}\" id=\"{Model.ComponentId}_View_Dialog_{type}Btn\">{(buttonStyle == ToolbarButtonStyle.Image ? string.Empty : Model.Translate(type))}</button></td>");
+    }
+
+    private HtmlString SearchOperators(FileColumn column)
+    {
+        FileInfoProperties type = column.Type;
+
+        var options = new List<SearchOperator>();
+
+        foreach (SearchOperator searchOperator in Enum.GetValues(typeof(SearchOperator)))
+        {
+            switch(searchOperator)
+            {
+                case SearchOperator.IsNotNull:
+                case SearchOperator.IsNull:
+                case SearchOperator.True:
+                case SearchOperator.False:
+                case SearchOperator.In:
+                case SearchOperator.NotIn:
+                    continue;
+            }
+            AddOperator(searchOperator, type, options);
+        }
+
+        List<string> html = new List<string>() { "<option/>" };
+        html.AddRange(options.Select(o => $"<option value=\"{o.ToString()}\">{Description(o)}</option>").ToList());
+        return new HtmlString(string.Join(string.Empty, html));
+    }
+
+    private string Description(SearchOperator searchOperator)
+    {
+        return Model.Translate(searchOperator.ToString());
+    }
+
+    private void AddOperator(SearchOperator searchOperator, FileInfoProperties type, List<SearchOperator> options)
+    {
+        switch (type)
+        {
+            case FileInfoProperties.LastAccessed:
+            case FileInfoProperties.LastModified:
+            case FileInfoProperties.Created:
+            case FileInfoProperties.Length:
+                if (IsStringOperator(searchOperator))
+                {
+                    return;
+                }
+                break;
+        }
+        options.Add(searchOperator);
+    }
+
+    private Boolean IsStringOperator(SearchOperator searchOperator)
+    {
+        switch (searchOperator)
+        {
+            case SearchOperator.Contains:
+            case SearchOperator.StartsWith:
+            case SearchOperator.EndsWith:
+            case SearchOperator.DoesNotContain:
+            case SearchOperator.DoesNotEndWith:
+            case SearchOperator.DoesNotStartWith:
+                return true;
+        }
+
+        return false;
+    }
+
+    private HtmlString AddInputControl(FileColumn column, bool hidden = false)
+    {
+        string type = "input";
+
+        List<string> classNames = new List<string>() { "input-control" };
+        List<string> attributes = new List<string>();
+        attributes.Add(ViewHelper.SetAttribute("data-type", column.Type.ToString()));
+        attributes.Add(ViewHelper.SetAttribute("alt", column.Label));
+        attributes.Add(ViewHelper.SetAttribute("format", column.Format));
+        attributes.Add(ViewHelper.SetAttribute("class", string.Join(" ", classNames)));
+        attributes.Add(ViewHelper.SetAttribute("type", type));
+
+        string html = string.Empty;
+        switch (column.Type)
+        {
+            case FileInfoProperties.LastAccessed:
+            case FileInfoProperties.LastModified:
+            case FileInfoProperties.Created:
+                attributes.Add(ViewHelper.SetAttribute("datatype", nameof(DateTime)));
+                html = AddButton("calendar", "SelectDate");
+                break;
+            case FileInfoProperties.Length:
+                attributes.Add(ViewHelper.SetAttribute("datatype", nameof(Int64)));
+                html = AddSizeUnits();
+                break;
+        }
+        string controls = $"<input {string.Join(" ", attributes)}/>{html}";
+        return new HtmlString(controls);
+    }
+
+    private string AddButton(string type, string title)
+    {
+        string button = $"<button type=\"button\" class=\"toolbar-button toolbar-button-image\" title=\"{Model.Translate(title)}\" button-type=\"{type.ToLower()}\" id=\"{Model.ComponentId}_{type}Btn\"></button>";
+        return button;
+    }
+
+    private string AddSizeUnits()
+    {
+        string options = string.Join("", Enum.GetNames(typeof(FileSizeExtension.SizeUnits)).AsEnumerable<string>().Select(s => $"<option value=\"{s}\">{s}</option>").ToList());
+        string select = $"<select>{options}</select >";
+        return select;
+    }
+} 

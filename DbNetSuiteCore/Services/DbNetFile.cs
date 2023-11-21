@@ -15,6 +15,11 @@ using System.IO;
 using System.Linq;
 using DbNetSuiteCore.Enums;
 using Microsoft.AspNetCore.Http;
+using DbNetSuiteCore.Attributes;
+using System.Globalization;
+using System.Text.Json.Serialization;
+using DbNetSuiteCore.Constants;
+using DbNetSuiteCore.Utilities;
 
 namespace DbNetSuiteCore.Services
 {
@@ -66,6 +71,8 @@ namespace DbNetSuiteCore.Services
         public string QuickSearchToken { get; set; }
         public string OrderBy { get; set; }
         public OrderByDirection? OrderByDirection { get; set; }
+        public string SearchFilterJoin { get; set; } = "and";
+        public List<SearchParameter> SearchParams { get; set; } = new List<SearchParameter>();
 
         public new async Task<object> Process()
         {
@@ -86,42 +93,56 @@ namespace DbNetSuiteCore.Services
                     break;
                 case RequestAction.DownloadFile:
                     return DownloadBinaryFile();
+                case RequestAction.SearchDialog:
+                    await SearchDialog(response);
+                    break;
             }
 
             var serializeOptions = new JsonSerializerOptions
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Converters =    {
+                    new JsonStringEnumConverter()
+                }
             };
             return JsonSerializer.Serialize(response, serializeOptions);
         }
 
         private async Task Page(DbNetFileResponse response, bool inititialise = false)
         {
+            if (ValidateRequest(response) == false)
+            {
+                return;
+            }
+
             if (inititialise)
             {
                 response.Toolbar = await Toolbar();
             }
-            DataTable dataTable = CreateDataTable();
-            IDirectoryContents folderContents = _fileProvider.GetDirectoryContents(Folder);
+            SqlDataTable sqlDataTable = new SqlDataTable();
+            DataTable dataTable;
 
-            foreach (IFileInfo fileInfo in folderContents)
+            using (sqlDataTable)
             {
-                var row = dataTable.NewRow();
-                row[FileInfoProperties.Name.ToString()] = fileInfo.Name;
-                row[FileInfoProperties.IsDirectory.ToString()] = fileInfo.IsDirectory;
-                row[FileInfoProperties.LastModified.ToString()] = fileInfo.LastModified;
-                row[FileInfoProperties.Length.ToString()] = fileInfo.Length;
-                row[FileInfoProperties.Exists.ToString()] = fileInfo.Exists;
+                IDirectoryContents folderContents = _fileProvider.GetDirectoryContents(Folder);
+                Dictionary<string,object> values = new Dictionary<string, object>();
 
-                if (!fileInfo.IsDirectory)
+                foreach (IFileInfo fileInfo in folderContents)
                 {
-                    FileInfo systemfileInfo = new FileInfo(fileInfo.PhysicalPath);
-                    row[FileInfoProperties.Created.ToString()] = systemfileInfo.CreationTime;
-                    row[FileInfoProperties.LastAccessed.ToString()] = systemfileInfo.LastAccessTime;
-                    row[FileInfoProperties.Extension.ToString()] = systemfileInfo.Extension;
+                    FileInformation fileInformation = new FileInformation(fileInfo);
+                    await sqlDataTable.AddRow(fileInformation);
                 }
 
-                dataTable.Rows.Add(row);
+                string filter = string.Empty;
+                Dictionary<string,object> filterParameters = new Dictionary<string,object>();
+
+                if (SearchParams.Any())
+                {
+                    filter = string.Join($" {SearchFilterJoin} ", SearchDialogFilter());
+                    filterParameters = SearchDialogParameters();
+                }
+
+                dataTable = await sqlDataTable.Query(filter, filterParameters);
             }
 
             DataView dataView = new DataView(dataTable);
@@ -178,6 +199,92 @@ namespace DbNetSuiteCore.Services
             response.Html = await HttpContext.RenderToStringAsync($"Views/DbNetFile/Page.cshtml", viewModel);
         }
 
+        private List<string> SearchDialogFilter()
+        {
+            List<string> searchFilterPart = new List<string>();
+            foreach (SearchParameter searchParameter in SearchParams)
+            {
+                FileColumn fileColumn = Columns.FirstOrDefault(c => c.Type == searchParameter.ColumnType);
+                searchFilterPart.Add($"{fileColumn.Type} {FilterExpression(searchParameter, fileColumn)}");
+            }
+
+            return searchFilterPart;
+        }
+
+        protected string FilterExpression(SearchParameter searchParameter, FileColumn fileColumn)
+        {
+            string template = searchParameter.SearchOperator.GetAttribute<FilterExpressionAttribute>().Expression;
+            string param1 = ParamName(fileColumn, ParamNames.SearchFilter1);
+            string param2 = ParamName(fileColumn, ParamNames.SearchFilter2);
+            return template.Replace("{0}", param1).Replace("{1}", param2);
+        }
+
+        protected string ParamName(FileColumn fileColumn, string suffix = "", bool parameterValue = false)
+        {
+            return Database.ParameterName($"{fileColumn.Type}{suffix}");
+        }
+
+        protected Dictionary<string, object> SearchDialogParameters()
+        {
+            Dictionary<string,object> parameters  = new Dictionary<string,object>();
+            foreach (SearchParameter searchParameter in SearchParams)
+            {
+                FileColumn fileColumn = Columns.FirstOrDefault(c => c.Type == searchParameter.ColumnType);
+
+                string expression = searchParameter.SearchOperator.GetAttribute<FilterExpressionAttribute>()?.Expression ?? "{0}";
+
+                if (expression.Contains("{0}"))
+                {
+                    AddSearchFilterParams(parameters, fileColumn, searchParameter, ParamNames.SearchFilter1, searchParameter.Value1);
+                }
+                if (expression.Contains("{1}"))
+                {
+                    AddSearchFilterParams(parameters, fileColumn, searchParameter, ParamNames.SearchFilter2, searchParameter.Value2);
+                }
+            }
+
+            return parameters;
+        }
+
+        protected void AddSearchFilterParams(Dictionary<string, object> parameters, FileColumn fileColumn, SearchParameter searchParameter, string prefix, string value)
+        {
+            string template = "{0}";
+            switch (searchParameter.SearchOperator)
+            {
+                case SearchOperator.Contains:
+                case SearchOperator.DoesNotContain:
+                    template = "%{0}%";
+                    break;
+                case SearchOperator.StartsWith:
+                case SearchOperator.DoesNotStartWith:
+                    template = "{0}%";
+                    break;
+                case SearchOperator.EndsWith:
+                case SearchOperator.DoesNotEndWith:
+                    template = "%{0}";
+                    break;
+            }
+
+            switch (searchParameter.SearchOperator)
+            {
+                case SearchOperator.In:
+                case SearchOperator.NotIn:
+                    string[] values = value.Split(",");
+                    for (var i = 0; i < values.Length; i++)
+                    {
+                        parameters.Add(ParamName(fileColumn, $"{prefix}{i}", true), ConvertToType(template.Replace("{0}", values[i]), fileColumn));
+                    }
+                    break;
+                case SearchOperator.True:
+                case SearchOperator.False:
+                    parameters.Add(ParamName(fileColumn, prefix, true), ConvertToType(template.Replace("{0}", searchParameter.SearchOperator.ToString().ToLower()), fileColumn));
+                    break;
+                default:
+                    parameters.Add(ParamName(fileColumn, prefix, true), ConvertToType(template.Replace("{0}", value), fileColumn));
+                    break;
+            }
+        }
+
         private async Task<string> Toolbar()
         {
             var viewModel = new ToolbarViewModel();
@@ -194,7 +301,7 @@ namespace DbNetSuiteCore.Services
             HttpContext.Response.ContentType = GetMimeTypeForFileExtension($".{FileName.Split(".").Last()}");
             return fileBytes;
         }
-        
+
         private DataTable CreateDataTable()
         {
             DataTable dataTable = new DataTable();
@@ -215,7 +322,7 @@ namespace DbNetSuiteCore.Services
             {
                 Columns = new List<FileColumn>()
                 {
-                    new FileColumn(FileInfoProperties.Name),                    
+                    new FileColumn(FileInfoProperties.Name),
                     new FileColumn(FileInfoProperties.Created),
                     new FileColumn(FileInfoProperties.LastModified),
                     new FileColumn(FileInfoProperties.LastAccessed),
@@ -223,7 +330,7 @@ namespace DbNetSuiteCore.Services
                 };
             }
 
-            if (Columns.Any( c => c.Type == FileInfoProperties.Name) == false)
+            if (Columns.Any(c => c.Type == FileInfoProperties.Name) == false)
             {
                 Columns.Insert(0, new FileColumn(FileInfoProperties.Name));
             }
@@ -242,6 +349,114 @@ namespace DbNetSuiteCore.Services
                     }
                 }
             }
+        }
+
+        private bool ValidateRequest(DbNetFileResponse response)
+        {
+            response.Message = String.Empty;
+
+            if (SearchParams.Any())
+            {
+                foreach (SearchParameter searchParameter in SearchParams)
+                {
+                    FileColumn fileColumn = Columns.First(c => c.Type == searchParameter.ColumnType);
+
+                    string expression = searchParameter.SearchOperator.GetAttribute<FilterExpressionAttribute>()?.Expression ?? "{0}";
+
+                    if (expression.Contains("{0}"))
+                    {
+                        searchParameter.Value1Valid = ValidateUserValue(fileColumn, searchParameter.Value1);
+                    }
+                    if (expression.Contains("{1}"))
+                    {
+                        searchParameter.Value2Valid = ValidateUserValue(fileColumn, searchParameter.Value2);
+                    }
+                }
+
+                response.SearchParams = SearchParams;
+                var invalid = SearchParams.Any(s => s.Value1Valid == false || s.Value2Valid == false);
+
+                if (invalid)
+                {
+                    response.Error = true;
+                    response.Message = Translate("HighlightedFormatInvalid");
+                }
+            }
+
+            return true;
+        }
+
+        private bool ValidateUserValue(FileColumn fileColumn, string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return true;
+            }
+
+            return ConvertToType(value, fileColumn) == null ? false : true;
+        }
+
+        private object ConvertToType(object value, FileColumn column)
+        {
+            string dataType = nameof(String);
+
+            switch (column.Type)
+            {
+                case FileInfoProperties.LastAccessed:
+                case FileInfoProperties.LastModified:
+                case FileInfoProperties.Created:
+                    dataType = nameof(DateTime);
+                    break;
+                case FileInfoProperties.Length:
+                    dataType = nameof(Decimal);
+                    break;
+            }
+
+            object typedValue = string.Empty;
+            try
+            {
+                switch (dataType)
+                {
+                    case nameof(DateTime):
+                        if (string.IsNullOrEmpty(column.Format))
+                        {
+                            typedValue = Convert.ChangeType(value, Type.GetType($"System.{nameof(DateTime)}"));
+                        }
+                        else
+                        {
+                            try
+                            {
+                                typedValue = DateTime.ParseExact(value.ToString(), column.Format, CultureInfo.CurrentCulture);
+                            }
+                            catch
+                            {
+                                typedValue = DateTime.Parse(value.ToString(), CultureInfo.CurrentCulture);
+                            }
+                        }
+                        break;
+                    case nameof(Decimal):
+                        typedValue = Convert.ChangeType(value, Type.GetType($"System.{dataType}"));
+                        break;
+                    default:
+                        typedValue = value;
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                ThrowException(e.Message, "ConvertToType: Value: " + value.ToString() + " DataType:" + dataType);
+                return null;
+            }
+
+            return typedValue;
+        }
+
+        private async Task SearchDialog(DbNetSuiteResponse response)
+        {
+            var searchDialogViewModel = new SearchDialogViewModel();
+            ReflectionHelper.CopyProperties(this, searchDialogViewModel);
+            searchDialogViewModel.Columns = Columns;
+            response.Dialog = await HttpContext.RenderToStringAsync("Views/DbNetFile/SearchDialog.cshtml", searchDialogViewModel);
         }
     }
 }

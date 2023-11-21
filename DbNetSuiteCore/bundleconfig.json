@@ -106,5 +106,11 @@
     "inputFiles": [
       "Resources/JavaScript/ImageViewer.js"
     ]
+  },
+  {
+    "outputFileName": "Resources/JavaScript/FileSearchDialog.min.js",
+    "inputFiles": [
+      "Resources/JavaScript/FileSearchDialog.js"
+    ]
   }
 ]

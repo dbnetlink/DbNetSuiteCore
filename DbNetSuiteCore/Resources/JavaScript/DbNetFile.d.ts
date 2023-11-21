@@ -2,6 +2,7 @@
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
 /// <reference types="bootstrap" />
+type DbNetFileResponseCallback = (response: DbNetFileResponse) => void;
 declare class DbNetFile extends DbNetSuite {
     rootFolder: string;
     fileName: string;
@@ -13,6 +14,9 @@ declare class DbNetFile extends DbNetSuite {
     quickSearchToken: string;
     toolbarButtonStyle: ToolbarButtonStyle;
     search: boolean;
+    searchDialog: FileSearchDialog | undefined;
+    searchFilterJoin: string;
+    searchParams: Array<SearchParam>;
     export: boolean;
     copy: boolean;
     upload: boolean;
@@ -31,7 +35,7 @@ declare class DbNetFile extends DbNetSuite {
     setColumnTypes(...types: string[]): void;
     setColumnProperty(columnType: string, property: string, propertyValue: object): void;
     reload(): void;
-    getPage(): void;
+    getPage(callback?: DbNetFileResponseCallback): void;
     private configureToolbar;
     private configurePage;
     private selectFolder;
@@ -44,9 +48,10 @@ declare class DbNetFile extends DbNetSuite {
     private downloadBlob;
     private viewInTab;
     private openNestedFolder;
-    callServer(action: string): void;
+    callServer(action: string, callback?: DbNetFileResponseCallback): void;
     private addEventListener;
     private handleClick;
+    private openSearchDialog;
     private getRequest;
 }
 declare class FileColumn {

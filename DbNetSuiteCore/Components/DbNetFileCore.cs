@@ -152,6 +152,7 @@ folder = '{EncodingHelper.Encode(_folder)}';
             AddProperty(Caption, $"{nameof(Caption)}", properties);
             AddProperty(ToolbarButtonStyle, $"{nameof(ToolbarButtonStyle)}", properties);
             AddProperty(PreviewHeight, $"{nameof(PreviewHeight)}", properties);
+            properties.Add($"datePickerOptions = {DatePickerOptions()};");
 
             return string.Join(Environment.NewLine, properties);
         }

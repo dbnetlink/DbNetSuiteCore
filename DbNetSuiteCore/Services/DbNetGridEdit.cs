@@ -49,7 +49,6 @@ namespace DbNetSuiteCore.Services
             }
         }
         public string ColumnName { get; set; } = String.Empty;
-
         public bool Delete { get; set; } = false;
         public string Extension { get; set; } = string.Empty;
         public Dictionary<string, object> FixedFilterParams { get; set; } = new Dictionary<string, object>();

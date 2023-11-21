@@ -9,6 +9,8 @@ namespace DbNetSuiteCore.Models.DbNetFile
         public string Format { get; set; }
         public string Name => Type.ToString();
         public string Label { get; set; }
+        public bool Search { get; set; } = true;
+
         public OrderByDirection? OrderBy { get; set; } = null;
         public FileColumn()
         {

@@ -149,7 +149,11 @@ namespace DbNetSuiteCore.Services
 
         protected void Initialise()
         {
-            if ((this is DbNetFile) == false)
+            if (this is DbNetFile)
+            {
+                Database = new DbNetDataCore(Env);
+            }
+            else
             {
                 Database = new DbNetDataCore(ConnectionString, Env, Configuration, DataProvider);
             }

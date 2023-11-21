@@ -19,8 +19,10 @@ namespace DbNetSuiteCore.Models.DbNetFile
         public int CurrentPage { get; set; }
         public string Caption { get; set; }
         public bool Nested { get; set; }
-        public string QuickSearchToken { get; set; }
         public string OrderBy { get; set; }
         public OrderByDirection? OrderByDirection { get; set; }
+        public List<SearchParameter> SearchParams { get; set; }
+        public string SearchFilterJoin { get; set; } = "and";
+
     }
 }

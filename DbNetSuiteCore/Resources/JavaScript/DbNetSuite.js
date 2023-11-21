@@ -219,14 +219,15 @@ class DbNetSuite {
         const options = datePickerOptions;
         const formats = { D: "DD, MM dd, yy", DDDD: "DD", DDD: "D", MMMM: "MM", MMM: "M", M: "m", MM: "mm", yyyy: "yy" };
         let format = $input.attr("format");
-        let pattern;
-        for (pattern in formats) {
-            const re = new RegExp(`\\b${pattern}\\b`);
-            format = format.replace(re, formats[pattern]);
-        }
-        if (format != undefined)
+        if (format != undefined) {
+            let pattern;
+            for (pattern in formats) {
+                const re = new RegExp(`\\b${pattern}\\b`);
+                format = format.replace(re, formats[pattern]);
+            }
             if (format != $input.attr("format"))
                 options.dateFormat = format;
+        }
         options.onSelect = this.pickerSelected;
         $input.datepicker(options);
     }

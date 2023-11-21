@@ -19,7 +19,6 @@ namespace DbNetSuiteCore.Models.DbNetEdit
         public ParentChildRelationship? ParentChildRelationship { get; set; }
         public string PrimaryKey { get; set; }
         public bool QuickSearch { get; set; } = false;
-        public string QuickSearchToken { get; set; }
         public bool Search { get; set; } = true;
         public string SearchFilterJoin { get; set; }
         public List<SearchParameter> SearchParams { get; set; } = new List<SearchParameter>();

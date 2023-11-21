@@ -9,6 +9,8 @@ class DbNetFile extends DbNetSuite {
         this.quickSearchToken = "";
         this.toolbarButtonStyle = ToolbarButtonStyle.Image;
         this.search = true;
+        this.searchFilterJoin = "";
+        this.searchParams = [];
         this.export = true;
         this.copy = true;
         this.upload = false;
@@ -54,8 +56,8 @@ class DbNetFile extends DbNetSuite {
         this.currentPage = 1;
         this.getPage();
     }
-    getPage() {
-        this.callServer("page");
+    getPage(callback) {
+        this.callServer("page", callback);
     }
     configureToolbar(response) {
         if (response.toolbar) {
@@ -228,11 +230,14 @@ class DbNetFile extends DbNetSuite {
         dbnetfile.nested = true;
         dbnetfile.initialize();
     }
-    callServer(action) {
+    callServer(action, callback) {
         this.post(action, this.getRequest())
             .then((response) => {
             if (response.error == false) {
                 this.configurePage(response);
+            }
+            if (callback) {
+                callback(response);
             }
         });
     }
@@ -264,7 +269,7 @@ class DbNetFile extends DbNetSuite {
                 //       this.copyGrid();
                 break;
             case this.controlElementId("SearchBtn"):
-                //       this.openSearchDialog(this.getRequest());
+                this.openSearchDialog(this.getRequest());
                 break;
             case this.controlElementId("UploadBtn"):
                 //           this.uploadFile();
@@ -273,6 +278,19 @@ class DbNetFile extends DbNetSuite {
                 this.getPage();
                 break;
         }
+    }
+    openSearchDialog(request) {
+        if (this.searchDialog) {
+            this.searchDialog.open();
+            return;
+        }
+        this.post("search-dialog", request)
+            .then((response) => {
+            var _a;
+            (_a = this.element) === null || _a === void 0 ? void 0 : _a.append(response.dialog);
+            this.searchDialog = new FileSearchDialog(`${this.id}_search_dialog`, this);
+            this.searchDialog.open();
+        });
     }
     getRequest() {
         const request = this._getRequest();
@@ -293,6 +311,8 @@ class DbNetFile extends DbNetSuite {
         request.fileName = this.fileName;
         request.orderBy = this.orderBy;
         request.orderByDirection = this.orderByDirection;
+        request.searchParams = this.searchParams;
+        request.searchFilterJoin = this.searchFilterJoin;
         return request;
     }
 }

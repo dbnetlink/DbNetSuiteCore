@@ -126,6 +126,11 @@ namespace DbNetSuiteCore.Utilities
 
         }
 
+        public DbNetDataCore(IWebHostEnvironment env)
+            : this("Data Source=InMemory;Mode=Memory;Cache=Shared;", DataProvider.SQLite, env)
+        {
+        }
+
         public DbNetDataCore(string connectionString, DataProvider dataProvider, IWebHostEnvironment env, DatabaseType? database = null)
         {
             Env = env;

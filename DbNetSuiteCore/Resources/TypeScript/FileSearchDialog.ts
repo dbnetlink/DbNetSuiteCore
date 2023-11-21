@@ -1,16 +1,15 @@
-﻿class SearchDialog extends Dialog {
-    parent: DbNetGridEdit;
+﻿class FileSearchDialog extends Dialog {
+    parent: DbNetFile;
     timerId: number | undefined;
     inputBuffer: Dictionary<string> = {};
 
-    constructor(id: string, parent: DbNetGridEdit) {
+    constructor(id: string, parent: DbNetFile) {
         super(id);
 
         this.$dialog?.on("dialogopen", (event) => this.dialogOpened(event));
         this.parent = parent;
         this.$dialog?.find("select.search-operator").on("change", (event) => this.configureForOperator(event));
         this.$dialog?.find("[button-type='calendar']").on("click", (event) => this.selectDate(event));
-        this.$dialog?.find("[button-type='lookup']").on("click", (event) => this.lookup(event));
 
         this.$dialog?.find("input").get().forEach(e => {
             const $input = $(e as HTMLInputElement);
@@ -39,9 +38,6 @@
     private configureForOperator(event: JQuery.TriggeredEvent): void {
         const $select = $(event.target as HTMLInputElement);
 
-        if ($select.attr("dataType") == "Boolean") {
-            return;
-        }
         const $row = $select.closest("tr");
         switch ($select.val()) {
             case "Between":
@@ -77,7 +73,7 @@
         }
     }
 
-    private checkInputBuffer(index:string) {
+    private checkInputBuffer(index: string) {
         if (this.inputBuffer[index] == null) {
             return;
         }
@@ -128,28 +124,6 @@
         $button.parent().find("input").datepicker("show");
     }
 
-    private lookup(event: JQuery.TriggeredEvent): void {
-        const $button = $(event.target as HTMLInputElement);
-        const $input = $button.parent().find("input");
-        let request: DbNetGridEditRequest;
-        if (this.parent instanceof DbNetGrid) {
-            request = (this.parent as DbNetGrid).getRequest();
-        }
-        else if (this.parent instanceof DbNetEdit) {
-            request = (this.parent as DbNetEdit).getRequest();
-        }
-        else {
-            return;
-        }
-        this.parent.lookup($input, request);
-    }
-
-    private selectTime(event: JQuery.TriggeredEvent): void {
-        const $button = $(event.target as HTMLInputElement);
-        ($button.parent().find("input") as any).timepicker('open');
-        event.stopPropagation();
-    }
-
     public clear(): void {
         this.$dialog?.find(".content").find("input").get().forEach(e => {
             const $input = $(e as HTMLInputElement);
@@ -169,38 +143,40 @@
             const $row = $select.closest("tr");
             const $input1 = $row.find("input:eq(0)");
             const $input2 = $row.find("input:eq(1)");
+            const $unit1 = $row.find("select:eq(0)");
+            const $unit2 = $row.find("select:eq(1)");
             if ($select.val() != "" && ($input1.is(":visible") == false || $input1.val() != "")) {
                 const searchParam: SearchParam = {
                     searchOperator: $select.val() as string,
-                    columnIndex: $input1.attr("columnIndex") as string,
+                    columnType: $input1.data("type") as string,
                     value1: $input1.val() as string,
                     value2: $input2.val() as string
+                }
+
+                if ($unit1.length)
+                {
+                    searchParam.unit1 = $unit1.val() as string;
+                    searchParam.unit2 = $unit2.val() as string;
                 }
                 this.parent.searchParams.push(searchParam);
             }
         });
 
-        if (this.parent instanceof DbNetGrid) {
-            const grid = this.parent as DbNetGrid;
-            grid.clearColumnFilters();
-            grid.searchFilterJoin = this.$dialog?.find("#searchFilterJoin").val() as string;
-            grid.currentPage = 1;
-            grid.getPage((response: DbNetGridResponse) => this.getPageCallback(response));
-        }
-        else {
-            const edit = this.parent as DbNetEdit;
-            edit.searchFilterJoin = this.$dialog?.find("#searchFilterJoin").val() as string;
-            edit.currentRow = 1;
-            edit.getRows((response: DbNetEditResponse) => this.getPageCallback(response));
-        }
+        const parent = this.parent;
+        //    parent.clearColumnFilters();
+        //    parent.searchFilterJoin = this.$dialog?.find("#searchFilterJoin").val() as string;
+        parent.currentPage = 1;
+        parent.getPage((response: DbNetFileResponse) => this.getPageCallback(response));
     }
 
     private getPageCallback(response: DbNetGridEditResponse) {
         if (response.searchParams) {
             response.searchParams.forEach(sp => {
-                const $row = this.$dialog?.find(`tr[columnIndex='${sp.columnIndex}']`)
+                const $row = this.$dialog?.find(`tr[columntype='${sp.columnType}']`)
                 const $input1 = $row?.find("input:nth-of-type(1)");
                 const $input2 = $row?.find("input:nth-of-type(2)");
+                $input1?.removeClass("highlight");
+                $input2?.removeClass("highlight");
                 if (sp.value1Valid == false) {
                     $input1?.addClass("highlight");
                 }

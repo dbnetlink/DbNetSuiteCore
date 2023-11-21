@@ -283,14 +283,15 @@ class DbNetSuite {
 
         let format: string = $input.attr("format") as string;
 
-        let pattern: keyof typeof formats;
-        for (pattern in formats) {
-            const re = new RegExp(`\\b${pattern}\\b`);
-            format = format.replace(re, formats[pattern]);
-        }
-        if (format != undefined)
+        if (format != undefined) {
+            let pattern: keyof typeof formats;
+            for (pattern in formats) {
+                const re = new RegExp(`\\b${pattern}\\b`);
+                format = format.replace(re, formats[pattern]);
+            }
             if (format != $input.attr("format"))
                 options.dateFormat = format;
+        }
 
         options.onSelect = this.pickerSelected;
 

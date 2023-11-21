@@ -6,6 +6,8 @@ interface DbNetFileRequest extends DbNetSuiteRequest {
     quickSearchToken: string;
     toolbarButtonStyle: ToolbarButtonStyle;
     search: boolean;
+    searchFilterJoin: string;
+    searchParams: Array<SearchParam>;
     export: boolean;
     copy: boolean;
     upload: boolean;

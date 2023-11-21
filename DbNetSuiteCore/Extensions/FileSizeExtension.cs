@@ -18,7 +18,7 @@ namespace DbNetSuiteCore.Extensions
             }
 
             SizeUnits sizeUnit = (SizeUnits)unit - 1;
-            return (value / (double)Math.Pow(1024, (Int64)sizeUnit)).ToString($"0.00 {sizeUnit}");
+            return (value / (double)Math.Pow(1024, (Int64)sizeUnit)).ToString($"0{(sizeUnit == SizeUnits.Byte ? string.Empty : ".00")} {sizeUnit}");
         }
     }
 }
