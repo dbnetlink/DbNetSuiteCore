@@ -30,6 +30,11 @@ declare class DbNetFile extends DbNetSuite {
     nested: boolean;
     orderBy: string;
     orderByDirection: string;
+    searchResultsControl: DbNetFile | undefined;
+    searchResultsDialog: SearchResultsDialog | undefined;
+    searchResultsDialogId: string;
+    isSearchResults: boolean;
+    includeSubfolders: boolean;
     constructor(id: string);
     initialize(): void;
     setColumnTypes(...types: string[]): void;
@@ -51,6 +56,8 @@ declare class DbNetFile extends DbNetSuite {
     callServer(action: string, callback?: DbNetFileResponseCallback): void;
     private addEventListener;
     private handleClick;
+    applySearch(searchFilterJoin: string, includeSubfolders: boolean): void;
+    private openSearchResultsDialog;
     private openSearchDialog;
     private getRequest;
 }

@@ -147,30 +147,35 @@ class FileSearchDialog extends Dialog {
             }
         });
         const parent = this.parent;
-        //    parent.clearColumnFilters();
-        //    parent.searchFilterJoin = this.$dialog?.find("#searchFilterJoin").val() as string;
-        parent.currentPage = 1;
-        parent.getPage((response) => this.getPageCallback(response));
+        parent.callServer("validate-search-params", (response) => this.getPageCallback(response));
     }
     getPageCallback(response) {
-        if (response.searchParams) {
-            response.searchParams.forEach(sp => {
-                var _a;
-                const $row = (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find(`tr[columntype='${sp.columnType}']`);
-                const $input1 = $row === null || $row === void 0 ? void 0 : $row.find("input:nth-of-type(1)");
-                const $input2 = $row === null || $row === void 0 ? void 0 : $row.find("input:nth-of-type(2)");
-                $input1 === null || $input1 === void 0 ? void 0 : $input1.removeClass("highlight");
-                $input2 === null || $input2 === void 0 ? void 0 : $input2.removeClass("highlight");
-                if (sp.value1Valid == false) {
-                    $input1 === null || $input1 === void 0 ? void 0 : $input1.addClass("highlight");
+        var _a, _b;
+        if (response.error) {
+            if (response.searchParams) {
+                response.searchParams.forEach(sp => {
+                    var _a;
+                    const $row = (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find(`tr[columntype='${sp.columnType}']`);
+                    const $input1 = $row === null || $row === void 0 ? void 0 : $row.find("input:nth-of-type(1)");
+                    const $input2 = $row === null || $row === void 0 ? void 0 : $row.find("input:nth-of-type(2)");
+                    $input1 === null || $input1 === void 0 ? void 0 : $input1.removeClass("highlight");
+                    $input2 === null || $input2 === void 0 ? void 0 : $input2.removeClass("highlight");
+                    if (sp.value1Valid == false) {
+                        $input1 === null || $input1 === void 0 ? void 0 : $input1.addClass("highlight");
+                    }
+                    if (sp.value2Valid == false) {
+                        $input2 === null || $input2 === void 0 ? void 0 : $input2.addClass("highlight");
+                    }
+                });
+                if (response.message) {
+                    this.message(response.message);
                 }
-                if (sp.value2Valid == false) {
-                    $input2 === null || $input2 === void 0 ? void 0 : $input2.addClass("highlight");
-                }
-            });
-            if (response.message) {
-                this.message(response.message);
             }
+        }
+        else {
+            const searchFilterJoin = (_a = this.$dialog) === null || _a === void 0 ? void 0 : _a.find("#searchFilterJoin").val();
+            const includeSubfolders = (_b = this.$dialog) === null || _b === void 0 ? void 0 : _b.find("#includeSubfolders").prop("checked");
+            this.parent.applySearch(searchFilterJoin, includeSubfolders);
         }
     }
 }

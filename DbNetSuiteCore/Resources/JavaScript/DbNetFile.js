@@ -24,6 +24,9 @@ class DbNetFile extends DbNetSuite {
         this.nested = false;
         this.orderBy = "";
         this.orderByDirection = "asc";
+        this.searchResultsDialogId = "";
+        this.isSearchResults = false;
+        this.includeSubfolders = false;
         this.columns = [];
     }
     initialize() {
@@ -38,6 +41,13 @@ class DbNetFile extends DbNetSuite {
         this.callServer("initialise");
         this.initialised = true;
         this.fireEvent("onInitialized");
+        this.linkedControls.forEach((control) => {
+            if (control.isSearchResults) {
+                this.searchResultsControl = control;
+                this.searchResultsControl.internalBind("onPageLoaded", () => this.openSearchResultsDialog());
+                //this.searchResultsControl.initialize();
+            }
+        });
     }
     setColumnTypes(...types) {
         types.forEach(type => {
@@ -53,8 +63,13 @@ class DbNetFile extends DbNetSuite {
         matchingColumn[property] = propertyValue;
     }
     reload() {
-        this.currentPage = 1;
-        this.getPage();
+        if (this.initialised) {
+            this.currentPage = 1;
+            this.getPage();
+        }
+        else {
+            this.initialize();
+        }
     }
     getPage(callback) {
         this.callServer("page", callback);
@@ -120,9 +135,16 @@ class DbNetFile extends DbNetSuite {
     }
     selectFolder(event) {
         const $anchor = $(event.currentTarget);
-        this.folder = $anchor.data("folder");
-        this.currentPage = 1;
-        this.callServer("page");
+        if (this.isSearchResults) {
+            const parentControl = this.parentControl;
+            parentControl.folder = $anchor.data("folder");
+            parentControl.reload();
+        }
+        else {
+            this.folder = $anchor.data("folder");
+            this.currentPage = 1;
+            this.callServer("page");
+        }
     }
     loadPreview($td) {
         const $anchor = $td.parent().find("a[data-filetype='Image']");
@@ -233,11 +255,11 @@ class DbNetFile extends DbNetSuite {
     callServer(action, callback) {
         this.post(action, this.getRequest())
             .then((response) => {
-            if (response.error == false) {
-                this.configurePage(response);
-            }
             if (callback) {
                 callback(response);
+            }
+            else if (response.error == false) {
+                this.configurePage(response);
             }
         });
     }
@@ -279,6 +301,23 @@ class DbNetFile extends DbNetSuite {
                 break;
         }
     }
+    applySearch(searchFilterJoin, includeSubfolders) {
+        if (!this.searchResultsControl) {
+            return;
+        }
+        this.searchResultsControl.searchFilterJoin = searchFilterJoin;
+        this.searchResultsControl.includeSubfolders = includeSubfolders;
+        this.searchResultsControl.folder = this.folder;
+        this.searchResultsControl.searchParams = this.searchParams;
+        this.searchResultsControl.reload();
+    }
+    openSearchResultsDialog() {
+        var _a;
+        if (!this.searchResultsDialog) {
+            this.searchResultsDialog = new SearchResultsDialog(this.searchResultsDialogId, this.searchResultsControl);
+        }
+        (_a = this.searchResultsDialog) === null || _a === void 0 ? void 0 : _a.show();
+    }
     openSearchDialog(request) {
         if (this.searchDialog) {
             this.searchDialog.open();
@@ -313,6 +352,8 @@ class DbNetFile extends DbNetSuite {
         request.orderByDirection = this.orderByDirection;
         request.searchParams = this.searchParams;
         request.searchFilterJoin = this.searchFilterJoin;
+        request.isSearchResults = this.isSearchResults;
+        request.includeSubfolders = this.includeSubfolders;
         return request;
     }
 }

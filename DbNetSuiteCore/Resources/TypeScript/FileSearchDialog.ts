@@ -153,8 +153,7 @@
                     value2: $input2.val() as string
                 }
 
-                if ($unit1.length)
-                {
+                if ($unit1.length) {
                     searchParam.unit1 = $unit1.val() as string;
                     searchParam.unit2 = $unit2.val() as string;
                 }
@@ -163,30 +162,35 @@
         });
 
         const parent = this.parent;
-        //    parent.clearColumnFilters();
-        //    parent.searchFilterJoin = this.$dialog?.find("#searchFilterJoin").val() as string;
-        parent.currentPage = 1;
-        parent.getPage((response: DbNetFileResponse) => this.getPageCallback(response));
+        parent.callServer("validate-search-params", (response: DbNetFileResponse) => this.getPageCallback(response))
     }
 
     private getPageCallback(response: DbNetGridEditResponse) {
-        if (response.searchParams) {
-            response.searchParams.forEach(sp => {
-                const $row = this.$dialog?.find(`tr[columntype='${sp.columnType}']`)
-                const $input1 = $row?.find("input:nth-of-type(1)");
-                const $input2 = $row?.find("input:nth-of-type(2)");
-                $input1?.removeClass("highlight");
-                $input2?.removeClass("highlight");
-                if (sp.value1Valid == false) {
-                    $input1?.addClass("highlight");
+        if (response.error) {
+            if (response.searchParams) {
+                response.searchParams.forEach(sp => {
+                    const $row = this.$dialog?.find(`tr[columntype='${sp.columnType}']`)
+                    const $input1 = $row?.find("input:nth-of-type(1)");
+                    const $input2 = $row?.find("input:nth-of-type(2)");
+                    $input1?.removeClass("highlight");
+                    $input2?.removeClass("highlight");
+                    if (sp.value1Valid == false) {
+                        $input1?.addClass("highlight");
+                    }
+                    if (sp.value2Valid == false) {
+                        $input2?.addClass("highlight");
+                    }
+                });
+                if (response.message) {
+                    this.message(response.message);
                 }
-                if (sp.value2Valid == false) {
-                    $input2?.addClass("highlight");
-                }
-            });
-            if (response.message) {
-                this.message(response.message);
             }
+        }
+        else {
+            const searchFilterJoin = this.$dialog?.find("#searchFilterJoin").val() as string;
+            const includeSubfolders = this.$dialog?.find("#includeSubfolders").prop("checked");
+
+            this.parent.applySearch(searchFilterJoin, includeSubfolders);
         }
     }
 }

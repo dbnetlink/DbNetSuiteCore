@@ -105,6 +105,8 @@
     <None Remove="Resources\JavaScript\MessageBox.min.js" />
     <None Remove="Resources\JavaScript\SearchDialog.js" />
     <None Remove="Resources\JavaScript\SearchDialog.min.js" />
+    <None Remove="Resources\JavaScript\SearchResultsDialog.js" />
+    <None Remove="Resources\JavaScript\SearchResultsDialog.min.js" />
     <None Remove="Resources\JavaScript\UploadDialog.js" />
     <None Remove="Resources\JavaScript\UploadDialog.min.js" />
     <None Remove="Resources\JavaScript\ViewDialog.js" />
@@ -198,6 +200,8 @@
     <EmbeddedResource Include="Resources\JavaScript\MessageBox.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\SearchDialog.js" />
     <EmbeddedResource Include="Resources\JavaScript\SearchDialog.min.js" />
+    <EmbeddedResource Include="Resources\JavaScript\SearchResultsDialog.js" />
+    <EmbeddedResource Include="Resources\JavaScript\SearchResultsDialog.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\UploadDialog.js" />
     <EmbeddedResource Include="Resources\JavaScript\UploadDialog.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\ViewDialog.js" />

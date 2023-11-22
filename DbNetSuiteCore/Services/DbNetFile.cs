@@ -73,6 +73,8 @@ namespace DbNetSuiteCore.Services
         public OrderByDirection? OrderByDirection { get; set; }
         public string SearchFilterJoin { get; set; } = "and";
         public List<SearchParameter> SearchParams { get; set; } = new List<SearchParameter>();
+        public bool IsSearchResults { get; set; }
+        public bool IncludeSubfolders { get; set; }
 
         public new async Task<object> Process()
         {
@@ -95,6 +97,9 @@ namespace DbNetSuiteCore.Services
                     return DownloadBinaryFile();
                 case RequestAction.SearchDialog:
                     await SearchDialog(response);
+                    break;
+                case RequestAction.ValidateSearchParams:
+                    ValidateRequest(response);
                     break;
             }
 
@@ -122,21 +127,19 @@ namespace DbNetSuiteCore.Services
             SqlDataTable sqlDataTable = new SqlDataTable();
             DataTable dataTable;
 
+            List<FileInformation> fileInformation = new List<FileInformation>();
+
             using (sqlDataTable)
             {
-                IDirectoryContents folderContents = _fileProvider.GetDirectoryContents(Folder);
-                Dictionary<string,object> values = new Dictionary<string, object>();
+                List<FileInformation> folderFileInformation = GetFolderContents(Folder);
+                fileInformation.AddRange(folderFileInformation);
 
-                foreach (IFileInfo fileInfo in folderContents)
-                {
-                    FileInformation fileInformation = new FileInformation(fileInfo);
-                    await sqlDataTable.AddRow(fileInformation);
-                }
+                await sqlDataTable.AddRows(fileInformation);
 
                 string filter = string.Empty;
                 Dictionary<string,object> filterParameters = new Dictionary<string,object>();
 
-                if (SearchParams.Any())
+                if (SearchParams.Any() && IsSearchResults)
                 {
                     filter = string.Join($" {SearchFilterJoin} ", SearchDialogFilter());
                     filterParameters = SearchDialogParameters();
@@ -197,6 +200,28 @@ namespace DbNetSuiteCore.Services
 
             ReflectionHelper.CopyProperties(this, viewModel);
             response.Html = await HttpContext.RenderToStringAsync($"Views/DbNetFile/Page.cshtml", viewModel);
+        }
+
+        private List<FileInformation> GetFolderContents(string folder)
+        {
+            List<FileInformation> fileInformation = new List<FileInformation>();
+            IDirectoryContents folderContents = _fileProvider.GetDirectoryContents(folder);
+
+            foreach (IFileInfo fileInfo in folderContents)
+            {
+                FileInformation f = new FileInformation(fileInfo, folder);
+                fileInformation.Add(f);
+
+                if (IncludeSubfolders)
+                {
+                    if (f.IsDirectory)
+                    {
+                        fileInformation.AddRange(GetFolderContents($"{folder}/{f.Name}"));
+                    }
+                }
+            }
+
+            return fileInformation;
         }
 
         private List<string> SearchDialogFilter()

@@ -271,6 +271,11 @@ function init_{_id}()
                 {
                     script += (linkedControl as DbNetEditCore).LinkedRender();
                 }
+
+                if (linkedControl is DbNetFileCore)
+                {
+                    script += (linkedControl as DbNetFileCore).LinkedRender();
+                }
             }
 
             return script;
@@ -295,6 +300,11 @@ function init_{_id}()
                 markup += EditDialogMarkup((DbNetGridCore)this);
             }
 
+            if (HasSearchResultsDialog(this))
+            {
+                markup += SearchResultsDialogMarkup((DbNetFileCore)this);
+            }
+
             foreach (var linkedControl in _linkedControls)
             {
                 if (IsEditDialog(linkedControl) || IsBrowseDialog(linkedControl))
@@ -315,6 +325,11 @@ function init_{_id}()
         private string EditDialogMarkup(DbNetGridCore dbNetGridCore)
         {
             return $"<div id=\"{dbNetGridCore._editDialogId}\" class=\"edit-dialog\" title=\"Edit\" style=\"display:none\"><section id=\"{dbNetGridCore.EditControl.Id}\"></section></div>"; ;
+        }
+
+        private string SearchResultsDialogMarkup(DbNetFileCore dbNetFileCore)
+        {
+            return $"<div id=\"{dbNetFileCore._searchResultsDialogId}\" class=\"search-results-dialog\" title=\"Search Results\" style=\"display:none\"><section id=\"{dbNetFileCore.SearchResultsControl.Id}\"></section></div>";
         }
 
         private bool IsEditDialog(DbNetSuiteCore control)
@@ -353,6 +368,16 @@ function init_{_id}()
             {
                 DbNetEditCore dbNetEditCore = (DbNetEditCore)control;
                 return dbNetEditCore._browse;
+            }
+            return false;
+        }
+
+        private bool HasSearchResultsDialog(DbNetSuiteCore control)
+        {
+            if (control is DbNetFileCore)
+            {
+                DbNetFileCore dbNetFileCore = (DbNetFileCore)control;
+                return dbNetFileCore._searchResultsDialogId != null;
             }
             return false;
         }

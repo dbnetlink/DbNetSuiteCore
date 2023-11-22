@@ -3,12 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using DbNetSuiteCore.Services;
-using DbNetSuiteCore.ViewModels;
 using Microsoft.Data.Sqlite;
 
 namespace DbNetSuiteCore.Utilities
@@ -28,17 +25,17 @@ namespace DbNetSuiteCore.Utilities
     public class SqlDataTable : IDisposable
     {
         private readonly SqliteConnection _Connection;
-        private readonly SqliteCommand _Command;
-        private SqliteDataReader _Reader;
+        private SqliteCommand _InsertCommand;
         private bool _TableCreated = false;
+        private string _TableName = "SqlData";
 
         List<SqlDataTableColumn> Columns { get; set; } = new List<SqlDataTableColumn>();
 
         public SqlDataTable()
         {
-            _Connection = new SqliteConnection("Data Source=InMemory;Mode=Memory;Cache=Shared;");
+            _Connection = new SqliteConnection("Data Source=:memory:;Mode=Memory;Cache=Private;");
             _Connection.Open();
-            _Command = _Connection.CreateCommand();
+            _InsertCommand = _Connection.CreateCommand();
         }
 
         public void Dispose()
@@ -57,26 +54,45 @@ namespace DbNetSuiteCore.Utilities
             AddColumn(new SqlDataTableColumn(columnName, dataType));
         }
 
+        public async Task AddRows<T>(List<T> records)
+        {
+            T record = records.First();
+            UpdateColumns(RecordToDictionary(record));
+            await CreateTable(record.GetType().Name);
+            using (SqliteTransaction transaction = _Connection.BeginTransaction())
+            {
+                _InsertCommand.Transaction = transaction;
+                foreach (T r in records)
+                {
+                    await AddRow(r);
+                }
+
+                await transaction.CommitAsync();
+            }
+        }
         public async Task AddRow<T>(T record)
         {
-            Dictionary<string,object> values = RecordToDictionary(record, Columns.Any() == false);
-            if (_TableCreated == false)
+            if (IsGenericList(record))
             {
-                await CreateTable();
+                throw new Exception("Use AddRows for a generic list");
             }
-            ConfigureCommand($"insert into [FileInfo] ({string.Join(",", values.Keys)}) values ({string.Join(",", values.Keys.Select(c => $"@{c}").ToList())});", values);
-            await _Command.ExecuteNonQueryAsync();
+            Dictionary<string, object> values = RecordToDictionary(record, Columns.Any() == false);
+            await AddRow(values, typeof(T).Name);
         }
 
-        public async Task AddRow(Dictionary<string, object> values)
+        public async Task AddRow(Dictionary<string, object> values, string tableName = "SqlData")
         {
             UpdateColumns(values);
             if (_TableCreated == false)
             {
-                await CreateTable();
+                await CreateTable(tableName);
             }
-            ConfigureCommand($"insert into [FileInfo] ({string.Join(",", values.Keys)}) values ({string.Join(",", values.Keys.Select(c => $"@{c}").ToList())});", values);
-            await _Command.ExecuteNonQueryAsync();
+            if (string.IsNullOrEmpty(_InsertCommand.CommandText))
+            {
+                _InsertCommand.CommandText = $"insert into [{_TableName}] ({string.Join(",", values.Keys)}) values ({string.Join(",", values.Keys.Select(c => $"@{c}").ToList())});";
+            }
+            AssignParameters(values, _InsertCommand);
+            await _InsertCommand.ExecuteNonQueryAsync();
         }
 
         public async Task<DataTable> Query()
@@ -91,10 +107,16 @@ namespace DbNetSuiteCore.Utilities
 
         public async Task<DataTable> Query(string filter = null, Dictionary<string, object> filterParameters = null)
         {
-            string sql = $"select * from [FileInfo] where {(string.IsNullOrEmpty(filter) ? "1=1" : filter)}";
-            ConfigureCommand(sql, filterParameters);
-            _Reader = await _Command.ExecuteReaderAsync();
-            var fieldCount = _Reader.FieldCount;
+            SqliteCommand command = _Connection.CreateCommand();
+            command.CommandText = $"select * from [{_TableName}] where {(string.IsNullOrEmpty(filter) ? "1=1" : filter)}";
+
+            if (filterParameters != null)
+            {
+                AssignParameters(filterParameters, command);
+            }
+
+            SqliteDataReader reader = await command.ExecuteReaderAsync();
+            var fieldCount = reader.FieldCount;
             DataTable dataTable = new DataTable();
             List<int> boolColumns = new List<int>();
             foreach (SqlDataTableColumn column in Columns)
@@ -105,21 +127,21 @@ namespace DbNetSuiteCore.Utilities
                 }
                 dataTable.Columns.Add(column.ColumnName, column.DataType);
             }
-            while (await _Reader.ReadAsync())
+            while (await reader.ReadAsync())
             {
                 object[] values = new object[fieldCount];
-                _Reader.GetValues(values);
+                reader.GetValues(values);
                 foreach (int boolIndex in boolColumns)
                 {
                     values[boolIndex] = Convert.ToBoolean(Convert.ToInt32(values[boolIndex]));
                 }
                 dataTable.Rows.Add(values);
             }
-            dataTable.Load(_Reader);
+            dataTable.Load(reader);
             return dataTable;
         }
 
-        private async Task CreateTable()
+        private async Task CreateTable(string tableName = "SqlData")
         {
             List<string> columns = new List<string>();
 
@@ -128,9 +150,11 @@ namespace DbNetSuiteCore.Utilities
                 columns.Add($"{column.ColumnName} {SqlLiteType(column.DataType)}");
             }
 
-            ConfigureCommand($"CREATE TABLE [FileInfo] ({string.Join(",", columns)});");
-            await _Command.ExecuteNonQueryAsync();
+            SqliteCommand command = _Connection.CreateCommand();
+            command.CommandText = $"CREATE TABLE [{tableName}] ({string.Join(",", columns)});";
+            await command.ExecuteNonQueryAsync();
             _TableCreated = true;
+            _TableName = tableName;
         }
 
         private string SqlLiteType(Type dataType)
@@ -138,12 +162,6 @@ namespace DbNetSuiteCore.Utilities
             string sqlType = "TEXT";
             switch (dataType.ToString())
             {
-                case nameof(DateOnly):
-                    sqlType = "DATE";
-                    break;
-                case nameof(DateTime):
-                    sqlType = "DATETIME";
-                    break;
                 case nameof(UInt16):
                 case nameof(UInt32):
                 case nameof(UInt64):
@@ -155,12 +173,21 @@ namespace DbNetSuiteCore.Utilities
                 case nameof(SByte):
                 case nameof(Boolean):
                 case nameof(Byte):
+                case nameof(Char):
                     sqlType = "INTEGER";
                     break;
                 case nameof(Decimal):
                 case nameof(Double):
                 case nameof(Single):
+                case nameof(DateOnly):
+                case nameof(DateTime):
+                case nameof(TimeSpan):
+                case nameof(TimeOnly):
+                case nameof(DateTimeOffset):
                     sqlType = "REAL";
+                    break;
+                case nameof(Guid):
+                    sqlType = "BLOB";
                     break;
             }
 
@@ -190,29 +217,33 @@ namespace DbNetSuiteCore.Utilities
             }
         }
 
-        private void ConfigureCommand(string sql, IDictionary parameters = null)
+        private void AssignParameters(IDictionary parameters, SqliteCommand command)
         {
-            _Command.CommandText = sql.Trim();
-            _Command.CommandType = CommandType.Text;
-            _Command.Parameters.Clear();
-            AddCommandParameters(parameters);
-        }
-
-        private void AddCommandParameters(IDictionary parameters)
-        {
-            if (parameters == null)
-                return;
-
             foreach (string key in parameters.Keys)
             {
-                SqliteParameter dbParam = _Command.CreateParameter();
-                dbParam.ParameterName = key.StartsWith("@") ? key : $"@{key}";
+                SqliteParameter dbParam;
+
+                if (command.Parameters.Contains(ParamName(key)))
+                {
+                    dbParam = command.Parameters[ParamName(key)];
+                }
+                else
+                {
+                    dbParam = command.CreateParameter();
+                    dbParam.ParameterName = ParamName(key);
+                    command.Parameters.Add(dbParam);
+                }
+
                 dbParam.Value = parameters[key] ?? DBNull.Value;
-                _Command.Parameters.Add(dbParam);
             }
         }
 
-        public Dictionary<string,object> RecordToDictionary(object record, bool updateColumns)
+        private string ParamName(string key)
+        {
+            return key.StartsWith("@") ? key : $"@{key}";
+        }
+
+        public Dictionary<string, object> RecordToDictionary(object record, bool updateColumns = true)
         {
             Dictionary<string, object> dictionary = new Dictionary<string, object>();
             Type type = record.GetType();
@@ -237,6 +268,12 @@ namespace DbNetSuiteCore.Utilities
         private bool IsSimple(Type type)
         {
             return TypeDescriptor.GetConverter(type).CanConvertFrom(typeof(string));
+        }
+
+        private bool IsGenericList(object o)
+        {
+            var oType = o.GetType();
+            return (oType.IsGenericType && (oType.GetGenericTypeDefinition() == typeof(List<>)));
         }
     }
 }

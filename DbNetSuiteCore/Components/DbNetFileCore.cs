@@ -10,11 +10,24 @@ namespace DbNetSuiteCore.Components
 {
     public class DbNetFileCore : DbNetSuiteCore
     {
+        internal string _searchResultsDialogId;
+        private readonly bool _searchResults = false;
         private readonly string _folder;
+        internal bool? IsSearchResults => _searchResults;
+        internal string SearchResultsDialogId => _searchResultsDialogId;
+
         public DbNetFileCore(string folder, string id = null) : base(id)
         {
             _folder = folder;
-        }        
+            SearchResultsControl = new DbNetFileCore(folder, true);
+            this._searchResultsDialogId = $"{this.Id}_search_results_dialog";
+        }
+
+        internal DbNetFileCore(string folder, bool searchResults) : base(null)
+        {
+            _folder = folder;
+            _searchResults = searchResults;
+        }
         /// <summary>
         /// Allows a user to do a wildcard search against file and folders names
         /// </summary>
@@ -77,6 +90,10 @@ namespace DbNetSuiteCore.Components
         {
             return new DbNetFileCoreColumn(columnTypes, _columnProperties);
         }
+        /// <summary>
+        /// Search results control
+        /// </summary>
+        public DbNetFileCore SearchResultsControl { get; set; }
         public HtmlString Render()
         {
             string message = ValidateProperties();
@@ -85,6 +102,8 @@ namespace DbNetSuiteCore.Components
             {
                 return new HtmlString($"<div class=\"dbnetsuite-error\">{message}</div>");
             }
+
+            AddSearchResultsControl();
 
             string script = string.Empty;
 
@@ -152,6 +171,9 @@ folder = '{EncodingHelper.Encode(_folder)}';
             AddProperty(Caption, $"{nameof(Caption)}", properties);
             AddProperty(ToolbarButtonStyle, $"{nameof(ToolbarButtonStyle)}", properties);
             AddProperty(PreviewHeight, $"{nameof(PreviewHeight)}", properties);
+            AddProperty(IsSearchResults, $"{nameof(IsSearchResults)}", properties);
+            AddProperty(SearchResultsDialogId, "SearchResultsDialogId", properties);
+
             properties.Add($"datePickerOptions = {DatePickerOptions()};");
 
             return string.Join(Environment.NewLine, properties);
@@ -164,6 +186,23 @@ folder = '{EncodingHelper.Encode(_folder)}';
                 return string.Empty;
             }
             return $"setColumnTypes(\"{string.Join("\",\"", Columns.Select(c => c.ToString()).ToList())}\");";
+        }
+
+        private void AddSearchResultsControl()
+        {
+            if (Search ?? true == false)
+            {
+                _searchResultsDialogId = null;
+                SearchResultsControl = null;
+            }
+            else
+            {
+                SearchResultsControl.Search = false;
+                //  SearchResultsControl.PageSize = -1;
+                //    SearchResultsControl.ToolbarPosition = Enums.ToolbarPosition.Hidden;
+
+                this._linkedControls.Add(SearchResultsControl);
+            }
         }
     }
 }

@@ -14,5 +14,6 @@ namespace DbNetSuiteCore.ViewModels.DbNetFile
         public int LastRow { get; set; }
         public string Caption { get; set; }
         public bool Nested { get; set; }
+        public bool IsSearchResults { get; set; }
     }
 }

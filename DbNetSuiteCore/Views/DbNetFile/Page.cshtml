@@ -27,7 +27,7 @@
         }
     </colgroup>
     <thead>
-        @if (Model.Nested == false)
+        @if (Model.Nested == false && Model.IsSearchResults == false)
         {
             <tr class="path-row">
                 <td colspan="@(Model.Columns.Count()+1)">

@@ -6,5 +6,6 @@
         public const string Initialise = "initialise";
         public const string DownloadFile = "download-file";
         public const string SearchDialog = "search-dialog";
+        public const string ValidateSearchParams = "validate-search-params";
     }
 }

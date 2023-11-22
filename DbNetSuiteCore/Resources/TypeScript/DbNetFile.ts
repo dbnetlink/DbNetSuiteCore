@@ -26,6 +26,11 @@ class DbNetFile extends DbNetSuite {
     nested = false;
     orderBy = "";
     orderByDirection = "asc";
+    searchResultsControl: DbNetFile | undefined;
+    searchResultsDialog: SearchResultsDialog | undefined;
+    searchResultsDialogId = "";
+    isSearchResults = false;
+    includeSubfolders = false;
 
     constructor(id: string) {
         super(id);
@@ -44,6 +49,14 @@ class DbNetFile extends DbNetSuite {
         this.callServer("initialise");
         this.initialised = true;
         this.fireEvent("onInitialized");
+
+        this.linkedControls.forEach((control) => {
+            if ((control as DbNetFile).isSearchResults) {
+                this.searchResultsControl = (control as DbNetFile);
+                this.searchResultsControl.internalBind("onPageLoaded", () => this.openSearchResultsDialog());
+                //this.searchResultsControl.initialize();
+            }
+        });
     }
 
     setColumnTypes(...types: string[]): void {
@@ -64,8 +77,13 @@ class DbNetFile extends DbNetSuite {
     }
 
     reload() {
-        this.currentPage = 1;
-        this.getPage();
+        if (this.initialised) {
+            this.currentPage = 1;
+            this.getPage();
+        }
+        else {
+            this.initialize();
+        }
     }
 
     getPage(callback?: DbNetFileResponseCallback) {
@@ -141,12 +159,19 @@ class DbNetFile extends DbNetSuite {
 
     private selectFolder(event: JQuery.ClickEvent<HTMLElement>) {
         const $anchor = $(event.currentTarget);
-        this.folder = $anchor.data("folder");
-        this.currentPage = 1;
-        this.callServer("page");
+        if (this.isSearchResults) {
+            const parentControl = this.parentControl as DbNetFile;
+            parentControl.folder = $anchor.data("folder");
+            parentControl.reload();
+        }
+        else {
+            this.folder = $anchor.data("folder");
+            this.currentPage = 1;
+            this.callServer("page");
+        }
     }
 
-    private loadPreview($td : JQuery<HTMLElement>) {
+    private loadPreview($td: JQuery<HTMLElement>) {
         const $anchor = $td.parent().find("a[data-filetype='Image']");
         if ($anchor) {
             this.fileName = $anchor.data("file");
@@ -156,7 +181,7 @@ class DbNetFile extends DbNetSuite {
                         const $image = $(new Image());
                         $image.hide();
                         $image.attr("src", window.URL.createObjectURL(blob));
-                        $image.on("load", (event) => this.setPreviewHeight(event) );
+                        $image.on("load", (event) => this.setPreviewHeight(event));
                         $td.empty().append($image);
                     }
                 });
@@ -273,11 +298,11 @@ class DbNetFile extends DbNetSuite {
     public callServer(action: string, callback?: DbNetFileResponseCallback) {
         this.post<DbNetFileResponse>(action, this.getRequest())
             .then((response) => {
-                if (response.error == false) {
-                    this.configurePage(response);
-                }
                 if (callback) {
                     callback(response);
+                }
+                else if (response.error == false) {
+                    this.configurePage(response);
                 }
             })
     }
@@ -325,6 +350,24 @@ class DbNetFile extends DbNetSuite {
         }
     }
 
+    public applySearch(searchFilterJoin: string, includeSubfolders: boolean) {
+        if (!this.searchResultsControl) {
+            return;
+        }
+        this.searchResultsControl.searchFilterJoin = searchFilterJoin;
+        this.searchResultsControl.includeSubfolders = includeSubfolders;
+        this.searchResultsControl.folder = this.folder;
+        this.searchResultsControl.searchParams = this.searchParams;
+        this.searchResultsControl.reload();
+    }
+
+    private openSearchResultsDialog() {
+        if (!this.searchResultsDialog) {
+            this.searchResultsDialog = new SearchResultsDialog(this.searchResultsDialogId as string, this.searchResultsControl as DbNetFile);
+        }
+        this.searchResultsDialog?.show();
+    }
+
     private openSearchDialog(request: DbNetFileRequest) {
         if (this.searchDialog) {
             this.searchDialog.open();
@@ -360,6 +403,8 @@ class DbNetFile extends DbNetSuite {
         request.orderByDirection = this.orderByDirection;
         request.searchParams = this.searchParams;
         request.searchFilterJoin = this.searchFilterJoin;
+        request.isSearchResults = this.isSearchResults;
+        request.includeSubfolders = this.includeSubfolders;
 
         return request;
     }

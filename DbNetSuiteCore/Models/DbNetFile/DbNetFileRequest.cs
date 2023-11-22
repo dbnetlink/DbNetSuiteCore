@@ -23,6 +23,8 @@ namespace DbNetSuiteCore.Models.DbNetFile
         public OrderByDirection? OrderByDirection { get; set; }
         public List<SearchParameter> SearchParams { get; set; }
         public string SearchFilterJoin { get; set; } = "and";
+        public bool IsSearchResults { get; set; }
+        public bool IncludeSubfolders { get; set; }
 
     }
 }

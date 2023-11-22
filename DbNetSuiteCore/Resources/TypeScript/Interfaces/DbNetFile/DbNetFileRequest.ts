@@ -20,4 +20,6 @@
     fileName: string;
     orderBy: string;
     orderByDirection: string;
+    isSearchResults: boolean;
+    includeSubfolders: boolean;
 }

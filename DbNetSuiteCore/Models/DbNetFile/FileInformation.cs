@@ -1,5 +1,4 @@
-﻿using DbNetSuiteCore.Enums.DbNetFile;
-using Microsoft.Extensions.FileProviders;
+﻿using Microsoft.Extensions.FileProviders;
 using System;
 using System.IO;
 
@@ -14,13 +13,15 @@ namespace DbNetSuiteCore.Models.DbNetFile
         public DateTime Created { get; set; }
         public DateTime LastAccessed { get; set; }
         public long Length { get; set; }
+        public string ParentFolder { get; set; }
 
-        public FileInformation(IFileInfo fileInfo)
+        public FileInformation(IFileInfo fileInfo, string parentFolder)
         {
             Name = fileInfo.Name;
             IsDirectory = fileInfo.IsDirectory;
             LastModified = fileInfo.LastModified.UtcDateTime;
             Length = fileInfo.Length;
+            ParentFolder = parentFolder;
 
             if (!fileInfo.IsDirectory)
             {

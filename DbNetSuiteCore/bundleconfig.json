@@ -112,5 +112,11 @@
     "inputFiles": [
       "Resources/JavaScript/FileSearchDialog.js"
     ]
+  },
+  {
+    "outputFileName": "Resources/JavaScript/SearchResultsDialog.min.js",
+    "inputFiles": [
+      "Resources/JavaScript/SearchResultsDialog.js"
+    ]
   }
 ]

@@ -72,7 +72,8 @@ namespace DbNetSuiteCore.Services
                 "BrowseDialog",
                 "UploadDialog",
                 "ImageViewer",
-                "FileSearchDialog"
+                "FileSearchDialog",
+                "SearchResultsDialog"
             };
 
 			List<string> scripts = new List<string>();
