@@ -83,12 +83,22 @@
             case FileInfoProperties.Name:
                 if (dataRow.IsDirectory())
                 {
-                    html = FolderLink($"{Model.Folder}/{value.ToString()}");
+                    if (Model.IsSearchResults)
+                    {
+                        html = FolderLink($"{dataRow.ParentFolder()}/{value.ToString()}");
+                    }
+                    else
+                    {
+                        html = FolderLink($"{Model.Folder}/{value.ToString()}");
+                    }
                 }
                 else
                 {
                     html = FileLink(value.ToString(), dataRow.Extension());
                 }
+                break;
+            case FileInfoProperties.ParentFolder:
+                html = FolderLink($"{value.ToString()}");
                 break;
             case FileInfoProperties.Length:
                 if (dataRow.IsDirectory() == false)
@@ -173,7 +183,7 @@
 
     public string FolderLink(string folder)
     {
-        return $"<a class=\"folder-link\" data-folder=\"{EncodingHelper.Encode(folder)}\" href=\"#\">{folder.Split("/").Last()}</a>";
+        return $"<a class=\"folder-link\" data-folder=\"{EncodingHelper.Encode(folder)}\" title=\"{folder.Replace(Model.RootFolder, string.Empty)}\" href=\"#\">{folder.Split("/").Last()}</a>";
     }
 
     public FileType GetFileType(string fileName)

@@ -160,7 +160,7 @@ namespace DbNetSuiteCore.Utilities
         private string SqlLiteType(Type dataType)
         {
             string sqlType = "TEXT";
-            switch (dataType.ToString())
+            switch (dataType.Name)
             {
                 case nameof(UInt16):
                 case nameof(UInt32):

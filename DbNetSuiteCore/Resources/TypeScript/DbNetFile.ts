@@ -31,6 +31,7 @@ class DbNetFile extends DbNetSuite {
     searchResultsDialogId = "";
     isSearchResults = false;
     includeSubfolders = false;
+    treeView = false;
 
     constructor(id: string) {
         super(id);
@@ -405,6 +406,7 @@ class DbNetFile extends DbNetSuite {
         request.searchFilterJoin = this.searchFilterJoin;
         request.isSearchResults = this.isSearchResults;
         request.includeSubfolders = this.includeSubfolders;
+        request.treeView = this.treeView;
 
         return request;
     }

@@ -70,6 +70,10 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public int? PreviewHeight { get; set; }
         /// <summary>
+        /// Displays just folders in an expandable tree style list
+        /// </summary>
+        public bool? TreeView { get; set; }
+        /// <summary>
         /// Binds an event to a named client-side JavaScript function
         /// </summary>
         public void Bind(EventType eventType, string functionName)
@@ -172,7 +176,8 @@ folder = '{EncodingHelper.Encode(_folder)}';
             AddProperty(ToolbarButtonStyle, $"{nameof(ToolbarButtonStyle)}", properties);
             AddProperty(PreviewHeight, $"{nameof(PreviewHeight)}", properties);
             AddProperty(IsSearchResults, $"{nameof(IsSearchResults)}", properties);
-            AddProperty(SearchResultsDialogId, "SearchResultsDialogId", properties);
+            AddProperty(SearchResultsDialogId, $"{nameof(SearchResultsDialogId)}", properties);
+            AddProperty(TreeView, $"{nameof(TreeView)}", properties);
 
             properties.Add($"datePickerOptions = {DatePickerOptions()};");
 

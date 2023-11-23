@@ -11,7 +11,8 @@
         this.$dialog?.find("select.search-operator").on("change", (event) => this.configureForOperator(event));
         this.$dialog?.find("[button-type='calendar']").on("click", (event) => this.selectDate(event));
 
-        this.$dialog?.find("input").get().forEach(e => {
+        const $criteria = this.$dialog?.find("table.criteria") as JQuery<HTMLElement>;
+        $criteria.find("input").get().forEach(e => {
             const $input = $(e as HTMLInputElement);
             $input.width(300);
             $input.on("keyup", (event) => this.criteriaEntered(event.target))
@@ -20,7 +21,7 @@
                 $input.on("keypress", (event) => this.filterNumericKeyPress(event))
             }
         });
-        this.$dialog?.find("input[datatype='DateTime']").get().forEach(e => {
+        $criteria.find("input[datatype='DateTime']").get().forEach(e => {
             const $input = $(e as HTMLInputElement);
             this.addDatePicker($input, this.parent.datePickerOptions);
         });
@@ -115,7 +116,13 @@
             $select.val("");
         }
         else if ($select.val() == "") {
-            $select.prop("selectedIndex", 1)
+            const containsOption = $select.find("option[value='Contains']")
+            if (containsOption.length) {
+                $select.val("Contains")
+            }
+            else {
+                $select.val("EqualTo")
+            }
         }
     }
 
@@ -138,13 +145,13 @@
 
     private apply(): void {
         this.parent.searchParams = [];
-        this.$dialog?.find(".content").find("select").get().forEach(e => {
+        this.$dialog?.find(".content").find("select.search-operator").get().forEach(e => {
             const $select = $(e as HTMLSelectElement);
             const $row = $select.closest("tr");
             const $input1 = $row.find("input:eq(0)");
             const $input2 = $row.find("input:eq(1)");
-            const $unit1 = $row.find("select:eq(0)");
-            const $unit2 = $row.find("select:eq(1)");
+            const $unit1 = $row.find("select.size-unit:eq(0)");
+            const $unit2 = $row.find("select.size-unit:eq(1)");
             if ($select.val() != "" && ($input1.is(":visible") == false || $input1.val() != "")) {
                 const searchParam: SearchParam = {
                     searchOperator: $select.val() as string,

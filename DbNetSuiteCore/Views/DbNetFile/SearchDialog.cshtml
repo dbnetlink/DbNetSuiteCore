@@ -11,7 +11,7 @@
 
 <div id="@(Model.ComponentId)_search_dialog" class="search-dialog" title="Search">
     <div class="content">
-        <table>
+        <table class="criteria">
             @foreach (FileColumn fileColumn in Model.Columns.Where(c => c.Search))
             {
                 <tr columntype="@fileColumn.Type">
@@ -49,7 +49,7 @@
                     </select>
                 </td>
                 <td>
-                    Include Subfolders ?
+                    <span>&nbsp;Include&nbsp;Subfolders&nbsp;?</span>
                 </td>
                 <td>
                     <input type="checkbox" id="includeSubfolders"/>
@@ -145,7 +145,7 @@
 
     private HtmlString AddInputControl(FileColumn column, bool hidden = false)
     {
-        string type = "input";
+        string type = "text";
 
         List<string> classNames = new List<string>() { "input-control" };
         List<string> attributes = new List<string>();
@@ -181,8 +181,8 @@
 
     private string AddSizeUnits()
     {
-        string options = string.Join("", Enum.GetNames(typeof(FileSizeExtension.SizeUnits)).AsEnumerable<string>().Select(s => $"<option value=\"{s}\">{s}</option>").ToList());
-        string select = $"<select>{options}</select >";
+        string options = string.Join("", Enum.GetNames(typeof(SizeUnits)).AsEnumerable<string>().Select(s => $"<option value=\"{s}\">{s}</option>").ToList());
+        string select = $"<select class=\"size-unit\">{options}</select >";
         return select;
     }
 } 

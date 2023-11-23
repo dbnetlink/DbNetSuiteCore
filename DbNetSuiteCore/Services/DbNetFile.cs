@@ -75,6 +75,7 @@ namespace DbNetSuiteCore.Services
         public List<SearchParameter> SearchParams { get; set; } = new List<SearchParameter>();
         public bool IsSearchResults { get; set; }
         public bool IncludeSubfolders { get; set; }
+        public bool TreeView { get; set; }
 
         public new async Task<object> Process()
         {
@@ -115,6 +116,12 @@ namespace DbNetSuiteCore.Services
 
         private async Task Page(DbNetFileResponse response, bool inititialise = false)
         {
+            if (TreeView)
+            {
+                await BuildTreeView(response);
+                return;
+            }
+
             if (ValidateRequest(response) == false)
             {
                 return;
@@ -137,7 +144,7 @@ namespace DbNetSuiteCore.Services
                 await sqlDataTable.AddRows(fileInformation);
 
                 string filter = string.Empty;
-                Dictionary<string,object> filterParameters = new Dictionary<string,object>();
+                Dictionary<string, object> filterParameters = new Dictionary<string, object>();
 
                 if (SearchParams.Any() && IsSearchResults)
                 {
@@ -201,6 +208,21 @@ namespace DbNetSuiteCore.Services
             ReflectionHelper.CopyProperties(this, viewModel);
             response.Html = await HttpContext.RenderToStringAsync($"Views/DbNetFile/Page.cshtml", viewModel);
         }
+        private async Task BuildTreeView(DbNetFileResponse response)
+        {
+            FolderInformation folderInformation = new FolderInformation(Folder);
+            GetFolders(folderInformation, Folder);
+
+            var viewModel = new FolderViewModel
+            {
+                Folder = Folder,
+                RootFolder = RootFolder,
+                Folders = folderInformation
+            };
+
+            ReflectionHelper.CopyProperties(this, viewModel);
+            response.Html = await HttpContext.RenderToStringAsync($"Views/DbNetFile/TreeView.cshtml", viewModel);
+        }
 
         private List<FileInformation> GetFolderContents(string folder)
         {
@@ -222,6 +244,18 @@ namespace DbNetSuiteCore.Services
             }
 
             return fileInformation;
+        }
+
+        private void GetFolders(FolderInformation folder, string parentFolder)
+        {
+            IDirectoryContents folderContents = _fileProvider.GetDirectoryContents(parentFolder);
+
+            foreach (IFileInfo fileInfo in folderContents.Where(f => f.IsDirectory))
+            {
+                FolderInformation folderInformation = new FolderInformation(fileInfo, parentFolder);
+                folder.SubFolders.Add(folderInformation);
+                GetFolders(folderInformation, $"{parentFolder}/{folderInformation.Name}");
+            }
         }
 
         private List<string> SearchDialogFilter()
@@ -251,10 +285,16 @@ namespace DbNetSuiteCore.Services
 
         protected Dictionary<string, object> SearchDialogParameters()
         {
-            Dictionary<string,object> parameters  = new Dictionary<string,object>();
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
             foreach (SearchParameter searchParameter in SearchParams)
             {
                 FileColumn fileColumn = Columns.FirstOrDefault(c => c.Type == searchParameter.ColumnType);
+
+                if (fileColumn.Type == FileInfoProperties.Length)
+                {
+                    searchParameter.Value1 = ConvertSizeToBytes(searchParameter.Value1, searchParameter.Unit1);
+                    searchParameter.Value2 = ConvertSizeToBytes(searchParameter.Value2, searchParameter.Unit2);
+                }
 
                 string expression = searchParameter.SearchOperator.GetAttribute<FilterExpressionAttribute>()?.Expression ?? "{0}";
 
@@ -269,6 +309,15 @@ namespace DbNetSuiteCore.Services
             }
 
             return parameters;
+        }
+
+        private string ConvertSizeToBytes(string value, SizeUnits? unit)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return value;
+            }
+            return (Convert.ToDouble(value) * Math.Pow(1024, (int)unit)).ToString();
         }
 
         protected void AddSearchFilterParams(Dictionary<string, object> parameters, FileColumn fileColumn, SearchParameter searchParameter, string prefix, string value)
@@ -360,17 +409,29 @@ namespace DbNetSuiteCore.Services
                 Columns.Insert(0, new FileColumn(FileInfoProperties.Name));
             }
 
+            if (IsSearchResults)
+            {
+                if (Columns.Any(c => c.Type == FileInfoProperties.ParentFolder) == false)
+                {
+                    Columns.Insert(1, new FileColumn(FileInfoProperties.ParentFolder));
+                }
+            }
+
             foreach (var column in Columns)
             {
                 if (string.IsNullOrEmpty(column.Label))
                 {
-                    if (column.Type == FileInfoProperties.Length)
+                    switch (column.Type)
                     {
-                        column.Label = "Size";
-                    }
-                    else
-                    {
-                        column.Label = GenerateLabel(column.Type.ToString());
+                        case FileInfoProperties.Length:
+                            column.Label = "Size";
+                            break;
+                        case FileInfoProperties.ParentFolder:
+                            column.Label = "Folder";
+                            break;
+                        default:
+                            column.Label = GenerateLabel(column.Type.ToString());
+                            break;
                     }
                 }
             }

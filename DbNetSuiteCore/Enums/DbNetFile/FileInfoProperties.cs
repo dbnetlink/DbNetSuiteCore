@@ -10,6 +10,7 @@
         Created,
         LastAccessed,
         Extension,
-        Preview
+        Preview,
+        ParentFolder
     }
 }

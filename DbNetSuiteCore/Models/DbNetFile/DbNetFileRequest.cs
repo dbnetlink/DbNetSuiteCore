@@ -25,6 +25,6 @@ namespace DbNetSuiteCore.Models.DbNetFile
         public string SearchFilterJoin { get; set; } = "and";
         public bool IsSearchResults { get; set; }
         public bool IncludeSubfolders { get; set; }
-
+        public bool TreeView { get; set; }
     }
 }

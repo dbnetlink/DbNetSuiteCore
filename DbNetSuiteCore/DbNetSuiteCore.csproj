@@ -134,6 +134,7 @@
     <None Remove="Views\DbNetFile\Page.cshtml" />
     <None Remove="Views\DbNetFile\SearchDialog.cshtml" />
     <None Remove="Views\DbNetFile\Toolbar.cshtml" />
+    <None Remove="Views\DbNetFile\TreeView.cshtml" />
     <None Remove="Views\DbNetGrid\DataTable.cshtml" />
     <None Remove="Views\DbNetGrid\Grid.cshtml" />
     <None Remove="Views\DbNetGrid\HtmlExport.cshtml" />
@@ -228,6 +229,10 @@
     <EmbeddedResource Include="Resources\TypeScript\DbNetEdit.ts" />
     <EmbeddedResource Include="Resources\TypeScript\DbNetCombo.ts" />
     <EmbeddedResource Include="Resources\TypeScript\DbNetGridEdit.ts" />
+    <EmbeddedResource Include="Views\DbNetFile\TreeView.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\DbNetFile\Page.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

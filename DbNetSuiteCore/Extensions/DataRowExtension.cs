@@ -94,5 +94,10 @@ namespace DbNetSuiteCore.Extensions
         {
             return dataRow[FileInfoProperties.Name.ToString()].ToString();
         }
+
+        public static string ParentFolder(this DataRowView dataRow)
+        {
+            return dataRow[FileInfoProperties.ParentFolder.ToString()].ToString();
+        }
     }
 }

@@ -22,4 +22,5 @@
     orderByDirection: string;
     isSearchResults: boolean;
     includeSubfolders: boolean;
+    treeView: boolean;
 }

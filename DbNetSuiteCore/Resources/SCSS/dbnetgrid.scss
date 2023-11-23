@@ -272,6 +272,11 @@ table.lookup-dialog-toolbar,
         }
     }
 
+    span {
+        font-family: var(--main-font-family);
+        font-size: var(--main-font-size);
+    }
+
     td {
         vertical-align: middle;
         border: 0px !important;
@@ -532,7 +537,7 @@ table.lookup-dialog-toolbar,
         vertical-align: middle;
     }
 
-    input {
+    input[type="text"] {
         border-radius: 2px;
         border: 1px solid silver;
         font-family: var(--main-font-family);

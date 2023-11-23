@@ -1,14 +1,10 @@
-﻿using System;
+﻿using DbNetSuiteCore.Enums.DbNetFile;
+using System;
 
 namespace DbNetSuiteCore.Extensions
 {
     public static class FileSizeExtension
     {
-        public enum SizeUnits
-        {
-            Byte, KB, MB, GB, TB, PB, EB, ZB, YB
-        }
-
         public static string ToFileSizeUnit(this Int64 value)
         {
             int unit = 1;

@@ -35,6 +35,7 @@ declare class DbNetFile extends DbNetSuite {
     searchResultsDialogId: string;
     isSearchResults: boolean;
     includeSubfolders: boolean;
+    treeView: boolean;
     constructor(id: string);
     initialize(): void;
     setColumnTypes(...types: string[]): void;

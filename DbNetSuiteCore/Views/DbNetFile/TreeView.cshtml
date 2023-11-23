@@ -1,0 +1,50 @@
+﻿@using DbNetSuiteCore.Enums.DbNetFile;
+@using DbNetSuiteCore.Helpers;
+@using DbNetSuiteCore.Models.DbNetFile;
+@using DbNetSuiteCore.ViewModels.DbNetCombo;
+@using System.Data
+@using DbNetSuiteCore.ViewModels.DbNetFile;
+@using Microsoft.AspNetCore.Html;
+@using System.Text.Json;
+@using DbNetSuiteCore.Extensions;
+@using DbNetSuiteCore.Constants.DbNetFile;
+
+@model FolderViewModel
+@{
+    List<string> unorderedList = new List<string>();
+}
+
+<ul class="dbnetfile-treeview tree-padding tree-vertical-lines tree-horizontal-lines tree-summaries tree-markers tree-button">
+    <li><details open><summary>@Model.Folders.Name</summary>
+    @{
+        BuildTreeView(Model.Folders, unorderedList);
+        @(new HtmlString(string.Join("",unorderedList)));
+    }
+    </details></li>
+</ul>
+@functions
+{
+    public void BuildTreeView(FolderInformation folder, List<string> unorderedList)
+    {
+        unorderedList.Add("<ul>");
+        foreach (FolderInformation folderInfo in folder.SubFolders)
+        {
+            if (folderInfo.SubFolders.Any())
+            {
+                unorderedList.Add($"<li><details><summary>{FolderLink(folderInfo.ParentFolder, folderInfo.Name)}</summary>");
+                BuildTreeView(folderInfo, unorderedList);
+                unorderedList.Add($"</details></li>");
+            }
+            else
+            {
+                unorderedList.Add($"<li>{FolderLink(folderInfo.ParentFolder, folderInfo.Name)}</li>");
+            }
+        }
+        unorderedList.Add("</ul>");
+    }
+
+    public string FolderLink(string parentFolder, string name)
+    {
+        return $"<a class=\"folder-link\" data-folder=\"{EncodingHelper.Encode(parentFolder)}\" href=\"#\">{name}</a>";
+    }
+}
