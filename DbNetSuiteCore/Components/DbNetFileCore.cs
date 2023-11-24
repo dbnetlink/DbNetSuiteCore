@@ -16,7 +16,7 @@ namespace DbNetSuiteCore.Components
         internal bool? IsSearchResults => _searchResults;
         internal string SearchResultsDialogId => _searchResultsDialogId;
 
-        public DbNetFileCore(string folder, string id = null) : base(id)
+        public DbNetFileCore(string folder = "", string id = null) : base(id)
         {
             _folder = folder;
             SearchResultsControl = new DbNetFileCore(folder, true);
@@ -94,6 +94,7 @@ namespace DbNetSuiteCore.Components
         {
             return new DbNetFileCoreColumn(columnTypes, _columnProperties);
         }
+        private bool IncludeSearchResultsControl => ((TreeView ?? false) == false) && ((Search ?? false) == true);
         /// <summary>
         /// Search results control
         /// </summary>
@@ -195,7 +196,7 @@ folder = '{EncodingHelper.Encode(_folder)}';
 
         private void AddSearchResultsControl()
         {
-            if (Search ?? true == false)
+            if (IncludeSearchResultsControl)
             {
                 _searchResultsDialogId = null;
                 SearchResultsControl = null;

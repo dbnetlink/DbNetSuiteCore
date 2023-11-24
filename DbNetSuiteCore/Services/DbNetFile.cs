@@ -132,27 +132,37 @@ namespace DbNetSuiteCore.Services
                 response.Toolbar = await Toolbar();
             }
             SqlDataTable sqlDataTable = new SqlDataTable();
-            DataTable dataTable;
+            DataTable dataTable = new DataTable();
 
             List<FileInformation> fileInformation = new List<FileInformation>();
 
-            using (sqlDataTable)
+            if (string.IsNullOrEmpty(Folder))
             {
-                List<FileInformation> folderFileInformation = GetFolderContents(Folder);
-                fileInformation.AddRange(folderFileInformation);
-
-                await sqlDataTable.AddRows(fileInformation);
-
-                string filter = string.Empty;
-                Dictionary<string, object> filterParameters = new Dictionary<string, object>();
-
-                if (SearchParams.Any() && IsSearchResults)
+                foreach (FileColumn column in Columns)
                 {
-                    filter = string.Join($" {SearchFilterJoin} ", SearchDialogFilter());
-                    filterParameters = SearchDialogParameters();
+                    dataTable.Columns.Add(column.Name);
                 }
+            }
+            else
+            {
+                using (sqlDataTable)
+                {
+                    List<FileInformation> folderFileInformation = GetFolderContents(Folder);
+                    fileInformation.AddRange(folderFileInformation);
 
-                dataTable = await sqlDataTable.Query(filter, filterParameters);
+                    await sqlDataTable.AddRows(fileInformation);
+
+                    string filter = string.Empty;
+                    Dictionary<string, object> filterParameters = new Dictionary<string, object>();
+
+                    if (SearchParams.Any() && IsSearchResults)
+                    {
+                        filter = string.Join($" {SearchFilterJoin} ", SearchDialogFilter());
+                        filterParameters = SearchDialogParameters();
+                    }
+
+                    dataTable = await sqlDataTable.Query(filter, filterParameters);
+                }
             }
 
             DataView dataView = new DataView(dataTable);
@@ -400,7 +410,8 @@ namespace DbNetSuiteCore.Services
                     new FileColumn(FileInfoProperties.Created),
                     new FileColumn(FileInfoProperties.LastModified),
                     new FileColumn(FileInfoProperties.LastAccessed),
-                    new FileColumn(FileInfoProperties.Length)
+                    new FileColumn(FileInfoProperties.Length),   
+                    new FileColumn(FileInfoProperties.IsDirectory)
                 };
             }
 

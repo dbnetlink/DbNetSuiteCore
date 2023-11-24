@@ -44,6 +44,9 @@ declare class DbNetFile extends DbNetSuite {
     getPage(callback?: DbNetFileResponseCallback): void;
     private configureToolbar;
     private configurePage;
+    private configureTreeView;
+    private selectTreeFolder;
+    private openCloseFolder;
     private selectFolder;
     private loadPreview;
     private setPreviewHeight;

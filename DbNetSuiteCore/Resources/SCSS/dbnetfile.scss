@@ -143,79 +143,88 @@ table.dbnetfile-table {
     }
 }
 
-.tree-padding {
+ul.dbnetfile-treeview {
     --spacing: 1.5rem;
     --radius: 10px;
-    padding-left: 1rem;
-}
-
-.tree-padding li {
-    display: block;
-    position: relative;
-    padding-left: calc(2 * var(--spacing) - var(--radius) - 2px);
-}
-
-.tree-padding ul {
-    margin-left: calc(var(--radius) - var(--spacing));
     padding-left: 0;
-}
+    border: 1pt solid gainsboro;
+    padding:5px 0px 10px 0px;
 
-.tree-vertical-lines ul li {
-    border-left: 2px solid var(--dark-grey);
-}
+    li {
+        display: block;
+        position: relative;
+        padding-left: calc(2 * var(--spacing) - var(--radius) - 2px);
+    }
 
-.tree-vertical-lines ul li:last-child {
-    border-color: transparent;
-}
+    ul {
+        margin-left: calc(var(--radius) - var(--spacing));
+        padding: 0px 10px 0px 0px;
+    }
 
-.tree-horizontal-lines ul li::before {
-    content: '';
-    display: block;
-    position: absolute;
-    top: calc(var(--spacing) / -2);
-    left: -2px;
-    width: calc(var(--spacing) + 2px);
-    height: calc(var(--spacing) + 1px);
-    border: solid var(--dark-grey);
-    border-width: 0 0 2px 2px;
-}
+    ul.hidden {
+        display: none;
+    }
 
-.tree-summaries summary {
-    display: block;
-    cursor: pointer;
-}
+    ul li {
+        border-left: 2px solid #ddd;
+    }
 
-.tree-summaries summary::marker,
-.tree-summaries summary::-webkit-details-marker {
-    display: none;
-}
+    ul li:last-child {
+        border-color: transparent;
+    }
 
-.tree-summaries summary:focus {
-    outline: none;
-}
+    ul li::before {
+        content: '';
+        display: block;
+        position: absolute;
+        top: calc(var(--spacing) / -2);
+        left: -2px;
+        width: calc(var(--spacing) + 2px);
+        height: calc(var(--spacing) + 1px);
+        border: solid #ddd;
+        border-width: 0 0 2px 2px;
+    }
 
-.tree-summaries summary:focus-visible {
-    outline: 1px dotted #000;
-}
+    li {
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
 
-.tree-markers li::after,
-.tree-markers summary::before {
-    content: '';
-    display: block;
-    position: absolute;
-    top: calc(var(--spacing) / 2 - var(--radius));
-    left: calc(var(--spacing) - var(--radius) - 1px);
-    width: calc(2 * var(--radius));
-    height: calc(2 * var(--radius));
-    border-radius: 50%;
-    background: var(--dark-grey);
-}
+    span.icon {
+        content: '';
+        display: block;
+        position: absolute;
+        top: calc(var(--spacing) / 2 - var(--radius));
+        left: calc(var(--spacing) - var(--radius) - 1px);
+        width: calc(2 * var(--radius));
+        height: calc(2 * var(--radius));
+        border-radius: 50%;
+        background: #ddd;
+        z-index: 1;
+        background-image: svgFileIconUrl("folder","16");
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-color: #ddd;
 
-.tree-buttons summary::before {
-    z-index: 1;
-    background: var(--accent) url('expand-collapse.svg') 0 0;
-}
+        &.open {
+            background-image: svgFileIconUrl("openfolder","16");
+        }
 
-.tree-buttons details[open] > summary::before {
-    background-position: calc(-2 * var(--radius)) 0;
+        &.subfolders {
+            cursor: pointer;
+        }
+    }
+
+    a, li {
+        font-family: var(--main-font-family);
+        font-size: var(--main-font-size);
+    }
+
+    span {
+    }
+
+    a, span.root {
+        display:inline-block;
+        padding-top:3px;
+    }
 }

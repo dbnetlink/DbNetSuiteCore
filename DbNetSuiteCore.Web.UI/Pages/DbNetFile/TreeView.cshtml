@@ -3,7 +3,10 @@
 @using DbNetSuiteCore.Enums;
 @using DbNetSuiteCore.Enums.DbNetFile;
 @{
+    DbNetFileCore filesView = new DbNetFileCore();
+    //filesView.FilesOnly = true;
     DbNetFileCore treeView = new DbNetFileCore("/dbnetfile/documents");
     treeView.TreeView = true;
+    treeView.AddLinkedControl(filesView);
     @treeView.Render()
 }

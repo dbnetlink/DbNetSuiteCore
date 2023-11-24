@@ -158,6 +158,37 @@ class DbNetFile extends DbNetSuite {
         this.fireEvent("onPageLoaded", {});
     }
 
+    private configureTreeView(response: DbNetFileResponse) {
+        this.folderPanel?.html(response.html);
+        this.folderPanel?.find("span.subfolders").on("click", (e) => this.openCloseFolder(e));
+        this.folderPanel?.find("a.folder-link").on("click", (e) => this.selectTreeFolder(e));
+        this.fireEvent("onPageLoaded", {});
+    }
+
+    private selectTreeFolder(event: JQuery.ClickEvent<HTMLElement>) {
+        event.stopPropagation();
+        const $a = $(event.currentTarget);
+        if (this.linkedControls.length == 1) {
+            const linkedControl = (this.linkedControls[0] as DbNetFile);
+            linkedControl.folder = $a.data("folder");
+            linkedControl.reload();
+        }
+    }
+
+    private openCloseFolder(event: JQuery.ClickEvent<HTMLElement>) {
+        event.stopPropagation();
+        const $span = $(event.currentTarget);
+        const $li = $span.parent();
+ 
+        if ($li.hasClass("root")) {
+            return;
+        }
+        const $ul = $li.children('ul').first();
+
+        $span.toggleClass("open")
+        $ul.toggleClass("hidden");
+    }
+
     private selectFolder(event: JQuery.ClickEvent<HTMLElement>) {
         const $anchor = $(event.currentTarget);
         if (this.isSearchResults) {
@@ -303,7 +334,12 @@ class DbNetFile extends DbNetSuite {
                     callback(response);
                 }
                 else if (response.error == false) {
-                    this.configurePage(response);
+                    if (this.treeView) {
+                        this.configureTreeView(response);
+                    }
+                    else {
+                        this.configurePage(response);
+                    }
                 }
             })
     }

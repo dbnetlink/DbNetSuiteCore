@@ -134,6 +134,33 @@ class DbNetFile extends DbNetSuite {
         (_h = this.folderPanel) === null || _h === void 0 ? void 0 : _h.find("td[column-type='Preview']").get().forEach(td => this.loadPreview($(td)));
         this.fireEvent("onPageLoaded", {});
     }
+    configureTreeView(response) {
+        var _a, _b, _c;
+        (_a = this.folderPanel) === null || _a === void 0 ? void 0 : _a.html(response.html);
+        (_b = this.folderPanel) === null || _b === void 0 ? void 0 : _b.find("span.subfolders").on("click", (e) => this.openCloseFolder(e));
+        (_c = this.folderPanel) === null || _c === void 0 ? void 0 : _c.find("a.folder-link").on("click", (e) => this.selectTreeFolder(e));
+        this.fireEvent("onPageLoaded", {});
+    }
+    selectTreeFolder(event) {
+        event.stopPropagation();
+        const $a = $(event.currentTarget);
+        if (this.linkedControls.length == 1) {
+            const linkedControl = this.linkedControls[0];
+            linkedControl.folder = $a.data("folder");
+            linkedControl.reload();
+        }
+    }
+    openCloseFolder(event) {
+        event.stopPropagation();
+        const $span = $(event.currentTarget);
+        const $li = $span.parent();
+        if ($li.hasClass("root")) {
+            return;
+        }
+        const $ul = $li.children('ul').first();
+        $span.toggleClass("open");
+        $ul.toggleClass("hidden");
+    }
     selectFolder(event) {
         const $anchor = $(event.currentTarget);
         if (this.isSearchResults) {
@@ -260,7 +287,12 @@ class DbNetFile extends DbNetSuite {
                 callback(response);
             }
             else if (response.error == false) {
-                this.configurePage(response);
+                if (this.treeView) {
+                    this.configureTreeView(response);
+                }
+                else {
+                    this.configurePage(response);
+                }
             }
         });
     }

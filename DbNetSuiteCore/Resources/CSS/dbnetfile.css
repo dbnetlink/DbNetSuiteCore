@@ -114,32 +114,32 @@ table.dbnetfile-table div.current-path span.folder-name.last {
   font-weight: bold;
 }
 
-.tree-padding {
+ul.dbnetfile-treeview {
   --spacing: 1.5rem;
   --radius: 10px;
-  padding-left: 1rem;
+  padding-left: 0;
+  border: 1pt solid gainsboro;
+  padding: 5px 0px 10px 0px;
 }
-
-.tree-padding li {
+ul.dbnetfile-treeview li {
   display: block;
   position: relative;
   padding-left: calc(2 * var(--spacing) - var(--radius) - 2px);
 }
-
-.tree-padding ul {
+ul.dbnetfile-treeview ul {
   margin-left: calc(var(--radius) - var(--spacing));
-  padding-left: 0;
+  padding: 0px 10px 0px 0px;
 }
-
-.tree-vertical-lines ul li {
-  border-left: 2px solid var(--dark-grey);
+ul.dbnetfile-treeview ul.hidden {
+  display: none;
 }
-
-.tree-vertical-lines ul li:last-child {
+ul.dbnetfile-treeview ul li {
+  border-left: 2px solid #ddd;
+}
+ul.dbnetfile-treeview ul li:last-child {
   border-color: transparent;
 }
-
-.tree-horizontal-lines ul li::before {
+ul.dbnetfile-treeview ul li::before {
   content: "";
   display: block;
   position: absolute;
@@ -147,30 +147,14 @@ table.dbnetfile-table div.current-path span.folder-name.last {
   left: -2px;
   width: calc(var(--spacing) + 2px);
   height: calc(var(--spacing) + 1px);
-  border: solid var(--dark-grey);
+  border: solid #ddd;
   border-width: 0 0 2px 2px;
 }
-
-.tree-summaries summary {
-  display: block;
-  cursor: pointer;
+ul.dbnetfile-treeview li {
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
-
-.tree-summaries summary::marker,
-.tree-summaries summary::-webkit-details-marker {
-  display: none;
-}
-
-.tree-summaries summary:focus {
-  outline: none;
-}
-
-.tree-summaries summary:focus-visible {
-  outline: 1px dotted #000;
-}
-
-.tree-markers li::after,
-.tree-markers summary::before {
+ul.dbnetfile-treeview span.icon {
   content: "";
   display: block;
   position: absolute;
@@ -179,14 +163,24 @@ table.dbnetfile-table div.current-path span.folder-name.last {
   width: calc(2 * var(--radius));
   height: calc(2 * var(--radius));
   border-radius: 50%;
-  background: var(--dark-grey);
-}
-
-.tree-buttons summary::before {
+  background: #ddd;
   z-index: 1;
-  background: var(--accent) url("../SCSS/expand-collapse.svg") 0 0;
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='16' width='16' viewBox='0 -960 960 960' fill='SteelBlue'><path d='M154-128q-43.725 0-74.862-31.137Q48-190.275 48-234v-492q0-43.725 31.138-74.862Q110.275-832 154-832h220l106 106h326q43.725 0 74.862 31.138Q912-663.725 912-620v386q0 43.725-31.138 74.863Q849.725-128 806-128H154Zm0-106h652v-386H436L330-726H154v492Zm0 0v-492 492Z'/></svg>");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-color: #ddd;
 }
-
-.tree-buttons details[open] > summary::before {
-  background-position: calc(-2 * var(--radius)) 0;
+ul.dbnetfile-treeview span.icon.open {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='16' width='16' viewBox='0 -960 960 960' fill='SteelBlue'><path d='M154-128q-43.725 0-74.862-31.137Q48-190.275 48-234v-492q0-43.725 31.138-74.862Q110.275-832 154-832h220l106 106h326q43.725 0 74.862 31.138Q912-663.725 912-620H436L330-726H154v479l85-293h711l-92 315q-15 53-46.5 75T719-128H154Zm107-106h489l58-200H319l-58 200Zm0 0 58-200-58 200ZM154-620v-106 106Z'/></svg>");
+}
+ul.dbnetfile-treeview span.icon.subfolders {
+  cursor: pointer;
+}
+ul.dbnetfile-treeview a, ul.dbnetfile-treeview li {
+  font-family: var(--main-font-family);
+  font-size: var(--main-font-size);
+}
+ul.dbnetfile-treeview a, ul.dbnetfile-treeview span.root {
+  display: inline-block;
+  padding-top: 3px;
 }

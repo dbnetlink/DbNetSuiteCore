@@ -14,37 +14,38 @@
     List<string> unorderedList = new List<string>();
 }
 
-<ul class="dbnetfile-treeview tree-padding tree-vertical-lines tree-horizontal-lines tree-summaries tree-markers tree-button">
-    <li><details open><summary>@Model.Folders.Name</summary>
+<ul class="dbnetfile-treeview">
+    <li class="root">
+        <span class="icon"></span><span class="root">@Model.Folders.Name</span>
     @{
         BuildTreeView(Model.Folders, unorderedList);
         @(new HtmlString(string.Join("",unorderedList)));
     }
-    </details></li>
+    </li>
 </ul>
 @functions
 {
     public void BuildTreeView(FolderInformation folder, List<string> unorderedList)
     {
-        unorderedList.Add("<ul>");
+        unorderedList.Add($"<ul class=\"{(unorderedList.Any() ? "hidden" : string.Empty)}\">");
         foreach (FolderInformation folderInfo in folder.SubFolders)
         {
             if (folderInfo.SubFolders.Any())
             {
-                unorderedList.Add($"<li><details><summary>{FolderLink(folderInfo.ParentFolder, folderInfo.Name)}</summary>");
+                unorderedList.Add($"<li>{FolderLink(folderInfo.ParentFolder, folderInfo.Name, "subfolders")}");
                 BuildTreeView(folderInfo, unorderedList);
-                unorderedList.Add($"</details></li>");
+                unorderedList.Add($"</li>");
             }
             else
             {
-                unorderedList.Add($"<li>{FolderLink(folderInfo.ParentFolder, folderInfo.Name)}</li>");
+                unorderedList.Add($"<li>{FolderLink(folderInfo.ParentFolder, folderInfo.Name, "no-subfolders")}</li>");
             }
         }
         unorderedList.Add("</ul>");
     }
 
-    public string FolderLink(string parentFolder, string name)
+    public string FolderLink(string parentFolder, string name, string className)
     {
-        return $"<a class=\"folder-link\" data-folder=\"{EncodingHelper.Encode(parentFolder)}\" href=\"#\">{name}</a>";
+        return $"<span class=\"icon {className}\"></span><a class=\"folder-link\" data-folder=\"{EncodingHelper.Encode(parentFolder)}\" href=\"#\">{name}</a>";
     }
 }
