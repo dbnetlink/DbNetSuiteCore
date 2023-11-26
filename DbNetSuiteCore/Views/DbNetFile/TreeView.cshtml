@@ -46,6 +46,6 @@
 
     public string FolderLink(string parentFolder, string name, string className)
     {
-        return $"<span class=\"icon {className}\"></span><a class=\"folder-link\" data-folder=\"{EncodingHelper.Encode(parentFolder)}\" href=\"#\">{name}</a>";
+        return $"<span class=\"icon {className}\"></span><a class=\"folder-link\" data-folder=\"{EncodingHelper.Encode($"{parentFolder}/{name}")}\" href=\"#\">{name}</a>";
     }
 }

@@ -316,6 +316,9 @@ class DbNetSuite {
         if (this instanceof DbNetEdit) {
             (this as DbNetEdit).configureLinkedControl(control, pk);
         }
+        if (this instanceof DbNetFile) {
+            (this as DbNetFile).configureLinkedControl(control as DbNetFile, id);
+        }
     }
 
     protected _getRequest(): DbNetSuiteRequest {

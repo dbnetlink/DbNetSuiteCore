@@ -23,4 +23,5 @@
     isSearchResults: boolean;
     includeSubfolders: boolean;
     treeView: boolean;
+    filesOnly: boolean;
 }

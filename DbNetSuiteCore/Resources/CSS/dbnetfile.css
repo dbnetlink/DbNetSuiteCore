@@ -120,6 +120,7 @@ ul.dbnetfile-treeview {
   padding-left: 0;
   border: 1pt solid gainsboro;
   padding: 5px 0px 10px 0px;
+  margin-top: 2px;
 }
 ul.dbnetfile-treeview li {
   display: block;

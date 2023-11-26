@@ -28,6 +28,7 @@ class DbNetFile extends DbNetSuite {
         this.isSearchResults = false;
         this.includeSubfolders = false;
         this.treeView = false;
+        this.filesOnly = false;
         this.columns = [];
     }
     initialize() {
@@ -49,6 +50,7 @@ class DbNetFile extends DbNetSuite {
                 //this.searchResultsControl.initialize();
             }
         });
+        this.configureLinkedControls(this.folder);
     }
     setColumnTypes(...types) {
         types.forEach(type => {
@@ -87,7 +89,6 @@ class DbNetFile extends DbNetSuite {
         if (response.totalRows == 0) {
             $navigationElements.hide();
             $noRecordsCell.show();
-            this.configureLinkedControls(null);
         }
         else {
             $navigationElements.show();
@@ -144,11 +145,14 @@ class DbNetFile extends DbNetSuite {
     selectTreeFolder(event) {
         event.stopPropagation();
         const $a = $(event.currentTarget);
-        if (this.linkedControls.length == 1) {
-            const linkedControl = this.linkedControls[0];
-            linkedControl.folder = $a.data("folder");
-            linkedControl.reload();
+        this.configureLinkedControls($a.data("folder"));
+    }
+    configureLinkedControl(control, folder) {
+        if (control.isSearchResults) {
+            return;
         }
+        control.folder = folder.toString();
+        control.reload();
     }
     openCloseFolder(event) {
         event.stopPropagation();
@@ -388,6 +392,7 @@ class DbNetFile extends DbNetSuite {
         request.isSearchResults = this.isSearchResults;
         request.includeSubfolders = this.includeSubfolders;
         request.treeView = this.treeView;
+        request.filesOnly = this.filesOnly;
         return request;
     }
 }

@@ -20,6 +20,7 @@ using System.Globalization;
 using System.Text.Json.Serialization;
 using DbNetSuiteCore.Constants;
 using DbNetSuiteCore.Utilities;
+using System.Reflection.Metadata.Ecma335;
 
 namespace DbNetSuiteCore.Services
 {
@@ -76,6 +77,7 @@ namespace DbNetSuiteCore.Services
         public bool IsSearchResults { get; set; }
         public bool IncludeSubfolders { get; set; }
         public bool TreeView { get; set; }
+        public bool FilesOnly { get; set; }
 
         public new async Task<object> Process()
         {
@@ -150,18 +152,28 @@ namespace DbNetSuiteCore.Services
                     List<FileInformation> folderFileInformation = GetFolderContents(Folder);
                     fileInformation.AddRange(folderFileInformation);
 
-                    await sqlDataTable.AddRows(fileInformation);
-
-                    string filter = string.Empty;
-                    Dictionary<string, object> filterParameters = new Dictionary<string, object>();
-
-                    if (SearchParams.Any() && IsSearchResults)
+                    if (fileInformation.Any())
                     {
-                        filter = string.Join($" {SearchFilterJoin} ", SearchDialogFilter());
-                        filterParameters = SearchDialogParameters();
-                    }
+                        await sqlDataTable.AddRows(fileInformation);
 
-                    dataTable = await sqlDataTable.Query(filter, filterParameters);
+                        string filter = string.Empty;
+                        Dictionary<string, object> filterParameters = new Dictionary<string, object>();
+
+                        if (SearchParams.Any() && IsSearchResults)
+                        {
+                            filter = string.Join($" {SearchFilterJoin} ", SearchDialogFilter());
+                            filterParameters = SearchDialogParameters();
+                        }
+
+                        dataTable = await sqlDataTable.Query(filter, filterParameters);
+                    }
+                    else
+                    {
+                        foreach (FileColumn column in Columns)
+                        {
+                            dataTable.Columns.Add(column.Name);
+                        }
+                    }
                 }
             }
 
@@ -242,7 +254,11 @@ namespace DbNetSuiteCore.Services
             foreach (IFileInfo fileInfo in folderContents)
             {
                 FileInformation f = new FileInformation(fileInfo, folder);
-                fileInformation.Add(f);
+
+                if (FilesOnly == false || f.IsDirectory == false)
+                {
+                    fileInformation.Add(f);
+                }
 
                 if (IncludeSubfolders)
                 {

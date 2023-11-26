@@ -2,10 +2,14 @@
 @using DbNetSuiteCore.Components;
 @using DbNetSuiteCore.Enums;
 @using DbNetSuiteCore.Enums.DbNetFile;
+<div style="display:flex;align-items:flex-start;">
+    <div id="treeview" style="padding:10px"></div>
+    <div id="files" style="padding:10px"></div>
+</div>
 @{
-    DbNetFileCore filesView = new DbNetFileCore();
-    //filesView.FilesOnly = true;
-    DbNetFileCore treeView = new DbNetFileCore("/dbnetfile/documents");
+    DbNetFileCore filesView = new DbNetFileCore("","files");
+    filesView.FilesOnly = true;
+    DbNetFileCore treeView = new DbNetFileCore("/dbnetfile/documents", "treeview");
     treeView.TreeView = true;
     treeView.AddLinkedControl(filesView);
     @treeView.Render()

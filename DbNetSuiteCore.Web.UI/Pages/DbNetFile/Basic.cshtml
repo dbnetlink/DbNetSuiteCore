@@ -2,7 +2,7 @@
 @using DbNetSuiteCore.Components;
 @using DbNetSuiteCore.Enums;
 @{
-    DbNetFileCore folderView = new DbNetFileCore();
+    DbNetFileCore folderView = new DbNetFileCore("/dbnetfile/documents");
     folderView.Caption = "This is an example caption";
     @folderView.Render()
 }

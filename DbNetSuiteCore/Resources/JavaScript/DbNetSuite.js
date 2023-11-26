@@ -248,6 +248,9 @@ class DbNetSuite {
         if (this instanceof DbNetEdit) {
             this.configureLinkedControl(control, pk);
         }
+        if (this instanceof DbNetFile) {
+            this.configureLinkedControl(control, id);
+        }
     }
     _getRequest() {
         const request = {

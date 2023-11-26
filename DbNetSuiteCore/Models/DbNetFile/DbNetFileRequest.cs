@@ -26,5 +26,6 @@ namespace DbNetSuiteCore.Models.DbNetFile
         public bool IsSearchResults { get; set; }
         public bool IncludeSubfolders { get; set; }
         public bool TreeView { get; set; }
+        public bool FilesOnly { get; set; }
     }
 }

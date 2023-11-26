@@ -74,6 +74,10 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public bool? TreeView { get; set; }
         /// <summary>
+        /// Only files are selected. Folders are ignored.
+        /// </summary>
+        public bool? FilesOnly { get; set; }
+        /// <summary>
         /// Binds an event to a named client-side JavaScript function
         /// </summary>
         public void Bind(EventType eventType, string functionName)
@@ -94,7 +98,7 @@ namespace DbNetSuiteCore.Components
         {
             return new DbNetFileCoreColumn(columnTypes, _columnProperties);
         }
-        private bool IncludeSearchResultsControl => ((TreeView ?? false) == false) && ((Search ?? false) == true);
+        private bool IncludeSearchResultsControl => ((TreeView ?? false) == false) && ((Search ?? true) == true);
         /// <summary>
         /// Search results control
         /// </summary>
@@ -179,6 +183,7 @@ folder = '{EncodingHelper.Encode(_folder)}';
             AddProperty(IsSearchResults, $"{nameof(IsSearchResults)}", properties);
             AddProperty(SearchResultsDialogId, $"{nameof(SearchResultsDialogId)}", properties);
             AddProperty(TreeView, $"{nameof(TreeView)}", properties);
+            AddProperty(FilesOnly, $"{nameof(FilesOnly)}", properties);
 
             properties.Add($"datePickerOptions = {DatePickerOptions()};");
 
@@ -196,7 +201,7 @@ folder = '{EncodingHelper.Encode(_folder)}';
 
         private void AddSearchResultsControl()
         {
-            if (IncludeSearchResultsControl)
+            if (IncludeSearchResultsControl == false)
             {
                 _searchResultsDialogId = null;
                 SearchResultsControl = null;

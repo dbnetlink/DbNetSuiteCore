@@ -36,6 +36,7 @@ declare class DbNetFile extends DbNetSuite {
     isSearchResults: boolean;
     includeSubfolders: boolean;
     treeView: boolean;
+    filesOnly: boolean;
     constructor(id: string);
     initialize(): void;
     setColumnTypes(...types: string[]): void;
@@ -46,6 +47,7 @@ declare class DbNetFile extends DbNetSuite {
     private configurePage;
     private configureTreeView;
     private selectTreeFolder;
+    configureLinkedControl(control: DbNetFile, folder: object): void;
     private openCloseFolder;
     private selectFolder;
     private loadPreview;
