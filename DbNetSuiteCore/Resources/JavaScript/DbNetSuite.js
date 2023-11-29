@@ -312,6 +312,28 @@ class DbNetSuite {
             file.reload();
         }
     }
+    copyTableToClipboard(table) {
+        var _a, _b;
+        try {
+            const range = document.createRange();
+            range.selectNode(table);
+            (_a = window.getSelection()) === null || _a === void 0 ? void 0 : _a.addRange(range);
+            document.execCommand('copy');
+            (_b = window.getSelection()) === null || _b === void 0 ? void 0 : _b.removeRange(range);
+        }
+        catch (e) {
+            try {
+                const content = table.innerHTML;
+                const blobInput = new Blob([content], { type: 'text/html' });
+                const clipboardItemInput = new ClipboardItem({ 'text/html': blobInput });
+                navigator.clipboard.write([clipboardItemInput]);
+            }
+            catch (e) {
+                this.error("Copy failed");
+                return;
+            }
+        }
+    }
 }
 DbNetSuite.DBNull = "DBNull";
 document.addEventListener("DOMContentLoaded", function () {

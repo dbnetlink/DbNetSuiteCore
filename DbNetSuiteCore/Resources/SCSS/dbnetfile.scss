@@ -106,6 +106,10 @@ table.dbnetfile-table {
         &.pdf {
             background-image: svgFileIconUrl("pdf","16");
         }
+
+        &.html {
+            background-image: svgFileIconUrl("html","16");
+        }
     }
     /*
     tr.selected {

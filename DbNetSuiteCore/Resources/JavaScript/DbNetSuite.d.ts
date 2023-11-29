@@ -82,4 +82,5 @@ declare class DbNetSuite {
     private openImageViewer;
     protected quickSearchKeyPress(event: JQuery.TriggeredEvent): void;
     private runQuickSearch;
+    protected copyTableToClipboard(table: HTMLTableElement): void;
 }

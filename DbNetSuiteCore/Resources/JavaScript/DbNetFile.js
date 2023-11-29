@@ -322,10 +322,10 @@ class DbNetFile extends DbNetSuite {
         event.preventDefault();
         switch (id) {
             case this.controlElementId("ExportBtn"):
-                //        this.download();
+                this.download();
                 break;
             case this.controlElementId("CopyBtn"):
-                //       this.copyGrid();
+                this.copyGrid();
                 break;
             case this.controlElementId("SearchBtn"):
                 this.openSearchDialog(this.getRequest());
@@ -367,6 +367,45 @@ class DbNetFile extends DbNetSuite {
             this.searchDialog = new FileSearchDialog(`${this.id}_search_dialog`, this);
             this.searchDialog.open();
         });
+    }
+    table() {
+        var _a;
+        return (_a = this.folderPanel) === null || _a === void 0 ? void 0 : _a.find('table.dbnetfile-table');
+    }
+    download() {
+        switch (this.controlElement("ExportSelect").val()) {
+            case "html":
+                this.htmlExport();
+                break;
+            case "excel":
+                this.downloadSpreadsheet();
+                break;
+        }
+    }
+    htmlExport() {
+        this.post("html-export", this.getRequest(), true)
+            .then((response) => {
+            const url = window.URL.createObjectURL(response);
+            const tab = window.open();
+            tab.location.href = url;
+        });
+    }
+    downloadSpreadsheet() {
+        this.post("generate-spreadsheet", this.getRequest(), true)
+            .then((response) => {
+            const link = document.createElement("a");
+            link.href = window.URL.createObjectURL(response);
+            link.download = `report_${new Date().getTime()}.xlsx`;
+            link.click();
+        });
+    }
+    copyGrid() {
+        var _a, _b;
+        const $table = this.table();
+        (_a = this.folderPanel) === null || _a === void 0 ? void 0 : _a.find("tr.data-row.selected").addClass("unselected").removeClass("selected");
+        this.copyTableToClipboard($table.get(0));
+        (_b = this.folderPanel) === null || _b === void 0 ? void 0 : _b.find("tr.data-row.unselected").addClass("selected").removeClass("unselected");
+        this.info("Data copied to clipboard", this.folderPanel);
     }
     getRequest() {
         const request = this._getRequest();

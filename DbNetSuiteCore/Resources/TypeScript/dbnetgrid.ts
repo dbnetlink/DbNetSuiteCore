@@ -840,27 +840,8 @@ class DbNetGrid extends DbNetGridEdit {
 
     private copyGrid() {
         const table = this.table();
-
         this.gridPanel?.find("tr.data-row.selected").addClass("unselected").removeClass("selected")
-
-        try {
-            const range = document.createRange();
-            range.selectNode(table as Node);
-            window.getSelection()?.addRange(range);
-            document.execCommand('copy');
-            window.getSelection()?.removeRange(range);
-        } catch (e) {
-            try {
-                const content = (table as Element).innerHTML;
-                const blobInput = new Blob([content], { type: 'text/html' });
-                const clipboardItemInput = new ClipboardItem({ 'text/html': blobInput });
-                navigator.clipboard.write([clipboardItemInput]);
-            }
-            catch (e) {
-                this.error("Copy failed")
-                return
-            }
-        }
+        this.copyTableToClipboard(table);
         this.gridPanel?.find("tr.data-row.unselected").addClass("selected").removeClass("unselected")
         this.info("Grid copied to clipboard", this.gridPanel as JQuery<HTMLElement>)
     }

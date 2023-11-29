@@ -21,7 +21,7 @@
     }
     <colgroup>
         <col />
-        @foreach (FileColumn fileColumn in Model.Columns)
+        @foreach (FileColumn fileColumn in Model.FilteredColumns)
         {
             <col column-type="@fileColumn.Type" />
         }
@@ -30,14 +30,14 @@
         @if (Model.Nested == false && Model.IsSearchResults == false && string.IsNullOrEmpty(Model.Folder) == false)
         {
             <tr class="path-row">
-                <td colspan="@(Model.Columns.Count()+1)">
+                <td colspan="@(Model.FilteredColumns.Count()+1)">
                     <div class="current-path">@CurrentPath()</div>
                 </td>
             </tr>
         }
         <tr class="header-row">
             <th>&nbsp;</th>
-            @foreach (FileColumn fileColumn in Model.Columns)
+            @foreach (FileColumn fileColumn in Model.FilteredColumns)
             {
                 <th data-type="@fileColumn.Type" orderby=@fileColumn.OrderBy class="@HeaderCellClass(fileColumn)">@(fileColumn.Label)</th>
             }
@@ -51,7 +51,7 @@
         {
             <tr class="data-row @(rowIdx % 2 == 0 ? "even" : "odd")">
                 <td class="@IconClass(dataRow)" data-folder="@NestedFolderPath(dataRow)">&nbsp;</td>
-                @foreach (FileColumn fileColumn in Model.Columns)
+                @foreach (FileColumn fileColumn in Model.FilteredColumns)
                 {
                     if (dataRow.IsDirectory())
                     {
@@ -145,7 +145,7 @@
         else
         {
             classes.Add("file");
-            classes.Add(GetFileType(dataRow.FileName()).ToString().ToLower());
+            classes.Add(GetFileType(dataRow.FileName().ToLower()).ToString().ToLower());
         }
 
         return string.Join(" ", classes);

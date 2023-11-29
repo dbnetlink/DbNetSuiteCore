@@ -714,29 +714,11 @@ class DbNetGrid extends DbNetGridEdit {
         return (_a = this.gridPanel) === null || _a === void 0 ? void 0 : _a[0].querySelector('table.dbnetgrid-table');
     }
     copyGrid() {
-        var _a, _b, _c, _d;
+        var _a, _b;
         const table = this.table();
         (_a = this.gridPanel) === null || _a === void 0 ? void 0 : _a.find("tr.data-row.selected").addClass("unselected").removeClass("selected");
-        try {
-            const range = document.createRange();
-            range.selectNode(table);
-            (_b = window.getSelection()) === null || _b === void 0 ? void 0 : _b.addRange(range);
-            document.execCommand('copy');
-            (_c = window.getSelection()) === null || _c === void 0 ? void 0 : _c.removeRange(range);
-        }
-        catch (e) {
-            try {
-                const content = table.innerHTML;
-                const blobInput = new Blob([content], { type: 'text/html' });
-                const clipboardItemInput = new ClipboardItem({ 'text/html': blobInput });
-                navigator.clipboard.write([clipboardItemInput]);
-            }
-            catch (e) {
-                this.error("Copy failed");
-                return;
-            }
-        }
-        (_d = this.gridPanel) === null || _d === void 0 ? void 0 : _d.find("tr.data-row.unselected").addClass("selected").removeClass("unselected");
+        this.copyTableToClipboard(table);
+        (_b = this.gridPanel) === null || _b === void 0 ? void 0 : _b.find("tr.data-row.unselected").addClass("selected").removeClass("unselected");
         this.info("Grid copied to clipboard", this.gridPanel);
     }
     getRequest() {

@@ -1,6 +1,8 @@
-﻿using DbNetSuiteCore.Models.DbNetFile;
+﻿using DbNetSuiteCore.Enums.DbNetFile;
+using DbNetSuiteCore.Models.DbNetFile;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace DbNetSuiteCore.ViewModels.DbNetFile
 {
@@ -15,5 +17,6 @@ namespace DbNetSuiteCore.ViewModels.DbNetFile
         public string Caption { get; set; }
         public bool Nested { get; set; }
         public bool IsSearchResults { get; set; }
+        public List<FileColumn> FilteredColumns => Columns.Where(c => c.Name != FileInfoProperties.IsDirectory.ToString()).ToList();
     }
 }

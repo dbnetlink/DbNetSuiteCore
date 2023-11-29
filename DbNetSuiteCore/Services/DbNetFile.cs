@@ -20,7 +20,10 @@ using System.Globalization;
 using System.Text.Json.Serialization;
 using DbNetSuiteCore.Constants;
 using DbNetSuiteCore.Utilities;
-using System.Reflection.Metadata.Ecma335;
+using ClosedXML.Excel;
+using System.Text;
+using Microsoft.Data.Sqlite;
+using DocumentFormat.OpenXml;
 
 namespace DbNetSuiteCore.Services
 {
@@ -104,6 +107,10 @@ namespace DbNetSuiteCore.Services
                 case RequestAction.ValidateSearchParams:
                     ValidateRequest(response);
                     break;
+                case RequestAction.GenerateSpreadsheet:
+                    return await GenerateSpreadsheet();
+                case RequestAction.HtmlExport:
+                    return await GenerateHtmlExport(response);
             }
 
             var serializeOptions = new JsonSerializerOptions
@@ -135,17 +142,13 @@ namespace DbNetSuiteCore.Services
             }
             SqlDataTable sqlDataTable = new SqlDataTable();
             DataTable dataTable = new DataTable();
-
+            foreach (FileColumn column in Columns)
+            {
+                dataTable.Columns.Add(column.Name);
+            }
             List<FileInformation> fileInformation = new List<FileInformation>();
 
-            if (string.IsNullOrEmpty(Folder))
-            {
-                foreach (FileColumn column in Columns)
-                {
-                    dataTable.Columns.Add(column.Name);
-                }
-            }
-            else
+            if (string.IsNullOrEmpty(Folder) == false)
             {
                 using (sqlDataTable)
                 {
@@ -167,28 +170,14 @@ namespace DbNetSuiteCore.Services
 
                         dataTable = await sqlDataTable.Query(filter, filterParameters);
                     }
-                    else
-                    {
-                        foreach (FileColumn column in Columns)
-                        {
-                            dataTable.Columns.Add(column.Name);
-                        }
-                    }
                 }
             }
 
             DataView dataView = new DataView(dataTable);
-            if (string.IsNullOrEmpty(OrderBy))
-            {
-                OrderBy = FileInfoProperties.Name.ToString();
-            }
-            if (OrderByDirection.HasValue == false)
-            {
-                OrderByDirection = Enums.OrderByDirection.asc;
-            }
 
-            dataView.Sort = $"IsDirectory DESC, {OrderBy} {OrderByDirection}";
 
+            dataView.Sort = SortOrder();
+         
             FileColumn orderByColumn = Columns.FirstOrDefault(c => c.Type.ToString() == OrderBy) ?? Columns.First();
             orderByColumn.OrderBy = OrderByDirection;
 
@@ -229,6 +218,19 @@ namespace DbNetSuiteCore.Services
 
             ReflectionHelper.CopyProperties(this, viewModel);
             response.Html = await HttpContext.RenderToStringAsync($"Views/DbNetFile/Page.cshtml", viewModel);
+        }
+
+        private string SortOrder()
+        {
+            if (string.IsNullOrEmpty(OrderBy))
+            {
+                OrderBy = FileInfoProperties.Name.ToString();
+            }
+            if (OrderByDirection.HasValue == false)
+            {
+                OrderByDirection = Enums.OrderByDirection.asc;
+            }
+            return $"IsDirectory DESC, {OrderBy} {OrderByDirection}";
         }
         private async Task BuildTreeView(DbNetFileResponse response)
         {
@@ -426,7 +428,7 @@ namespace DbNetSuiteCore.Services
                     new FileColumn(FileInfoProperties.Created),
                     new FileColumn(FileInfoProperties.LastModified),
                     new FileColumn(FileInfoProperties.LastAccessed),
-                    new FileColumn(FileInfoProperties.Length),   
+                    new FileColumn(FileInfoProperties.Length),
                     new FileColumn(FileInfoProperties.IsDirectory)
                 };
             }
@@ -462,6 +464,172 @@ namespace DbNetSuiteCore.Services
                     }
                 }
             }
+        }
+
+        private async Task<byte[]> GenerateSpreadsheet()
+        {
+            ConfigureColumns();
+
+            SqlDataTable sqlDataTable = new SqlDataTable();
+            List<FileInformation> fileInformation = new List<FileInformation>();
+            using (sqlDataTable)
+            {
+                List<FileInformation> folderFileInformation = GetFolderContents(Folder);
+                fileInformation.AddRange(folderFileInformation);
+                await sqlDataTable.AddRows(fileInformation);
+
+                using (XLWorkbook workbook = new XLWorkbook())
+                {
+                    Dictionary<string, int> columnWidths = new Dictionary<string, int>();
+
+                    var worksheet = workbook.Worksheets.Add(Id);
+
+                    var rowIdx = 1;
+                    var colIdx = 1;
+                    foreach (FileColumn column in Columns)
+                    {
+                        switch (column.Type)
+                        {
+                            case FileInfoProperties.IsDirectory:
+                                continue;
+                        }
+                        var cell = worksheet.Cell(rowIdx, colIdx);
+                        cell.Value = column.Label;
+                        cell.Style.Font.Bold = true;
+                        XLAlignmentHorizontalValues alignment = XLAlignmentHorizontalValues.Left;
+
+                        switch (column.Type)
+                        {
+                            case FileInfoProperties.Created:
+                            case FileInfoProperties.LastAccessed:
+                            case FileInfoProperties.LastModified:
+                                worksheet.Column(colIdx).Width = 16;
+                                break;
+                            case FileInfoProperties.Length:
+                                alignment = XLAlignmentHorizontalValues.Right;
+                                break;
+                            default:
+                                columnWidths[column.Name] = 0;
+                                break;
+                        }
+                        worksheet.Column(colIdx).Style.Alignment.SetHorizontal(alignment);
+
+                        colIdx++;
+                    }
+                    SqliteDataReader reader = await sqlDataTable.ExecuteReader(null, null, SortOrder());
+
+                    Dictionary<string, int> fileColumnIndex = new Dictionary<string, int>();
+
+                    for (var c = 0; c < reader.FieldCount; c++)
+                    {
+                        fileColumnIndex[reader.GetName(c)] = c;
+                    }
+
+                    while (reader.Read())
+                    {
+                        rowIdx++;
+                        object[] values = new object[reader.FieldCount];
+                        reader.GetValues(values);
+
+                        colIdx = 1;
+                        foreach (FileColumn column in Columns)
+                        {
+                            switch (column.Type)
+                            {
+                                case FileInfoProperties.IsDirectory:
+                                    continue;
+                            }
+
+                            object value = values[fileColumnIndex[column.Name]];
+
+                            if (value == null || value == DBNull.Value)
+                            {
+                                worksheet.Cell(rowIdx, colIdx).Value = new XLCellValue() {};
+                            }
+                            else
+                            {
+                                var cell = worksheet.Cell(rowIdx, colIdx);
+
+                                switch (column.Type)
+                                {
+                                    case FileInfoProperties.Length:
+                                        cell.Value = Convert.ToDouble(value);
+                                        break;
+                                    case FileInfoProperties.Created:
+                                    case FileInfoProperties.LastAccessed:
+                                    case FileInfoProperties.LastModified:
+                                        cell.Value = Convert.ToDateTime(value);
+                                        break;
+                                    default:
+                                        cell.Value = value.ToString();
+                                        break;
+                                }
+
+                                if (columnWidths.ContainsKey(column.Name))
+                                {
+                                    if (value.ToString().Length > columnWidths[column.Name])
+                                    {
+                                        columnWidths[column.Name] = value.ToString().Length;
+                                    }
+                                }
+                            }
+
+                            colIdx++;
+                        }
+                    }
+
+                    colIdx = 0;
+                    foreach (FileColumn column in Columns)
+                    {
+                        colIdx++;
+
+                        if (columnWidths.ContainsKey(column.Name))
+                        {
+                            var width = columnWidths[column.Name];
+
+                            if (width < 10)
+                            {
+                                continue;
+                            }
+
+                            if (width > 50)
+                            {
+                                width = 50;
+                            }
+                            worksheet.Column(colIdx).Width = width * 0.8;
+                        }
+                    }
+
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        workbook.SaveAs(memoryStream);
+                        HttpContext.Response.ContentType = GetMimeTypeForFileExtension($".xlsx"); ;
+                        memoryStream.Seek(0, SeekOrigin.Begin);
+                        return memoryStream.ToArray();
+                    }
+                }
+            }
+        }
+
+
+        private async Task<byte[]> GenerateHtmlExport(DbNetFileResponse response)
+        {
+            PageSize = -1;
+            await Page(response);
+            var cssFiles = new List<string>() { "dbnetsuite", "dbnetfile" };
+            string css = string.Empty;
+            foreach (var cssFile in cssFiles)
+            {
+                css += TextHelper.StripBOM(await GetResourceString($"CSS.{cssFile}.css"));
+            }
+            var viewModel = new HtmlExportViewModel
+            {
+                Html = response.Html.ToString().Replace("href=\"#\"", string.Empty),
+                Css = css
+            };
+            response.Html = await HttpContext.RenderToStringAsync("Views/DbNetFile/HtmlExport.cshtml", viewModel);
+            HttpContext.Response.ContentType = GetMimeTypeForFileExtension($".html"); ;
+            return Encoding.UTF8.GetBytes(response.Html.ToString());
         }
 
         private bool ValidateRequest(DbNetFileResponse response)

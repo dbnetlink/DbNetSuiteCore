@@ -65,6 +65,11 @@ declare class DbNetFile extends DbNetSuite {
     applySearch(searchFilterJoin: string, includeSubfolders: boolean): void;
     private openSearchResultsDialog;
     private openSearchDialog;
+    table(): JQuery<HTMLTableElement>;
+    private download;
+    private htmlExport;
+    private downloadSpreadsheet;
+    private copyGrid;
     private getRequest;
 }
 declare class FileColumn {

@@ -105,17 +105,25 @@ namespace DbNetSuiteCore.Utilities
             return await Query(filter, null);
         }
 
-        public async Task<DataTable> Query(string filter = null, Dictionary<string, object> filterParameters = null)
+        public async Task<SqliteDataReader> ExecuteReader(string filter = null, Dictionary<string, object> filterParameters = null, string orderBy = null)
         {
             SqliteCommand command = _Connection.CreateCommand();
-            command.CommandText = $"select * from [{_TableName}] where {(string.IsNullOrEmpty(filter) ? "1=1" : filter)}";
+
+            string order = string.IsNullOrEmpty(orderBy) ? string.Empty : $" order by {orderBy}";
+            command.CommandText = $"select * from [{_TableName}] where {(string.IsNullOrEmpty(filter) ? "1=1" : filter)}{order}";
 
             if (filterParameters != null)
             {
                 AssignParameters(filterParameters, command);
             }
 
-            SqliteDataReader reader = await command.ExecuteReaderAsync();
+            return await command.ExecuteReaderAsync();
+        }
+
+        public async Task<DataTable> Query(string filter = null, Dictionary<string, object> filterParameters = null)
+        {
+            SqliteDataReader reader = await ExecuteReader(filter, filterParameters);
+
             var fieldCount = reader.FieldCount;
             DataTable dataTable = new DataTable();
             List<int> boolColumns = new List<int>();
