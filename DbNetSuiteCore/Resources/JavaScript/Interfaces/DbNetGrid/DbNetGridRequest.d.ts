@@ -21,4 +21,6 @@ interface DbNetGridRequest extends DbNetGridEditRequest {
     update: boolean;
     view: boolean;
     viewLayoutColumns: number;
+    exportExtension: string;
+    dataTableKey: string;
 }

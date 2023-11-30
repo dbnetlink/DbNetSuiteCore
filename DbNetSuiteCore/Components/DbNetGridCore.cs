@@ -5,7 +5,12 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Html;
 using DbNetSuiteCore.Enums.DbNetGrid;
 using System.Linq;
-using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.AspNetCore.Http;
+using System.Net.Http;
+using DbNetSuiteCore.Utilities;
+using DbNetSuiteCore.Models.DbNetFile;
+using Newtonsoft.Json;
+using System.Data;
 
 namespace DbNetSuiteCore.Components
 {
@@ -16,6 +21,7 @@ namespace DbNetSuiteCore.Components
         internal bool _hasEditDialog => this._linkedControls.Where(c => c is DbNetEditCore).Any(c => (c as DbNetEditCore).IsEditDialog ?? false == true);
         internal bool _addEditDialog => Edit && this._linkedControls.Where(c => c is DbNetEditCore).Any() == false;
         private int? _height = null;
+        private string _dataTableKey = null;
 
         /// <summary>
         /// Automatically selects the first row of the grid (default is true)
@@ -106,6 +112,26 @@ namespace DbNetSuiteCore.Components
         /// Specifies the number of columns in the View dialog layout 
         /// </summary>
         public int? ViewLayoutColumns { get; set; } = null;
+        internal string DataTableKey => _dataTableKey;
+        /// <summary>
+        /// Adds a generic list as a data source 
+        /// </summary>
+        public void AddList<T>(List<T> list, HttpContext httpContext)
+        {
+            ListToDataTable listToDataTable = new ListToDataTable();
+            listToDataTable.AddList(list);
+            _dataTableKey = Guid.NewGuid().ToString();
+            _connection = _dataTableKey;
+            foreach (DataColumn dataColumn in listToDataTable.DataTable.Columns)
+            {
+                if (dataColumn.DataType != typeof(string))
+                {
+                    Column(dataColumn.ColumnName).DataType(dataColumn.DataType);
+                }
+            }
+            _fromPart = listToDataTable.DataTable.TableName;
+            httpContext.Session.SetString(_dataTableKey, JsonConvert.SerializeObject(listToDataTable.DataTable));
+        }
         /// <summary>
         /// Creates a new instance of the grid control
         /// </summary>
@@ -140,6 +166,14 @@ namespace DbNetSuiteCore.Components
         {
         }
 
+        /// <summary>
+        /// Creates a new instance of the grid control
+        /// </summary>
+        /// <param name="id">the Id of the HTML element that is the container for the grid</param>
+        public DbNetGridCore(string id = null) : this(string.Empty, string.Empty, id, DataSourceType.TableOrView)
+        {
+        }
+
         internal DbNetGridCore(string connection, string fromPart, bool browseControl, DatabaseType? databaseType = null) : base(connection, fromPart, null, databaseType)
         {
             IsBrowseDialog = browseControl;
@@ -164,11 +198,14 @@ namespace DbNetSuiteCore.Components
              
         public HtmlString Render()
         {
-            string message = ValidateProperties();
-
-            if (string.IsNullOrEmpty(message) == false)
+            if ((DataTableKey ?? string.Empty) != _connection)
             {
-                return new HtmlString($"<div class=\"dbnetsuite-error\">{message}</div>");
+                string message = ValidateProperties();
+
+                if (string.IsNullOrEmpty(message) == false)
+                {
+                    return new HtmlString($"<div class=\"dbnetsuite-error\">{message}</div>");
+                }
             }
 
             AddEditDialogControl();
@@ -304,6 +341,7 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             AddProperty(_editDialogId, "EditDialogId", properties);
             AddProperty(ViewLayoutColumns, nameof(ViewLayoutColumns), properties);
             AddProperty(IsBrowseDialog, nameof(IsBrowseDialog), properties);
+            AddProperty(DataTableKey, nameof(DataTableKey), properties);
 
             AddProperties(properties);
 

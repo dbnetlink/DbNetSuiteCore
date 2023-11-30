@@ -25,6 +25,10 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
 using System.Linq;
 using System.Text.RegularExpressions;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using Microsoft.Extensions.FileProviders;
+using System.Collections.Generic;
+using System.Data;
 
 namespace DbNetSuiteCore.Services
 {
@@ -147,7 +151,7 @@ namespace DbNetSuiteCore.Services
             }
         }
 
-        protected void Initialise()
+        protected void Initialise(Dictionary<string,Type> columnTypes = null, string dataTableKey = null, string tableName = null)
         {
             if (this is DbNetFile)
             {
@@ -155,7 +159,21 @@ namespace DbNetSuiteCore.Services
             }
             else
             {
-                Database = new DbNetDataCore(ConnectionString, Env, Configuration, DataProvider);
+                if (ConnectionString.ToLower().EndsWith(".json"))
+                {
+                    Database = new DbNetDataCore(ConnectionString, Env, tableName, columnTypes);
+                }
+                else if (ConnectionString == (dataTableKey ?? string.Empty))
+                {
+                    string json = HttpContext.Session.GetString(ConnectionString);
+                    DataTable dataTable = JsonConvert.DeserializeObject<DataTable>(json);
+                    dataTable.TableName = tableName;
+                    Database = new DbNetDataCore(Guid.Parse(ConnectionString), Env, dataTable);
+                }
+                else
+                {
+                    Database = new DbNetDataCore(ConnectionString, Env, Configuration, DataProvider);
+                }
             }
             ResourceManager = new ResourceManager("DbNetSuiteCore.Resources.Localization.default", typeof(DbNetSuite).Assembly);
             SetCulture();

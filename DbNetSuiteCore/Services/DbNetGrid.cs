@@ -76,6 +76,8 @@ namespace DbNetSuiteCore.Services
         public bool Update { get; set; } = false;
         public bool View { get; set; } = false;
         public int ViewLayoutColumns { get; set; }
+        public string ExportExtension { get; set; } = string.Empty;
+        public string DataTableKey { get; set; } = string.Empty;
 
         public static Type GetNullableType(Type type)
         {
@@ -90,7 +92,9 @@ namespace DbNetSuiteCore.Services
             var request = await DeserialiseRequest<DbNetGridRequest>();
             Columns = request.Columns;
 
-            Initialise();
+            var columnDataTypes = Columns.Where(c => string.IsNullOrEmpty(c.DataType) == false).ToDictionary( c => c.ColumnExpression, c => GetColumnType(c.DataType));
+
+            Initialise(columnDataTypes, DataTableKey, FromPart);
 
             DbNetGridResponse response = new DbNetGridResponse();
 
@@ -109,10 +113,8 @@ namespace DbNetSuiteCore.Services
                 case RequestAction.Page:
                     await Grid(response);
                     break;
-                case RequestAction.GenerateSpreadsheet:
-                    return GenerateSpreadsheet();
-                case RequestAction.HtmlExport:
-                    return await GenerateHtmlExport(response);
+                case RequestAction.Export:
+                    return ExportGrid(response);
                 case RequestAction.DownloadColumnData:
                     return GetColumnData();
                 case RequestAction.ViewContent:
@@ -229,7 +231,7 @@ namespace DbNetSuiteCore.Services
                     queryCommandConfig.Params = Database.DeriveParameters(queryCommandConfig.Sql);
                     parameterNames = queryCommandConfig.Params.Keys.Cast<string>().Select(k => k.ToLower()).ToList();
                 }
-                catch (Exception){}
+                catch (Exception) { }
             }
 
             foreach (string paramName in this.ProcedureParams.Keys)
@@ -566,9 +568,9 @@ namespace DbNetSuiteCore.Services
                 GridHtml = response.Data.ToString(),
                 GridCss = css
             };
-            response.Data = await HttpContext.RenderToStringAsync("Views/DbNetGrid/HtmlExport.cshtml", viewModel);
-            HttpContext.Response.ContentType = GetMimeTypeForFileExtension($".html"); ;
-            return Encoding.UTF8.GetBytes(response.Data.ToString());
+            string html = await HttpContext.RenderToStringAsync("Views/DbNetGrid/HtmlExport.cshtml", viewModel);
+            HttpContext.Response.ContentType = GetMimeTypeForFileExtension($".html"); 
+            return Encoding.UTF8.GetBytes(html);
         }
 
         /*
@@ -697,13 +699,57 @@ namespace DbNetSuiteCore.Services
             }
         }
 
-        private string Serialize(object data)
+        private string Serialize(object data, bool indent = false)
         {
             var serializeOptions = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
+
+            if (indent) {
+                serializeOptions.WriteIndented = true;
+            }
             return JsonSerializer.Serialize(data, serializeOptions);
+        }
+
+        private byte[] ExportGrid(DbNetGridResponse response)
+        {
+            switch (ExportExtension)
+            {
+                case "xlsx":
+                    return GenerateSpreadsheet();
+                case "json":
+                    return SerializeGrid();
+                default:
+                    return GenerateHtmlExport(response).Result;
+            }
+        }
+
+        public byte[] SerializeGrid()
+        {
+            var query = BuildSql();
+
+            Database.Open();
+            Database.ExecuteQuery(query);
+
+            var results = new List<Dictionary<string, object>>();
+            var cols = new List<string>();
+            for (var i = 0; i < Database.Reader.FieldCount; i++)
+                cols.Add(Database.Reader.GetName(i));
+
+            while (Database.Reader.Read())
+                results.Add(ConvertToDictionary(cols, Database.Reader));
+
+            string json = Serialize(results, true);
+            HttpContext.Response.ContentType = GetMimeTypeForFileExtension($".json");
+            return Encoding.UTF8.GetBytes(json);
+        }
+        private Dictionary<string, object> ConvertToDictionary(IEnumerable<string> cols, IDataReader reader)
+        {
+            var result = new Dictionary<string, object>();
+            foreach (var col in cols)
+                result.Add(col, reader[col]);
+            return result;
         }
 
         private byte[] GenerateSpreadsheet()

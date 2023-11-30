@@ -65,6 +65,7 @@ declare class DbNetGrid extends DbNetGridEdit {
     view: boolean;
     viewDialog: ViewDialog | undefined;
     viewLayoutColumns: number;
+    dataTableKey: string;
     constructor(id: string);
     initialize(): void;
     addNestedGrid(handler: EventHandler): void;
@@ -101,9 +102,9 @@ declare class DbNetGrid extends DbNetGridEdit {
     getPage(callback?: DbNetGridResponseCallback): void;
     private activeElementId;
     private focusActiveElement;
-    private download;
-    private htmlExport;
-    private downloadSpreadsheet;
+    private exportData;
+    private openWindow;
+    private downloadFile;
     private getViewContent;
     private configureViewDialog;
     private assignPrimaryKey;

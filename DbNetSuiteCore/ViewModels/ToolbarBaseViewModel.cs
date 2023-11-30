@@ -1,7 +1,9 @@
 ﻿using DbNetSuiteCore.Enums;
 using DocumentFormat.OpenXml.EMMA;
 using DocumentFormat.OpenXml.Wordprocessing;
+using Irony;
 using Microsoft.AspNetCore.Html;
+using System.Collections.Generic;
 
 namespace DbNetSuiteCore.ViewModels.DbNetFile
 {
@@ -42,7 +44,14 @@ namespace DbNetSuiteCore.ViewModels.DbNetFile
         }
         public HtmlString ExportSelect()
         {
-            return new HtmlString($"<td><select class=\"toolbar-select\" id=\"{ComponentId}_ExportSelect\"/><option value=\"html\">HTML</option><option value=\"excel\">Excel</option></select</td>");
+            List<string> options = new List<string>
+            {
+                "<option value=\"html\">HTML</option>",
+                "<option value=\"xlsx\">Excel</option>",
+                "<option value=\"json\">JSON</option>"
+            };
+    
+            return new HtmlString($"<td><select class=\"toolbar-select\" id=\"{ComponentId}_ExportSelect\"/>{string.Join(string.Empty,options)}</select</td>");
         }
     }
 }

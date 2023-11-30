@@ -28,6 +28,7 @@ namespace DbNetSuiteCore.Utilities
         private SqliteCommand _InsertCommand;
         private bool _TableCreated = false;
         private string _TableName = "SqlData";
+        public SqliteConnection Connection => _Connection;
 
         List<SqlDataTableColumn> Columns { get; set; } = new List<SqlDataTableColumn>();
 
@@ -54,6 +55,25 @@ namespace DbNetSuiteCore.Utilities
             AddColumn(new SqlDataTableColumn(columnName, dataType));
         }
 
+        public async Task AddRows(DataTable dataTable)
+        {
+            if (dataTable.Rows.Count == 0)
+            {
+                throw new Exception("DataTable does not contain any rows");
+            }
+            UpdateColumns(DataRowToDictionary(dataTable.Rows[0]));
+            await CreateTable(dataTable.TableName);
+            using (SqliteTransaction transaction = _Connection.BeginTransaction())
+            {
+                _InsertCommand.Transaction = transaction;
+                foreach (DataRow dataRow in dataTable.Rows)
+                {
+                    await AddRow(dataRow);
+                }
+
+                await transaction.CommitAsync();
+            }
+        }
         public async Task AddRows<T>(List<T> records)
         {
             T record = records.First();
@@ -70,13 +90,23 @@ namespace DbNetSuiteCore.Utilities
                 await transaction.CommitAsync();
             }
         }
+
         public async Task AddRow<T>(T record)
         {
             if (IsGenericList(record))
             {
                 throw new Exception("Use AddRows for a generic list");
             }
-            Dictionary<string, object> values = RecordToDictionary(record, Columns.Any() == false);
+            Dictionary<string, object> values;
+
+            if (typeof(T) == typeof(DataRow))
+            {
+                values = DataRowToDictionary(record as DataRow, Columns.Any() == false);
+            }
+            else
+            {   
+                values = RecordToDictionary(record, Columns.Any() == false);
+            }
             await AddRow(values, typeof(T).Name);
         }
 
@@ -268,6 +298,22 @@ namespace DbNetSuiteCore.Utilities
                     AddColumn(property.Name, property.PropertyType);
                 }
                 dictionary[property.Name] = property.GetValue(record, null);
+            }
+
+            return dictionary;
+        }
+
+        public Dictionary<string, object> DataRowToDictionary(DataRow dataRow, bool updateColumns = true)
+        {
+            Dictionary<string, object> dictionary = new Dictionary<string, object>();
+            
+            foreach (DataColumn column in dataRow.Table.Columns)
+            {
+                if (updateColumns)
+                {
+                    AddColumn(column.ColumnName, column.DataType);
+                }
+                dictionary[column.ColumnName] = dataRow[column.ColumnName];
             }
 
             return dictionary;

@@ -1,20 +1,14 @@
-﻿using DbNetSuiteCore.Attributes;
-using DbNetSuiteCore.Enums;
+﻿using DbNetSuiteCore.Enums;
 using DbNetSuiteCore.Helpers;
-using DbNetSuiteCore.Models;
-using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Linq;
-using System.Web;
 
 namespace DbNetSuiteCore.Components
 {
     public class DbNetGridEditCore : DbNetSuiteCore
     {
-        protected readonly string _fromPart;
+        protected string _fromPart;
 
         internal string FromPart => _fromPart;
 

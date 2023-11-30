@@ -16,7 +16,7 @@ namespace DbNetSuiteCore.Components
     public class DbNetSuiteCore
     {
         protected readonly string _id;
-        protected readonly string _connection;
+        protected string _connection;
         protected DbNetSuiteCoreSettings _DbNetSuiteCoreSettings;
         protected readonly IConfigurationRoot _configuration;
         protected readonly bool _idSupplied = false;
@@ -173,11 +173,14 @@ namespace DbNetSuiteCore.Components
 
             if ((this is DbNetFileCore) == false)
             {
-                string connectionString = _configuration.GetConnectionString(_connection);
-
-                if (connectionString == null)
+                if (_connection.ToLower().EndsWith(".json") == false)
                 {
-                    message = $"Connection string [{_connection}] not found. Please check the connection strings in your appsettings.json file";
+                    string connectionString = _configuration.GetConnectionString(_connection);
+
+                    if (connectionString == null)
+                    {
+                        message = $"Connection string [{_connection}] not found. Please check the connection strings in your appsettings.json file";
+                    }
                 }
             }
 

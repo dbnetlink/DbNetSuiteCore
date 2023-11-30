@@ -67,6 +67,7 @@ class DbNetGrid extends DbNetGridEdit {
     view = false;
     viewDialog: ViewDialog | undefined;
     viewLayoutColumns = 1;
+    dataTableKey = "";
     constructor(id: string) {
         super(id);
         if (this.toolbarPosition === undefined) {
@@ -591,7 +592,7 @@ class DbNetGrid extends DbNetGridEdit {
 
         switch (id) {
             case this.controlElementId("ExportBtn"):
-                this.download();
+                this.exportData();
                 break;
             case this.controlElementId("CopyBtn"):
                 this.copyGrid();
@@ -695,34 +696,34 @@ class DbNetGrid extends DbNetGridEdit {
         }
     }
 
-    private download() {
-        switch (this.controlElement("ExportSelect").val()) {
-            case "html":
-                this.htmlExport();
-                break;
-            case "excel":
-                this.downloadSpreadsheet();
-                break;
-        }
-    }
-
-    private htmlExport() {
-        this.post<Blob>("html-export", this.getRequest(), true)
+    private exportData() {
+        const request = this.getRequest();
+        const extension = this.controlElement("ExportSelect").val() as string;
+        request.exportExtension = extension;
+        this.post<Blob>("export", request, true)
             .then((response) => {
-                const url = window.URL.createObjectURL(response);
-                const tab = window.open() as Window;
-                tab.location.href = url;
+                switch (extension) { 
+                    case "html":
+                        this.openWindow(response)
+                        break;
+                    default:
+                        this.downloadFile(response, extension)
+                        break;
+                }
             });
     }
 
-    private downloadSpreadsheet() {
-        this.post<Blob>("generate-spreadsheet", this.getRequest(), true)
-            .then((response) => {
-                const link = document.createElement("a");
-                link.href = window.URL.createObjectURL(response);
-                link.download = `report_${new Date().getTime()}.xlsx`;
-                link.click();
-            });
+    private openWindow(response:Blob) {
+        const url = window.URL.createObjectURL(response);
+        const tab = window.open() as Window;
+        tab.location.href = url;
+    }
+
+    private downloadFile(response: Blob, extension:string) {
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(response);
+        link.download = `report_${new Date().getTime()}.${extension}`;
+        link.click();
     }
 
     private getViewContent() {
@@ -874,6 +875,7 @@ class DbNetGrid extends DbNetGridEdit {
         request.gridGenerationMode = this.gridGenerationMode;
         request.update = this.update;
         request.viewLayoutColumns = this.viewLayoutColumns;
+        request.dataTableKey = this.dataTableKey;
 
         return request;
     }
