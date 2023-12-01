@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Html;
 using DbNetSuiteCore.Enums.DbNetGrid;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
-using System.Net.Http;
 using DbNetSuiteCore.Utilities;
-using DbNetSuiteCore.Models.DbNetFile;
 using Newtonsoft.Json;
 using System.Data;
+using DbNetSuiteCore.Extensions;
+using System.Runtime.InteropServices.JavaScript;
 
 namespace DbNetSuiteCore.Components
 {
@@ -21,7 +21,7 @@ namespace DbNetSuiteCore.Components
         internal bool _hasEditDialog => this._linkedControls.Where(c => c is DbNetEditCore).Any(c => (c as DbNetEditCore).IsEditDialog ?? false == true);
         internal bool _addEditDialog => Edit && this._linkedControls.Where(c => c is DbNetEditCore).Any() == false;
         private int? _height = null;
-        private string _dataTableKey = null;
+        private string _jsonKey = null;
 
         /// <summary>
         /// Automatically selects the first row of the grid (default is true)
@@ -112,7 +112,16 @@ namespace DbNetSuiteCore.Components
         /// Specifies the number of columns in the View dialog layout 
         /// </summary>
         public int? ViewLayoutColumns { get; set; } = null;
-        internal string DataTableKey => _dataTableKey;
+        public Type JsonType { get; set; } = null;
+        internal string JsonKey
+        {
+            get => _jsonKey;
+            set
+            {
+                _jsonKey = value;
+                _connection = value;
+            }
+        }
         /// <summary>
         /// Adds a generic list as a data source 
         /// </summary>
@@ -120,17 +129,20 @@ namespace DbNetSuiteCore.Components
         {
             ListToDataTable listToDataTable = new ListToDataTable();
             listToDataTable.AddList(list);
-            _dataTableKey = Guid.NewGuid().ToString();
-            _connection = _dataTableKey;
-            foreach (DataColumn dataColumn in listToDataTable.DataTable.Columns)
-            {
-                if (dataColumn.DataType != typeof(string))
-                {
-                    Column(dataColumn.ColumnName).DataType(dataColumn.DataType);
-                }
-            }
+            JsonKey = $"datatable{Guid.NewGuid()}";
+            JsonType = list.First().GetType();
             _fromPart = listToDataTable.DataTable.TableName;
-            httpContext.Session.SetString(_dataTableKey, JsonConvert.SerializeObject(listToDataTable.DataTable));
+            httpContext.Session.SetString(_jsonKey, JsonConvert.SerializeObject(listToDataTable.DataTable));
+        }
+        /// <summary>
+        /// Adds a JSON string as a data source 
+        /// </summary>
+        public void AddJson(string json, Type jsonType = null, HttpContext httpContext = null)
+        {
+            JsonKey = Guid.NewGuid().ToString();
+            JsonType = jsonType;
+            _fromPart = jsonType?.Name ?? "jsontable";
+            httpContext.Session.SetString(_jsonKey, json);
         }
         /// <summary>
         /// Creates a new instance of the grid control
@@ -146,7 +158,7 @@ namespace DbNetSuiteCore.Components
             {
                 ProcedureName = fromPart;
             }
-            
+
             EditControl = new DbNetEditCore(connection, fromPart, databaseType);
             EditControl.IsEditDialog = true;
 
@@ -169,16 +181,22 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Creates a new instance of the grid control
         /// </summary>
+        ///         
+        /// <param name="dataSourceType">Should be JSON or List</param>
+        /// <param name="url">the relative URL of the JSON file</param>
+        /// <param name="jsonType">the type of a C# object that relates to the file</param>
         /// <param name="id">the Id of the HTML element that is the container for the grid</param>
-        public DbNetGridCore(string id = null) : this(string.Empty, string.Empty, id, DataSourceType.TableOrView)
+        public DbNetGridCore(DataSourceType dataSourceType = DataSourceType.JSON, string url = null, Type jsonType = null, string id = null)
+            : this(url ?? string.Empty, url?.Split('/').Last().ToLower().Replace(".json", string.Empty) ?? string.Empty, id, dataSourceType)
         {
+            JsonType = jsonType;
         }
 
         internal DbNetGridCore(string connection, string fromPart, bool browseControl, DatabaseType? databaseType = null) : base(connection, fromPart, null, databaseType)
         {
             IsBrowseDialog = browseControl;
         }
-       
+
         /// <summary>
         /// Binds an event to a named client-side JavaScript function
         /// </summary>
@@ -195,16 +213,25 @@ namespace DbNetSuiteCore.Components
         {
             return new DbNetGridCoreColumn(columnNames, _columnProperties, _fromPart, Columns);
         }
-             
+
         public HtmlString Render()
         {
-            if ((DataTableKey ?? string.Empty) != _connection)
+            if ((JsonKey ?? string.Empty) != _connection)
             {
                 string message = ValidateProperties();
 
                 if (string.IsNullOrEmpty(message) == false)
                 {
                     return new HtmlString($"<div class=\"dbnetsuite-error\">{message}</div>");
+                }
+            }
+
+            if (JsonType != null)
+            {
+                var propertyTypes = JsonType.PropertyTypes();
+                foreach (string name in propertyTypes.Keys)
+                {
+                    Column(name).DataType(propertyTypes[name]);
                 }
             }
 
@@ -341,7 +368,7 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             AddProperty(_editDialogId, "EditDialogId", properties);
             AddProperty(ViewLayoutColumns, nameof(ViewLayoutColumns), properties);
             AddProperty(IsBrowseDialog, nameof(IsBrowseDialog), properties);
-            AddProperty(DataTableKey, nameof(DataTableKey), properties);
+            AddProperty(JsonKey, nameof(JsonKey), properties);
 
             AddProperties(properties);
 

@@ -4,6 +4,8 @@ namespace DbNetSuiteCore.Enums
     public enum DataSourceType
     {
         TableOrView,
-        StoredProcedure
+        StoredProcedure,
+        JSON,
+        List
     };
 }

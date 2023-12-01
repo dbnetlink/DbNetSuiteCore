@@ -151,7 +151,7 @@ namespace DbNetSuiteCore.Services
             }
         }
 
-        protected void Initialise(Dictionary<string,Type> columnTypes = null, string dataTableKey = null, string tableName = null)
+        protected void Initialise(DataTable dataTable = null)
         {
             if (this is DbNetFile)
             {
@@ -159,16 +159,9 @@ namespace DbNetSuiteCore.Services
             }
             else
             {
-                if (ConnectionString.ToLower().EndsWith(".json"))
+                if (dataTable != null)
                 {
-                    Database = new DbNetDataCore(ConnectionString, Env, tableName, columnTypes);
-                }
-                else if (ConnectionString == (dataTableKey ?? string.Empty))
-                {
-                    string json = HttpContext.Session.GetString(ConnectionString);
-                    DataTable dataTable = JsonConvert.DeserializeObject<DataTable>(json);
-                    dataTable.TableName = tableName;
-                    Database = new DbNetDataCore(Guid.Parse(ConnectionString), Env, dataTable);
+                    Database = new DbNetDataCore(dataTable);
                 }
                 else
                 {

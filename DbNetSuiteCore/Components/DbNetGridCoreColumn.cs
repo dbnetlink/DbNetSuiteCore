@@ -13,7 +13,7 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Assigns a foreign key based lookup against a column to provide a descriptive value
         /// </summary>
-        public new DbNetGridCoreColumn Lookup(Lookup lookup)
+        public DbNetGridCoreColumn Lookup(Lookup lookup)
         {
             base.Lookup(lookup);
             return this;
@@ -183,6 +183,14 @@ namespace DbNetSuiteCore.Components
         public DbNetGridCoreColumn GroupHeader()
         {
             SetColumnProperty(ColumnPropertyType.GroupHeader, true);
+            return this;
+        }
+        /// <summary>
+        /// Sets the column as the primary key 
+        /// </summary>
+        public new DbNetGridCoreColumn PrimaryKey()
+        {
+            base.PrimaryKey();
             return this;
         }
     }

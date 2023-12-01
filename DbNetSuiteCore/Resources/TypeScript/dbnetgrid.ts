@@ -67,7 +67,7 @@ class DbNetGrid extends DbNetGridEdit {
     view = false;
     viewDialog: ViewDialog | undefined;
     viewLayoutColumns = 1;
-    dataTableKey = "";
+    jsonKey = "";
     constructor(id: string) {
         super(id);
         if (this.toolbarPosition === undefined) {
@@ -875,7 +875,7 @@ class DbNetGrid extends DbNetGridEdit {
         request.gridGenerationMode = this.gridGenerationMode;
         request.update = this.update;
         request.viewLayoutColumns = this.viewLayoutColumns;
-        request.dataTableKey = this.dataTableKey;
+        request.jsonKey = this.jsonKey;
 
         return request;
     }

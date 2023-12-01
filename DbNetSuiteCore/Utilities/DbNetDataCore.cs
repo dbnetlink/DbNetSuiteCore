@@ -13,20 +13,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
 using DbNetSuiteCore.Enums;
-using Microsoft.Extensions.FileProviders;
-using System.IO;
-using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
-using DbNetSuiteCore.Extensions;
 
 namespace DbNetSuiteCore.Utilities
 {
     public class DbNetDataCore : IDisposable
     {
         private readonly Hashtable _reservedWords = new Hashtable();
-        private readonly string _tableName = null;
-        private readonly Dictionary<string, Type> _columnTypes;
-        private readonly Guid? _dataTableKey = null;
         private readonly DataTable _dataTable;
 
         public enum MetaDataType
@@ -130,17 +122,8 @@ namespace DbNetSuiteCore.Utilities
 
         }
 
-        public DbNetDataCore(string connectionString, IWebHostEnvironment env, string tableName, Dictionary<string,Type> columnTypes)
-    : this(connectionString, DataProvider.Json, env)
+        public DbNetDataCore(DataTable dataTable): this(string.Empty, DataProvider.DataTable, null)
         {
-            _tableName = tableName;
-            _columnTypes = columnTypes;
-        }
-
-        public DbNetDataCore(Guid dataTableKey, IWebHostEnvironment env, DataTable dataTable)
-: this(string.Empty, DataProvider.DataTable, env)
-        {
-            _dataTableKey = dataTableKey;
             _dataTable = dataTable;
         }
 
@@ -189,7 +172,6 @@ namespace DbNetSuiteCore.Utilities
                         customDataProvider = new CustomDataProvider("MySqlConnector", "MySqlConnection");
                         Database = DatabaseType.MySQL;
                         break;
-                    case DataProvider.Json:
                     case DataProvider.DataTable:
                         Database = DatabaseType.SQLite;
                         break;
@@ -238,88 +220,12 @@ namespace DbNetSuiteCore.Utilities
                 }
             }
         }
-        public async Task LoadJson()
-        {
-            IFileInfo fileInfo = Env.WebRootFileProvider.GetFileInfo(ConnectionString);
-            string json = File.ReadAllText(fileInfo.PhysicalPath);
-            var jArray = JArray.Parse(json);
-            DataTable dataTable = JArrayDataTable(jArray);
-            SqlDataTable = new SqlDataTable();
-            string tableName = string.IsNullOrEmpty(_tableName) ? ConnectionString.Split("/").Last().ToLower().Replace(".json", string.Empty) : _tableName;
-            dataTable.TableName = tableName;
-            await SqlDataTable.AddRows(dataTable);
-        }
-
-        private DataTable JArrayDataTable(JArray array)
-        {
-            var result = new DataTable();
-            foreach (var jToken in array.First())
-            {
-                var jproperty = jToken as JProperty;
-                result.Columns.Add(jproperty.Name, JsonColumnType(jproperty.Name));
-            }
-
-            try
-            {
-                foreach (var row in array)
-                {
-                    var datarow = result.NewRow();
-                    foreach (var jToken in row)
-                    {
-                        var jProperty = jToken as JProperty;
-                        if (jProperty.Value.IsNullOrEmpty() == false)
-                        {
-                            var type = JsonColumnType(jProperty.Name);
-                            if (type == typeof(string))
-                            {
-                                datarow[jProperty.Name] = jProperty.Value;
-                            }
-                            else
-                            {
-                                datarow[jProperty.Name] = Convert.ChangeType(jProperty.Value.ToString(), type);
-                            }
-                        }
-                        else
-                        {
-                            datarow[jProperty.Name] = DBNull.Value;
-                        }
-                    }
-                    result.Rows.Add(datarow);
-                }
-            }
-            catch(Exception ex)
-            {
-                HandleError(ex);
-            }
-
-            return result;
-        }
-
-        private Type JsonColumnType(string name)
-        {
-            var type = typeof(string);
-
-            if (_columnTypes != null)
-            {
-                string key = _columnTypes.Keys.FirstOrDefault(k => k.ToLower() == name.ToLower());
-                if (key != null)
-                {
-                    type = _columnTypes[key];
-                }
-            }
-
-            return type;
-        }
+     
 
         public void Open()
         {
             switch (this.Provider)
             {
-                case DataProvider.Json:
-                    LoadJson().Wait();
-                    Connection = SqlDataTable.Connection;
-                    Command = Connection.CreateCommand();
-                    return;
                 case DataProvider.DataTable:
                     SqlDataTable = new SqlDataTable();
                     SqlDataTable.AddRows(_dataTable).Wait();
@@ -892,8 +798,6 @@ namespace DbNetSuiteCore.Utilities
             {
                 return dataProvider.Value;
             }
-            if (connectionString.EndsWith(".json"))
-                return DataProvider.Json;
 
             if (!connectionString.EndsWith(";"))
                 connectionString += ";";

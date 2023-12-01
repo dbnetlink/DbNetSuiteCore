@@ -23,13 +23,13 @@ namespace DbNetSuiteCore.Components
             _fromPart = fromPart;
             _columns = columns;
         }
-        protected void Lookup(Lookup lookup)
+        protected void Lookup(Lookup lookup, string columnName = null)
         {
-            SetColumnProperty(ColumnPropertyType.Lookup, lookup);
+            SetColumnProperty(ColumnPropertyType.Lookup, lookup, columnName);
 
             if (string.IsNullOrEmpty(lookup.Parameter) == false)
             {
-                SetColumnProperty(InternalColumnPropertyType.LookupParameter, lookup.Parameter);
+                SetColumnProperty(InternalColumnPropertyType.LookupParameter, lookup.Parameter, columnName);
             }
         }
         protected void Lookup(Type lookup, bool useNameAsValue = false)
@@ -42,7 +42,10 @@ namespace DbNetSuiteCore.Components
         }
         protected void Lookup()
         {
-            Lookup(new Lookup(_fromPart, _columnNames.First(), null, true));
+            foreach(string columnName in _columnNames)
+            {
+                Lookup(new Lookup(_fromPart, columnName, null, true), columnName);
+            }
         }
         protected void Display(bool display = true)
         {
@@ -68,6 +71,10 @@ namespace DbNetSuiteCore.Components
         protected void ForeignKey()
         {
             SetColumnProperty(ColumnPropertyType.ForeignKey, true);
+        }
+        protected void PrimaryKey()
+        {
+            SetColumnProperty(ColumnPropertyType.PrimaryKey, true);
         }
         protected void Format(string format)
         {

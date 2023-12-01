@@ -20,6 +20,9 @@ using GridColumn = DbNetSuiteCore.Models.DbNetGrid.GridColumn;
 using static DbNetSuiteCore.Utilities.DbNetDataCore;
 using DbNetSuiteCore.Constants.DbNetGrid;
 using DbNetSuiteCore.Models.DbNetGrid;
+using DbNetSuiteCore.Utilities;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.FileProviders;
 
 namespace DbNetSuiteCore.Services
 {
@@ -77,7 +80,7 @@ namespace DbNetSuiteCore.Services
         public bool View { get; set; } = false;
         public int ViewLayoutColumns { get; set; }
         public string ExportExtension { get; set; } = string.Empty;
-        public string DataTableKey { get; set; } = string.Empty;
+        public string JsonKey { get; set; } = string.Empty;
 
         public static Type GetNullableType(Type type)
         {
@@ -92,9 +95,32 @@ namespace DbNetSuiteCore.Services
             var request = await DeserialiseRequest<DbNetGridRequest>();
             Columns = request.Columns;
 
-            var columnDataTypes = Columns.Where(c => string.IsNullOrEmpty(c.DataType) == false).ToDictionary( c => c.ColumnExpression, c => GetColumnType(c.DataType));
+            DataTable dataTable =null;
+            var columnDataTypes = Columns.Where(c => string.IsNullOrEmpty(c.DataType) == false).ToDictionary(c => c.ColumnExpression, c => GetColumnType(c.DataType));
 
-            Initialise(columnDataTypes, DataTableKey, FromPart);
+            if (ConnectionString.ToLower().EndsWith(".json"))
+            {
+                IFileInfo fileInfo = Env.WebRootFileProvider.GetFileInfo(ConnectionString);
+                string json = File.ReadAllText(fileInfo.PhysicalPath);
+                dataTable = new JsonToDataTable(json, columnDataTypes).DataTable;
+                string tableName = string.IsNullOrEmpty(FromPart) ? ConnectionString.Split("/").Last().ToLower().Replace(".json", string.Empty) : FromPart;
+                dataTable.TableName = tableName;
+            }
+            else if (ConnectionString == (JsonKey ?? string.Empty))
+            {
+                string json = HttpContext.Session.GetString(ConnectionString);
+                if (JsonKey.StartsWith("datatable"))
+                {
+                    dataTable = Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(json);
+                }
+                else
+                {
+                    dataTable = new JsonToDataTable(json, columnDataTypes).DataTable;
+                }
+                dataTable.TableName = FromPart;
+            }
+
+            Initialise(dataTable);
 
             DbNetGridResponse response = new DbNetGridResponse();
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DbNetSuiteCore.Extensions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -11,6 +12,7 @@ namespace DbNetSuiteCore.Utilities
     public class ListToDataTable
     {
         private readonly DataTable _dataTable;
+        private Dictionary<string,Type> _propertyTypes;
         public DataTable DataTable => _dataTable;
 
         public ListToDataTable()
@@ -32,15 +34,10 @@ namespace DbNetSuiteCore.Utilities
         {
             _dataTable.TableName = type.Name;
 
-            PropertyInfo[] properties = type.GetProperties();
-            foreach (PropertyInfo property in properties)
+            _propertyTypes = type.PropertyTypes();
+            foreach (string name in _propertyTypes.Keys)
             {
-                if (!property.CanRead || IsSimple(property.PropertyType) == false)
-                {
-                    continue;
-                }
-
-                _dataTable.Columns.Add(new DataColumn(property.Name, property.PropertyType));
+                _dataTable.Columns.Add(new DataColumn(name, _propertyTypes[name]));
             }
         }
         private void AddDataRow<T>(T record)
@@ -48,21 +45,11 @@ namespace DbNetSuiteCore.Utilities
             DataRow row = _dataTable.NewRow();
             Type type = record.GetType();
             PropertyInfo[] properties = type.GetProperties();
-            foreach (PropertyInfo property in properties)
+            foreach (PropertyInfo property in properties.Where(p => _propertyTypes.Keys.Contains(p.Name)))
             {
-                if (!property.CanRead || IsSimple(property.PropertyType) == false)
-                {
-                    continue;
-                }
-
                 row[property.Name] = property.GetValue(record, null);
             }
             _dataTable.Rows.Add(row);
-        }
-
-        private bool IsSimple(Type type)
-        {
-            return TypeDescriptor.GetConverter(type).CanConvertFrom(typeof(string));
         }
     }
 }

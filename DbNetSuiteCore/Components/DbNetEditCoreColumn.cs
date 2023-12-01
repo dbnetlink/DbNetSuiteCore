@@ -14,7 +14,7 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Assigns a foreign key based lookup against a column to provide a descriptive value
         /// </summary>
-        public new DbNetEditCoreColumn Lookup(Lookup lookup)
+        public DbNetEditCoreColumn Lookup(Lookup lookup)
         {
             base.Lookup(lookup);
             return this;

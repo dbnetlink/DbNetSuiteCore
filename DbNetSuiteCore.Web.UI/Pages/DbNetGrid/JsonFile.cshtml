@@ -1,0 +1,13 @@
+﻿@page
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums;
+@using DbNetSuiteCore.Web.UI.Models;
+@{
+    DbNetGridCore employeesGrid = new DbNetGridCore(DataSourceType.JSON,"/data/employees.json", typeof(Employee));
+    employeesGrid.Column(new string[] { "Gender" ,"DepartmentName", "Status"}).Lookup();
+    employeesGrid.Column("*").Filter();
+    employeesGrid.View = true;
+    employeesGrid.ViewLayoutColumns = 2;
+    employeesGrid.Column(nameof(Employee.EmployeeKey)).PrimaryKey();
+    @employeesGrid.Render()
+}
