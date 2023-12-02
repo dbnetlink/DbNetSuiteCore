@@ -10,7 +10,10 @@ using DbNetSuiteCore.Utilities;
 using Newtonsoft.Json;
 using System.Data;
 using DbNetSuiteCore.Extensions;
-using System.Runtime.InteropServices.JavaScript;
+using System.Net.Http;
+using Newtonsoft.Json.Linq;
+using System.Web;
+using DbNetSuiteCore.Models;
 
 namespace DbNetSuiteCore.Components
 {
@@ -122,6 +125,7 @@ namespace DbNetSuiteCore.Components
                 _connection = value;
             }
         }
+        internal string Json { get; set; }
         /// <summary>
         /// Adds a generic list as a data source 
         /// </summary>
@@ -129,20 +133,18 @@ namespace DbNetSuiteCore.Components
         {
             ListToDataTable listToDataTable = new ListToDataTable();
             listToDataTable.AddList(list);
-            JsonKey = $"datatable{Guid.NewGuid()}";
             JsonType = list.First().GetType();
             _fromPart = listToDataTable.DataTable.TableName;
-            httpContext.Session.SetString(_jsonKey, JsonConvert.SerializeObject(listToDataTable.DataTable));
+            AssignJson(JsonConvert.SerializeObject(listToDataTable.DataTable), httpContext, true);
         }
         /// <summary>
         /// Adds a JSON string as a data source 
         /// </summary>
-        public void AddJson(string json, Type jsonType = null, HttpContext httpContext = null)
+        public void AddJson<T>(string json, HttpContext httpContext = null)
         {
-            JsonKey = Guid.NewGuid().ToString();
-            JsonType = jsonType;
-            _fromPart = jsonType?.Name ?? "jsontable";
-            httpContext.Session.SetString(_jsonKey, json);
+            JsonType = typeof(T);
+            _fromPart = JsonType?.Name ?? "jsontable";
+            AssignJson(json, httpContext);
         }
         /// <summary>
         /// Creates a new instance of the grid control
@@ -369,6 +371,7 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             AddProperty(ViewLayoutColumns, nameof(ViewLayoutColumns), properties);
             AddProperty(IsBrowseDialog, nameof(IsBrowseDialog), properties);
             AddProperty(JsonKey, nameof(JsonKey), properties);
+            AddProperty(Json, nameof(Json), properties, false);
 
             AddProperties(properties);
 
@@ -399,6 +402,23 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             }
 
             return NestedGrid.NestedRender();
+        }
+
+        private void AssignJson(string json, HttpContext httpContext,bool isDataTable = false)
+        {
+            JsonKey = $"{(isDataTable ? "datatable" : string.Empty)}{Guid.NewGuid()}";
+            if (httpContext != null)
+            {
+                try
+                {
+                    httpContext.Session.SetString(JsonKey, json);
+                    return;
+                }
+                catch
+                {
+                }
+            }
+            Json = JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json));
         }
     }
 }

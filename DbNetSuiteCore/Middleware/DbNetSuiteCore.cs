@@ -41,7 +41,6 @@ namespace DbNetLink.Middleware
         private async Task GenerateResponse(AspNetCoreServices services)
         {
             string page = services.httpContext.Request.Path.ToString().Split('/').Last().Split('.').First();
-            string action = services.httpContext.Request.Query["name"];
             object response = null;
 
             switch (page.ToLower())
@@ -51,8 +50,10 @@ namespace DbNetLink.Middleware
                     response = await resource.Process();
                     break;
                 case "dbnetgrid":
-                    var dbnetgrid = new DbNetGrid(services);
-                    response = await dbnetgrid.Process();
+                    using (var dbnetgrid = new DbNetGrid(services))
+                    {
+                        response = await dbnetgrid.Process();
+                    }
                     break;
                 case "dbnetcombo":
                     var dbnetcombo = new DbNetCombo(services);

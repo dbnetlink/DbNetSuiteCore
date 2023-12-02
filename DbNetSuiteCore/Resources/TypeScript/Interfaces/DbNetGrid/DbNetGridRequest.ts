@@ -23,4 +23,5 @@
     viewLayoutColumns: number;
     exportExtension: string;
     jsonKey: string;
+    json: object | null;
 }

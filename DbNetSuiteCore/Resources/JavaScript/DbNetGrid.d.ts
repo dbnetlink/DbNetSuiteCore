@@ -66,6 +66,7 @@ declare class DbNetGrid extends DbNetGridEdit {
     viewDialog: ViewDialog | undefined;
     viewLayoutColumns: number;
     jsonKey: string;
+    json: object | null;
     constructor(id: string);
     initialize(): void;
     addNestedGrid(handler: EventHandler): void;

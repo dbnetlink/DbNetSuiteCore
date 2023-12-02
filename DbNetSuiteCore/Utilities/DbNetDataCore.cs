@@ -227,10 +227,13 @@ namespace DbNetSuiteCore.Utilities
             switch (this.Provider)
             {
                 case DataProvider.DataTable:
-                    SqlDataTable = new SqlDataTable();
-                    SqlDataTable.AddRows(_dataTable).Wait();
-                    Connection = SqlDataTable.Connection;
-                    Command = Connection.CreateCommand();
+                    if (SqlDataTable == null)
+                    {
+                        SqlDataTable = new SqlDataTable();
+                        SqlDataTable.AddRows(_dataTable).Wait();
+                        Connection = SqlDataTable.Connection;
+                        Command = Connection.CreateCommand();
+                    }
                     return;
             }
 
@@ -1168,7 +1171,7 @@ namespace DbNetSuiteCore.Utilities
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && this.Provider != DataProvider.DataTable)
             {
                 Close();
             }

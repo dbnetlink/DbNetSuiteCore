@@ -57,6 +57,7 @@ class DbNetGrid extends DbNetGridEdit {
         this.view = false;
         this.viewLayoutColumns = 1;
         this.jsonKey = "";
+        this.json = null;
         if (this.toolbarPosition === undefined) {
             this.toolbarPosition = "Top";
         }
@@ -750,6 +751,7 @@ class DbNetGrid extends DbNetGridEdit {
         request.update = this.update;
         request.viewLayoutColumns = this.viewLayoutColumns;
         request.jsonKey = this.jsonKey;
+        request.json = this.json;
         return request;
     }
     addEventListener(id, eventName = "click") {

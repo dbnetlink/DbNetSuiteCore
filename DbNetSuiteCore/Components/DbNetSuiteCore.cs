@@ -232,11 +232,12 @@ namespace DbNetSuiteCore.Components
             }
         }
 
-        protected void AddProperty(string property, string name, List<string> properties)
+        protected void AddProperty(string property, string name, List<string> properties, bool quoted = true)
         {
             if (string.IsNullOrEmpty(property) == false)
             {
-                properties.Add($"{LowerCaseFirstLetter(name)} = \"{property}\";");
+                string quote = quoted ? "\"" : string.Empty;
+                properties.Add($"{LowerCaseFirstLetter(name)} = {quote}{property}{quote};");
             };
         }
 

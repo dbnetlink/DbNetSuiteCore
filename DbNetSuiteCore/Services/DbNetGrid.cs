@@ -23,10 +23,12 @@ using DbNetSuiteCore.Models.DbNetGrid;
 using DbNetSuiteCore.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
+using System.Web;
+using Newtonsoft.Json.Linq;
 
 namespace DbNetSuiteCore.Services
 {
-    public class DbNetGrid : DbNetGridEdit
+    public class DbNetGrid : DbNetGridEdit, IDisposable
     {
         private Dictionary<string, object> _columnProperties = new Dictionary<string, object>(StringComparer.CurrentCultureIgnoreCase);
         private Dictionary<string, object> _resp = new Dictionary<string, object>();
@@ -81,6 +83,7 @@ namespace DbNetSuiteCore.Services
         public int ViewLayoutColumns { get; set; }
         public string ExportExtension { get; set; } = string.Empty;
         public string JsonKey { get; set; } = string.Empty;
+        public JArray Json { get; set; }
 
         public static Type GetNullableType(Type type)
         {
@@ -108,7 +111,7 @@ namespace DbNetSuiteCore.Services
             }
             else if (ConnectionString == (JsonKey ?? string.Empty))
             {
-                string json = HttpContext.Session.GetString(ConnectionString);
+                string json = Json == null ? HttpContext.Session.GetString(ConnectionString) : Json.ToString();
                 if (JsonKey.StartsWith("datatable"))
                 {
                     dataTable = Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(json);
@@ -166,6 +169,8 @@ namespace DbNetSuiteCore.Services
                     DeleteRecord(response);
                     break;
             }
+
+            Database.Close();
 
             var serializeOptions = new JsonSerializerOptions
             {
@@ -1027,8 +1032,6 @@ namespace DbNetSuiteCore.Services
                 {
                     TotalPages = (int)Math.Ceiling((double)TotalRows / (double)Math.Abs(PageSize));
                 }
-
-                Database.Close();
             }
 
             DataTable totalsDataTable = GetTotalsDataTable();
@@ -1074,7 +1077,6 @@ namespace DbNetSuiteCore.Services
                 dataTable.Rows.Add(values);
                 PageSize = 1;
                 TotalPages = 1;
-                Database.Close();
             }
             var viewModel = new GridViewModel
             {
@@ -1111,8 +1113,6 @@ namespace DbNetSuiteCore.Services
                         Database.Reader.GetValues(values);
                         totalsDataTable.Rows.Add(values);
                     }
-
-                    Database.Close();
                 }
             }
 
@@ -1231,8 +1231,6 @@ namespace DbNetSuiteCore.Services
                 object[] values = new object[Database.Reader.FieldCount];
                 Database.Reader.GetValues(values);
                 dataTable.Rows.Add(values);
-
-                Database.Close();
             }
 
             return dataTable;
@@ -1252,6 +1250,14 @@ namespace DbNetSuiteCore.Services
                 }
             }
             return dataValue.ToString();
+        }
+
+        public void Dispose()
+        {
+            if (Database != null)
+            {
+                Database.Close();
+            }
         }
     }
 }

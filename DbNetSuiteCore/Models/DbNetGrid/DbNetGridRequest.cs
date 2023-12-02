@@ -1,6 +1,8 @@
 ﻿using DbNetSuiteCore.Enums;
 using DbNetSuiteCore.Models.DbNetEdit;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace DbNetSuiteCore.Models.DbNetGrid
 {
@@ -30,6 +32,6 @@ namespace DbNetSuiteCore.Models.DbNetGrid
         public int ViewLayoutColumns { get; set; }
         public string ExportExtension { get; set; } = string.Empty;
         public string JsonKey { get; set; } = string.Empty;
-
+        public JArray Json { get; set; }
     }
 }

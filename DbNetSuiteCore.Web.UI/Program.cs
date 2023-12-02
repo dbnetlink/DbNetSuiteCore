@@ -1,5 +1,4 @@
 using DbNetLink.Middleware;
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,10 +6,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddDbNetSuiteCore();
 
+/*
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(5); // Set session timeout
 });
+*/
 
 var app = builder.Build();
 
@@ -22,7 +23,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseSession();
+//app.UseSession();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseDbNetSuiteCore();

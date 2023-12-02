@@ -788,7 +788,6 @@ namespace DbNetSuiteCore.Services
 
                 Database.ExecuteQuery(query);
                 dataTable.Load(Database.Reader);
-                Database.Close();
             }
 
             return dataTable;
@@ -945,7 +944,6 @@ namespace DbNetSuiteCore.Services
                             ThrowException(ex.Message, sql);
                         }
                     }
-                    Database.Close();
                 }
             }
         }
@@ -1325,7 +1323,6 @@ namespace DbNetSuiteCore.Services
                         byteData = (byte[])value;
                     }
                 }
-                Database.Close();
             }
 
             if (string.IsNullOrEmpty(Extension) == false)
