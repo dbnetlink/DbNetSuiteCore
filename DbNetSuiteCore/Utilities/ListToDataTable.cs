@@ -37,7 +37,9 @@ namespace DbNetSuiteCore.Utilities
             _propertyTypes = type.PropertyTypes();
             foreach (string name in _propertyTypes.Keys)
             {
-                _dataTable.Columns.Add(new DataColumn(name, _propertyTypes[name]));
+                var propertyType = _propertyTypes[name];
+                propertyType = Nullable.GetUnderlyingType(propertyType) ?? propertyType;
+                _dataTable.Columns.Add(new DataColumn(name, propertyType));
             }
         }
         private void AddDataRow<T>(T record)

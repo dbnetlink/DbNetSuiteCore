@@ -792,7 +792,6 @@ namespace DbNetSuiteCore.Services
 
             return dataTable;
         }
-
         protected bool ValidateRequest<T>(DbNetGridEditResponse response, List<T> columns)
         {
             response.Message = String.Empty;

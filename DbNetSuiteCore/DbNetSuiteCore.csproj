@@ -10,11 +10,11 @@
     <Description>Interactive database driven Razor web application development components for ASP.NET Core.  Supports MSSQL, MySQL MariaDB, PostgreSQL and SQLite. </Description>
     <RepositoryUrl>https://github.com/dbnetlink/DbNetSuiteCore</RepositoryUrl>
     <PackageTags>asp.netcore;components;component;asp.net;core;razor;blazor;react;spreadsheet;excel;grid;form;drop-down; list;application;svelte;data-driven;</PackageTags>
-    <AssemblyVersion>1.0.04</AssemblyVersion>
-    <FileVersion>1.0.04</FileVersion>
+    <AssemblyVersion>1.0.7</AssemblyVersion>
+    <FileVersion>1.0.7</FileVersion>
     <PackageReleaseNotes>Initial version comprising of DbNetGridCore, DbNetEditCore and DbNetComboCore</PackageReleaseNotes>
     <PackageProjectUrl>https://dbnetsuitecore.com</PackageProjectUrl>
-    <Version>1.0.04</Version>
+    <Version>1.0.7</Version>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageLicenseExpression> NPOSL-3.0</PackageLicenseExpression>
     <BaseOutputPath>C:\Users\robin\source\repos\DbNetSuiteCore-VS2022\DbNetSuiteCoreApp\bin</BaseOutputPath>
@@ -341,13 +341,11 @@
 
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.102.1" />
-    <PackageReference Include="DocumentFormat.OpenXml" Version="2.20.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.3" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.10" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.10" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="6.0.10" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>

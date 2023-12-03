@@ -295,7 +295,8 @@ namespace DbNetSuiteCore.Utilities
 
                 if (updateColumns)
                 {
-                    AddColumn(property.Name, property.PropertyType);
+                    var propertyType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+                    AddColumn(property.Name, propertyType);
                 }
                 dictionary[property.Name] = property.GetValue(record, null);
             }

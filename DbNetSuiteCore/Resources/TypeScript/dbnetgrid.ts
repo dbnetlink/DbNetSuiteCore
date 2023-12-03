@@ -68,7 +68,7 @@ class DbNetGrid extends DbNetGridEdit {
     viewDialog: ViewDialog | undefined;
     viewLayoutColumns = 1;
     jsonKey = "";
-    json: object|null = null;
+    json: object|null = null; 
     constructor(id: string) {
         super(id);
         if (this.toolbarPosition === undefined) {

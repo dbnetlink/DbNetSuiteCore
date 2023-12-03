@@ -85,7 +85,6 @@ namespace DbNetSuiteCore.Utilities
 
             return type;
         }
-
     }
 
     public static class JTokenExtension
