@@ -7,7 +7,7 @@
     <div id="files" style="padding:10px"></div>
 </div>
 @{
-    DbNetFileCore filesView = new DbNetFileCore("","files");
+    DbNetFileCore filesView = new DbNetFileCore(string.Empty,"files");
     filesView.FilesOnly = true;
     DbNetFileCore treeView = new DbNetFileCore("/dbnetfile/documents", "treeview");
     treeView.TreeView = true;

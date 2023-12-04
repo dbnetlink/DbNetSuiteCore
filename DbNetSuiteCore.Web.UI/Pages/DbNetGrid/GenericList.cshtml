@@ -1,19 +1,16 @@
 ﻿@page
+@model GenericListModel
 @using DbNetSuiteCore.Components;
 @using DbNetSuiteCore.Enums;
 @using DbNetSuiteCore.Web.UI.Models;
+@using DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid;
 @{
-    List<Product> products = new List<Product>()
-    {
-        new Product() {Id = 1, Name = "Seville Oranges", Description = "Imported from Spain", Created = new DateTime(2023,2,1), Discontinued = false, MinimumReorderLevel = 10, UnitPrice = 0.55M},
-        new Product() {Id = 2, Name = "Coxs Apples", Description = "Home grown in Kent", Created = new DateTime(2021,8,22), Discontinued = true, MinimumReorderLevel = 8, UnitPrice = 0.33M},
-        new Product() {Id = 3, Name = "Cauliflower", Description = "Home grown in Spalding", Created = new DateTime(2019,8,22), Discontinued = false, MinimumReorderLevel = 5, UnitPrice = 1.55M}
-    };
-    DbNetGridCore ordersGrid = new DbNetGridCore(DataSourceType.List);
-    ordersGrid.AddList(products, HttpContext);
-    @ordersGrid.Render()
+    DbNetGridCore employeesGrid = new DbNetGridCore(DataSourceType.List);
+    employeesGrid.AddList(Model.Employees, HttpContext);
+    employeesGrid.Column(nameof(Employee.Gender)).Lookup(new Dictionary<string, string>() { { "M", "Male" }, { "F", "Female" } });
+    employeesGrid.Column(nameof(Employee.PayFrequency)).Lookup(new Dictionary<int, string>() { { 1, "Weekly" }, { 2, "Monthly" } });
+    employeesGrid.Column(nameof(Employee.EmployeeKey)).PrimaryKey();
+    employeesGrid.Insert = true;
 
-    DbNetGridCore productsGrid = new DbNetGridCore(DataSourceType.List);
-    productsGrid.AddList(products, HttpContext);
-   // @productsGrid.Render()
+    @employeesGrid.Render()
 }

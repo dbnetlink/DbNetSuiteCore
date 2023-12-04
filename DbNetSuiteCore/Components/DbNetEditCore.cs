@@ -24,12 +24,12 @@ namespace DbNetSuiteCore.Components
         /// Creates a new instance of the form control
         /// </summary>
         /// <param name="connection">the name of the connection alias defined in appsettings.json</param>
-        /// <param name="fromPart">the table to be updated</param>
+        /// <param name="tableName">the table to be updated</param>
         /// <param name="id">the Id of the HTML element that is the container for the grid (optional)</param>
         /// <param name="databaseType">the type database to be connected to (optional)</param>
-        public DbNetEditCore(string connection, string fromPart, string id = null, DatabaseType? databaseType = null) : base(connection, fromPart, id, databaseType)
+        public DbNetEditCore(string connection, string tableName, string id = null, DatabaseType? databaseType = null) : base(connection, tableName, id, databaseType)
         {
-            BrowseControl = new DbNetGridCore(connection, fromPart, true, databaseType);
+            BrowseControl = new DbNetGridCore(connection, tableName, true, databaseType);
             this._browseDialogId = $"{this.Id}_browse_dialog";
         }
         /// <summary>
@@ -37,13 +37,13 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         /// <param name="connection">the name of the connection alias defined in appsettings.json</param>
         /// <param name="databaseType">the type database to be connected to</param>
-        /// <param name="fromPart">the table to be updated</param>
+        /// <param name="tableName">the table to be updated</param>
         /// <param name="id">the Id of the HTML element that is the container for the grid (optional)</param>
-        public DbNetEditCore(string connection, DatabaseType databaseType, string fromPart, string id = null) : this(connection, fromPart, id, databaseType)
+        public DbNetEditCore(string connection, DatabaseType databaseType, string tableName, string id = null) : this(connection, tableName, id, databaseType)
         {
         }
 
-        internal DbNetEditCore(string connection, string fromPart, DatabaseType? databaseType) : base(connection, fromPart, null, databaseType)
+        internal DbNetEditCore(string connection, string tableName, DatabaseType? databaseType) : base(connection, tableName, null, databaseType)
         {
         }
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿using DbNetSuiteCore.Enums;
 using DbNetSuiteCore.Helpers;
+using Microsoft.VisualBasic;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace DbNetSuiteCore.Components
     public class DbNetGridEditCore : DbNetSuiteCore
     {
         protected string _fromPart;
+        protected bool? _insert = null;
 
         internal string FromPart => _fromPart;
 
@@ -31,7 +33,11 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Allow insertion of new records
         /// </summary>
-        public bool? Insert { get; set; } = null;
+        public bool? Insert
+        {
+            get => AllowInsert(); 
+            set => _insert = value;
+        }
         /// <summary>
         /// Labels for the columns specified in the Columns property
         /// </summary>
@@ -120,6 +126,21 @@ namespace DbNetSuiteCore.Components
             {
                 properties.Add($"fixedFilterParams = {Serialize(FixedFilterParams)};");
             }
+        }
+
+        private bool? AllowInsert()
+        {
+            if (this is DbNetGridCore)
+            {
+                var control = (this as DbNetGridCore);
+                switch (control._dataSourceType)
+                {
+                    case DataSourceType.JSON:
+                    case DataSourceType.List:
+                        return false;
+                }
+            }
+            return _insert;
         }
     }
 }

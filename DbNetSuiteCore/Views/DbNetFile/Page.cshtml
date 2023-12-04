@@ -175,7 +175,7 @@
             var lastFolder = f == folderCount - 1;
             var folder = folders[f];
             currentFolder += $"/{folder}";
-            html += $"<span class=\"folder-name{(lastFolder ? " last" : string.Empty)}\">{((f == 0 || lastFolder) ? ((folder == string.Empty) ? "Root" : folder) : FolderLink(currentFolder))}</span>{separator}";
+            html += $"<span class=\"folder-name{(lastFolder ? " last" : string.Empty)}\">{((f == 0 || lastFolder) ? ((folder == string.Empty) ? "root" : folder) : FolderLink(currentFolder))}</span>{separator}";
         }
 
         return new HtmlString(html);
@@ -183,7 +183,7 @@
 
     public string FolderLink(string folder)
     {
-        string lastFolder = (folder == "/") ? "Root" : folder.Split("/").Last();
+        string lastFolder = (folder == "/") ? "root" : folder.Split("/").Last();
         return $"<a class=\"folder-link\" data-folder=\"{EncodingHelper.Encode(folder)}\" title=\"{folder.Replace(Model.RootFolder, string.Empty)}\" href=\"#\">{lastFolder}</a>";
     }
 

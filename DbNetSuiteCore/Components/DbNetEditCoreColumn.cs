@@ -20,11 +20,19 @@ namespace DbNetSuiteCore.Components
             return this;
         }
         /// <summary>
-        /// Assigns an enum based lookup against a column to provide a descriptive value
+        /// Assigns an enum based lookup to a column to provide a descriptive value
         /// </summary>
         public new DbNetEditCoreColumn Lookup(Type lookup, bool useNameAsValue = false)
         {
             base.Lookup(lookup, useNameAsValue);
+            return this;
+        }
+        /// <summary>
+        /// Assigns a dictionary based lookup to a column to provide a descriptive value
+        /// </summary>
+        public new DbNetEditCoreColumn Lookup<T>(Dictionary<T, string> lookup)
+        {
+            base.Lookup(lookup);
             return this;
         }
         /// <summary>

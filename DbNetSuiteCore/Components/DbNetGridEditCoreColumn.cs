@@ -4,6 +4,7 @@ using DbNetSuiteCore.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 
@@ -23,6 +24,7 @@ namespace DbNetSuiteCore.Components
             _fromPart = fromPart;
             _columns = columns;
         }
+
         protected void Lookup(Lookup lookup, string columnName = null)
         {
             SetColumnProperty(ColumnPropertyType.Lookup, lookup, columnName);
@@ -36,13 +38,17 @@ namespace DbNetSuiteCore.Components
         {
             if (lookup.IsEnum)
             {
-                DataTable dt = EnumHelper.EnumToDataTable(lookup, useNameAsValue);
-                SetColumnProperty(ColumnPropertyType.Lookup, JsonConvert.SerializeObject(dt));
+                SetColumnProperty(ColumnPropertyType.Lookup, JsonConvert.SerializeObject(EnumHelper.EnumToDataTable(lookup, useNameAsValue)));
             }
+        }
+
+        protected void Lookup<T>(Dictionary<T,string> lookup)
+        {
+            SetColumnProperty(ColumnPropertyType.Lookup, JsonConvert.SerializeObject(DictionaryToDataTable(lookup)));
         }
         protected void Lookup()
         {
-            foreach(string columnName in _columnNames)
+            foreach (string columnName in _columnNames)
             {
                 Lookup(new Lookup(_fromPart, columnName, null, true), columnName);
             }
@@ -62,7 +68,7 @@ namespace DbNetSuiteCore.Components
         protected void Style(string style)
         {
             SetColumnProperty(ColumnPropertyType.Style, style);
-         }
+        }
         /// <summary>
         protected void DataType(Type type)
         {
@@ -112,6 +118,21 @@ namespace DbNetSuiteCore.Components
                 }
             }
             return this;
+        }
+
+        public static DataTable DictionaryToDataTable<T>(Dictionary<T,string> lookup)
+        {
+            DataTable dataTable = new DataTable();
+
+            dataTable.Columns.Add("value",typeof(string));
+            dataTable.Columns.Add("text", typeof(string));
+
+            foreach (T key in lookup.Keys)
+            {
+                dataTable.Rows.Add(key, lookup[key]);
+            }
+
+            return dataTable;
         }
 
         protected void SetColumnProperty(Enum propertyType, object propertyValue, string columnName = null)

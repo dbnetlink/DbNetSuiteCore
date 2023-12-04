@@ -10,10 +10,8 @@ using DbNetSuiteCore.Utilities;
 using Newtonsoft.Json;
 using System.Data;
 using DbNetSuiteCore.Extensions;
-using System.Net.Http;
-using Newtonsoft.Json.Linq;
-using System.Web;
-using DbNetSuiteCore.Models;
+using Microsoft.VisualBasic;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace DbNetSuiteCore.Components
 {
@@ -25,6 +23,8 @@ namespace DbNetSuiteCore.Components
         internal bool _addEditDialog => Edit && this._linkedControls.Where(c => c is DbNetEditCore).Any() == false;
         private int? _height = null;
         private string _jsonKey = null;
+        private bool? _update = null;
+        internal DataSourceType _dataSourceType;
 
         /// <summary>
         /// Automatically selects the first row of the grid (default is true)
@@ -106,7 +106,11 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Allow update of records
         /// </summary>
-        public bool? Update { get; set; } = null;
+        public bool? Update
+        {
+            get => AllowUpdate();
+            set => _update = value;
+        }
         /// <summary>
         /// Adds/removes a view dialog option to the toolbar
         /// </summary>
@@ -160,6 +164,8 @@ namespace DbNetSuiteCore.Components
             {
                 ProcedureName = fromPart;
             }
+
+            _dataSourceType = dataSourceType;
 
             EditControl = new DbNetEditCore(connection, fromPart, databaseType);
             EditControl.IsEditDialog = true;
@@ -404,7 +410,7 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             return NestedGrid.NestedRender();
         }
 
-        private void AssignJson(string json, HttpContext httpContext,bool isDataTable = false)
+        private void AssignJson(string json, HttpContext httpContext, bool isDataTable = false)
         {
             JsonKey = $"{(isDataTable ? "datatable" : string.Empty)}{Guid.NewGuid()}";
             if (httpContext != null)
@@ -419,6 +425,17 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
                 }
             }
             Json = JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json));
+        }
+
+        private bool? AllowUpdate()
+        {
+            switch (_dataSourceType)
+            {
+                case DataSourceType.JSON:
+                case DataSourceType.List:
+                    return false;
+            }
+            return _update;
         }
     }
 }

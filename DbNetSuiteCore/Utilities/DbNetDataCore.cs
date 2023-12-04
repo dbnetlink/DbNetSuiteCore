@@ -1158,9 +1158,12 @@ namespace DbNetSuiteCore.Utilities
         {
             CloseReader();
 
-            if (Connection.State == ConnectionState.Open)
+            if (Connection is IDbConnection)
             {
-                Connection.Close();
+                if (Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
             }
         }
 

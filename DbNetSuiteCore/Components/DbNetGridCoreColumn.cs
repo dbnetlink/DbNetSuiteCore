@@ -19,6 +19,14 @@ namespace DbNetSuiteCore.Components
             return this;
         }
         /// <summary>
+        /// Assigns a dictionary based lookup against a column to provide a descriptive value
+        /// </summary>
+        public new DbNetGridCoreColumn Lookup<T>(Dictionary<T,string> lookup)
+        {
+            base.Lookup(lookup);
+            return this;
+        }
+        /// <summary>
         /// Assigns an enum based lookup against a column to provide a descriptive value
         /// </summary>
         public new DbNetGridCoreColumn Lookup(Type lookup, bool useNameAsValue = false)
