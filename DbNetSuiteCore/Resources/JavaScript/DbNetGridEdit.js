@@ -17,6 +17,9 @@ class DbNetGridEdit extends DbNetSuite {
         this.searchFilterJoin = "";
         this.searchParams = [];
         this.toolbarButtonStyle = ToolbarButtonStyle.Image;
+        this.jsonKey = "";
+        this.json = null;
+        this.dataSourceType = DataSourceType.TableOrView;
         this.columns = [];
     }
     setColumnExpressions(...columnExpressions) {
@@ -152,6 +155,8 @@ class DbNetGridEdit extends DbNetSuite {
         request.initialOrderBy = this.initialOrderBy;
         request.parentChildRelationship = this.parentChildRelationship;
         request.maxImageHeight = this.maxImageHeight;
+        request.jsonKey = this.jsonKey;
+        request.json = this.json;
         return request;
     }
 }

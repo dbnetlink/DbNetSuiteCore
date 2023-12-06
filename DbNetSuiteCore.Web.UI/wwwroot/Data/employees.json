@@ -57,7 +57,8 @@
         "SalesPersonFlag": false,
         "DepartmentName": "Marketing",
         "StartDate": "2006-08-26",
-        "Status": "Current"
+        "Status": "Current",
+        "EndDate": "2009-12-28"
     },
     {
         "EmployeeKey": 3,

@@ -24,6 +24,9 @@ declare class DbNetGridEdit extends DbNetSuite {
     toolbarButtonStyle: ToolbarButtonStyle;
     toolbarPanel: JQuery<HTMLElement> | undefined;
     toolbarPosition: ToolbarPosition;
+    jsonKey: string;
+    json: object | null;
+    dataSourceType: DataSourceType;
     constructor(id: string);
     setColumnExpressions(...columnExpressions: string[]): void;
     setColumnKeys(...columnKeys: string[]): void;

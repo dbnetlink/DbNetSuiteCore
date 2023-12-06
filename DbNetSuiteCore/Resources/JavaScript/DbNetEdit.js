@@ -569,14 +569,29 @@ class DbNetEdit extends DbNetGridEdit {
             return;
         }
         this.changes = changes;
-        if (this.hasFormData()) {
-            this.post('save-files', this.formData)
-                .then((response) => {
-                this.submitChanges(response);
-            });
+        if (this.dataSourceType == DataSourceType.TableOrView) {
+            if (this.hasFormData()) {
+                this.post('save-files', this.formData)
+                    .then((response) => {
+                    this.submitChanges(response);
+                });
+            }
+            else {
+                this.submitChanges(null);
+            }
         }
         else {
-            this.submitChanges(null);
+            const updateArgs = {
+                editMode: this.editMode,
+                changes: changes,
+                formData: this.formData
+            };
+            if (this.eventHandlers["onJsonUpdated"]) {
+                this.fireEvent("onJsonUpdated", updateArgs);
+            }
+            else {
+                this.error("The <b>onJsonUpdated</b> has not been implemented.");
+            }
         }
     }
     submitChanges(response) {

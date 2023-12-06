@@ -31,7 +31,6 @@ namespace DbNetSuiteCore.Models.DbNetGrid
         public bool View { get; set; } = false;
         public int ViewLayoutColumns { get; set; }
         public string ExportExtension { get; set; } = string.Empty;
-        public string JsonKey { get; set; } = string.Empty;
-        public JArray Json { get; set; }
+
     }
 }

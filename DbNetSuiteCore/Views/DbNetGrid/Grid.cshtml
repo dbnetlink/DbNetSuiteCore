@@ -220,7 +220,18 @@
 
         if (column.DataType == nameof(DateTime))
         {
-            return Convert.ToDateTime(dataValue).ToString(column.Format);
+            if ((dataValue is DateTime) == false)
+            {
+                try
+                {
+                    dataValue = Convert.ToDateTime(dataValue);
+                }
+                catch(Exception)
+                {
+                    return dataValue.ToString();
+                }
+            }
+            return ((DateTime)dataValue).ToString(column.Format) ?? string.Empty;
         }
 
         if (column.DataType == nameof(Boolean))

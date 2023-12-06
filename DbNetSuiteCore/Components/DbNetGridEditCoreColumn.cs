@@ -13,7 +13,7 @@ namespace DbNetSuiteCore.Components
     public class DbNetGridEditCoreColumn
     {
         readonly List<ColumnProperty> _columnProperties;
-        readonly string[] _columnNames;
+        protected readonly string[] _columnNames;
         readonly string _fromPart;
         readonly List<string> _columns;
 
@@ -72,6 +72,7 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         protected void DataType(Type type)
         {
+            type = Nullable.GetUnderlyingType(type) ?? type;
             SetColumnProperty(ColumnPropertyType.DataType, type.ToString().Split(".").Last());
         }
         protected void ForeignKey()

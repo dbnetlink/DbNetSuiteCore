@@ -49,7 +49,7 @@ namespace DbNetSuiteCore.Utilities
             PropertyInfo[] properties = type.GetProperties();
             foreach (PropertyInfo property in properties.Where(p => _propertyTypes.Keys.Contains(p.Name)))
             {
-                row[property.Name] = property.GetValue(record, null);
+                row[property.Name] = property.GetValue(record) ?? DBNull.Value ;
             }
             _dataTable.Rows.Add(row);
         }

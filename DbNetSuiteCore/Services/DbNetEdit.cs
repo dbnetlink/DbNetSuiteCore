@@ -49,7 +49,7 @@ namespace DbNetSuiteCore.Services
             {
                 var request = await DeserialiseRequest<DbNetEditRequest>();
                 Columns = request.Columns;
-                Initialise();
+                GridEditInitialise();
 
                 switch (Action.ToLower())
                 {
@@ -90,6 +90,8 @@ namespace DbNetSuiteCore.Services
                         break;
                 }
             }
+
+            Database.Close();
 
             var serializeOptions = new JsonSerializerOptions
             {
@@ -152,7 +154,6 @@ namespace DbNetSuiteCore.Services
             {
                 Database.Open();
                 TotalRows = Database.ExecuteScalar(query);
-                Database.Close();
             }
         }
 
@@ -165,7 +166,6 @@ namespace DbNetSuiteCore.Services
                 Database.Open();
                 Database.ExecuteQuery(query);
                 dataTable.Load(Database.Reader);
-                Database.Close();
             }
 
             return dataTable;
@@ -239,7 +239,6 @@ namespace DbNetSuiteCore.Services
                         dataTable.Rows.Add(values);
                     }
                 }
-                Database.Close();
             }
 
             return dataTable;

@@ -21,10 +21,17 @@ using System.Threading.Tasks;
 using DbNetSuiteCore.Constants;
 using DbNetSuiteCore.Enums.DbNetEdit;
 using System.Globalization;
+using Newtonsoft.Json.Linq;
+using DbNetSuiteCore.Utilities;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
+using System.IO;
+using Newtonsoft.Json.Converters;
 
 namespace DbNetSuiteCore.Services
 {
-    public class DbNetGridEdit : DbNetSuite
+    public class DbNetGridEdit : DbNetSuite,IDisposable
     {
         private string _fromPart;
         private string _primaryKey;
@@ -93,10 +100,44 @@ namespace DbNetSuiteCore.Services
         public string SearchFilterJoin { get; set; } = "and";
         public List<SearchParameter> SearchParams { get; set; } = new List<SearchParameter>();
         public ToolbarButtonStyle ToolbarButtonStyle { get; set; } = ToolbarButtonStyle.Image;
+        public string JsonKey { get; set; } = string.Empty;
+        public JArray Json { get; set; }
+
         public DbNetGridEdit(AspNetCoreServices services) : base(services)
         {
         }
 
+        protected void GridEditInitialise()
+        {
+
+            DataTableConverter converter = new DataTableConverter();
+            DataTable dataTable = null;
+            var columnDataTypes = DbColumns.Where(c => string.IsNullOrEmpty(c.DataType) == false).ToDictionary(c => c.ColumnExpression, c => GetColumnType(c.DataType));
+
+            if (ConnectionString.ToLower().EndsWith(".json"))
+            {
+                IFileInfo fileInfo = Env.WebRootFileProvider.GetFileInfo(ConnectionString);
+                string json = File.ReadAllText(fileInfo.PhysicalPath);
+                dataTable = new JsonToDataTable(json, columnDataTypes).DataTable;
+                string tableName = string.IsNullOrEmpty(FromPart) ? ConnectionString.Split("/").Last().ToLower().Replace(".json", string.Empty) : FromPart;
+                dataTable.TableName = tableName;
+            }
+            else if (ConnectionString == (JsonKey ?? string.Empty))
+            {
+                string json = Json == null ? HttpContext.Session.GetString(ConnectionString) : Json.ToString();
+                if (JsonKey.StartsWith("datatable"))
+                {
+                    dataTable = Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(json,  new TypedDataTableConverter(columnDataTypes));
+                }
+                else
+                {
+                    dataTable = new JsonToDataTable(json, columnDataTypes).DataTable;
+                }
+                dataTable.TableName = FromPart;
+            }
+
+            Initialise(dataTable);
+        }
 
         protected List<T> ConfigureColumns<T>(List<T> columns, bool groupBy = false)
         {
@@ -1437,6 +1478,14 @@ namespace DbNetSuiteCore.Services
             }
 
             return Settings.ReadOnly;
+        }
+
+        public void Dispose()
+        {
+            if (Database != null)
+            {
+                Database.Close();
+            }
         }
     }
 }

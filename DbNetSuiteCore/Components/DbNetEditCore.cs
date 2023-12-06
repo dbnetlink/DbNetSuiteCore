@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using DbNetSuiteCore.Enums;
 using DbNetSuiteCore.Models;
+using DbNetSuiteCore.Extensions;
 
 namespace DbNetSuiteCore.Components
 {
@@ -27,10 +28,8 @@ namespace DbNetSuiteCore.Components
         /// <param name="tableName">the table to be updated</param>
         /// <param name="id">the Id of the HTML element that is the container for the grid (optional)</param>
         /// <param name="databaseType">the type database to be connected to (optional)</param>
-        public DbNetEditCore(string connection, string tableName, string id = null, DatabaseType? databaseType = null) : base(connection, tableName, id, databaseType)
+        public DbNetEditCore(string connection, string tableName, string id = null, DatabaseType? databaseType = null) : this(connection, tableName, id, databaseType, DataSourceType.TableOrView)
         {
-            BrowseControl = new DbNetGridCore(connection, tableName, true, databaseType);
-            this._browseDialogId = $"{this.Id}_browse_dialog";
         }
         /// <summary>
         /// Creates a new instance of the form control
@@ -43,8 +42,49 @@ namespace DbNetSuiteCore.Components
         {
         }
 
-        internal DbNetEditCore(string connection, string tableName, DatabaseType? databaseType) : base(connection, tableName, null, databaseType)
+        /// <summary>
+        /// Creates a new instance of the grid control
+        /// </summary>
+        ///         
+        /// <param name="dataSourceType">Should be JSON or List</param>
+        /// <param name="url">the relative URL of the JSON file</param>
+        /// <param name="jsonType">the type of a C# object that relates to the file</param>
+        /// <param name="id">the Id of the HTML element that is the container for the grid</param>
+        public DbNetEditCore(DataSourceType dataSourceType = DataSourceType.JSON, string url = null, Type jsonType = null, string id = null)
+            : this(url ?? string.Empty, url?.Split('/').Last().ToLower().Replace(".json", string.Empty) ?? string.Empty, id, null, dataSourceType)
         {
+            JsonType = jsonType;
+        }
+
+        internal DbNetEditCore(string connection, string tableName, string id = null, DatabaseType? databaseType = null, DataSourceType dataSourceType = DataSourceType.TableOrView) : base(connection, tableName, id, databaseType)
+        {
+            _dataSourceType = dataSourceType;
+
+            switch (dataSourceType)
+            {
+                case DataSourceType.JSON:
+                case DataSourceType.List:
+                    BrowseControl = new DbNetGridCore(connection, tableName, true, dataSourceType, JsonType);
+                    break;
+                default:
+                    BrowseControl = new DbNetGridCore(connection, tableName, true, databaseType);
+                    break;
+            }
+
+            this._browseDialogId = $"{this.Id}_browse_dialog";
+        }
+
+        internal DbNetEditCore(string connection, string tableName, bool editDialog, DatabaseType? databaseType = null, DataSourceType dataSourceType = DataSourceType.TableOrView) : base(connection, tableName, null, databaseType)
+        {
+            _dataSourceType = dataSourceType;
+            IsEditDialog = editDialog;
+        }
+
+        internal DbNetEditCore(string connection, string tableName, bool editDialog, DataSourceType dataSourceType, Type jsonType) : base(connection, tableName, null, null)
+        {
+            _dataSourceType = dataSourceType;
+            JsonType = jsonType;
+            IsEditDialog = editDialog;
         }
         /// <summary>
         /// Binds an event to a named client-side JavaScript function
@@ -74,11 +114,23 @@ namespace DbNetSuiteCore.Components
      
         public HtmlString Render()
         {
-            string message = ValidateProperties();
-
-            if (string.IsNullOrEmpty(message) == false)
+            if ((JsonKey ?? string.Empty) != _connection)
             {
-                return new HtmlString($"<div class=\"dbnetsuite-error\">{message}</div>");
+                string message = ValidateProperties();
+
+                if (string.IsNullOrEmpty(message) == false)
+                {
+                    return new HtmlString($"<div class=\"dbnetsuite-error\">{message}</div>");
+                }
+            }
+
+            if (JsonType != null)
+            {
+                var propertyTypes = JsonType.PropertyTypes();
+                foreach (string name in propertyTypes.Keys)
+                {
+                    Column(name).DataType(propertyTypes[name]);
+                }
             }
 
             AddBrowseControl();

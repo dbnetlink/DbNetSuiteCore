@@ -27,6 +27,12 @@ declare enum GridGenerationMode {
 interface Dictionary<T> {
     [Key: string]: T;
 }
+declare enum DataSourceType {
+    TableOrView = 0,
+    StoredProcedure = 1,
+    JSON = 2,
+    List = 3
+}
 type DbNetGridResponseCallback = (response: DbNetGridResponse) => void;
 declare class DbNetGrid extends DbNetGridEdit {
     autoRowSelect: boolean;
@@ -65,8 +71,6 @@ declare class DbNetGrid extends DbNetGridEdit {
     view: boolean;
     viewDialog: ViewDialog | undefined;
     viewLayoutColumns: number;
-    jsonKey: string;
-    json: object | null;
     constructor(id: string);
     initialize(): void;
     addNestedGrid(handler: EventHandler): void;

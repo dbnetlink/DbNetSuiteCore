@@ -1,6 +1,11 @@
 ﻿using DbNetSuiteCore.Enums;
+using DbNetSuiteCore.Extensions;
 using DbNetSuiteCore.Helpers;
+using DbNetSuiteCore.Utilities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.VisualBasic;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -11,6 +16,8 @@ namespace DbNetSuiteCore.Components
     {
         protected string _fromPart;
         protected bool? _insert = null;
+        private string _jsonKey = null;
+        internal DataSourceType _dataSourceType = DataSourceType.TableOrView;
 
         internal string FromPart => _fromPart;
 
@@ -35,7 +42,7 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public bool? Insert
         {
-            get => AllowInsert(); 
+            get => _insert; 
             set => _insert = value;
         }
         /// <summary>
@@ -74,6 +81,43 @@ namespace DbNetSuiteCore.Components
         /// Controls the position of the toolbar
         /// </summary>
         public ToolbarPosition? ToolbarPosition { get; set; } = null;
+        public Type JsonType { get; set; } = null;
+
+        public DataSourceType DataSourceType
+        {
+            get => _dataSourceType;
+            set => _dataSourceType = value;
+        }
+        internal string JsonKey
+        {
+            get => _jsonKey;
+            set
+            {
+                _jsonKey = value;
+                _connection = value;
+            }
+        }
+        internal string Json { get; set; }
+        /// <summary>
+        /// Adds a generic list as a data source 
+        /// </summary>
+        public void AddList<T>(List<T> list, HttpContext httpContext)
+        {
+            ListToDataTable listToDataTable = new ListToDataTable();
+            listToDataTable.AddList(list);
+            JsonType = list.First().GetType();
+            _fromPart = listToDataTable.DataTable.TableName;
+            AssignJson(JsonConvert.SerializeObject(listToDataTable.DataTable), httpContext, true);
+        }
+        /// <summary>
+        /// Adds a JSON string as a data source 
+        /// </summary>
+        public void AddJson<T>(string json, HttpContext httpContext = null)
+        {
+            JsonType = typeof(T);
+            _fromPart = JsonType?.Name ?? "jsontable";
+            AssignJson(json, httpContext);
+        }
 
         public DbNetGridEditCore(string connection, string fromPart, string id = null, DatabaseType? databaseType = null) : base(connection, id, databaseType)
         {
@@ -126,21 +170,45 @@ namespace DbNetSuiteCore.Components
             {
                 properties.Add($"fixedFilterParams = {Serialize(FixedFilterParams)};");
             }
-        }
+            AddProperty(JsonKey, nameof(JsonKey), properties);
+            AddProperty(Json, nameof(Json), properties, false);
+            AddProperty((DataSourceType?)DataSourceType, nameof(DataSourceType), properties);
 
-        private bool? AllowInsert()
+        }
+        private void AssignJson(string json, HttpContext httpContext, bool isDataTable = false)
         {
-            if (this is DbNetGridCore)
+            JsonKey = $"{(isDataTable ? "datatable" : string.Empty)}{Guid.NewGuid()}";
+            if (httpContext != null)
             {
-                var control = (this as DbNetGridCore);
-                switch (control._dataSourceType)
+                try
                 {
-                    case DataSourceType.JSON:
-                    case DataSourceType.List:
-                        return false;
+                    httpContext.Session.SetString(JsonKey, json);
+                    return;
+                }
+                catch
+                {
                 }
             }
-            return _insert;
+            Json = JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json));
+
+            if (this is DbNetGridCore)
+            {
+                var grid = (DbNetGridCore)this;
+                if (grid.EditControl != null) {
+                    grid.EditControl.AssignJson(json, httpContext, isDataTable);
+                    grid.EditControl._fromPart = this._fromPart;
+                }
+            }
+
+            if (this is DbNetEditCore)
+            {
+                var edit = (DbNetEditCore)this;
+                if (edit.BrowseControl != null)
+                {
+                    edit.BrowseControl.AssignJson(json, httpContext, isDataTable);
+                    edit.BrowseControl._fromPart = this._fromPart;
+                }
+            }
         }
     }
 }

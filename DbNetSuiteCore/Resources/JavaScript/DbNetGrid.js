@@ -22,6 +22,13 @@ var GridGenerationMode;
     GridGenerationMode[GridGenerationMode["Display"] = 0] = "Display";
     GridGenerationMode[GridGenerationMode["DataTable"] = 1] = "DataTable";
 })(GridGenerationMode || (GridGenerationMode = {}));
+var DataSourceType;
+(function (DataSourceType) {
+    DataSourceType[DataSourceType["TableOrView"] = 0] = "TableOrView";
+    DataSourceType[DataSourceType["StoredProcedure"] = 1] = "StoredProcedure";
+    DataSourceType[DataSourceType["JSON"] = 2] = "JSON";
+    DataSourceType[DataSourceType["List"] = 3] = "List";
+})(DataSourceType || (DataSourceType = {}));
 class DbNetGrid extends DbNetGridEdit {
     constructor(id) {
         super(id);
@@ -56,8 +63,6 @@ class DbNetGrid extends DbNetGridEdit {
         this.update = false;
         this.view = false;
         this.viewLayoutColumns = 1;
-        this.jsonKey = "";
-        this.json = null;
         if (this.toolbarPosition === undefined) {
             this.toolbarPosition = "Top";
         }
@@ -750,8 +755,6 @@ class DbNetGrid extends DbNetGridEdit {
         request.gridGenerationMode = this.gridGenerationMode;
         request.update = this.update;
         request.viewLayoutColumns = this.viewLayoutColumns;
-        request.jsonKey = this.jsonKey;
-        request.json = this.json;
         return request;
     }
     addEventListener(id, eventName = "click") {

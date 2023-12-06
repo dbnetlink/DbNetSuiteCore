@@ -28,6 +28,13 @@ interface Dictionary<T> {
     [Key: string]: T;
 }
 
+enum DataSourceType {
+    TableOrView,
+    StoredProcedure,
+    JSON,
+    List
+}
+
 type DbNetGridResponseCallback = (response: DbNetGridResponse) => void;
 
 class DbNetGrid extends DbNetGridEdit {
@@ -67,8 +74,7 @@ class DbNetGrid extends DbNetGridEdit {
     view = false;
     viewDialog: ViewDialog | undefined;
     viewLayoutColumns = 1;
-    jsonKey = "";
-    json: object|null = null; 
+
     constructor(id: string) {
         super(id);
         if (this.toolbarPosition === undefined) {
@@ -876,8 +882,6 @@ class DbNetGrid extends DbNetGridEdit {
         request.gridGenerationMode = this.gridGenerationMode;
         request.update = this.update;
         request.viewLayoutColumns = this.viewLayoutColumns;
-        request.jsonKey = this.jsonKey;
-        request.json = this.json;
 
         return request;
     }

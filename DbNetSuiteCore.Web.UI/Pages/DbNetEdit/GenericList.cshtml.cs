@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.FileProviders;
 using System.Text.Json;
 
-namespace DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid
+namespace DbNetSuiteCore.Web.UI.Pages.Samples.DbNetEdit
 {
     public class GenericListModel : PageModel
     {

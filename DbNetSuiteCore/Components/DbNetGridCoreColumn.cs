@@ -7,8 +7,10 @@ namespace DbNetSuiteCore.Components
 {
     public class DbNetGridCoreColumn : DbNetGridEditCoreColumn
     {
-        internal DbNetGridCoreColumn(string[] columnNames, List<ColumnProperty> columnProperties, string fromPart, List<string> columns) : base(columnNames, columnProperties, fromPart, columns)
+        private readonly DbNetGridCore _gridControl;
+        internal DbNetGridCoreColumn(string[] columnNames, List<ColumnProperty> columnProperties, string fromPart, List<string> columns, DbNetGridCore gridControl) : base(columnNames, columnProperties, fromPart, columns)
         {
+            _gridControl = gridControl;
         }
         /// <summary>
         /// Assigns a foreign key based lookup against a column to provide a descriptive value
@@ -21,7 +23,7 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Assigns a dictionary based lookup against a column to provide a descriptive value
         /// </summary>
-        public new DbNetGridCoreColumn Lookup<T>(Dictionary<T,string> lookup)
+        public new DbNetGridCoreColumn Lookup<T>(Dictionary<T, string> lookup)
         {
             base.Lookup(lookup);
             return this;
@@ -199,6 +201,17 @@ namespace DbNetSuiteCore.Components
         public new DbNetGridCoreColumn PrimaryKey()
         {
             base.PrimaryKey();
+
+            switch (_gridControl._dataSourceType)
+            {
+                case DataSourceType.List:
+                case DataSourceType.JSON:
+                    if (_gridControl.EditControl != null)
+                    {
+                        _gridControl.EditControl.Column(_columnNames[0]).PrimaryKey().ForeignKey();
+                    }
+                    break;
+            }
             return this;
         }
     }

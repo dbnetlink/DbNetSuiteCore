@@ -7,10 +7,13 @@
 @{
     DbNetGridCore employeesGrid = new DbNetGridCore(DataSourceType.List);
     employeesGrid.AddList(Model.Employees, HttpContext);
-    employeesGrid.Column(nameof(Employee.Gender)).Lookup(new Dictionary<string, string>() { { "M", "Male" }, { "F", "Female" } });
-    employeesGrid.Column(nameof(Employee.PayFrequency)).Lookup(new Dictionary<int, string>() { { 1, "Weekly" }, { 2, "Monthly" } });
+    employeesGrid.Column(nameof(Employee.Gender)).Lookup<string>(new Dictionary<string, string>() { { "M", "Male" }, { "F", "Female" } });
+    employeesGrid.Column(nameof(Employee.PayFrequency)).Lookup<int>(new Dictionary<int, string>() { { 1, "Weekly" }, { 2, "Monthly" } });
     employeesGrid.Column(nameof(Employee.EmployeeKey)).PrimaryKey();
-    employeesGrid.Insert = true;
+    employeesGrid.Column(new string[] { nameof(Employee.BirthDate), nameof(Employee.HireDate), nameof(Employee.StartDate), nameof(Employee.EndDate) }).Format("d");
+
+    employeesGrid.Update = true;
+    employeesGrid.EditControl.LayoutColumns = 2;
 
     @employeesGrid.Render()
 }

@@ -12,8 +12,13 @@ namespace DbNetSuiteCore.Utilities
 {
     public class SqlDataTableColumn
     {
+        private Type _dataType;
         public string ColumnName { get; set; }
-        public Type DataType { get; set; }
+        public Type DataType
+        {
+            get => Nullable.GetUnderlyingType(_dataType) ?? _dataType;
+            set => _dataType = value;
+        }
         public SqlDataTableColumn() { }
         public SqlDataTableColumn(string columnName, Type dataType)
         {
@@ -203,11 +208,11 @@ namespace DbNetSuiteCore.Utilities
                 case nameof(UInt16):
                 case nameof(UInt32):
                 case nameof(UInt64):
-                case nameof(UInt128):
+               // case nameof(UInt128):
                 case nameof(Int16):
                 case nameof(Int32):
                 case nameof(Int64):
-                case nameof(Int128):
+              //  case nameof(Int128):
                 case nameof(SByte):
                 case nameof(Boolean):
                 case nameof(Byte):

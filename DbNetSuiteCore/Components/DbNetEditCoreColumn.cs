@@ -33,7 +33,7 @@ namespace DbNetSuiteCore.Components
         public new DbNetEditCoreColumn Lookup<T>(Dictionary<T, string> lookup)
         {
             base.Lookup(lookup);
-            return this;
+            return this; 
         }
         /// <summary>
         /// Creates a lookup based on a list of existing distinct values for the column
@@ -197,6 +197,14 @@ namespace DbNetSuiteCore.Components
         public DbNetEditCoreColumn TextTransform(TextTransform textTransform)
         {
             SetColumnProperty(ColumnPropertyType.TextTransform, textTransform);
+            return this;
+        }
+        /// <summary>
+        /// Sets the column as the primary key 
+        /// </summary>
+        public new DbNetEditCoreColumn PrimaryKey()
+        {
+            base.PrimaryKey();
             return this;
         }
     }

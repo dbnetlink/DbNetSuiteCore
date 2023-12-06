@@ -19,7 +19,7 @@ namespace DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid
             IFileInfo fileInfo = _webHostEnvironment.WebRootFileProvider.GetFileInfo("/data/employees.json");
             if (fileInfo != null)
             {
-                JsonData = System.IO.File.ReadAllText(fileInfo.PhysicalPath);
+                JsonData = System.IO.File.ReadAllText(fileInfo.PhysicalPath ?? string.Empty);
             }
        }
  

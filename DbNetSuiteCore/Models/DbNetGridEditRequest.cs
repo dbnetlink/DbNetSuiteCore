@@ -1,4 +1,5 @@
 ﻿using DbNetSuiteCore.Enums;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
 namespace DbNetSuiteCore.Models.DbNetEdit
@@ -23,5 +24,7 @@ namespace DbNetSuiteCore.Models.DbNetEdit
         public string SearchFilterJoin { get; set; }
         public List<SearchParameter> SearchParams { get; set; } = new List<SearchParameter>();
         public ToolbarButtonStyle ToolbarButtonStyle { get; set; }
+        public string JsonKey { get; set; } = string.Empty;
+        public JArray Json { get; set; }
     }
 }

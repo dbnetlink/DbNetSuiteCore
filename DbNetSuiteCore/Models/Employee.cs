@@ -1,4 +1,6 @@
-﻿namespace DbNetSuiteCore.Web.UI.Models
+﻿using System;
+
+namespace DbNetSuiteCore.Models
 {
     public class Employee
     {

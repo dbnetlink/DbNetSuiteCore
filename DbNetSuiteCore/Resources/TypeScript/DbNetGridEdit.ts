@@ -21,6 +21,10 @@ class DbNetGridEdit extends DbNetSuite {
     toolbarButtonStyle: ToolbarButtonStyle = ToolbarButtonStyle.Image;
     toolbarPanel: JQuery<HTMLElement> | undefined;
     toolbarPosition: ToolbarPosition;
+    jsonKey = "";
+    json: object | null = null; 
+    dataSourceType: DataSourceType = DataSourceType.TableOrView;
+
     constructor(id: string) {
         super(id);
         this.columns = [];
@@ -173,6 +177,8 @@ class DbNetGridEdit extends DbNetSuite {
         request.initialOrderBy = this.initialOrderBy;
         request.parentChildRelationship = this.parentChildRelationship;
         request.maxImageHeight = this.maxImageHeight;
+        request.jsonKey = this.jsonKey;
+        request.json = this.json;
 
         return request;
     }
