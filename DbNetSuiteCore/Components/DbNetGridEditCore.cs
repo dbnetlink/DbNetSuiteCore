@@ -101,10 +101,10 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Adds a generic list as a data source 
         /// </summary>
-        public void AddList<T>(List<T> list, HttpContext httpContext)
+        public void AddList<T>(IEnumerable<T> list, HttpContext httpContext)
         {
             ListToDataTable listToDataTable = new ListToDataTable();
-            listToDataTable.AddList(list);
+            listToDataTable.AddList(list.ToList());
             JsonType = list.First().GetType();
             _fromPart = listToDataTable.DataTable.TableName;
             AssignJson(JsonConvert.SerializeObject(listToDataTable.DataTable), httpContext, true);

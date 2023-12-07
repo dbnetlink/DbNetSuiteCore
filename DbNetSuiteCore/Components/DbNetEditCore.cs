@@ -70,9 +70,10 @@ namespace DbNetSuiteCore.Components
                     BrowseControl = new DbNetGridCore(connection, tableName, true, databaseType);
                     break;
             }
-
+            BrowseControl.Height = 600;
             this._browseDialogId = $"{this.Id}_browse_dialog";
         }
+
 
         internal DbNetEditCore(string connection, string tableName, bool editDialog, DatabaseType? databaseType = null, DataSourceType dataSourceType = DataSourceType.TableOrView) : base(connection, tableName, null, databaseType)
         {

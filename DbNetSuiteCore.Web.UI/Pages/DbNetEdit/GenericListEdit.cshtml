@@ -1,0 +1,49 @@
+﻿@page
+@model GenericListEditModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums;
+@using DbNetSuiteCore.Enums.DbNetEdit;
+@using DbNetSuiteCore.Web.UI.Models;
+@using DbNetSuiteCore.Web.UI.Pages.Samples.DbNetEdit;
+@{
+    DbNetEditCore productsEdit = new DbNetEditCore(DataSourceType.List);
+    productsEdit.AddList(Model.Products, HttpContext);
+    productsEdit.Column(nameof(Product.ProductID)).PrimaryKey();
+    productsEdit.Column(nameof(Product.UnitPrice)).Format("c");
+    productsEdit.Column(nameof(Product.Discontinued)).DataType(typeof(bool));
+    productsEdit.Column(nameof(Product.SupplierID)).Lookup(Model.SupplierLookup);
+    productsEdit.Column(nameof(Product.CategoryID)).Lookup(Model.CategoryLookup);
+    productsEdit.Column(new string[] { nameof(Product.ProductName) }).Browse();
+    productsEdit.LayoutColumns = 2;
+    productsEdit.Bind(EventType.onJsonUpdated, "applyJsonChanges");
+
+    @productsEdit.Render()
+}
+
+<script>
+    function applyJsonChanges(control, args) {
+        fetch('/dbnetedit/genericlistedit',
+            {
+                method: "POST",
+                body: JSON.stringify(args),
+
+                headers: {
+                    RequestVerificationToken: '@GetAntiXsrfRequestToken()',
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                }
+            })
+            .then(r => r.json())
+            .then(r => {
+                control.processJsonUpdateResponse(r);
+            }).catch(error => console.error('Error', error))
+    }
+</script>
+
+@functions {
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Model.HttpContext).RequestToken;
+    }
+}

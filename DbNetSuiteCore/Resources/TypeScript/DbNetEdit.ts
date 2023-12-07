@@ -668,7 +668,7 @@ class DbNetEdit extends DbNetGridEdit {
 
         this.changes = changes;
 
-        if (this.dataSourceType == DataSourceType.TableOrView) {
+        if (this.dataSourceType.toString() == DataSourceType[DataSourceType.TableOrView] ) {
             if (this.hasFormData()) {
                 this.post<DbNetEditResponse>('save-files', this.formData)
                     .then((response) => {
@@ -680,22 +680,35 @@ class DbNetEdit extends DbNetGridEdit {
             }
         }
         else {
-
-            const updateArgs: UpdateArguments = {
+            const updateArgs: JsonUpdateRequest = {
+                primaryKey: this.primaryKey as string,
                 editMode: this.editMode,
                 changes: changes,
                 formData: this.formData
             };
 
-            if (this.eventHandlers["onJsonUpdated"]) {
-                this.fireEvent("onJsonUpdated", updateArgs);
+            const eventName = "onJsonUpdated";
+            if (this.eventHandlers[eventName]) {
+                this.fireEvent(eventName, updateArgs);
             }
             else {
-                this.error("The <b>onJsonUpdated</b> has not been implemented.")
+                this.error(`The <b>${eventName}</b> event handler has not been implemented.`)
             }
         }
     }
 
+    public processJsonUpdateResponse(response: JsonUpdateResponse) {
+        if (response.success) {
+            this.message(response.message);
+            if (response.dataSet) {
+                this.json = response.dataSet;
+            }
+        }
+        else {
+            this.error(response.message ?? "An error has occurred");
+        }
+
+    }
     private submitChanges(response: DbNetEditResponse | null) {
         const request = this.getRequest();
 

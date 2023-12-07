@@ -217,7 +217,10 @@ namespace DbNetSuiteCore.Components
                 var propertyTypes = JsonType.PropertyTypes();
                 foreach (string name in propertyTypes.Keys)
                 {
-                    Column(name).DataType(propertyTypes[name]);
+                    if (Column(name).ColumnPropertySet(ColumnPropertyType.DataType) == false)
+                    {
+                        Column(name).DataType(propertyTypes[name]);
+                    }
                 }
             }
 

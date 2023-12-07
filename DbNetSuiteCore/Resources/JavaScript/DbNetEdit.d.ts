@@ -56,6 +56,7 @@ declare class DbNetEdit extends DbNetGridEdit {
     deletionConfirmed(buttonPressed: MessageBoxButtonType): void;
     private recordDeleted;
     private applyChanges;
+    processJsonUpdateResponse(response: JsonUpdateResponse): void;
     private submitChanges;
     private cancelChanges;
     private applyChangesCallback;

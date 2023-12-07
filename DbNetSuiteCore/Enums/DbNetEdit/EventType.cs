@@ -7,6 +7,7 @@
         OnRecordSelected, 
         OnFileSelected, 
         OnConfigureBinaryData,
-        OnFormElementValidationFailed
+        OnFormElementValidationFailed,
+        onJsonUpdated
     }
 }

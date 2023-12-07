@@ -1139,17 +1139,7 @@ namespace DbNetSuiteCore.Services
             if (value is JsonElement)
             {
                 JsonElement jsonElement = (JsonElement)value;
-                switch (jsonElement.ValueKind)
-                {
-                    case JsonValueKind.String:
-                        value = jsonElement.GetString();
-                        break;
-                    case JsonValueKind.Number:
-                        value = jsonElement.GetUInt64();
-                        break;
-                    default:
-                        throw new Exception($"jsonElement.ValueKind => {jsonElement.ValueKind} not supported");
-                }
+                value = jsonElement.Value();
                 dataType = value.GetType().Name;
             }
 

@@ -2,18 +2,16 @@
 @model GenericListModel
 @using DbNetSuiteCore.Components;
 @using DbNetSuiteCore.Enums;
+@using DbNetSuiteCore.Enums.DbNetEdit;
 @using DbNetSuiteCore.Web.UI.Models;
 @using DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid;
 @{
-    DbNetGridCore employeesGrid = new DbNetGridCore(DataSourceType.List);
-    employeesGrid.AddList(Model.Employees, HttpContext);
-    employeesGrid.Column(nameof(Employee.Gender)).Lookup<string>(new Dictionary<string, string>() { { "M", "Male" }, { "F", "Female" } });
-    employeesGrid.Column(nameof(Employee.PayFrequency)).Lookup<int>(new Dictionary<int, string>() { { 1, "Weekly" }, { 2, "Monthly" } });
-    employeesGrid.Column(nameof(Employee.EmployeeKey)).PrimaryKey();
-    employeesGrid.Column(new string[] { nameof(Employee.BirthDate), nameof(Employee.HireDate), nameof(Employee.StartDate), nameof(Employee.EndDate) }).Format("d");
-
-    employeesGrid.Update = true;
-    employeesGrid.EditControl.LayoutColumns = 2;
-
-    @employeesGrid.Render()
+    DbNetGridCore productsGrid = new DbNetGridCore(DataSourceType.List);
+    productsGrid.AddList(Model.Products, HttpContext);
+    productsGrid.Column(nameof(Product.ProductID)).PrimaryKey();
+    productsGrid.Column(nameof(Product.UnitPrice)).Format("c");
+    productsGrid.Column(nameof(Product.Discontinued)).DataType(typeof(bool));
+    productsGrid.Column(nameof(Product.SupplierID)).Lookup(Model.SupplierLookup);
+    productsGrid.Column(nameof(Product.CategoryID)).Lookup(Model.CategoryLookup);
+    @productsGrid.Render()
 }

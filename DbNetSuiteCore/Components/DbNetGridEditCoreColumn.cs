@@ -136,6 +136,10 @@ namespace DbNetSuiteCore.Components
             return dataTable;
         }
 
+        public bool ColumnPropertySet(Enum propertyType)
+        {
+            return _columnProperties.Any(c => c.ColumnName == _columnNames.First().ToLower() && c.PropertyType == propertyType);
+        }
         protected void SetColumnProperty(Enum propertyType, object propertyValue, string columnName = null)
         {
             if (string.IsNullOrEmpty(columnName))
