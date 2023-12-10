@@ -9,5 +9,6 @@ declare class EditColumn extends DbColumn {
     readOnly?: boolean;
     inputValidation?: object;
     textTransform?: TextTransform;
+    defaultValue?: string;
     constructor(properties: EditColumnResponse, unmatched?: boolean);
 }

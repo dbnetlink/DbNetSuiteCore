@@ -702,15 +702,20 @@ class DbNetGrid extends DbNetGridEdit {
             return;
         }
         this.assignPrimaryKey();
-        this.post("delete-record", this.getRequest())
-            .then((response) => {
-            if (response.error == false) {
-                this.recordDeleted();
-            }
-            else {
-                this.error(response.message);
-            }
-        });
+        if (this.dataSourceType.toString() == DataSourceType[DataSourceType.TableOrView]) {
+            this.post("delete-record", this.getRequest())
+                .then((response) => {
+                if (response.error == false) {
+                    this.recordDeleted();
+                }
+                else {
+                    this.error(response.message);
+                }
+            });
+        }
+        else {
+            this.invokeOnJsonUpdated(EditMode.Delete);
+        }
     }
     recordDeleted() {
         this.reload();

@@ -198,9 +198,9 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Sets the column as the primary key 
         /// </summary>
-        public new DbNetGridCoreColumn PrimaryKey()
+        public new DbNetGridCoreColumn PrimaryKey(bool autoIncrement = true)
         {
-            base.PrimaryKey();
+            base.PrimaryKey(autoIncrement);
 
             switch (_gridControl._dataSourceType)
             {
@@ -208,7 +208,7 @@ namespace DbNetSuiteCore.Components
                 case DataSourceType.JSON:
                     if (_gridControl.EditControl != null)
                     {
-                        _gridControl.EditControl.Column(_columnNames[0]).PrimaryKey().ForeignKey();
+                        _gridControl.EditControl.Column(_columnNames[0]).PrimaryKey(autoIncrement).ForeignKey();
                     }
                     break;
             }

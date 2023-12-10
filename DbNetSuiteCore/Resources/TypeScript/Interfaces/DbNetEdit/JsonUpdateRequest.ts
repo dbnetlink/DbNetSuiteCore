@@ -1,6 +1,7 @@
 ﻿interface JsonUpdateRequest {
     primaryKey: string;
-    editMode: string;
-    changes: Dictionary<object>;
-    formData: FormData;
+    editMode: EditMode;
+    changes?: Dictionary<object>;
+    formData?: FormData;
+    columns?: DbColumn[];
 }

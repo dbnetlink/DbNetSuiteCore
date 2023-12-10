@@ -25,9 +25,6 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
 using System.Linq;
 using System.Text.RegularExpressions;
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
-using Microsoft.Extensions.FileProviders;
-using System.Collections.Generic;
 using System.Data;
 
 namespace DbNetSuiteCore.Services
@@ -116,7 +113,7 @@ namespace DbNetSuiteCore.Services
             response.Html = await HttpContext.RenderToStringAsync("Views/DbNetSuite/ImageViewer.cshtml", baseViewModel);
         }
 
-        protected void ThrowException(string Msg, string Info = null)
+        public static void ThrowException(string Msg, string Info = null)
         {
         }
 

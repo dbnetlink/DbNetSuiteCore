@@ -28,6 +28,8 @@ namespace DbNetSuiteCore.Models.DbNetEdit
 
         public string Annotation { get; set; }
         public TextTransform? TextTransform { get; set; }
+        public string DefaultValue { get; set; }
+
 
         public EditColumn()
         {

@@ -202,10 +202,19 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Sets the column as the primary key 
         /// </summary>
-        public new DbNetEditCoreColumn PrimaryKey()
+        public new DbNetEditCoreColumn PrimaryKey(bool autoincrement = true)
         {
-            base.PrimaryKey();
+            base.PrimaryKey(autoincrement);
             return this;
+        }
+
+        /// <summary>
+        /// Sets the initial default value in a form input when adding a new record
+        /// </summary>
+        public DbNetEditCoreColumn DefaultValue(string value)
+        {
+            SetColumnProperty(ColumnPropertyType.DefaultValue, value);
+            return this; 
         }
     }
 }

@@ -1,5 +1,9 @@
 type DbNetEditResponseCallback = (response: DbNetEditResponse) => void;
-type EditMode = "update" | "insert"
+enum EditMode {
+    Insert,
+    Update,
+    Delete
+}
 type ValidationMessageType = "Native" | "Application"
 
 class DbNetEdit extends DbNetGridEdit {
@@ -9,7 +13,7 @@ class DbNetEdit extends DbNetGridEdit {
     changes: Dictionary<object> = {};
     currentRow = 1;
     delete = false;
-    editMode: EditMode = "update";
+    editMode: EditMode = EditMode.Update;
     editPanel: JQuery<HTMLElement> | undefined;
     formPanel: JQuery<HTMLElement> | undefined;
     formData: FormData;
@@ -220,7 +224,7 @@ class DbNetEdit extends DbNetGridEdit {
         const $firstElement = this.formElements().filter(':not(:disabled):first') as JQuery<HTMLFormElement>;
         $firstElement.trigger("focus");
 
-        this.editMode = "update";
+        this.editMode = EditMode.Update;
         this.primaryKey = response.primaryKey as string;
         this.formData = new FormData();
 
@@ -271,8 +275,7 @@ class DbNetEdit extends DbNetGridEdit {
         input.setSelectionRange(p, p);
     }
 
-    private toTitleCase(phrase: string)
-    {
+    private toTitleCase(phrase: string) {
         return phrase.toLowerCase().split(' ').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     }
 
@@ -521,7 +524,7 @@ class DbNetEdit extends DbNetGridEdit {
 
         const $firstElement = this.formElements().filter(':not(:disabled):first') as JQuery<HTMLFormElement>;
         $firstElement.trigger("focus");
-        this.editMode = "insert";
+        this.editMode = EditMode.Insert;
         this.configureToolbarButtons(true);
         this.configureLinkedControls(null, DbNetSuite.DBNull);
         this.fireEvent("onInsertInitalize", { formElements: this.formElements() });
@@ -579,15 +582,20 @@ class DbNetEdit extends DbNetGridEdit {
             return;
         }
 
-        this.post<DbNetSuiteResponse>("delete-record", this.getRequest())
-            .then((response) => {
-                if (response.error == false) {
-                    this.recordDeleted();
-                }
-                else {
-                    this.error(response.message);
-                }
-            })
+        if (this.dataSourceType.toString() == DataSourceType[DataSourceType.TableOrView]) {
+            this.post<DbNetSuiteResponse>("delete-record", this.getRequest())
+                .then((response) => {
+                    if (response.error == false) {
+                        this.recordDeleted();
+                    }
+                    else {
+                        this.error(response.message);
+                    }
+                });
+        }
+        else {
+            this.invokeOnJsonUpdated(EditMode.Delete);
+        }
     }
 
     private recordDeleted(): void {
@@ -597,7 +605,7 @@ class DbNetEdit extends DbNetGridEdit {
     }
 
     private applyChanges() {
-        if (this.editMode == "update" && !this.primaryKeyCheck()) {
+        if (this.editMode == EditMode.Update && !this.primaryKeyCheck()) {
             return;
         }
         const changes: Dictionary<object> = {};
@@ -650,6 +658,10 @@ class DbNetEdit extends DbNetGridEdit {
                 const $input = $(this) as JQuery<HTMLFormElement>;
                 const name = $input.attr("name") as string;
 
+                if ($input.attr("autoincrement") == "true") {
+                    return;
+                }
+
                 if ($input.attr("type") == "checkbox") {
                     if ($input.prop("checked") != $input.data("value")) {
                         changes[name] = $input.prop("checked");
@@ -668,7 +680,7 @@ class DbNetEdit extends DbNetGridEdit {
 
         this.changes = changes;
 
-        if (this.dataSourceType.toString() == DataSourceType[DataSourceType.TableOrView] ) {
+        if (this.dataSourceType.toString() == DataSourceType[DataSourceType.TableOrView]) {
             if (this.hasFormData()) {
                 this.post<DbNetEditResponse>('save-files', this.formData)
                     .then((response) => {
@@ -680,35 +692,13 @@ class DbNetEdit extends DbNetGridEdit {
             }
         }
         else {
-            const updateArgs: JsonUpdateRequest = {
-                primaryKey: this.primaryKey as string,
-                editMode: this.editMode,
-                changes: changes,
-                formData: this.formData
-            };
-
-            const eventName = "onJsonUpdated";
-            if (this.eventHandlers[eventName]) {
-                this.fireEvent(eventName, updateArgs);
-            }
-            else {
-                this.error(`The <b>${eventName}</b> event handler has not been implemented.`)
-            }
+            this.post<DbNetEditResponse>('validate-record', this.getRequest())
+                .then((response) => {
+                    this.validateChangesCallback(response);
+                })
         }
     }
 
-    public processJsonUpdateResponse(response: JsonUpdateResponse) {
-        if (response.success) {
-            this.message(response.message);
-            if (response.dataSet) {
-                this.json = response.dataSet;
-            }
-        }
-        else {
-            this.error(response.message ?? "An error has occurred");
-        }
-
-    }
     private submitChanges(response: DbNetEditResponse | null) {
         const request = this.getRequest();
 
@@ -716,19 +706,28 @@ class DbNetEdit extends DbNetGridEdit {
             request.formCacheKey = response.formCacheKey;
         }
 
-        this.post<DbNetEditResponse>(`${this.editMode}-record`, request)
+        this.post<DbNetEditResponse>(`${EditMode[this.editMode].toLowerCase()}-record`, request)
             .then((response) => {
                 this.applyChangesCallback(response);
             })
     }
 
     private cancelChanges() {
-        if (this.editMode == "insert") {
+        if (this.editMode == EditMode.Insert) {
             this.getRows();
         }
         else {
             this.getRecord();
         }
+    }
+
+    private validateChangesCallback(response: DbNetEditResponse): void {
+        if (response.validationMessage) {
+            this.message(response.validationMessage.value);
+            this.highlightField(response.validationMessage.key.toLowerCase())
+            return;
+        }
+        this.invokeOnJsonUpdated(this.editMode)
     }
 
     private applyChangesCallback(response: DbNetEditResponse): void {
@@ -744,7 +743,7 @@ class DbNetEdit extends DbNetGridEdit {
         }
         this.message(response.message);
 
-        if (this.editMode == "update") {
+        if (this.editMode == EditMode.Update) {
             this.updateForm(response);
             this.fireEvent("onRecordUpdated");
         }
@@ -786,7 +785,7 @@ class DbNetEdit extends DbNetGridEdit {
         }
     }
 
-    private message(msg: string): void {
+    public message(msg: string): void {
         this.editPanel?.find(".message").html(msg).addClass("highlight");
         setTimeout(() => this.clearMessage(), 3000);
     }

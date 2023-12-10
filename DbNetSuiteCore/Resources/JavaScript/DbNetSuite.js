@@ -334,6 +334,9 @@ class DbNetSuite {
             }
         }
     }
+    sleep(s) {
+        return new Promise(resolve => setTimeout(resolve, s * 1000));
+    }
 }
 DbNetSuite.DBNull = "DBNull";
 document.addEventListener("DOMContentLoaded", function () {

@@ -4,8 +4,8 @@
 @using DbNetSuiteCore.Enums;
 
 @{
-    DbNetEditCore productsEdit = new DbNetEditCore("northwind(msql)",DatabaseType.MSSqlServer,"products");
-    /*
+    DbNetEditCore productsEdit = new DbNetEditCore("northwind","products");
+
     productsEdit.Column("categoryid").Lookup(new Lookup("Categories", "CategoryID", "CategoryName"));
     productsEdit.Column("SupplierID").Lookup(new Lookup("Suppliers", "SupplierID", "CompanyName"));
     productsEdit.Column("UnitPrice").Format("c");
@@ -13,7 +13,7 @@
     productsEdit.Column("UnitPrice").Style("background-color:gold; font-weight:bold;").DataType(typeof(Decimal)).Search();
     productsEdit.Column("CategoryID").Label("Category");
     productsEdit.Column("SupplierID").Label("Supplier");
-   // productsEdit.Column("discontinued").DataType(typeof(Boolean)).ReadOnly();
-   */
+    productsEdit.Column("discontinued").DataType(typeof(Boolean));
+
     @productsEdit.Render()
 }

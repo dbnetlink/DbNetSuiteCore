@@ -8,7 +8,7 @@ using DbNetSuiteCore.Enums;
 using DbNetSuiteCore.Components;
 using DbNetSuiteCore.Enums.DbNetEdit;
 
-namespace DbNetSuiteCore.Web.UI.Pages.Samples.DbNetEdit
+namespace DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid
 {
     public class GenericListEditModel : PageModel
     {
@@ -20,7 +20,7 @@ namespace DbNetSuiteCore.Web.UI.Pages.Samples.DbNetEdit
         public IEnumerable<Product>? Products { get; set; }
         public Dictionary<int, string>? SupplierLookup { get; set; }
         public Dictionary<int, string>? CategoryLookup { get; set; }
-        public DbNetEditCore? ProductsEdit { get; set; }
+        public DbNetGridCore? ProductsGrid { get; set; }
 
         public GenericListEditModel(IWebHostEnvironment webHostEnvironment, IConfiguration configuration)
         {
@@ -44,23 +44,25 @@ namespace DbNetSuiteCore.Web.UI.Pages.Samples.DbNetEdit
                 categoryLookup = await GetLookup(conn, "select CategoryID as Key, CategoryName as Value from Categories order by 2");
             }
 
-            ProductsEdit = new DbNetEditCore(DataSourceType.List);
-            ProductsEdit.AddList(products);
-            ProductsEdit.Column(nameof(Product.ProductID)).PrimaryKey();
-            ProductsEdit.Column(nameof(Product.UnitPrice)).Format("c");
-            ProductsEdit.Column(nameof(Product.Discontinued)).DataType(typeof(bool));
-            ProductsEdit.Column(nameof(Product.SupplierID)).Lookup(supplierLookup);
-            ProductsEdit.Column(nameof(Product.CategoryID)).Lookup(categoryLookup);
-            ProductsEdit.Column(new string[] { nameof(Product.UnitPrice), nameof(Product.ProductName), nameof(Product.CategoryID), nameof(Product.SupplierID), nameof(Product.QuantityPerUnit), nameof(Product.ReorderLevel), nameof(Product.UnitsInStock), nameof(Product.UnitsOnOrder) }).Required();
-            ProductsEdit.Column(nameof(Product.ProductName)).Browse();
-            ProductsEdit.Column(nameof(Product.ReorderLevel)).DefaultValue("0");
-            ProductsEdit.Column(nameof(Product.UnitsInStock)).DefaultValue("0");
+            ProductsGrid = new DbNetGridCore(DataSourceType.List);
+            ProductsGrid.AddList(products);
+            ProductsGrid.Column(nameof(Product.ProductID)).PrimaryKey();
+            ProductsGrid.EditControl.Column(nameof(Product.ProductID)).PrimaryKey();
+            ProductsGrid.Column(nameof(Product.UnitPrice)).Format("c");
+            ProductsGrid.Column(nameof(Product.Discontinued)).DataType(typeof(bool));
+            ProductsGrid.Column(nameof(Product.SupplierID)).Lookup(supplierLookup);
+            ProductsGrid.Column(nameof(Product.CategoryID)).Lookup(categoryLookup);
+            ProductsGrid.EditControl.Column(new string[] { nameof(Product.UnitPrice), nameof(Product.ProductName), nameof(Product.CategoryID), nameof(Product.SupplierID), nameof(Product.QuantityPerUnit), nameof(Product.ReorderLevel), nameof(Product.UnitsInStock), nameof(Product.UnitsOnOrder) }).Required();
+            ProductsGrid.EditControl.Column(nameof(Product.ReorderLevel)).DefaultValue("0");
+            ProductsGrid.EditControl.Column(nameof(Product.UnitsInStock)).DefaultValue("0");
 
-            ProductsEdit.LayoutColumns = 2;
-            ProductsEdit.Insert = true;
-            ProductsEdit.Delete = true;
+            // ProductsEdit.LayoutColumns = 2;
+            ProductsGrid.Insert = true;
+            ProductsGrid.Update = true;
+            ProductsGrid.Delete = true;
 
-            ProductsEdit.Bind(EventType.onJsonUpdated, "applyJsonChanges");
+            ProductsGrid.Bind(DbNetSuiteCore.Enums.DbNetGrid.EventType.onJsonUpdated, "applyJsonChanges");
+            ProductsGrid.EditControl.Bind(EventType.onJsonUpdated, "applyJsonChanges");
         }
 
         private async Task<Dictionary<int, string>> GetLookup(SqliteConnection conn, string sql)

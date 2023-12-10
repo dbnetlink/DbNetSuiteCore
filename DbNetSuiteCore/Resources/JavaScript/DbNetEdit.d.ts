@@ -3,7 +3,11 @@
 /// <reference types="jqueryui" />
 /// <reference types="bootstrap" />
 type DbNetEditResponseCallback = (response: DbNetEditResponse) => void;
-type EditMode = "update" | "insert";
+declare enum EditMode {
+    Insert = 0,
+    Update = 1,
+    Delete = 2
+}
 type ValidationMessageType = "Native" | "Application";
 declare class DbNetEdit extends DbNetGridEdit {
     browseControl: DbNetGrid | undefined;
@@ -56,15 +60,15 @@ declare class DbNetEdit extends DbNetGridEdit {
     deletionConfirmed(buttonPressed: MessageBoxButtonType): void;
     private recordDeleted;
     private applyChanges;
-    processJsonUpdateResponse(response: JsonUpdateResponse): void;
     private submitChanges;
     private cancelChanges;
+    private validateChangesCallback;
     private applyChangesCallback;
     private updateBrowseControl;
     browseControlReloaded(): void;
     private openBrowseDialog;
     private browseDialogRowSelected;
-    private message;
+    message(msg: string): void;
     private clearMessage;
     private formElement;
     private highlightField;

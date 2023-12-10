@@ -25,10 +25,11 @@
         PrimaryKey,
         ForeignKey
     }
-    public enum EditModes
+    public enum EditMode
     {
         Insert,
-        Update
+        Update,
+        Delete
     }
 
     /////////////////////////////////////////////// 

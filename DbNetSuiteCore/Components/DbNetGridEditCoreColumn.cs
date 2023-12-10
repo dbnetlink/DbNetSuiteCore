@@ -79,9 +79,13 @@ namespace DbNetSuiteCore.Components
         {
             SetColumnProperty(ColumnPropertyType.ForeignKey, true);
         }
-        protected void PrimaryKey()
+        protected void PrimaryKey(bool autoincrement = true)
         {
             SetColumnProperty(ColumnPropertyType.PrimaryKey, true);
+            if (autoincrement)
+            {
+                SetColumnProperty(ColumnPropertyType.AutoIncrement, true);
+            }
         }
         protected void Format(string format)
         {

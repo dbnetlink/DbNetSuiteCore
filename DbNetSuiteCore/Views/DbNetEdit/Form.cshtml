@@ -249,6 +249,11 @@
             attributes.Add($"pattern=\"{editColumn.Pattern}\"");
         }
 
+        if (string.IsNullOrEmpty(editColumn.DefaultValue) == false)
+        {
+            attributes.Add($"initialvalue=\"{editColumn.DefaultValue}\"");
+        }
+
         if (editColumn.DependentLookup != null)
         {
             attributes.Add($"dependentLookup=\"{editColumn.DependentLookup.ColumnName}\"");

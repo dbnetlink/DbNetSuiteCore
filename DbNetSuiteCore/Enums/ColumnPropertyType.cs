@@ -32,6 +32,8 @@
         Annotation,
         Placeholder,
         InputValidation,
-        TextTransform
+        TextTransform,
+        AutoIncrement,
+        DefaultValue
     }
 }

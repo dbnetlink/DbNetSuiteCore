@@ -159,4 +159,61 @@ class DbNetGridEdit extends DbNetSuite {
         request.json = this.json;
         return request;
     }
+    invokeOnJsonUpdated(editMode) {
+        let updateArgs = {};
+        if (this instanceof DbNetEdit) {
+            const editControl = this;
+            updateArgs = {
+                primaryKey: this.primaryKey,
+                editMode: editMode,
+                changes: (editMode == EditMode.Delete) ? undefined : editControl.changes,
+                formData: (editMode == EditMode.Delete) ? undefined : editControl.formData,
+                columns: (editMode == EditMode.Delete) ? undefined : editControl.columns
+            };
+        }
+        else {
+            updateArgs = {
+                primaryKey: this.primaryKey,
+                editMode: editMode
+            };
+        }
+        const eventName = "onJsonUpdated";
+        if (this.eventHandlers[eventName]) {
+            this.fireEvent(eventName, updateArgs);
+        }
+        else {
+            this.error(`The <b>${eventName}</b> event handler has not been implemented.`);
+        }
+    }
+    processJsonUpdateResponse(response) {
+        var _a;
+        if (response.success == false) {
+            this.error((_a = response.message) !== null && _a !== void 0 ? _a : "An error has occurred");
+            return;
+        }
+        if (this instanceof DbNetEdit) {
+            const editControl = this;
+            editControl.message(response.message);
+            if (response.dataSet) {
+                editControl.json = response.dataSet;
+                if (editControl.browseControl) {
+                    editControl.browseControl.json = response.dataSet;
+                }
+                this.sleep(1);
+                if (this.isEditDialog) {
+                    const grid = this.parentControl;
+                    grid.json = response.dataSet;
+                    grid.getPage();
+                }
+                else {
+                    editControl.getRows();
+                }
+            }
+        }
+        else if (this instanceof DbNetGrid) {
+            const gridControl = this;
+            gridControl.json = response.dataSet;
+            gridControl.getPage();
+        }
+    }
 }

@@ -39,4 +39,6 @@ declare class DbNetGridEdit extends DbNetSuite {
     private matchingColumn;
     assignForeignKey(control: DbNetSuite, fk: string | object | null): void;
     protected baseRequest(): DbNetGridEditRequest;
+    protected invokeOnJsonUpdated(editMode: EditMode): void;
+    processJsonUpdateResponse(response: JsonUpdateResponse): void;
 }

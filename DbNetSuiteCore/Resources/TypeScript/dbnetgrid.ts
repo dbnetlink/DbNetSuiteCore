@@ -709,7 +709,7 @@ class DbNetGrid extends DbNetGridEdit {
         request.exportExtension = extension;
         this.post<Blob>("export", request, true)
             .then((response) => {
-                switch (extension) { 
+                switch (extension) {
                     case "html":
                         this.openWindow(response)
                         break;
@@ -720,13 +720,13 @@ class DbNetGrid extends DbNetGridEdit {
             });
     }
 
-    private openWindow(response:Blob) {
+    private openWindow(response: Blob) {
         const url = window.URL.createObjectURL(response);
         const tab = window.open() as Window;
         tab.location.href = url;
     }
 
-    private downloadFile(response: Blob, extension:string) {
+    private downloadFile(response: Blob, extension: string) {
         const link = document.createElement("a");
         link.href = window.URL.createObjectURL(response);
         link.download = `report_${new Date().getTime()}.${extension}`;
@@ -826,15 +826,20 @@ class DbNetGrid extends DbNetGridEdit {
 
         this.assignPrimaryKey();
 
-        this.post<DbNetSuiteResponse>("delete-record", this.getRequest())
-            .then((response) => {
-                if (response.error == false) {
-                    this.recordDeleted();
-                }
-                else {
-                    this.error(response.message);
-                }
-            })
+        if (this.dataSourceType.toString() == DataSourceType[DataSourceType.TableOrView]) {
+            this.post<DbNetSuiteResponse>("delete-record", this.getRequest())
+                .then((response) => {
+                    if (response.error == false) {
+                        this.recordDeleted();
+                    }
+                    else {
+                        this.error(response.message);
+                    }
+                })
+        }
+        else {
+            this.invokeOnJsonUpdated(EditMode.Delete);
+        }
     }
 
     private recordDeleted(): void {

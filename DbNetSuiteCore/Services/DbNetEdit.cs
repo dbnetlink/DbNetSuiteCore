@@ -16,13 +16,14 @@ using System.Linq;
 using DbNetSuiteCore.Constants;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.AspNetCore.Http;
+using System.Reflection.Metadata.Ecma335;
 
 namespace DbNetSuiteCore.Services
 {
     internal class DbNetEdit : DbNetGridEdit
     {
         private Dictionary<string, object> _resp = new Dictionary<string, object>();
-  
+
         public List<EditColumn> Columns { get; set; } = new List<EditColumn>();
         public Dictionary<string, object> Changes { get; set; }
         public long CurrentRow { get; set; } = 1;
@@ -87,6 +88,9 @@ namespace DbNetSuiteCore.Services
                         break;
                     case RequestAction.GetOptions:
                         await GetOptions(response);
+                        break;
+                    case RequestAction.ValidateRecord:
+                        ValidateRecord(response);
                         break;
                 }
             }
@@ -353,11 +357,23 @@ namespace DbNetSuiteCore.Services
             return new QueryCommandConfig(sql, parameters);
         }
 
+        private void ValidateRecord(DbNetEditResponse response)
+        {
+            ConfigureEditColumns();
+
+            if (CheckForPrimaryKey(response) == false)
+            {
+                return;
+            }
+            ValidateUserInput(response);
+        }
+
         private void UpdateRecord(DbNetEditResponse response)
         {
             ConfigureEditColumns();
 
-            if (CheckForPrimaryKey(response) == false) {
+            if (CheckForPrimaryKey(response) == false)
+            {
                 return;
             }
             List<string> updatePart = new List<string>();
@@ -563,9 +579,9 @@ namespace DbNetSuiteCore.Services
 
             if (response.Error)
             {
-                response.ValidationMessage = new KeyValuePair<string, string>(primaryKeyValues.Keys.First(), "Supplied primary key value is not unique" );
+                response.ValidationMessage = new KeyValuePair<string, string>(primaryKeyValues.Keys.First(), "Supplied primary key value is not unique");
             }
-            
+
             return !response.Error;
         }
 

@@ -8,6 +8,7 @@
         OnPageLoaded,
         OnRowSelected,
         OnConfigureBinaryData,
-        OnViewRecordSelected
+        OnViewRecordSelected,
+        onJsonUpdated
     }
 }

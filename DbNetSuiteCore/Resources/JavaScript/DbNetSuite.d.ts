@@ -83,4 +83,5 @@ declare class DbNetSuite {
     protected quickSearchKeyPress(event: JQuery.TriggeredEvent): void;
     private runQuickSearch;
     protected copyTableToClipboard(table: HTMLTableElement): void;
+    protected sleep(s: number): Promise<unknown>;
 }

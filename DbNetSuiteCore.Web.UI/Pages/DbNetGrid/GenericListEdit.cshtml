@@ -5,14 +5,13 @@
 @using DbNetSuiteCore.Enums;
 @using DbNetSuiteCore.Enums.DbNetEdit;
 @using DbNetSuiteCore.Web.UI.Models;
-@using DbNetSuiteCore.Web.UI.Pages.Samples.DbNetEdit;
-@{
-    @Model.ProductsEdit?.Render()
+@using DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid;
+    @Model.ProductsGrid?.Render()
 }
 
 <script>
     function applyJsonChanges(control, args) {
-        fetch('/dbnetedit/genericlistedit',
+        fetch('/dbnetgrid/genericlistedit',
             {
                 method: "POST",
                 body: JSON.stringify(args),

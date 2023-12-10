@@ -101,7 +101,7 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Adds a generic list as a data source 
         /// </summary>
-        public void AddList<T>(IEnumerable<T> list, HttpContext httpContext)
+        public void AddList<T>(IEnumerable<T> list, HttpContext httpContext = null)
         {
             ListToDataTable listToDataTable = new ListToDataTable();
             listToDataTable.AddList(list.ToList());
