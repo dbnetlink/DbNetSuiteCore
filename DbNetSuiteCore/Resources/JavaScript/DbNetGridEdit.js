@@ -199,7 +199,7 @@ class DbNetGridEdit extends DbNetSuite {
                 if (editControl.browseControl) {
                     editControl.browseControl.json = response.dataSet;
                 }
-                this.sleep(1);
+                editControl.sleep(1);
                 if (this.isEditDialog) {
                     const grid = this.parentControl;
                     grid.json = response.dataSet;

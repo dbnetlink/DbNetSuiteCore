@@ -50,7 +50,7 @@ namespace DbNetSuiteCore.Services
             {
                 var request = await DeserialiseRequest<DbNetEditRequest>();
                 Columns = request.Columns;
-                GridEditInitialise();
+                await GridEditInitialise();
 
                 switch (Action.ToLower())
                 {

@@ -47,7 +47,7 @@ namespace DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid
             ProductsGrid = new DbNetGridCore(DataSourceType.List);
             ProductsGrid.AddList(products);
             ProductsGrid.Column(nameof(Product.ProductID)).PrimaryKey();
-            ProductsGrid.EditControl.Column(nameof(Product.ProductID)).PrimaryKey();
+            //    ProductsGrid.EditControl.Column(nameof(Product.ProductID)).PrimaryKey();
             ProductsGrid.Column(nameof(Product.UnitPrice)).Format("c");
             ProductsGrid.Column(nameof(Product.Discontinued)).DataType(typeof(bool));
             ProductsGrid.Column(nameof(Product.SupplierID)).Lookup(supplierLookup);

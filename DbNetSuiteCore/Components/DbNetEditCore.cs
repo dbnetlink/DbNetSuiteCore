@@ -112,17 +112,14 @@ namespace DbNetSuiteCore.Components
         {
             return new DbNetEditCoreColumn(columnNames, _columnProperties, _fromPart, Columns);
         }
-     
+
         public HtmlString Render()
         {
-            if ((JsonKey ?? string.Empty) != _connection)
-            {
-                string message = ValidateProperties();
+            string message = ValidateProperties();
 
-                if (string.IsNullOrEmpty(message) == false)
-                {
-                    return new HtmlString($"<div class=\"dbnetsuite-error\">{message}</div>");
-                }
+            if (string.IsNullOrEmpty(message) == false)
+            {
+                return new HtmlString($"<div class=\"dbnetsuite-error\">{message}</div>");
             }
 
             if (JsonType != null)

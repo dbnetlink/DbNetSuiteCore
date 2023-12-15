@@ -21,47 +21,60 @@
             </select>
         </td>
         <td>&nbsp;</td>
-        <td>
-            <b>Tables</b>
-        </td>
-        <td>
-            <select class="form-select" id="table-select">
-                <option value="">Select a table ...</option>
-                @foreach (DbObject schema in Model.Tables)
-                {
-                    <option value="@schema.QualifiedTableName">@schema.TableName</option>
-                }
-            </select>
-        </td>
 
-        @if (Model.Views.Count > 0)
+        @if (String.IsNullOrEmpty(Model.ErrorMessage))
         {
-            <td>&nbsp;</td>
             <td>
-                <b>Views</b>
+                <b>Tables</b>
             </td>
             <td>
-                <select class="form-select" id="view-select">
-                    <option value="">Select a view ...</option>
-                    @foreach (DbObject schema in Model.Views)
+                <select class="form-select" id="table-select">
+                    <option value="">Select a table ...</option>
+                    @foreach (DbObject schema in Model.Tables)
                     {
                         <option value="@schema.QualifiedTableName">@schema.TableName</option>
                     }
                 </select>
             </td>
+
+            @if (Model.Views.Count > 0)
+            {
+                <td>&nbsp;</td>
+                <td>
+                    <b>Views</b>
+                </td>
+                <td>
+                    <select class="form-select" id="view-select">
+                        <option value="">Select a view ...</option>
+                        @foreach (DbObject schema in Model.Views)
+                        {
+                            <option value="@schema.QualifiedTableName">@schema.TableName</option>
+                        }
+                    </select>
+                </td>
+            }
+        }
+        else
+        {
+            <td>@Model.ErrorMessage</td>
         }
     </tr>
 </table>
 <hr />
 @{
-    DbNetGridCore grid = new DbNetGridCore(Model.Db, string.IsNullOrEmpty(Model.View) ? Model.Table : Model.View)
-            {
-                OptimizeForLargeDataset = true,
-                QuickSearch = true,
-                View = true
-            };
-    grid.Column("*").Filter().View().Style("{white-space:nowrap}");
-    @grid.Render()
+    @if (String.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        DbNetGridCore grid = new DbNetGridCore(Model.Db, Model.FromPart)
+                {
+                    OptimizeForLargeDataset = true,
+                    QuickSearch = true,
+                    View = true,
+                    ToolbarButtonStyle = ToolbarButtonStyle.ImageAndText,
+                    Update = Model.IsTable
+                };
+        grid.Column("*").Filter().View().Style("{white-space:nowrap}");
+        @grid.Render()
+    }
 
 
 }

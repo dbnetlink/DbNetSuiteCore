@@ -21,6 +21,9 @@ namespace DbNetSuiteCore.Components
         protected readonly IConfigurationRoot _configuration;
         protected readonly bool _idSupplied = false;
         internal bool _isChildControl = false;
+        internal DataSourceType _dataSourceType = DataSourceType.TableOrView;
+        internal string Json { get; set; }
+
         internal List<ColumnProperty> _columnProperties { get; set; } = new List<ColumnProperty>();
 
         protected List<DbNetSuiteCore> _linkedControls { get; set; } = new List<DbNetSuiteCore>();
@@ -173,14 +176,32 @@ namespace DbNetSuiteCore.Components
 
             if ((this is DbNetFileCore) == false)
             {
-                if (_connection.ToLower().EndsWith(".json") == false)
+                 switch (_dataSourceType)
                 {
-                    string connectionString = _configuration.GetConnectionString(_connection);
+                    case DataSourceType.TableOrView:
+                    case DataSourceType.StoredProcedure:
+                        string connectionString = _configuration.GetConnectionString(_connection);
 
-                    if (connectionString == null)
-                    {
-                        message = $"Connection string [{_connection}] not found. Please check the connection strings in your appsettings.json file";
-                    }
+                        if (string.IsNullOrEmpty(connectionString))
+                        {
+                            message = $"Connection string [{_connection}] not found. Please check the connection strings in your appsettings.json file";
+                        }
+                        break;
+                    case DataSourceType.List:
+                        if (string.IsNullOrEmpty(Json))
+                        {
+                            message = $"Data source as not been supplied. Use the <b>AddList</b> method to supply your list of objects";
+                        }
+                        break;
+                    case DataSourceType.JSON:
+                        if (string.IsNullOrEmpty(Json))
+                        {
+                            if (string.IsNullOrEmpty(_connection))
+                            {
+                                message = $"Data source as not been supplied. Use the <b>AddJson</b> method to supply your JSON data";
+                            }
+                        }
+                        break;
                 }
             }
 

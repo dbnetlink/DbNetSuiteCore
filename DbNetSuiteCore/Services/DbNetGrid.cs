@@ -92,7 +92,7 @@ namespace DbNetSuiteCore.Services
             var request = await DeserialiseRequest<DbNetGridRequest>();
             Columns = request.Columns;
 
-            GridEditInitialise();
+            await GridEditInitialise();
 
             DbNetGridResponse response = new DbNetGridResponse();
 
@@ -521,7 +521,14 @@ namespace DbNetSuiteCore.Services
             {
                 if (string.IsNullOrEmpty(InitialOrderBy))
                 {
-                    OrderBy = Columns.FirstOrDefault(c => c.Display.Value).Index + 1;
+                    if (Columns.Any(c => c.Display.Value))
+                    {
+                        var orderByColumn = Columns.FirstOrDefault(c => c.Display.Value);
+                        if (orderByColumn.DbDataType != "ntext")
+                        {
+                            OrderBy = Columns.FirstOrDefault(c => c.Display.Value).Index + 1;
+                        }
+                    }
                 }
                 else
                 {

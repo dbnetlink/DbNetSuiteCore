@@ -6,7 +6,7 @@
 @using DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid;
 @{
     DbNetGridCore employeesGrid = new DbNetGridCore(DataSourceType.JSON);
-    employeesGrid.AddJson<Employee>(Model.JsonData, HttpContext);
+    employeesGrid.AddJson<Employee>(Model.JsonData); // typed
     employeesGrid.Column(new string[] { "Gender" ,"DepartmentName", "Status"}).Lookup();
     employeesGrid.Column("*").Filter();
     employeesGrid.View = true;

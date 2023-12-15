@@ -7,14 +7,12 @@
 @using DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid;
 @{
     DbNetGridCore productsGrid = new DbNetGridCore(DataSourceType.List);
-    productsGrid.AddList(Model.Products);
+    productsGrid.AddList<Product>(Model.Products);
     productsGrid.Column(nameof(Product.ProductID)).PrimaryKey();
     productsGrid.Column(nameof(Product.UnitPrice)).Format("c");
     productsGrid.Column(nameof(Product.Discontinued)).DataType(typeof(bool));
     productsGrid.Column(nameof(Product.SupplierID)).Lookup(Model.SupplierLookup);
     productsGrid.Column(nameof(Product.CategoryID)).Lookup(Model.CategoryLookup);
-
     productsGrid.Column("*").Filter();
-
     @productsGrid.Render()
 }

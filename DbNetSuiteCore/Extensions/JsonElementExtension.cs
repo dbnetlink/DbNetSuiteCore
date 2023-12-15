@@ -24,7 +24,8 @@ namespace DbNetSuiteCore.Extensions
                     value = DBNull.Value;
                     break;
                 default:
-                    throw new Exception($"jsonElement.ValueKind => {jsonElement.ValueKind} not supported");
+                    value = jsonElement.ToString();
+                    break;
             }
             return value;
         }

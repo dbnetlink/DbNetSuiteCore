@@ -17,7 +17,6 @@ namespace DbNetSuiteCore.Components
         protected string _fromPart;
         protected bool? _insert = null;
         private string _jsonKey = null;
-        internal DataSourceType _dataSourceType = DataSourceType.TableOrView;
 
         internal string FromPart => _fromPart;
 
@@ -97,7 +96,6 @@ namespace DbNetSuiteCore.Components
                 _connection = value;
             }
         }
-        internal string Json { get; set; }
         /// <summary>
         /// Adds a generic list as a data source 
         /// </summary>
@@ -110,11 +108,19 @@ namespace DbNetSuiteCore.Components
             AssignJson(JsonConvert.SerializeObject(listToDataTable.DataTable), httpContext, true);
         }
         /// <summary>
-        /// Adds a JSON string as a data source 
+        /// Adds a typed JSON string as a data source 
         /// </summary>
         public void AddJson<T>(string json, HttpContext httpContext = null)
         {
             JsonType = typeof(T);
+            AddJson(json, httpContext);
+        }
+
+        /// <summary>
+        /// Adds a untyped JSON string as a data source 
+        /// </summary>
+        public void AddJson(string json, HttpContext httpContext = null)
+        {
             _fromPart = JsonType?.Name ?? "jsontable";
             AssignJson(json, httpContext);
         }

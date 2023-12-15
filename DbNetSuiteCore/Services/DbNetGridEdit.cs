@@ -28,6 +28,8 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.IO;
 using Newtonsoft.Json.Converters;
+using System.Net.Http;
+using System.Runtime.CompilerServices;
 
 namespace DbNetSuiteCore.Services
 {
@@ -107,17 +109,20 @@ namespace DbNetSuiteCore.Services
         {
         }
 
-        protected void GridEditInitialise()
+        protected async Task GridEditInitialise()
         {
-
             DataTableConverter converter = new DataTableConverter();
             DataTable dataTable = null;
             var columnDataTypes = DbColumns.Where(c => string.IsNullOrEmpty(c.DataType) == false).ToDictionary(c => c.ColumnExpression, c => GetColumnType(c.DataType));
 
             if (ConnectionString.ToLower().EndsWith(".json"))
             {
-                IFileInfo fileInfo = Env.WebRootFileProvider.GetFileInfo(ConnectionString);
-                string json = File.ReadAllText(fileInfo.PhysicalPath);
+                string json = await GetJsonContent(ConnectionString);
+
+                if (json == null)
+                {
+                    throw new Exception($"JSON file \"{ConnectionString}\" not found");
+                }
                 dataTable = new JsonToDataTable(json, columnDataTypes).DataTable;
                 string tableName = string.IsNullOrEmpty(FromPart) ? ConnectionString.Split("/").Last().ToLower().Replace(".json", string.Empty) : FromPart;
                 dataTable.TableName = tableName;
@@ -200,7 +205,7 @@ namespace DbNetSuiteCore.Services
                 {
                     if (column.AddedByUser == false && this is DbNetGrid)
                     {
-                        column.Display = column.IsKey == false;
+                        column.Display = true;// column.IsKey == false;
                         (column as GridColumn).View = column.Show;
                     }
                     else
@@ -1384,7 +1389,7 @@ namespace DbNetSuiteCore.Services
             foreach (string key in primaryKeyValues.Keys)
             {
                 DbColumn dbColumn = DbColumns.FirstOrDefault(c => c.IsMatch(key));
-                primaryKeyFilterPart.Add($"{key} = {Database.ParameterName(key)}");
+                primaryKeyFilterPart.Add($"{Database.QualifiedDbObjectName(key)} = {Database.ParameterName(key)}");
                 parameters.Add(Database.ParameterName(key), ConvertToDbParam(primaryKeyValues[key], dbColumn));
             }
             return $"{string.Join($" and ", primaryKeyFilterPart)}";
@@ -1475,6 +1480,20 @@ namespace DbNetSuiteCore.Services
             if (Database != null)
             {
                 Database.Close();
+            }
+        }
+        private async Task<string> GetJsonContent(string url)
+        {
+            if (url.ToLower().StartsWith("http"))
+            {
+                using (var client = new HttpClient())
+                using (var result = await client.GetAsync(url))
+                    return result.IsSuccessStatusCode ? System.Text.Encoding.Default.GetString(await result.Content.ReadAsByteArrayAsync()) : null;
+            }
+            else
+            {
+                IFileInfo fileInfo = Env.WebRootFileProvider.GetFileInfo(ConnectionString);
+                return fileInfo.Exists ? File.ReadAllText(fileInfo.PhysicalPath) : null;
             }
         }
     }

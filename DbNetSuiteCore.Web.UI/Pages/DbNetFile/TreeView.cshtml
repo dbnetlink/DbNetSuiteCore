@@ -9,6 +9,8 @@
 @{
     DbNetFileCore filesView = new DbNetFileCore(string.Empty,"files");
     filesView.FilesOnly = true;
+    filesView.Columns = new List<FileInfoProperties>() { FileInfoProperties.Name, FileInfoProperties.Length, FileInfoProperties.Preview };
+    filesView.Column(FileInfoProperties.Preview).Label("Thumbnail");
     DbNetFileCore treeView = new DbNetFileCore("/dbnetfile/documents", "treeview");
     treeView.TreeView = true;
     treeView.AddLinkedControl(filesView);
