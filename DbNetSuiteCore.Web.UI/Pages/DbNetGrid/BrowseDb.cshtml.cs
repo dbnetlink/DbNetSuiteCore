@@ -5,6 +5,8 @@ using System.Text.RegularExpressions;
 using DbNetSuiteCore.Utilities;
 using DbNetSuiteCore.Web.UI.Models;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using DbNetSuiteCore.Enums;
+using System.Configuration;
 
 namespace DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid
 {
@@ -20,10 +22,10 @@ namespace DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid
 
         public string? FromPart => QualifiedObjectName();
         public bool? IsTable => string.IsNullOrEmpty(View);
-
+        public DatabaseType? DatabaseType { get; set; }
         public List<DbObject> Tables { get; set; } = new List<DbObject>();
         public List<DbObject> Views { get; set; } = new List<DbObject>();
-        public List<string> Connections { get; set; } = new List<string>();
+        public Dictionary<string, DatabaseType> Connections { get; set; } = new Dictionary<string, DatabaseType>();
 
         public BrowseDbModel(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
         {
@@ -31,14 +33,14 @@ namespace DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public void OnGet(string? db = null,string? table = null,string? view = null)   
+        public void OnGet(string? db = null, string? table = null, string? view = null, DatabaseType? databaseType = null)
         {
             Table = table;
             View = view;
-            BrowseDbPopulate(db);
+            BrowseDbPopulate(db, databaseType);
         }
 
-        public void BrowseDbPopulate(string? db = null)
+        public void BrowseDbPopulate(string? db = null, DatabaseType? databaseType = null)
         {
             var connectonStrings = _configuration.GetSection("ConnectionStrings").GetChildren();
             connectonStrings = connectonStrings.AsEnumerable().Where(c => FilterConnectionString(c)).ToList();
@@ -46,11 +48,13 @@ namespace DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid
             var connectionAlias = db ?? connectonStrings.AsEnumerable().First().Key;
             var connectionString = _configuration.GetConnectionString(connectionAlias);
 
-            Connections = connectonStrings.AsEnumerable().Select(c => c.Key).ToList();
+            Connections = connectonStrings.AsEnumerable().Select(c => c.Key).ToDictionary(c => c, c => DbNetDataCore.DeriveDatabaseType(_configuration.GetConnectionString(c)));
+            Db = connectionAlias;
+            DatabaseType = databaseType.HasValue ? databaseType : Connections[connectionAlias];
 
             try
             {
-                using (var connection = new DbNetDataCore(connectionString, _webHostEnvironment))
+                using (var connection = new DbNetDataCore(connectionAlias, _webHostEnvironment, _configuration, DatabaseType.Value))
                 {
                     connection.Open();
                     Tables = connection.InformationSchema(DbNetDataCore.MetaDataType.Tables);
@@ -62,8 +66,6 @@ namespace DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid
                 ErrorMessage = $"Unable to connect to database => {ex.Message}";
                 return;
             }
-
-            Db = connectionAlias;
 
             if (string.IsNullOrEmpty(Table) && string.IsNullOrEmpty(View))
             {

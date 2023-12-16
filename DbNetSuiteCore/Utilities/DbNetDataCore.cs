@@ -122,6 +122,11 @@ namespace DbNetSuiteCore.Utilities
 
         }
 
+        public DbNetDataCore(string connectionString, IWebHostEnvironment env, IConfiguration configuration, DatabaseType databaseType)
+    : this(configuration.GetConnectionString(connectionString), DeriveProvider(databaseType), env)
+        {
+
+        }
         public DbNetDataCore(DataTable dataTable): this(string.Empty, DataProvider.DataTable, null)
         {
             _dataTable = dataTable;
@@ -138,7 +143,7 @@ namespace DbNetSuiteCore.Utilities
         {
         }
 
-        public DbNetDataCore(string connectionString, DataProvider dataProvider, IWebHostEnvironment env, DatabaseType? database = null)
+        public DbNetDataCore(string connectionString, DataProvider dataProvider, IWebHostEnvironment env)
         {
             Env = env;
             Provider = dataProvider;
@@ -794,6 +799,39 @@ namespace DbNetSuiteCore.Utilities
 
             connectionString = Regex.Replace(connectionString, dataSourcePropertyName + "=~", dataSourcePropertyName + "=" + currentPath, RegexOptions.IgnoreCase).Replace("=//", "=/");
             return connectionString;
+        }
+
+        private static DataProvider DeriveProvider(DatabaseType databaseType)
+        {
+            switch(databaseType)
+            {
+                case DatabaseType.MySQL:
+                case DatabaseType.MariaDB:
+                    return DataProvider.MySqlConnector;
+                case DatabaseType.PostgreSQL:
+                    return DataProvider.Npgsql;
+                case DatabaseType.SQLite:
+                    return DataProvider.SQLite;
+                default:
+                    return DataProvider.SqlClient;
+            }
+        }
+
+        public static DatabaseType DeriveDatabaseType(string connectionString)
+        {
+            DataProvider dataProvider = DeriveProvider(connectionString);
+
+            switch (dataProvider)
+            {
+                case DataProvider.MySql:
+                     return DatabaseType.MySQL;
+                case DataProvider.Npgsql:
+                    return DatabaseType.PostgreSQL;
+                case DataProvider.SQLite:
+                    return DatabaseType.SQLite;
+                default:
+                    return DatabaseType.MSSqlServer;
+            }
         }
         private static DataProvider DeriveProvider(string connectionString, DataProvider? dataProvider = null)
         {
