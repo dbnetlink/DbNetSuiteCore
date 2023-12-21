@@ -5,6 +5,7 @@ interface GridColumnRequest {
     label?: string;
     format?: string;
     lookup?: string;
+    lookupDataTable?: object;
     style?: string;
     unmatched: boolean;
     foreignKey?: boolean;

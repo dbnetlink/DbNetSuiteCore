@@ -104,7 +104,7 @@ namespace DbNetSuiteCore.Components
             ListToDataTable listToDataTable = new ListToDataTable();
             listToDataTable.AddList(list.ToList());
             JsonType = list.First().GetType();
-            _fromPart = listToDataTable.DataTable.TableName;
+            _fromPart = $"_{listToDataTable.DataTable.TableName}";
             AssignJson(JsonConvert.SerializeObject(listToDataTable.DataTable), httpContext, true);
         }
         /// <summary>

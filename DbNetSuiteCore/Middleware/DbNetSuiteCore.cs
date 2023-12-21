@@ -9,9 +9,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
 using DbNetSuiteCore.Models;
 using DbNetSuiteCore.Services;
-using DocumentFormat.OpenXml.InkML;
 using System.Net;
-using DbNetSuiteCore.Constants.DbNetGrid;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace DbNetLink.Middleware

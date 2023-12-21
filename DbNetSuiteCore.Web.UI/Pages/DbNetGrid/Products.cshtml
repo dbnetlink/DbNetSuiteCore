@@ -1,11 +1,35 @@
 ﻿@page
+@model SampleModel
 @using DbNetSuiteCore.Enums.DbNetGrid;
 @using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums;
+@using DbNetSuiteCore.Web.UI.Models;
+@using DbNetSuiteCore.Web.UI.ViewModels;
 
 @{
-	DbNetGridCore productsGrid = new DbNetGridCore("northwind", "products");
-	productsGrid.Column("supplierid").Label("Supplier").Lookup(new Lookup("suppliers", "supplierid", "companyname"));
-	productsGrid.Column("categoryid").Label("Catgeory").Lookup(new Lookup("categories", "categoryid", "categoryname"));
+	DbNetGridCore productsGrid;
+
+	if (Model.JsonMode)
+	{
+		var products = await Model.GetList<Product>("products");
+		var supplierLookup = await Model.GetLookup("select SupplierID, CompanyName from Suppliers order by 2");
+		var categoryLookup = await Model.GetLookup("select CategoryID, CategoryName from Categories order by 2");
+
+		productsGrid = new DbNetGridCore(DataSourceType.List);
+		productsGrid.AddList<Product>(products);
+		productsGrid.Column("supplierid").Lookup(supplierLookup);
+		productsGrid.Column("categoryid").Lookup(categoryLookup);
+	}
+	else
+	{
+		productsGrid = new DbNetGridCore("northwind", "products");
+		productsGrid.Column("supplierid").Lookup(new Lookup("suppliers", "supplierid", "companyname"));
+		productsGrid.Column("categoryid").Lookup(new Lookup("categories", "categoryid", "categoryname"));
+	}
+
+	productsGrid.Column("supplierid").Label("Supplier");
+	productsGrid.Column("categoryid").Label("Category");
+
 	productsGrid.Column("discontinued").DataType(typeof(Boolean));
 	productsGrid.Column("unitprice").Format("c");
 	productsGrid.Bind(EventType.OnRowTransform, "highlightOrderLevels");

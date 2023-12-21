@@ -116,7 +116,7 @@
             return new HtmlString("&nbsp;");
         }
 
-        if (string.IsNullOrEmpty(column.Lookup) == false && column.LookupColumns > 1)
+        if (Model.LookupTables.ContainsKey(column.ColumnKey) && column.LookupColumns > 1)
         {
             DataTable lookupTable = Model.LookupTables[column.ColumnKey];
             foreach (DataRow row in lookupTable.Rows)

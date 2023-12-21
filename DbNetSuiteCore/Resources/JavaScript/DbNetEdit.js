@@ -136,7 +136,7 @@ class DbNetEdit extends DbNetGridEdit {
         (_j = this.formPanel) === null || _j === void 0 ? void 0 : _j.find("input[texttransform]").on("input", (event) => this.textTransform(event));
         (_k = this.formPanel) === null || _k === void 0 ? void 0 : _k.find("input[datatype='DateTime'").get().forEach(e => {
             const $input = $(e);
-            this.addDatePicker($input, this.datePickerOptions);
+            this.addDatePicker($input, DbNetSuite.datePickerOptions);
         });
     }
     imageLoaded(event) {
@@ -337,6 +337,7 @@ class DbNetEdit extends DbNetGridEdit {
                 foreignKey: col.foreignKey,
                 foreignKeyValue: col.foreignKeyValue,
                 lookup: col.lookup,
+                lookupDataTable: col.lookupDataTable,
                 style: col.style,
                 display: col.display,
                 dataType: col.dataType,

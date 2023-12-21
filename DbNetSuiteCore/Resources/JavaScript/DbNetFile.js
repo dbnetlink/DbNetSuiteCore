@@ -182,6 +182,9 @@ class DbNetFile extends DbNetSuite {
         const $anchor = $td.parent().find("a[data-filetype='Image']");
         if ($anchor) {
             this.fileName = $anchor.data("file");
+            if (!this.fileName) {
+                return;
+            }
             this.post("download-file", this.getRequest(), true)
                 .then((blob) => {
                 if (blob.size) {

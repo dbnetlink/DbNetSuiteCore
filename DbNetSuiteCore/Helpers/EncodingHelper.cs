@@ -7,10 +7,11 @@ namespace DbNetSuiteCore.Helpers
     public static class EncodingHelper
     { 
         const byte xorConstant = 0x53;
+        public static bool SuppressEncoding = false;
 
         public static string Encode(string input)
         {
-            if (string.IsNullOrEmpty(input) || input == "*")
+            if (string.IsNullOrEmpty(input) || input == "*" || SuppressEncoding)
             {
                 return input;
             }
@@ -24,7 +25,7 @@ namespace DbNetSuiteCore.Helpers
 
         public static string Decode(string input)
         {
-            if (string.IsNullOrEmpty(input) || input == "*")
+            if (string.IsNullOrEmpty(input) || input == "*" || SuppressEncoding)
             {
                 return input;
             }

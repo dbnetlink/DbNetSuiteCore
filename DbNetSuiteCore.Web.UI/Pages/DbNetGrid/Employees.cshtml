@@ -13,7 +13,7 @@
     employeesGrid.Column("ReportsTo").Lookup(new Lookup("Employees", "EmployeeId", "lastname + ',' + firstname"));
     employeesGrid.Column("Photo").Image(new ImageConfiguration("jpg"));
     employeesGrid.Column(new String[] { "photo", "notes", "photopath" }).DataOnly();
-    employeesGrid.Column(new String[] { "firstname", "lastname", "photo", "notes", "photopath" }).View();
+    employeesGrid.Column(new String[] { "country", "firstname", "lastname", "photo", "notes", "photopath" }).View();
     employeesGrid.Bind(DbNetGridEnums.EventType.OnConfigureBinaryData, "configureImageFileName");
     employeesGrid.Column("country").Lookup(typeof(CountryEnum), true);
     @employeesGrid.Render()

@@ -1,0 +1,16 @@
+﻿@page
+@model JsonTextModel
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums;
+@using DbNetSuiteCore.Web.UI.Models;
+@using DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid;
+@{
+    DbNetGridCore employeesGrid = new DbNetGridCore(DataSourceType.JSON);
+    employeesGrid.AddJson<Employee>(Model.JsonData); // typed
+    employeesGrid.Column(new string[] { "Gender" ,"DepartmentName", "Status"}).Lookup();
+    employeesGrid.Column("*").Filter();
+    employeesGrid.View = true;
+    employeesGrid.ViewLayoutColumns = 2;
+    employeesGrid.Column(nameof(Employee.EmployeeKey)).PrimaryKey();
+    @employeesGrid.Render()
+}

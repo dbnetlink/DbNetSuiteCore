@@ -28,7 +28,7 @@ type InternalEventHandler = {
 type EmptyCallback = (sender: DbNetSuite, args?: object) => void;
 class DbNetSuite {
     public static DBNull = "DBNull";
-    public datePickerOptions: JQueryUI.DatepickerOptions = {};
+    public static datePickerOptions: JQueryUI.DatepickerOptions = {};
     protected element: JQuery<HTMLElement> | undefined = undefined;
     protected eventHandlers: Dictionary<Array<EventHandler>> = {};
     protected internalEventHandlers: Dictionary<Array<InternalEventHandler>> = {};

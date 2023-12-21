@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Text.Json.Nodes;
 using DbNetSuiteCore.Enums;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
@@ -82,8 +83,19 @@ namespace DbNetSuiteCore.UI.Tests
            
         }
 
-        [Fact]
-        public void DateSearchDialogTest()
+		[Fact]
+		public void DateSearchDialogTestDb()
+        {
+            DateSearchDialogTest();
+		}
+
+		[Fact]
+		public void DateSearchDialogTestJson()
+		{
+            DateSearchDialogTest(true);
+		}
+
+        private void DateSearchDialogTest(bool json = false)
         {
             List<SearchTemplate> searchTemplates = new List<SearchTemplate>
             {
@@ -101,11 +113,22 @@ namespace DbNetSuiteCore.UI.Tests
                 new SearchTemplate(SearchOperator.IsNotNull, 830)
             };
 
-            ApplySearchTemplates(searchTemplates, "orders", "OrderDate");
+            ApplySearchTemplates(searchTemplates, "orders", "OrderDate", json);
         }
 
         [Fact]
-        public void DecimalSearchDialogTest()
+        public void DecimalSearchDialogTestDb()
+        {
+            DecimalSearchDialogTest();
+		}
+
+		[Fact]
+		public void DecimalSearchDialogTestJson()
+		{
+            DecimalSearchDialogTest(true);
+		}
+
+		private void DecimalSearchDialogTest(bool json = false)
         {
             List<SearchTemplate> searchTemplates = new List<SearchTemplate>
             {
@@ -123,22 +146,33 @@ namespace DbNetSuiteCore.UI.Tests
                 new SearchTemplate(SearchOperator.IsNotNull, 2155)
             };
 
-            ApplySearchTemplates(searchTemplates, "orderdetails", "UnitPrice");
+            ApplySearchTemplates(searchTemplates, "orderdetails", "UnitPrice", json);
         }
 
         [Fact]
-        public void BooleanSearchDialogTest()
+        public void BooleanSearchDialogTestDb()
         {
-            List<SearchTemplate> searchTemplates = new List<SearchTemplate>
-            {
-                new SearchTemplate(SearchOperator.True, 8),
-                new SearchTemplate(SearchOperator.False, 69),
-            };
+            BooleanSearchDialogTest();
+		}
 
-            ApplySearchTemplates(searchTemplates, "products", "Discontinued");
-        }
+		[Fact]
+		public void BooleanSearchDialogTestJson()
+		{
+			BooleanSearchDialogTest(true);
+		}
 
-        [Fact]
+		private void BooleanSearchDialogTest(bool json = false)
+        {
+			List<SearchTemplate> searchTemplates = new List<SearchTemplate>
+			{
+				new SearchTemplate(SearchOperator.True, 8),
+				new SearchTemplate(SearchOperator.False, 69),
+			};
+
+			ApplySearchTemplates(searchTemplates, $"products", "Discontinued", json);
+		}
+
+		[Fact]
         public void NullSearchDialogTest()
         {
             List<SearchTemplate> searchTemplates = new List<SearchTemplate>
@@ -224,8 +258,10 @@ namespace DbNetSuiteCore.UI.Tests
             return container.FindElement(By.CssSelector($"input[name='{name}']"));
         }
 
-        private void ApplySearchTemplates(List<SearchTemplate> searchTemplates, string page, string columnName)
+        private void ApplySearchTemplates(List<SearchTemplate> searchTemplates, string page, string columnName, bool json = false)
         {
+            page = page + $"?jsonmode={json.ToString().ToLower()}";
+
             using (var driver = WebDriver)
             {
                 var searchDialog = GetSearchDialog(driver, page);

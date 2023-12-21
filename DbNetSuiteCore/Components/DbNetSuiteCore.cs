@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -50,6 +51,7 @@ namespace DbNetSuiteCore.Components
             _connection = connection;
             _configuration = LoadConfiguration();
             DatabaseType = databaseType;
+            EncodingHelper.SuppressEncoding = GetCurrentSettings().SuppressNameEncoding;
         }
 
         public DbNetSuiteCore(string id = null)
@@ -154,6 +156,8 @@ namespace DbNetSuiteCore.Components
                     case ColumnPropertyType.Lookup:
                         value = EncodingHelper.Encode(value.ToString());
                         break;
+                    case ColumnPropertyType.LookupDataTable:
+                        return Newtonsoft.Json.JsonConvert.SerializeObject(value);
                     case ColumnPropertyType.Annotation:
                         value = HttpUtility.HtmlEncode(value.ToString());
                         break;
@@ -305,12 +309,6 @@ function init_{_id}()
 
             return script;
         }
-        protected string DatePickerOptions()
-        {
-            DatePickerOptions datePickerOptions = new DatePickerOptions(this.Culture);
-            return Serialize(datePickerOptions);
-        }
-
         internal string Markup()
         {
             string markup = _idSupplied ? string.Empty : $"<section id=\"{_id}\"></section>";

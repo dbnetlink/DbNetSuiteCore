@@ -22,13 +22,18 @@ class GridColumn extends DbColumn {
     clearDuplicateValue?: boolean;
     dataOnly?: boolean;
 
-    constructor(properties: GridColumnResponse, unmatched = false) {
+    constructor(properties: GridColumnResponse | undefined = undefined, unmatched = false) {
         super();
+        this.unmatched = unmatched;
+        if (properties) {
+            this.assignProperties(properties);
+        }
+    }
+
+    public assignProperties(properties: GridColumnResponse) {
         Object.keys(properties).forEach((key) => {
             if (properties[key as keyof GridColumnResponse] !== undefined)
                 this[key as keyof GridColumnResponse] = properties[key as keyof GridColumnResponse] as any;
         });
-
-        this.unmatched = unmatched;
     }
 }

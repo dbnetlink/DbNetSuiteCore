@@ -376,6 +376,7 @@ class DbNetGrid extends DbNetGridEdit {
         chart.draw(dt, options);
     }
     private updateColumns(response: DbNetGridResponse) {
+        const columns = JSON.parse(JSON.stringify(this.columns)) as Array<GridColumn>;
         this.columns = new Array<GridColumn>();
         response.columns?.forEach((col) => {
             const properties = {
@@ -405,7 +406,14 @@ class DbNetGrid extends DbNetGridEdit {
                 uploadMetaData: col.uploadMetaData,
                 uploadMetaDataColumn: col.uploadMetaDataColumn
             } as GridColumnResponse;
-            this.columns.push(new GridColumn(properties));
+            const gridColumn = new GridColumn(properties);
+
+            const existingColumn = columns.find((col) => { return this.matchingColumn(col, gridColumn.columnExpression as string) });
+
+            if (existingColumn) {
+                gridColumn.lookupDataTable = existingColumn.lookupDataTable;
+            }
+            this.columns.push(gridColumn);
         });
     }
 

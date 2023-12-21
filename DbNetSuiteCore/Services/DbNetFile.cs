@@ -255,6 +255,10 @@ namespace DbNetSuiteCore.Services
 
             foreach (IFileInfo fileInfo in folderContents)
             {
+                if (fileInfo.Exists == false)
+                {
+                    continue;
+                }
                 FileInformation f = new FileInformation(fileInfo, folder);
 
                 if (FilesOnly == false || f.IsDirectory == false)
@@ -397,6 +401,10 @@ namespace DbNetSuiteCore.Services
 
         protected byte[] DownloadBinaryFile()
         {
+            if (FileName == null)
+            {
+                return new byte[0];
+            }
             string url = $"{Folder}/{FileName}";
             IFileInfo fileInfo = _fileProvider.GetFileInfo(url);
             byte[] fileBytes = File.ReadAllBytes(fileInfo.PhysicalPath);

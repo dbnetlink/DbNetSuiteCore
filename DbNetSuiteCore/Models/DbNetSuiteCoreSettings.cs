@@ -7,5 +7,7 @@
         public bool Debug { get; set; } = false;
         public bool ReadOnly { get; set; } = false;
         public string Culture { get; set; } = string.Empty;
+        public bool SuppressNameEncoding { get; set; } = false;
+
     }
 }

@@ -53,7 +53,7 @@
             return string.Empty;
         }
 
-        if (string.IsNullOrEmpty(column.Lookup) == false)
+        if (Model.LookupTables.ContainsKey(column.ColumnKey))
         {
             DataTable lookupTable = Model.LookupTables[column.ColumnKey];
 

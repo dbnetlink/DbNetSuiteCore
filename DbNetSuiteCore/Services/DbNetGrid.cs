@@ -141,6 +141,11 @@ namespace DbNetSuiteCore.Services
 
             Database.Close();
 
+            foreach (GridColumn gridColumn in response.Columns ?? new List<GridColumn>())
+            {
+                gridColumn.LookupDataTable = null;
+            }
+
             var serializeOptions = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
@@ -275,7 +280,7 @@ namespace DbNetSuiteCore.Services
                 foreach (string columnName in ColumnFilters.Keys)
                 {
                     GridColumn col = Columns.First(c => c.IsMatch(columnName));
-                    if (string.IsNullOrEmpty(col.Lookup) || col.FilterMode == FilterColumnSelectMode.List || col.LookupColumns < 2)
+                    if (col.HasLookup == false || col.FilterMode == FilterColumnSelectMode.List || col.LookupColumns < 2)
                     {
                         var columnFilter = ParseFilterColumnValue(ColumnFilters[columnName], col);
                         if (columnFilter != null)
@@ -285,7 +290,17 @@ namespace DbNetSuiteCore.Services
                     }
                     else
                     {
-                        columnFilterPart.Add($"{col.ColumnName} in ({SearchLookupSql(col, ParamName(col, ParamNames.ColumnFilter))})");
+                        if (col.LookupIsDataTable)
+                        {
+                            var columnFilter = ParseFilterColumnValue(ColumnFilters[columnName], col);
+                            string filterValue = columnFilter.Value.Value.ToString().Replace("%", string.Empty).ToLower();
+                            List<object> values = _lookupTables[col.ColumnKey].AsEnumerable().Where(r => r.ItemArray[1].ToString().ToLower().Contains(filterValue)).Select(r => r[0]).ToList();
+                            columnFilterPart.Add($"{col.ColumnName} in ({string.Join(",",values)})");
+                        }
+                        else
+                        {
+                            columnFilterPart.Add($"{col.ColumnName} in ({SearchLookupSql(col, ParamName(col, ParamNames.ColumnFilter))})");
+                        }
                     }
                 }
                 fp.Add($"({string.Join(" and ", columnFilterPart.ToArray())})");
@@ -580,76 +595,6 @@ namespace DbNetSuiteCore.Services
             return Encoding.UTF8.GetBytes(html);
         }
 
-        /*
-        private string GoogleChartDatatable()
-        {
-            ConfigureColumns();
-
-            using (Database)
-            {
-                Database.Open();
-                QueryCommandConfig query = BuildSql(QueryBuildModes.Spreadsheet);
-                Database.ExecuteQuery(query);
-
-                Components.DataTable dataTable = new Models.GoogleCharts.DataTable();
-
-                foreach (GridColumn column in Columns)
-                {
-                    if (column.Binary)
-                    {
-                        continue;
-                    }
-
-                    var col = new Models.GoogleCharts.Col
-                    {
-                        Id = $"c{column.Index}",
-                        Label = column.Label,
-                        Type = JavaScriptTypeName(column)
-                    };
-
-                    dataTable.Cols.Add(col);
-                }
-
-                while (Database.Reader.Read())
-                {
-                    object[] values = new object[Database.Reader.FieldCount];
-                    Database.Reader.GetValues(values);
-                    var row = new Models.GoogleCharts.Row();
-                    foreach (GridColumn column in Columns)
-                    {
-                        if (column.Binary)
-                        {
-                            continue;
-                        }
-
-                        var cell = new Models.GoogleCharts.Cell();
-
-                        object value = values[column.Index];
-
-                        if (value == DBNull.Value)
-                        {
-                            cell.V = null;
-                        }
-                        else if (string.IsNullOrEmpty(column.Lookup) == false)
-                        {
-                            cell.V = GetLookupValue(column, value);
-                        }
-                        else
-                        {
-                            cell.V = value;
-                        }
-
-                        row.C.Add(cell);
-                    }
-
-                    dataTable.Rows.Add(row);
-                }
-
-                return Serialize(dataTable);
-            }
-        }
-        */
-
         private string DataArray()
         {
             ConfigureGridColumns();
@@ -691,7 +636,7 @@ namespace DbNetSuiteCore.Services
                         {
                             value = null;
                         }
-                        else if (string.IsNullOrEmpty(column.Lookup) == false)
+                        else if (_lookupTables.Keys.Contains(column.ColumnKey))
                         {
                             value = GetLookupValue(column, value);
                         }
@@ -831,7 +776,7 @@ namespace DbNetSuiteCore.Services
                             }
                             else
                             {
-                                if (string.IsNullOrEmpty(column.Lookup) == false)
+                                if (_lookupTables.Keys.Contains(column.ColumnKey))
                                 {
                                     value = GetLookupValue(column, value);
                                 }
@@ -966,11 +911,10 @@ namespace DbNetSuiteCore.Services
                     Database.ExecuteQuery(query);
                     Database.Reader.Read();
                     TotalRows = Convert.ToInt64(Database.Reader.GetValue(0));
-                }
+				}
+				query = BuildSql();
 
-                query = BuildSql();
-
-                Database.Open();
+				Database.Open();
                 Database.ExecuteQuery(query);
 
                 int counter = 0;

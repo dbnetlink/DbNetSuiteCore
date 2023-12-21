@@ -11,6 +11,7 @@ declare class DbColumn {
     index?: number;
     label?: string;
     lookup?: string;
+    lookupDataTable?: object;
     lookupParameter?: string;
     primaryKey?: boolean;
     columnSize?: number;

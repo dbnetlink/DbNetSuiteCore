@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
 using DbNetSuiteCore.Enums;
+using Microsoft.CodeAnalysis.Operations;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace DbNetSuiteCore.Utilities
 {
@@ -204,7 +206,14 @@ namespace DbNetSuiteCore.Utilities
 
             if (customDataProvider != null)
             {
-                ProviderAssembly = Assembly.Load(customDataProvider.AssemblyName);
+                try
+                {
+                    ProviderAssembly = Assembly.Load(customDataProvider.AssemblyName);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Unable to load data provider ({customDataProvider.AssemblyName}). Run Install-Package {customDataProvider.PackageName}. {ex.Message}");
+                }
                 Type connectionType = ProviderAssembly.GetType(customDataProvider.ConnectionTypeName, true);
                 Type adapterType = ProviderAssembly.GetType(customDataProvider.AdapterTypeName, true);
 

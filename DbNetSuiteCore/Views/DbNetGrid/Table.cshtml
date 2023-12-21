@@ -156,7 +156,7 @@
             return string.Empty;
         }
 
-        if (string.IsNullOrEmpty(column.Lookup) == false)
+        if (Model.LookupTables.ContainsKey(column.ColumnKey))
         {
             DataTable lookupTable = Model.LookupTables[column.ColumnKey];
 
@@ -291,7 +291,7 @@
         }
         string value = Model.ColumnFilters.Keys.Contains(column.ColumnName) ? Model.ColumnFilters[column.ColumnName] : string.Empty;
 
-        if (column.FilterMode == FilterColumnSelectMode.List && string.IsNullOrEmpty(column.Lookup) == false)
+        if (column.FilterMode == FilterColumnSelectMode.List && Model.LookupTables.ContainsKey(column.ColumnName))
         {
             return new HtmlString($"<{th}><select data-columnname=\"{column.ColumnName}\" id=\"{id}\" class=\"column-filter\" value=\"{value}\">{LookupOptions(Model.LookupTables[column.ColumnName], value)}</select></th>");
         }

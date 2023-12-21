@@ -115,7 +115,7 @@ class DbNetGridEdit extends DbNetSuite {
         }
     }
 
-    private matchingColumn(dbColumn: DbColumn, columnName: string) {
+    protected matchingColumn(dbColumn: DbColumn, columnName: string) {
         let match = false;
         if (dbColumn.columnKey?.includes(".")) {
             match = dbColumn.columnKey?.split('.').pop()?.toLowerCase() == columnName.toLowerCase();

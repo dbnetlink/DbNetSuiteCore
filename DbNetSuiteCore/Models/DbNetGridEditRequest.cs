@@ -1,5 +1,6 @@
 ﻿using DbNetSuiteCore.Enums;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 
 namespace DbNetSuiteCore.Models.DbNetEdit
@@ -26,5 +27,6 @@ namespace DbNetSuiteCore.Models.DbNetEdit
         public ToolbarButtonStyle ToolbarButtonStyle { get; set; }
         public string JsonKey { get; set; } = string.Empty;
         public JArray Json { get; set; }
+        public Type JsonType { get; set; }
     }
 }

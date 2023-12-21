@@ -1,5 +1,4 @@
-﻿using DbNetSuiteCore.Models.DbNetCombo;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace DbNetSuiteCore.Models.DbNetGrid
 {

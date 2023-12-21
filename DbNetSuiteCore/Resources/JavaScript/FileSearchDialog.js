@@ -19,7 +19,7 @@ class FileSearchDialog extends Dialog {
         });
         $criteria.find("input[datatype='DateTime']").get().forEach(e => {
             const $input = $(e);
-            this.addDatePicker($input, this.parent.datePickerOptions);
+            this.addDatePicker($input, DbNetSuite.datePickerOptions);
         });
         (_e = this.$dialog) === null || _e === void 0 ? void 0 : _e.find("[button-type='clear']").on("click", () => this.clear());
         (_f = this.$dialog) === null || _f === void 0 ? void 0 : _f.find("[button-type='apply']").on("click", () => this.apply());

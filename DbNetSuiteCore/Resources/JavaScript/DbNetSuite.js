@@ -1,7 +1,6 @@
 "use strict";
 class DbNetSuite {
     constructor(id) {
-        this.datePickerOptions = {};
         this.element = undefined;
         this.eventHandlers = {};
         this.internalEventHandlers = {};
@@ -339,6 +338,7 @@ class DbNetSuite {
     }
 }
 DbNetSuite.DBNull = "DBNull";
+DbNetSuite.datePickerOptions = {};
 document.addEventListener("DOMContentLoaded", function () {
     if ($.fn.button && $.fn.button.noConflict !== undefined) {
         $.fn.bootstrapBtn = $.fn.button.noConflict();

@@ -14,12 +14,17 @@ var AggregateType;
     AggregateType[AggregateType["Count"] = 5] = "Count";
 })(AggregateType || (AggregateType = {}));
 class GridColumn extends DbColumn {
-    constructor(properties, unmatched = false) {
+    constructor(properties = undefined, unmatched = false) {
         super();
+        this.unmatched = unmatched;
+        if (properties) {
+            this.assignProperties(properties);
+        }
+    }
+    assignProperties(properties) {
         Object.keys(properties).forEach((key) => {
             if (properties[key] !== undefined)
                 this[key] = properties[key];
         });
-        this.unmatched = unmatched;
     }
 }

@@ -23,7 +23,7 @@
         });
         this.$dialog?.find("input[datatype='DateTime']").get().forEach(e => {
             const $input = $(e as HTMLInputElement);
-            this.addDatePicker($input, this.parent.datePickerOptions);
+            this.addDatePicker($input, DbNetSuite.datePickerOptions);
         });
 
         this.$dialog?.find("[button-type='clear']").on("click", () => this.clear());

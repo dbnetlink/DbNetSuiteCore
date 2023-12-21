@@ -38,13 +38,13 @@ namespace DbNetSuiteCore.Components
         {
             if (lookup.IsEnum)
             {
-                SetColumnProperty(ColumnPropertyType.Lookup, JsonConvert.SerializeObject(EnumHelper.EnumToDataTable(lookup, useNameAsValue)));
+                SetColumnProperty(ColumnPropertyType.LookupDataTable, EnumHelper.EnumToDataTable(lookup, useNameAsValue));
             }
         }
 
         protected void Lookup<T>(Dictionary<T,string> lookup)
         {
-            SetColumnProperty(ColumnPropertyType.Lookup, JsonConvert.SerializeObject(DictionaryToDataTable(lookup)));
+            SetColumnProperty(ColumnPropertyType.LookupDataTable, DictionaryToDataTable(lookup));
         }
         protected void Lookup()
         {

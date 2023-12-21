@@ -16,6 +16,7 @@
         Image,
         Label,
         Lookup,
+        LookupDataTable,
         PrimaryKey,
         Search,
         Style,

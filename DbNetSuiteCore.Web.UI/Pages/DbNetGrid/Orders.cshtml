@@ -1,7 +1,22 @@
 ﻿@page
+@model SampleModel
 @using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums;
+@using DbNetSuiteCore.Web.UI.ViewModels;
+@using DbNetSuiteCore.Web.UI.Models;
 @{
-    DbNetGridCore ordersGrid = new DbNetGridCore("northwind","orders");
-    ordersGrid.Culture = "en-GB";
-    @ordersGrid.Render()
+	DbNetGridCore ordersGrid;
+
+	if (Model.JsonMode)
+	{
+		var orders = await Model.GetList<Order>("orders");
+		ordersGrid = new DbNetGridCore(DataSourceType.List);
+		ordersGrid.AddList<Order>(orders);
+	}
+	else
+	{
+		ordersGrid = ordersGrid = new DbNetGridCore("northwind", "orders");
+	}
+	ordersGrid.Culture = "en-GB";
+	@ordersGrid.Render()
 }

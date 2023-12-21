@@ -222,14 +222,16 @@ namespace DbNetSuiteCore.Utilities
                 case nameof(Decimal):
                 case nameof(Double):
                 case nameof(Single):
-                case nameof(DateOnly):
-                case nameof(DateTime):
                 case nameof(TimeSpan):
                 case nameof(TimeOnly):
                 case nameof(DateTimeOffset):
                     sqlType = "REAL";
                     break;
-                case nameof(Guid):
+				case nameof(DateOnly):
+				case nameof(DateTime):
+					sqlType = "INTEGER";
+					break;
+				case nameof(Guid):
                     sqlType = "BLOB";
                     break;
             }

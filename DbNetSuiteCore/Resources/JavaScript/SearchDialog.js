@@ -19,7 +19,7 @@ class SearchDialog extends Dialog {
         });
         (_f = this.$dialog) === null || _f === void 0 ? void 0 : _f.find("input[datatype='DateTime']").get().forEach(e => {
             const $input = $(e);
-            this.addDatePicker($input, this.parent.datePickerOptions);
+            this.addDatePicker($input, DbNetSuite.datePickerOptions);
         });
         (_g = this.$dialog) === null || _g === void 0 ? void 0 : _g.find("[button-type='clear']").on("click", () => this.clear());
         (_h = this.$dialog) === null || _h === void 0 ? void 0 : _h.find("[button-type='apply']").on("click", () => this.apply());

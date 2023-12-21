@@ -1,7 +1,4 @@
 ﻿using DbNetSuiteCore.Enums;
-using DocumentFormat.OpenXml.EMMA;
-using DocumentFormat.OpenXml.Wordprocessing;
-using Irony;
 using Microsoft.AspNetCore.Html;
 using System.Collections.Generic;
 

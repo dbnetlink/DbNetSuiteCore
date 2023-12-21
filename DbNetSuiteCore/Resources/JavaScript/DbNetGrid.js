@@ -307,6 +307,7 @@ class DbNetGrid extends DbNetGridEdit {
     }
     updateColumns(response) {
         var _a;
+        const columns = JSON.parse(JSON.stringify(this.columns));
         this.columns = new Array();
         (_a = response.columns) === null || _a === void 0 ? void 0 : _a.forEach((col) => {
             const properties = {
@@ -336,7 +337,12 @@ class DbNetGrid extends DbNetGridEdit {
                 uploadMetaData: col.uploadMetaData,
                 uploadMetaDataColumn: col.uploadMetaDataColumn
             };
-            this.columns.push(new GridColumn(properties));
+            const gridColumn = new GridColumn(properties);
+            const existingColumn = columns.find((col) => { return this.matchingColumn(col, gridColumn.columnExpression); });
+            if (existingColumn) {
+                gridColumn.lookupDataTable = existingColumn.lookupDataTable;
+            }
+            this.columns.push(gridColumn);
         });
     }
     columnDragStarted(event, ui) {

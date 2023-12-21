@@ -65,6 +65,7 @@ namespace DbNetSuiteCore.Services
             Env = services.webHostEnvironment;
             Configuration = services.configuration;
             Settings = services.configuration.GetSection("DbNetSuiteCore").Get<DbNetSuiteCoreSettings>() ?? new DbNetSuiteCoreSettings();
+            EncodingHelper.SuppressEncoding = Settings.SuppressNameEncoding;
             Cache = services.cache;
         }
 

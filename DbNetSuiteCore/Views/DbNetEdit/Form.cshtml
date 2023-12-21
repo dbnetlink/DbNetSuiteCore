@@ -103,7 +103,7 @@
 {
     public HtmlString FormControl(EditColumn editColumn, DataColumn dataColumn, int tabIndex = -1)
     {
-        if (string.IsNullOrEmpty(editColumn.Lookup) == false)
+        if (editColumn.HasLookup)
         {
             switch (editColumn.EditControlType)
             {
@@ -134,7 +134,7 @@
         {
             button = AddButton("calendar", "SelectDate");
         }
-        else if (string.IsNullOrEmpty(editColumn.Lookup) == false)
+        else if (editColumn.HasLookup)
         {
             button = AddButton("lookup", "OpenTheLookupWindow");
         }

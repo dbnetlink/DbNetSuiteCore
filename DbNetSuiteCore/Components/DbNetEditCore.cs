@@ -201,8 +201,6 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
 
             AddProperties(properties);
 
-            properties.Add($"datePickerOptions = {DatePickerOptions()};");
-
             return string.Join(Environment.NewLine, properties);
         }
 

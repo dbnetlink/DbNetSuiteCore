@@ -33,7 +33,7 @@ using System.Runtime.CompilerServices;
 
 namespace DbNetSuiteCore.Services
 {
-    public class DbNetGridEdit : DbNetSuite,IDisposable
+    public class DbNetGridEdit : DbNetSuite, IDisposable
     {
         private string _fromPart;
         private string _primaryKey;
@@ -132,7 +132,7 @@ namespace DbNetSuiteCore.Services
                 string json = Json == null ? HttpContext.Session.GetString(ConnectionString) : Json.ToString();
                 if (JsonKey.StartsWith("datatable"))
                 {
-                    dataTable = Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(json,  new TypedDataTableConverter(columnDataTypes));
+                    dataTable = Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(json, new TypedDataTableConverter(columnDataTypes));
                 }
                 else
                 {
@@ -190,7 +190,7 @@ namespace DbNetSuiteCore.Services
                     column.QuickSearch = true;
                 }
 
-                if (string.IsNullOrEmpty(column.Lookup) == false)
+                if (column.HasLookup)
                 {
                     column.DataType = nameof(String);
                 }
@@ -272,7 +272,7 @@ namespace DbNetSuiteCore.Services
                         }
                     }
 
-                    if (string.IsNullOrEmpty(editColumn.Lookup) == false)
+                    if (column.HasLookup)
                     {
                         if (editColumn.EditControlType == EditControlType.Auto)
                         {
@@ -297,7 +297,7 @@ namespace DbNetSuiteCore.Services
                 {
                     DbColumn col = (DbColumn)o;
 
-                    if (col.LookupIsEnum)
+                    if (col.LookupIsDataTable)
                     {
                         continue;
                     }
@@ -813,9 +813,9 @@ namespace DbNetSuiteCore.Services
         {
             DbColumn dbColumn = DbColumns.FirstOrDefault(c => c.Index == columnIndex);
 
-            if (dbColumn.LookupIsEnum)
+            if (dbColumn.LookupIsDataTable)
             {
-                return Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(dbColumn.Lookup);
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(dbColumn.LookupDataTable.ToString());
             }
 
             DataTable dataTable = new DataTable();
@@ -954,14 +954,14 @@ namespace DbNetSuiteCore.Services
                 foreach (object o in columns)
                 {
                     DbColumn column = (DbColumn)o;
-                    if (string.IsNullOrEmpty(column.Lookup))
+                    if (column.LookupIsDataTable)
                     {
+                        _lookupTables.Add(column.ColumnKey, Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(column.LookupDataTable.ToString()));
                         continue;
                     }
 
-                    if (column.LookupIsEnum)
+                    if (string.IsNullOrEmpty(column.Lookup))
                     {
-                        _lookupTables.Add(column.ColumnKey, Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(column.Lookup));
                         continue;
                     }
 
@@ -1409,15 +1409,13 @@ namespace DbNetSuiteCore.Services
                     if (col.DbDataType != "31") // "Date"
                         columnExpression = $"CONVERT(DATE,{columnExpression})";
                     break;
-                /*
-            case DatabaseType.Oracle:
-                columnExpression = $"trunc({columnExpression})";
-                break;
-                */
                 case DatabaseType.PostgreSQL:
                     columnExpression = $"date_trunc('day',{columnExpression})";
                     break;
-            }
+				case DatabaseType.SQLite:
+					columnExpression = $"DATE({columnExpression})";
+					break;
+			}
 
             return columnExpression;
         }

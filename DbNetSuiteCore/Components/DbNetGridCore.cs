@@ -361,8 +361,6 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
                 properties.Add($"procedureParams = {Serialize(ProcedureParams)};");
             }
 
-            properties.Add($"datePickerOptions = {DatePickerOptions()};");
-
             if (GoogleChartOptions != null)
             {
                 properties.Add($"googleChartOptions = {Serialize(GoogleChartOptions)};");

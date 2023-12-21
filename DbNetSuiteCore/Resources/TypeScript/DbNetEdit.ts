@@ -159,7 +159,7 @@ class DbNetEdit extends DbNetGridEdit {
 
         this.formPanel?.find("input[datatype='DateTime'").get().forEach(e => {
             const $input = $(e as HTMLInputElement);
-            this.addDatePicker($input, this.datePickerOptions);
+            this.addDatePicker($input, DbNetSuite.datePickerOptions);
         });
 
     }
@@ -395,6 +395,7 @@ class DbNetEdit extends DbNetGridEdit {
                 foreignKey: col.foreignKey,
                 foreignKeyValue: col.foreignKeyValue,
                 lookup: col.lookup,
+                lookupDataTable: col.lookupDataTable,
                 style: col.style,
                 display: col.display,
                 dataType: col.dataType,

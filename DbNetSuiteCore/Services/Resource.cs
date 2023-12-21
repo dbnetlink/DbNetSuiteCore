@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using DbNetSuiteCore.Constants.Resource;
 using DbNetSuiteCore.Helpers;
@@ -88,11 +89,30 @@ namespace DbNetSuiteCore.Services
                 scripts.Add(await GetResourceString($"JavaScript.{scriptName}{(Debug ? string.Empty : ".min")}.js"));
             }
 
+            scripts.Add($"DbNetSuite.datePickerOptions = {DatePickerOptions()};");
+
             HttpContext.Response.ContentType = $"application/javascript";
 			return String.Join(Environment.NewLine, scripts.ToArray());
 		}
 
-		private async Task<string> Css()
+        private string DatePickerOptions()
+        {
+            DatePickerOptions datePickerOptions = new DatePickerOptions(this.Culture);
+            return Serialize(datePickerOptions);
+        }
+
+        private string Serialize(object obj)
+        {
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            };
+
+            return JsonSerializer.Serialize(obj, options);
+        }
+
+        private async Task<string> Css()
 		{
 			string fontSizeVariable = "--main-font-size";
             string fontFamilyVariable = "--main-font-family";

@@ -185,8 +185,6 @@ folder = '{EncodingHelper.Encode(_folder)}';
             AddProperty(TreeView, $"{nameof(TreeView)}", properties);
             AddProperty(FilesOnly, $"{nameof(FilesOnly)}", properties);
 
-            properties.Add($"datePickerOptions = {DatePickerOptions()};");
-
             return string.Join(Environment.NewLine, properties);
         }
 

@@ -202,7 +202,7 @@
         {
             controls += AddButton("clock", "SelectTime");
         }
-        else if (string.IsNullOrEmpty(column.Lookup) == false)
+        else if (column.HasLookup)
         {
             controls += AddButton("lookup", "OpenTheLookupWindow");
         }

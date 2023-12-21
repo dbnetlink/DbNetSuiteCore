@@ -1,6 +1,7 @@
 ﻿using DbNetSuiteCore.Enums;
 using DbNetSuiteCore.Helpers;
 using DbNetSuiteCore.Services;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,12 +60,16 @@ namespace DbNetSuiteCore.Models
             get => EncodingHelper.Decode(_lookup);
             set => _lookup = value;
         }
-        public int LookupColumns => DbNetGridEdit.GetSelectColumns(Lookup).Length;
-         public bool LookupIsEnum
+        public int LookupColumns => LookupIsDataTable ? 2 : DbNetGridEdit.GetSelectColumns(Lookup).Length;
+        public bool LookupIsDataTable
         {
-            get => string.IsNullOrEmpty(Lookup) == false && Lookup.StartsWith("[{");
+            get => LookupDataTable != null && LookupDataTable.HasValues;
         }
-
+        public bool HasLookup
+        {
+            get => string.IsNullOrEmpty(Lookup) == false || LookupIsDataTable;
+        }
+        public JArray LookupDataTable { get; set; }
         public string LookupDataType { get; set; }
         public string LookupParameter { get; set; }
 
@@ -79,7 +84,7 @@ namespace DbNetSuiteCore.Models
         public bool Binary => DataType == "Byte[]";
         public int Index { get; set; } = -1;
         public bool? Display { get; set; } = null;
-        public bool Show => Display.HasValue ?  Display.Value : false;
+        public bool Show => Display.HasValue ? Display.Value : false;
         public bool QuickSearch { get; set; } = false;
         public bool IsNumeric => _numericDataTypes.Contains(DataType);
         public bool AllowsNull { get; set; }
