@@ -1,8 +1,25 @@
 ﻿@page
-@using DbNetSuiteCore.Enums.DbNetGrid;
+@model SampleModel
 @using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums;
+@using DbNetSuiteCore.Enums.DbNetGrid;
+@using DbNetSuiteCore.Web.UI.ViewModels;
+@using DbNetSuiteCore.Web.UI.Models;
 @{
-    DbNetGridCore employeesGrid = new DbNetGridCore("northwind", "employees");
+    DbNetGridCore employeesGrid;
+
+    if (Model.JsonMode)
+    {
+        var emplolyees = await Model.GetList<Employee>("employees");
+        employeesGrid = new DbNetGridCore(DataSourceType.List);
+        employeesGrid.AddList<Employee>(emplolyees);
+        employeesGrid.Column(nameof(Employee.EmployeeID)).PrimaryKey();
+    }
+    else
+    {
+        employeesGrid = new DbNetGridCore("northwind", "employees");
+    }
+
     employeesGrid.Search = true;
     employeesGrid.View = true;
     employeesGrid.ViewLayoutColumns = 2;
@@ -13,6 +30,6 @@
 
 <script>
     function configureNotesElement(grid, args) {
-        $(grid.viewElement("notes")).width(200).height(100).css("overflow","auto");
+        $(grid.viewElement("notes")).width(200).height(100).css("overflow", "auto");
     }
 </script>

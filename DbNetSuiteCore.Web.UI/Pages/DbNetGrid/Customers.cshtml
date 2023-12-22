@@ -1,14 +1,28 @@
 ﻿@page
+@model SampleModel
 @using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums;
+@using DbNetSuiteCore.Web.UI.ViewModels;
+@using DbNetSuiteCore.Web.UI.Models;
 @{
-    // Configure the grid and render
-    DbNetGridCore customersGrid = new DbNetGridCore("northwind","customers");
+    DbNetGridCore customersGrid;
+
+    if (Model.JsonMode)
+    {
+        var customers = await Model.GetList<Customer>("customers");
+        customersGrid = new DbNetGridCore(DataSourceType.List);
+        customersGrid.AddList<Customer>(customers);
+    }
+    else
+    {
+        customersGrid = new DbNetGridCore("northwind", "customers");
+    }
     customersGrid.Columns = new List<string>() { "CustomerId", "CompanyName", "ContactName", "ContactTitle", "Address", "City", "Region", "PostalCode", "Country", "Phone", "Fax" };
     customersGrid.QuickSearch = true;
     customersGrid.Update = true;
     customersGrid.Insert = true;
     customersGrid.Delete = true;
-    customersGrid.Column("CustomerId").Display();
+    customersGrid.Column("CustomerId").Display().PrimaryKey();
     customersGrid.EditControl.Column("country").Lookup();
     customersGrid.EditControl.Column("region").Lookup();
     customersGrid.EditControl.LayoutColumns = 2;

@@ -6,11 +6,11 @@
 @using DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid;
 @{
     DbNetGridCore employeesGrid = new DbNetGridCore(DataSourceType.JSON);
-    employeesGrid.AddJson<Employee>(Model.JsonData); // typed
+    employeesGrid.AddJson<EmployeeAV>(Model.JsonData); // typed
     employeesGrid.Column(new string[] { "Gender" ,"DepartmentName", "Status"}).Lookup();
     employeesGrid.Column("*").Filter();
     employeesGrid.View = true;
     employeesGrid.ViewLayoutColumns = 2;
-    employeesGrid.Column(nameof(Employee.EmployeeKey)).PrimaryKey();
+    employeesGrid.Column(nameof(EmployeeAV.EmployeeKey)).PrimaryKey();
     @employeesGrid.Render()
 }

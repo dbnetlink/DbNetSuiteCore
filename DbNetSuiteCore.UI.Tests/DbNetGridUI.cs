@@ -14,11 +14,21 @@ namespace DbNetSuiteCore.UI.Tests
         }
 
         [Fact]
-        public void SimpleTest()
+        public void SimpleTestDb()
+        {
+            SimpleTest(false);
+        }
+        [Fact]
+        public void SimpleTestJson()
+        {
+            SimpleTest(true);
+        }
+
+        private void SimpleTest(bool json = false)
         {
             using (var driver = WebDriver)
             {
-                driver.Navigate().GoToUrl($"{_factory.HostUrl}/dbnetgrid/customers");
+                driver.Navigate().GoToUrl($"{_factory.HostUrl}/dbnetgrid/customers?jsonmode={json}");
 
                 var table = GetTable(driver);
                 var rows = GetTableBodyRows(table);
@@ -28,11 +38,21 @@ namespace DbNetSuiteCore.UI.Tests
         }
 
         [Fact]
-        public void HeadingSortTest()
+        public void HeadingSortTestDb()
+        {
+            HeadingSortTest(false);
+        }
+
+        [Fact]
+        public void HeadingSortTestJson()
+        {
+            HeadingSortTest(true);
+        }
+        private void HeadingSortTest(bool json = false)
         {
             using (var driver = WebDriver)
             {
-                driver.Navigate().GoToUrl($"{_factory.HostUrl}/dbnetgrid/customers");
+                driver.Navigate().GoToUrl($"{_factory.HostUrl}/dbnetgrid/customers?jsonmode={json}");
 
                 var table = GetTable(driver);
                 var headerRows = GetTableHeaderRows(table);
@@ -53,9 +73,18 @@ namespace DbNetSuiteCore.UI.Tests
             }
         }
 
+        [Fact]
+        public void StringSearchDialogTestDb()
+        {
+            StringSearchDialogTest(false);
+        }
 
         [Fact]
-        public void StringSearchDialogTest()
+        public void StringSearchDialogTestJson()
+        {
+            StringSearchDialogTest(true);
+        }
+        private void StringSearchDialogTest(bool json = false)
         {
             List<SearchTemplate> searchTemplates = new List<SearchTemplate>
             {
@@ -79,21 +108,20 @@ namespace DbNetSuiteCore.UI.Tests
                 new SearchTemplate(SearchOperator.IsNotNull, 91)
             };
 
-            ApplySearchTemplates(searchTemplates, "customers", "CustomerID");
-           
+            ApplySearchTemplates(searchTemplates, "customers", "CustomerID", json);
         }
 
-		[Fact]
-		public void DateSearchDialogTestDb()
+        [Fact]
+        public void DateSearchDialogTestDb()
         {
             DateSearchDialogTest();
-		}
+        }
 
-		[Fact]
-		public void DateSearchDialogTestJson()
-		{
+        [Fact]
+        public void DateSearchDialogTestJson()
+        {
             DateSearchDialogTest(true);
-		}
+        }
 
         private void DateSearchDialogTest(bool json = false)
         {
@@ -120,15 +148,15 @@ namespace DbNetSuiteCore.UI.Tests
         public void DecimalSearchDialogTestDb()
         {
             DecimalSearchDialogTest();
-		}
+        }
 
-		[Fact]
-		public void DecimalSearchDialogTestJson()
-		{
+        [Fact]
+        public void DecimalSearchDialogTestJson()
+        {
             DecimalSearchDialogTest(true);
-		}
+        }
 
-		private void DecimalSearchDialogTest(bool json = false)
+        private void DecimalSearchDialogTest(bool json = false)
         {
             List<SearchTemplate> searchTemplates = new List<SearchTemplate>
             {
@@ -153,27 +181,38 @@ namespace DbNetSuiteCore.UI.Tests
         public void BooleanSearchDialogTestDb()
         {
             BooleanSearchDialogTest();
-		}
+        }
 
-		[Fact]
-		public void BooleanSearchDialogTestJson()
-		{
-			BooleanSearchDialogTest(true);
-		}
-
-		private void BooleanSearchDialogTest(bool json = false)
+        [Fact]
+        public void BooleanSearchDialogTestJson()
         {
-			List<SearchTemplate> searchTemplates = new List<SearchTemplate>
-			{
-				new SearchTemplate(SearchOperator.True, 8),
-				new SearchTemplate(SearchOperator.False, 69),
-			};
+            BooleanSearchDialogTest(true);
+        }
 
-			ApplySearchTemplates(searchTemplates, $"products", "Discontinued", json);
-		}
+        private void BooleanSearchDialogTest(bool json = false)
+        {
+            List<SearchTemplate> searchTemplates = new List<SearchTemplate>
+            {
+                new SearchTemplate(SearchOperator.True, 8),
+                new SearchTemplate(SearchOperator.False, 69),
+            };
 
-		[Fact]
-        public void NullSearchDialogTest()
+            ApplySearchTemplates(searchTemplates, $"products", "Discontinued", json);
+        }
+
+        [Fact]
+        public void NullSearchDialogTestDb()
+        {
+            NullSearchDialogTest(false);
+        }
+
+        [Fact]
+        public void NullSearchDialogTestJson()
+        {
+            NullSearchDialogTest(true);
+        }
+
+        private void NullSearchDialogTest(bool json = false)
         {
             List<SearchTemplate> searchTemplates = new List<SearchTemplate>
             {
@@ -181,7 +220,7 @@ namespace DbNetSuiteCore.UI.Tests
                 new SearchTemplate(SearchOperator.IsNotNull, 809)
             };
 
-            ApplySearchTemplates(searchTemplates, "orders", "ShippedDate");
+            ApplySearchTemplates(searchTemplates, "orders", "ShippedDate", json);
         }
 
         [Fact]
@@ -199,11 +238,22 @@ namespace DbNetSuiteCore.UI.Tests
         }
 
         [Fact]
-        public void ViewTest()
+        public void ViewTestDb()
+        {
+            ViewTest(false);
+        }
+
+        [Fact]
+        public void ViewTestJson()
+        {
+            ViewTest(true);
+        }
+
+        private void ViewTest(bool json = false)
         {
             using (var driver = WebDriver)
             {
-                driver.Navigate().GoToUrl($"{_factory.HostUrl}/dbnetgrid/view");
+                driver.Navigate().GoToUrl($"{_factory.HostUrl}/dbnetgrid/view?jsonmode={json}");
 
                 var toolbar = GetToolbar(driver);
                 var viewButton = GetButton(toolbar, "view");
@@ -212,7 +262,7 @@ namespace DbNetSuiteCore.UI.Tests
                 Assert.NotNull(viewDialog);
 
                 IWebElement div = viewDialog.FindElements(By.CssSelector($"div[data-columnname='lastname']")).First();
- //               IWebElement div = row.FindElement(By.CssSelector("div.view-dialog-value"));
+                //               IWebElement div = row.FindElement(By.CssSelector("div.view-dialog-value"));
                 Assert.Equal("Davolio", div.Text);
                 var parentCell = div.FindElement(By.XPath("./.."));
                 Assert.Equal("Davolio", parentCell.GetAttribute("data-value"));
@@ -319,7 +369,7 @@ namespace DbNetSuiteCore.UI.Tests
         public string? Token1 { get; set; }
         public string? Token2 { get; set; }
 
-        public SearchTemplate(SearchOperator searchOperator, int expectedResult, string? token1 = null, string? token2 = null ) 
+        public SearchTemplate(SearchOperator searchOperator, int expectedResult, string? token1 = null, string? token2 = null)
         {
             SearchOperator = searchOperator;
             ExpectedResult = expectedResult;

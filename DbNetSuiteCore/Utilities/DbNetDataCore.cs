@@ -13,8 +13,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
 using DbNetSuiteCore.Enums;
-using Microsoft.CodeAnalysis.Operations;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace DbNetSuiteCore.Utilities
 {
@@ -754,10 +752,13 @@ namespace DbNetSuiteCore.Utilities
 
             Regex re = new Regex(NameDelimiterTemplate.Replace("[", @"\[").Replace("]", @"\]").Replace("{0}", ".*"));
 
-            for (int I = 0; I < nameParts.Length; I++)
-                if (Regex.IsMatch(nameParts[I], @"\W") || IsReservedWord(nameParts[I]) || StartsWithNumeric(nameParts[I]))
-                    if (!re.IsMatch(nameParts[I]))
-                        nameParts[I] = NameDelimiterTemplate.Replace("{0}", nameParts[I].Trim());
+            if (Provider != DataProvider.DataTable)
+            {
+                for (int I = 0; I < nameParts.Length; I++)
+                    if (Regex.IsMatch(nameParts[I], @"\W") || IsReservedWord(nameParts[I]) || StartsWithNumeric(nameParts[I]))
+                        if (!re.IsMatch(nameParts[I]))
+                            nameParts[I] = NameDelimiterTemplate.Replace("{0}", nameParts[I].Trim());
+            }
 
             return string.Join(".", nameParts);
         }
