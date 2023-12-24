@@ -7,16 +7,18 @@
 @{
 	DbNetGridCore ordersGrid;
 
-	if (Model.JsonMode)
+	switch (Model.DataProvider)
 	{
-		var orders = await Model.GetList<Order>("orders");
-		ordersGrid = new DbNetGridCore(DataSourceType.List);
-		ordersGrid.AddList<Order>(orders);
+		case DataProvider.DataTable:
+			var orders = await Model.GetList<Order>("orders");
+			ordersGrid = new DbNetGridCore(DataSourceType.List);
+			ordersGrid.AddList<Order>(orders);
+			break;
+		default:
+			ordersGrid = ordersGrid = new DbNetGridCore(Model.DataProvider.ToString(), "orders");
+			break;
 	}
-	else
-	{
-		ordersGrid = ordersGrid = new DbNetGridCore("northwind", "orders");
-	}
+
 	ordersGrid.Culture = "en-GB";
 	@ordersGrid.Render()
 }

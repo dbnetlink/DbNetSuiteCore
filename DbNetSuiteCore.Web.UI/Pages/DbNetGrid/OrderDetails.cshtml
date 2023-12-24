@@ -7,15 +7,16 @@
 @{
 	DbNetGridCore orderDetailsGrid;
 
-	if (Model.JsonMode)
+	switch (Model.DataProvider)
 	{
-		var orderDetails = await Model.GetList<OrderDetail>("[order details]");
-		orderDetailsGrid = new DbNetGridCore(DataSourceType.List);
-		orderDetailsGrid.AddList<OrderDetail>(orderDetails);
-	}
-	else
-	{
-		orderDetailsGrid = new DbNetGridCore("northwind", "[order details]");
+		case DataProvider.DataTable:
+			var orderDetails = await Model.GetList<OrderDetail>("[order details]");
+			orderDetailsGrid = new DbNetGridCore(DataSourceType.List);
+			orderDetailsGrid.AddList<OrderDetail>(orderDetails);
+			break;
+		default:
+			orderDetailsGrid = new DbNetGridCore(Model.DataProvider.ToString(), "[order details]");
+			break;
 	}
     
     @orderDetailsGrid.Render()

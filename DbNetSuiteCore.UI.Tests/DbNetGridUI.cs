@@ -74,17 +74,23 @@ namespace DbNetSuiteCore.UI.Tests
         }
 
         [Fact]
-        public void StringSearchDialogTestDb()
+        public void StringSearchDialogTestSQLite()
         {
-            StringSearchDialogTest(false);
+            StringSearchDialogTest(DataProvider.SQLite);
+        }
+
+        [Fact]
+        public void StringSearchDialogTestMSSqlServer()
+        {
+            StringSearchDialogTest(DataProvider.SqlClient);
         }
 
         [Fact]
         public void StringSearchDialogTestJson()
         {
-            StringSearchDialogTest(true);
+            StringSearchDialogTest(DataProvider.DataTable);
         }
-        private void StringSearchDialogTest(bool json = false)
+        private void StringSearchDialogTest(DataProvider dataProvider)
         {
             List<SearchTemplate> searchTemplates = new List<SearchTemplate>
             {
@@ -108,22 +114,28 @@ namespace DbNetSuiteCore.UI.Tests
                 new SearchTemplate(SearchOperator.IsNotNull, 91)
             };
 
-            ApplySearchTemplates(searchTemplates, "customers", "CustomerID", json);
+            ApplySearchTemplates(searchTemplates, "customers", "CustomerID", dataProvider);
         }
 
         [Fact]
-        public void DateSearchDialogTestDb()
+        public void DateSearchDialogTestSQLite()
         {
-            DateSearchDialogTest();
+            DateSearchDialogTest(DataProvider.SQLite);
+        }
+
+        [Fact]
+        public void DateSearchDialogTestMSSQLServer()
+        {
+            DateSearchDialogTest(DataProvider.SqlClient);
         }
 
         [Fact]
         public void DateSearchDialogTestJson()
         {
-            DateSearchDialogTest(true);
+            DateSearchDialogTest(DataProvider.DataTable);
         }
 
-        private void DateSearchDialogTest(bool json = false)
+        private void DateSearchDialogTest(DataProvider dataProvider)
         {
             List<SearchTemplate> searchTemplates = new List<SearchTemplate>
             {
@@ -141,22 +153,26 @@ namespace DbNetSuiteCore.UI.Tests
                 new SearchTemplate(SearchOperator.IsNotNull, 830)
             };
 
-            ApplySearchTemplates(searchTemplates, "orders", "OrderDate", json);
+            ApplySearchTemplates(searchTemplates, "orders", "OrderDate", dataProvider);
         }
 
         [Fact]
-        public void DecimalSearchDialogTestDb()
+        public void DecimalSearchDialogTestSQLite()
         {
-            DecimalSearchDialogTest();
+            DecimalSearchDialogTest(DataProvider.SQLite);
         }
-
+        [Fact]
+        public void DecimalSearchDialogTestMSSqlServer()
+        {
+            DecimalSearchDialogTest(DataProvider.SqlClient);
+        }
         [Fact]
         public void DecimalSearchDialogTestJson()
         {
-            DecimalSearchDialogTest(true);
+            DecimalSearchDialogTest(DataProvider.DataTable);
         }
 
-        private void DecimalSearchDialogTest(bool json = false)
+        private void DecimalSearchDialogTest(DataProvider dataProvider)
         {
             List<SearchTemplate> searchTemplates = new List<SearchTemplate>
             {
@@ -174,22 +190,28 @@ namespace DbNetSuiteCore.UI.Tests
                 new SearchTemplate(SearchOperator.IsNotNull, 2155)
             };
 
-            ApplySearchTemplates(searchTemplates, "orderdetails", "UnitPrice", json);
+            ApplySearchTemplates(searchTemplates, "orderdetails", "UnitPrice", dataProvider);
         }
 
         [Fact]
-        public void BooleanSearchDialogTestDb()
+        public void BooleanSearchDialogTestSQLite()
         {
-            BooleanSearchDialogTest();
+            BooleanSearchDialogTest(DataProvider.SQLite);
+        }
+
+        [Fact]
+        public void BooleanSearchDialogTestMSSqlServer()
+        {
+            BooleanSearchDialogTest(DataProvider.SqlClient);
         }
 
         [Fact]
         public void BooleanSearchDialogTestJson()
         {
-            BooleanSearchDialogTest(true);
+            BooleanSearchDialogTest(DataProvider.DataTable);
         }
 
-        private void BooleanSearchDialogTest(bool json = false)
+        private void BooleanSearchDialogTest(DataProvider dataProvider)
         {
             List<SearchTemplate> searchTemplates = new List<SearchTemplate>
             {
@@ -197,22 +219,28 @@ namespace DbNetSuiteCore.UI.Tests
                 new SearchTemplate(SearchOperator.False, 69),
             };
 
-            ApplySearchTemplates(searchTemplates, $"products", "Discontinued", json);
+            ApplySearchTemplates(searchTemplates, $"products", "Discontinued", dataProvider);
         }
 
         [Fact]
-        public void NullSearchDialogTestDb()
+        public void NullSearchDialogTestSQLite()
         {
-            NullSearchDialogTest(false);
+            NullSearchDialogTest(DataProvider.SQLite);
+        }
+
+        [Fact]
+        public void NullSearchDialogTestMSSqlServer()
+        {
+            NullSearchDialogTest(DataProvider.SqlClient);
         }
 
         [Fact]
         public void NullSearchDialogTestJson()
         {
-            NullSearchDialogTest(true);
+            NullSearchDialogTest(DataProvider.DataTable);
         }
 
-        private void NullSearchDialogTest(bool json = false)
+        private void NullSearchDialogTest(DataProvider dataProvider)
         {
             List<SearchTemplate> searchTemplates = new List<SearchTemplate>
             {
@@ -220,7 +248,7 @@ namespace DbNetSuiteCore.UI.Tests
                 new SearchTemplate(SearchOperator.IsNotNull, 809)
             };
 
-            ApplySearchTemplates(searchTemplates, "orders", "ShippedDate", json);
+            ApplySearchTemplates(searchTemplates, "orders", "ShippedDate", dataProvider);
         }
 
         [Fact]
@@ -298,6 +326,19 @@ namespace DbNetSuiteCore.UI.Tests
             return driver.FindElement(By.CssSelector($".{dialogName}-dialog"));
         }
 
+
+        private IWebElement? FindElementByAttributeName(ReadOnlyCollection<IWebElement> elements, string attributeName, string attributeValue)
+        {
+            foreach (IWebElement element in elements)
+            {
+                if ((element.GetAttribute(attributeName) ?? string.Empty).ToLower() == attributeValue.ToLower())
+                { 
+                    return element; 
+                }
+            }
+
+            return null;
+        }
         private IWebElement GetButton(IWebElement container, string buttonType)
         {
             return container.FindElement(By.CssSelector($"button[button-type='{buttonType}']"));
@@ -308,9 +349,9 @@ namespace DbNetSuiteCore.UI.Tests
             return container.FindElement(By.CssSelector($"input[name='{name}']"));
         }
 
-        private void ApplySearchTemplates(List<SearchTemplate> searchTemplates, string page, string columnName, bool json = false)
+        private void ApplySearchTemplates(List<SearchTemplate> searchTemplates, string page, string columnName, DataProvider dataProvider = DataProvider.SQLite)
         {
-            page = page + $"?jsonmode={json.ToString().ToLower()}";
+            page = page + $"?DataProvider={dataProvider}";
 
             using (var driver = WebDriver)
             {
@@ -318,7 +359,15 @@ namespace DbNetSuiteCore.UI.Tests
                 var applyButton = GetButton(searchDialog, "apply");
                 var clearButton = GetButton(searchDialog, "clear");
 
-                IWebElement row = searchDialog.FindElements(By.CssSelector($"tr[columnname='{columnName}']")).First();
+                ReadOnlyCollection<IWebElement> rows = searchDialog.FindElements(By.TagName("tr"));
+
+                var colName = rows.First().GetAttribute("columnname");
+                IWebElement? row = FindElementByAttributeName(rows, "columnname", columnName); 
+
+                if (row == null)
+                {
+                    throw new Exception($"Search row for {columnName} not found");
+                }
                 SelectElement select = new SelectElement(row.FindElement(By.TagName("select")));
                 ReadOnlyCollection<IWebElement> inputs = row.FindElements(By.TagName("input"));
 

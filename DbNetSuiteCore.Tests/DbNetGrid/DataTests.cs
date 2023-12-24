@@ -13,19 +13,20 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
 {
     public class DataTests : DbNetGridTests
     {
-        private List<DataSourceType> _dataSourceTypes = new List<DataSourceType>() { DataSourceType.TableOrView, DataSourceType.List };
+        private List<DataProvider> _dataProviders = new List<DataProvider>() { DataProvider.SQLite, DataProvider.SqlClient, DataProvider.DataTable };
         public DataTests() : base() { }
 
         [Fact]
         public async Task SimpleTest()
         {
             DbNetGridRequest request;
-            foreach (DataSourceType dataSourceType in _dataSourceTypes)
+            foreach (DataProvider dataProvider in _dataProviders)
             {
-                switch (dataSourceType)
+                switch (dataProvider)
                 {
-                    case DataSourceType.TableOrView:
-                        request = GetRequest();
+                    case DataProvider.SQLite:
+                    case DataProvider.SqlClient:
+                        request = GetRequest("Customers", dataProvider);
                         break;
                     default:
                         request = GetRequest<Customer>();
@@ -68,12 +69,13 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
         {
             DbNetGridRequest request;
 
-            foreach (DataSourceType dataSourceType in _dataSourceTypes)
+            foreach (DataProvider dataProvider in _dataProviders)
             {
-                switch (dataSourceType)
+                switch (dataProvider)
                 {
-                    case DataSourceType.TableOrView:
-                        request = GetRequest();
+                    case DataProvider.SQLite:
+                    case DataProvider.SqlClient:
+                        request = GetRequest("Customers", dataProvider);
                         request.Columns.Add(new GridColumn("CompanyName") { Label = "Name" });
                         request.Columns.Add(new GridColumn("Address + ', ' + City as Addr") { Label = "Address" });
                         request.Columns.Add(new GridColumn("Country"));
@@ -109,44 +111,58 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
         [Fact]
         public async Task JoinTest()
         {
-            DbNetGridRequest request = GetRequest("Customers join Orders on Customers.CustomerID = Orders.CustomerID join [Order Details] on Orders.OrderID = [Order Details].OrderID");
+            foreach (DataProvider dataProvider in _dataProviders)
+            {
+                DbNetGridRequest request;
+                switch (dataProvider)
+                {
+                    case DataProvider.SQLite:
+                    case DataProvider.SqlClient:
+                        request = GetRequest("Customers join Orders on Customers.CustomerID = Orders.CustomerID join [Order Details] on Orders.OrderID = [Order Details].OrderID", dataProvider);
+                        break;
+                    default:
+                        continue;
+                }
 
-            request.Columns.Add(new GridColumn("CompanyName"));
-            request.Columns.Add(new GridColumn("OrderDate"));
-            request.Columns.Add(new GridColumn("[Order Details].OrderID"));
-            request.Columns.Add(new GridColumn("ProductID") { Lookup = EncodingHelper.Encode("select ProductId, ProductName from Products") });
-            request.Columns.Add(new GridColumn("UnitPrice") { Format = "c" });
-            request.Columns.Add(new GridColumn("Quantity"));
+                request.Columns.Add(new GridColumn("CompanyName"));
+                request.Columns.Add(new GridColumn("OrderDate"));
+                request.Columns.Add(new GridColumn("[Order Details].OrderID"));
+                request.Columns.Add(new GridColumn("ProductID") { Lookup = EncodingHelper.Encode("select ProductId, ProductName from Products") });
+                request.Columns.Add(new GridColumn("UnitPrice") { Format = "c" });
+                request.Columns.Add(new GridColumn("Quantity"));
 
-            DbNetGridResponse? dbNetGridResponse = await GetResponse(request, RequestAction.Initialize);
-            Assert.Equal(6, dbNetGridResponse?.Columns.Count);
+                DbNetGridResponse? dbNetGridResponse = await GetResponse(request, RequestAction.Initialize);
+                Assert.Equal(6, dbNetGridResponse?.Columns.Count);
 
-            var parser = new HtmlParser();
-            var document = await parser.ParseDocumentAsync(dbNetGridResponse?.Data.ToString() ?? string.Empty);
+                var parser = new HtmlParser();
+                var document = await parser.ParseDocumentAsync(dbNetGridResponse?.Data.ToString() ?? string.Empty);
 
-            var tbody = document.QuerySelector("tbody");
-            Assert.Equal((int)request.PageSize, tbody?.Children.Length);
-            var tr = tbody?.Children.First();
-            Assert.Equal(6, tr?.Children.Length);
-            Assert.Equal("Rössle Sauerkraut", tr?.Children[CellIndex(document, "ProductID")].TextContent);
-            Assert.StartsWith("£", tr?.Children[4].TextContent);
+                var tbody = document.QuerySelector("tbody");
+                Assert.Equal((int)request.PageSize, tbody?.Children.Length);
+                var tr = tbody?.Children.First();
+                Assert.Equal(6, tr?.Children.Length);
+                Assert.Equal("Rössle Sauerkraut", tr?.Children[CellIndex(document, "ProductID")].TextContent);
+                Assert.StartsWith("£", tr?.Children[4].TextContent);
+            }
         }
 
         [Fact]
         public async Task StylingTest()
         {
-            DbNetGridRequest request;
-            foreach (DataSourceType dataSourceType in _dataSourceTypes)
+            foreach (DataProvider dataProvider in _dataProviders)
             {
-                switch (dataSourceType)
+                DbNetGridRequest request;
+                switch (dataProvider)
                 {
-                    case DataSourceType.TableOrView:
-                        request = GetRequest("products");
+                    case DataProvider.SQLite:
+                    case DataProvider.SqlClient:
+                        request = GetRequest("Products", dataProvider);
                         break;
                     default:
                         request = GetRequest<Product>("products");
                         break;
                 }
+
                 string style = "background-color:gold; color:steelblue";
 
                 request.Columns.Add(new GridColumn("ProductName"));
@@ -170,19 +186,20 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
         {
             foreach (MultiRowSelectLocation multiRowSelectLocation in Enum.GetValues(typeof(MultiRowSelectLocation)))
             {
-                DbNetGridRequest request;
-                foreach (DataSourceType dataSourceType in _dataSourceTypes)
+                foreach (DataProvider dataProvider in _dataProviders)
                 {
-                    switch (dataSourceType)
+                    DbNetGridRequest request;
+                    switch (dataProvider)
                     {
-                        case DataSourceType.TableOrView:
-                            request = GetRequest();
+                        case DataProvider.SQLite:
+                        case DataProvider.SqlClient:
+                            request = GetRequest("customers", dataProvider);
                             break;
                         default:
-                            request = GetRequest<Customer>();
+                            request = GetRequest<Customer>("customers");
                             break;
                     }
-
+                   
                     request.MultiRowSelect = true;
                     request.MultiRowSelectLocation = multiRowSelectLocation;
 
@@ -234,13 +251,14 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
         [Fact]
         public async Task ColumnFiltersTest()
         {
-            DbNetGridRequest request;
-            foreach (DataSourceType dataSourceType in _dataSourceTypes)
+            foreach (DataProvider dataProvider in _dataProviders)
             {
-                switch (dataSourceType)
+                DbNetGridRequest request;
+                switch (dataProvider)
                 {
-                    case DataSourceType.TableOrView:
-                        request = GetRequest("products");
+                    case DataProvider.SQLite:
+                    case DataProvider.SqlClient:
+                        request = GetRequest("Products", dataProvider);
                         break;
                     default:
                         request = GetRequest<Product>("products");
@@ -261,23 +279,27 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
                             gridColumn.Display = true;
                             break;
                         case "SupplierID":
-                            if (dataSourceType == DataSourceType.TableOrView)
+                            switch (dataProvider)
                             {
-                                gridColumn.Lookup = EncodingHelper.Encode("select SupplierId, CompanyName from Suppliers");
-                            }
-                            else
-                            {
-                                gridColumn.LookupDataTable = await GetLookup("select SupplierId, CompanyName from Suppliers order by 2");
+                                case DataProvider.SQLite:
+                                case DataProvider.SqlClient:
+                                    gridColumn.Lookup = EncodingHelper.Encode("select SupplierId, CompanyName from Suppliers");
+                                    break;
+                                default:
+                                    gridColumn.LookupDataTable = await GetLookup("select SupplierId, CompanyName from Suppliers order by 2");
+                                    break;
                             }
                             break;
                         case "CategoryID":
-                            if (dataSourceType == DataSourceType.TableOrView)
+                            switch (dataProvider)
                             {
-                                gridColumn.Lookup = EncodingHelper.Encode("select CategoryId, CategoryName from Categories");
-                            }
-                            else
-                            {
-                                gridColumn.LookupDataTable = await GetLookup("select CategoryId, CategoryName from Categories order by 2");
+                                case DataProvider.SQLite:
+                                case DataProvider.SqlClient:
+                                    gridColumn.Lookup = EncodingHelper.Encode("select CategoryId, CategoryName from Categories");
+                                    break;
+                                default:
+                                    gridColumn.LookupDataTable = await GetLookup("select CategoryId, CategoryName from Categories order by 2");
+                                    break;
                             }
                             gridColumn.FilterMode = FilterColumnSelectMode.List;
                             break;
@@ -304,13 +326,14 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
         [Fact]
         public async Task FrozenHeaderTest()
         {
-            DbNetGridRequest request;
-            foreach (DataSourceType dataSourceType in _dataSourceTypes)
+            foreach (DataProvider dataProvider in _dataProviders)
             {
-                switch (dataSourceType)
+                DbNetGridRequest request;
+                switch (dataProvider)
                 {
-                    case DataSourceType.TableOrView:
-                        request = GetRequest("products");
+                    case DataProvider.SQLite:
+                    case DataProvider.SqlClient:
+                        request = GetRequest("Products", dataProvider);
                         break;
                     default:
                         request = GetRequest<Product>("products");
@@ -342,13 +365,14 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
         [Fact]
         public async Task ViewTest()
         {
-            DbNetGridRequest request;
-            foreach (DataSourceType dataSourceType in _dataSourceTypes)
+            foreach (DataProvider dataProvider in _dataProviders)
             {
-                switch (dataSourceType)
+                DbNetGridRequest request;
+                switch (dataProvider)
                 {
-                    case DataSourceType.TableOrView:
-                        request = GetRequest("employees");
+                    case DataProvider.SQLite:
+                    case DataProvider.SqlClient:
+                        request = GetRequest("employees", dataProvider);
                         break;
                     default:
                         request = GetRequest<Employee>("employees");
@@ -385,14 +409,17 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
 
                 gridColumn = new GridColumn("reportsto");
 
-                if (dataSourceType == DataSourceType.TableOrView)
+                switch (dataProvider)
                 {
-                    gridColumn.Lookup = EncodingHelper.Encode("select EmployeeId, lastname + ',' + firstname from employees");
+                    case DataProvider.SQLite:
+                    case DataProvider.SqlClient:
+                        gridColumn.Lookup = EncodingHelper.Encode("select EmployeeId, lastname + ',' + firstname from employees");
+                        break;
+                    default:
+                        gridColumn.LookupDataTable = await GetLookup("select EmployeeId, lastname + ',' + firstname from employees order by 2");
+                        break;
                 }
-                else
-                {
-                    gridColumn.LookupDataTable = await GetLookup("select EmployeeId, lastname + ',' + firstname from employees order by 2");
-                }
+
                 request.Columns.Add(gridColumn);
 
                 DbNetGridResponse? dbNetGridResponse = await GetResponse(request, RequestAction.Initialize);

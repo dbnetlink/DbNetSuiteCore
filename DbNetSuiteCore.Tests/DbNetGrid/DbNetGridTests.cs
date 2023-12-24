@@ -19,32 +19,32 @@ namespace DbNetSuiteCore.Tests.DbNetGrid
     {
         public DbNetGridTests() : base() { }
 
-        protected DbNetGridRequest GetRequest(string fromPart = "customers", string connection = "northwind")
+        protected DbNetGridRequest GetRequest(string fromPart = "customers", DataProvider dataProvider = DataProvider.SQLite)
         {
             DbNetGridRequest request = new DbNetGridRequest();
-            request.ConnectionString = EncodingHelper.Encode(connection);
+            request.ConnectionString = EncodingHelper.Encode(dataProvider.ToString());
             request.FromPart = EncodingHelper.Encode(fromPart);
-            request.DataProvider = DataProvider.SQLite;
+            request.DataProvider = dataProvider;
             return request;
         }
-        protected DbNetGridRequest GetRequest<T>(string fromPart = "customers", string connection = "northwind")
+        protected DbNetGridRequest GetRequest<T>(string fromPart = "customers")
         {
             DbNetGridRequest request = new DbNetGridRequest();
             request.ConnectionString = string.Empty;
             request.FromPart = EncodingHelper.Encode(fromPart);
-            request.Json = JArray.FromObject(GetList<T>(fromPart, connection));
+            request.Json = JArray.FromObject(GetList<T>(fromPart, DataProvider.SQLite.ToString()));
             request.JsonType = typeof(T);
             request.DataProvider = DataProvider.DataTable;
             return request;
         }
 
-        protected async Task<JArray> GetLookup(string sql, string connection = "northwind")
+        protected async Task<JArray> GetLookup(string sql)
         {
             DataTable dataTable = new DataTable();
             dataTable.Columns.Add("value", typeof(int));
             dataTable.Columns.Add("text", typeof(string));
 
-            using (var conn = new SqliteConnection(GetConnectionString(connection)))
+            using (var conn = new SqliteConnection(GetConnectionString(DataProvider.SQLite.ToString())))
             {
                 await conn.OpenAsync();
                 IDataReader reader = await conn.ExecuteReaderAsync(sql);

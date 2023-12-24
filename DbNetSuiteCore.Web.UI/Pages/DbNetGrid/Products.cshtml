@@ -9,24 +9,26 @@
 @{
 	DbNetGridCore productsGrid;
 
-	if (Model.JsonMode)
+	switch (Model.DataProvider)
 	{
-		var products = await Model.GetList<Product>("products");
-		var supplierLookup = await Model.GetLookup("select SupplierID, CompanyName from Suppliers order by 2");
-		var categoryLookup = await Model.GetLookup("select CategoryID, CategoryName from Categories order by 2");
+		case DataProvider.DataTable:
+			var products = await Model.GetList<Product>("products");
+			var supplierLookup = await Model.GetLookup("select SupplierID, CompanyName from Suppliers order by 2");
+			var categoryLookup = await Model.GetLookup("select CategoryID, CategoryName from Categories order by 2");
 
-		productsGrid = new DbNetGridCore(DataSourceType.List);
-		productsGrid.AddList<Product>(products);
-		productsGrid.Column("supplierid").Lookup(supplierLookup);
-		productsGrid.Column("categoryid").Lookup(categoryLookup);
-	}
-	else
-	{
-		productsGrid = new DbNetGridCore("northwind", "products");
-		productsGrid.Column("supplierid").Lookup(new Lookup("suppliers", "supplierid", "companyname"));
-		productsGrid.Column("categoryid").Lookup(new Lookup("categories", "categoryid", "categoryname"));
+			productsGrid = new DbNetGridCore(DataSourceType.List);
+			productsGrid.AddList<Product>(products);
+			productsGrid.Column("supplierid").Lookup(supplierLookup);
+			productsGrid.Column("categoryid").Lookup(categoryLookup);
+			break;
+		default:
+			productsGrid = new DbNetGridCore(Model.DataProvider.ToString(), "products");
+			productsGrid.Column("supplierid").Lookup(new Lookup("suppliers", "supplierid", "companyname"));
+			productsGrid.Column("categoryid").Lookup(new Lookup("categories", "categoryid", "categoryname"));
+			break;
 	}
 
+	productsGrid.Column("*").Filter();
 	productsGrid.Column("supplierid").Label("Supplier");
 	productsGrid.Column("categoryid").Label("Category");
 

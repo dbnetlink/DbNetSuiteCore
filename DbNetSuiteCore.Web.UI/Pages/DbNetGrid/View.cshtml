@@ -8,16 +8,17 @@
 @{
     DbNetGridCore employeesGrid;
 
-    if (Model.JsonMode)
+    switch (Model.DataProvider)
     {
-        var emplolyees = await Model.GetList<Employee>("employees");
-        employeesGrid = new DbNetGridCore(DataSourceType.List);
-        employeesGrid.AddList<Employee>(emplolyees);
-        employeesGrid.Column(nameof(Employee.EmployeeID)).PrimaryKey();
-    }
-    else
-    {
-        employeesGrid = new DbNetGridCore("northwind", "employees");
+        case DataProvider.DataTable:
+            var emplolyees = await Model.GetList<Employee>("employees");
+            employeesGrid = new DbNetGridCore(DataSourceType.List);
+            employeesGrid.AddList<Employee>(emplolyees);
+            employeesGrid.Column(nameof(Employee.EmployeeID)).PrimaryKey();
+            break;
+        default:
+            employeesGrid = new DbNetGridCore(Model.DataProvider.ToString(), "employees");
+            break;
     }
 
     employeesGrid.Search = true;

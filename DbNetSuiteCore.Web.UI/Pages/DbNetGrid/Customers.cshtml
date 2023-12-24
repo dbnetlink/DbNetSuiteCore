@@ -7,15 +7,16 @@
 @{
     DbNetGridCore customersGrid;
 
-    if (Model.JsonMode)
+    switch (Model.DataProvider)
     {
-        var customers = await Model.GetList<Customer>("customers");
-        customersGrid = new DbNetGridCore(DataSourceType.List);
-        customersGrid.AddList<Customer>(customers);
-    }
-    else
-    {
-        customersGrid = new DbNetGridCore("northwind", "customers");
+        case DataProvider.DataTable:
+            var customers = await Model.GetList<Customer>("customers");
+            customersGrid = new DbNetGridCore(DataSourceType.List);
+            customersGrid.AddList<Customer>(customers);
+            break;
+        default:
+            customersGrid = new DbNetGridCore(Model.DataProvider.ToString(), "customers");
+            break;
     }
     customersGrid.Columns = new List<string>() { "CustomerId", "CompanyName", "ContactName", "ContactTitle", "Address", "City", "Region", "PostalCode", "Country", "Phone", "Fax" };
     customersGrid.QuickSearch = true;

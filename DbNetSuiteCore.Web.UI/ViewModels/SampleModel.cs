@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Dapper;
 using Microsoft.Data.Sqlite;
 using System.Data;
+using DbNetSuiteCore.Enums;
 
 namespace DbNetSuiteCore.Web.UI.ViewModels
 {
@@ -10,8 +11,8 @@ namespace DbNetSuiteCore.Web.UI.ViewModels
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IConfiguration _configuration;
-		private bool _jsonMode;
-		public bool JsonMode => _jsonMode;
+		private DataProvider _dataProvider;
+		public DataProvider DataProvider => _dataProvider;
         private string _connectionString => _configuration?.GetConnectionString("northwind")?.
             Replace("~", _webHostEnvironment.WebRootPath) ?? string.Empty;
 
@@ -21,9 +22,9 @@ namespace DbNetSuiteCore.Web.UI.ViewModels
             _configuration = configuration; 
         }
 
-        public void OnGet(bool jsonMode = false)
+        public void OnGet(DataProvider dataProvider = DataProvider.SqlClient)
         {
-			_jsonMode = jsonMode;
+            _dataProvider = dataProvider;
 		}
 
         public async Task<IEnumerable<T>> GetList<T>(string tableName)
