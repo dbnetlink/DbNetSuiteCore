@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using System.Web;
 
@@ -70,13 +71,20 @@ namespace DbNetSuiteCore.Components
             {
                 url.Add($"font-family={fontFamily}");
             }
+            url.Add($"version={ComponentVersion()}");
 
             return new HtmlString($"<link href=\"{string.Join("&", url)}\" type=\"text/css\" rel=\"stylesheet\" />");
         }
 
+        public static string ComponentVersion()
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            return assembly.GetName().Version.ToString();
+        }
+
         public static HtmlString ClientScript()
         {
-            return new HtmlString($"<script src=\"~/resource.dbnetsuite?action=script\"></script>");
+            return new HtmlString($"<script src=\"~/resource.dbnetsuite?action=script&version={ComponentVersion()}\"></script>");
         }
 
         /// <summary>
