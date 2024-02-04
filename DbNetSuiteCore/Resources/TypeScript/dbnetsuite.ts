@@ -324,7 +324,7 @@ class DbNetSuite {
             (this as DbNetEdit).configureLinkedControl(control, pk);
         }
         if (this instanceof DbNetFile) {
-            (this as DbNetFile).configureLinkedControl(control as DbNetFile, id);
+            (this as DbNetFile).configureLinkedControl(control as DbNetFile, id as object);
         }
     }
 

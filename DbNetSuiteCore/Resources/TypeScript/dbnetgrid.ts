@@ -478,14 +478,14 @@ class DbNetGrid extends DbNetGridEdit {
         const cols: GridColumn[] = [];
         const sourceIdx = parseInt(ui.draggable.data("columnordinal")) - 1;
         const targetIdx = parseInt($(event.currentTarget).data("columnordinal")) - 1;
-        const column: GridColumn = this.columns[sourceIdx];
+        const column: GridColumn = this.columns[sourceIdx] as GridColumn;
         const dropSide = ui.helper.attr("dropside");
         for (let i = 0; i < this.columns.length; i++) {
             if (i == targetIdx && dropSide == "left") {
                 cols.push(column);
             }
             if (i != sourceIdx) {
-                cols.push(this.columns[i]);
+                cols.push(this.columns[i] as GridColumn);
             }
             if (i == targetIdx && dropSide == "right") {
                 cols.push(column);
