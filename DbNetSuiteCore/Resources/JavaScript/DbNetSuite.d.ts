@@ -53,6 +53,7 @@ declare class DbNetSuite {
     internalBind(event: EventName, callback: EmptyCallback): void;
     unbind(event: EventName, handler: EventHandler): void;
     checkStyleSheetLoaded(): void;
+    jQueryCheck(): void;
     addLinkedControl(control: DbNetSuite): void;
     fireEvent(event: EventName, params?: object | undefined): void;
     protected addPanel(panelId: string, parent?: JQuery<HTMLElement> | undefined): JQuery<HTMLElement>;

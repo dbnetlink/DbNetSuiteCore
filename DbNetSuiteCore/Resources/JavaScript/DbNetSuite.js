@@ -24,6 +24,7 @@ class DbNetSuite {
         this.element = $(`#${this.id}`);
         this.element.addClass("dbnetsuite").addClass("cleanslate").addClass("empty");
         this.checkStyleSheetLoaded();
+        this.jQueryCheck();
         if (this.element.length == 0) {
             this.error(`${this.constructor.name} container element '${this.id}' not found`);
             return;
@@ -60,6 +61,11 @@ class DbNetSuite {
         if (!found) {
             alert("DbNetSuite stylesheet not found. Add @DbNetSuiteCore.StyleSheet() to your Razor page. See console for details.");
             console.error("DbNetSuite stylesheet not found. See https://docs.dbnetsuitecore.com/index.htm?context=20#DbNetSuiteCoreStyleSheet");
+        }
+    }
+    jQueryCheck() {
+        if ($("div").draggable == undefined) {
+            alert("Error: please ensure you have not loaded another instance of JQuery after running @DbNetSuiteCore.ClientScript()");
         }
     }
     addLinkedControl(control) {
