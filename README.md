@@ -32,4 +32,4 @@
     
 The solution comprises of the **DbNetSuiteCore** library and a sample application running against an SQLite database.
 
-For more information and demos [click here](https://dbnetsuitecoreapp.azurewebsites.net/).
+For more information and demos [click here](https://dbnetsuitecore.com/).
