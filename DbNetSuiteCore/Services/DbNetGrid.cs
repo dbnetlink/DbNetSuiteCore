@@ -139,7 +139,7 @@ namespace DbNetSuiteCore.Services
                     break;
             }
 
-            Database.Close();
+            CloseDatabase();
 
             foreach (GridColumn gridColumn in response.Columns ?? new List<GridColumn>())
             {

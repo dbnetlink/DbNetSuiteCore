@@ -103,6 +103,9 @@ table.dbnetgrid-table tr.selected {
 table.dbnetgrid-table tr.selected td {
   color: white !important;
 }
+table.dbnetgrid-table tr.selected td a {
+  color: lightblue !important;
+}
 table.dbnetgrid-table td[data-type=Single],
 table.dbnetgrid-table td[data-type=Double],
 table.dbnetgrid-table td[data-type=Decimal],

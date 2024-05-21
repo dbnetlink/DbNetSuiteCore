@@ -242,6 +242,14 @@ namespace DbNetSuiteCore.Services
             catch
             { }
         }
+
+        protected void CloseDatabase()
+        {
+            if (Database != null)
+            {
+                Database.Close();
+            }
+        }
     }
 }
 

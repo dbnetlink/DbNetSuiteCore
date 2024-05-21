@@ -95,7 +95,7 @@ namespace DbNetSuiteCore.Services
                 }
             }
 
-            Database.Close();
+            CloseDatabase(); 
 
             var serializeOptions = new JsonSerializerOptions
             {
