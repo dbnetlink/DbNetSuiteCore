@@ -14,9 +14,18 @@
         </td>
         <td>
             <select class="form-select" id="connection-select">
-                @foreach (string connection in Model.Connections)
+                @foreach (string connection in Model.Connections.Keys)
                 {
-                    <option value="@connection">@connection</option>
+                    <option value="@connection" data-databasetype="@Model.Connections[connection]">@connection</option>
+                }
+            </select>
+        </td>
+        <td>&nbsp;Database Type&nbsp;</td>
+        <td>
+            <select class="form-select" id="databasetype-select">
+                @foreach (DatabaseType databaseType in Enum.GetValues(typeof(DatabaseType)))
+                {
+                    <option value="@databaseType">@databaseType</option>
                 }
             </select>
         </td>
@@ -52,16 +61,26 @@
         }
     </tr>
 </table>
+
+@if (string.IsNullOrEmpty(Model.ErrorMessage) == false)
+{
+    <div>@Model.ErrorMessage</div>
+}
 <hr />
 @{
-    DbNetGridCore grid = new DbNetGridCore(Model.Db, string.IsNullOrEmpty(Model.View) ? Model.Table : Model.View)
-            {
-                OptimizeForLargeDataset = true,
-                QuickSearch = true,
-                View = true
-            };
-    grid.Column("*").Filter().View().Style("{white-space:nowrap}");
+    @if (String.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        DbNetGridCore grid = new DbNetGridCore(Model.Db, Model.DatabaseType.Value, Model.FromPart)
+                {
+                    OptimizeForLargeDataset = true,
+                    QuickSearch = true,
+                    View = true,
+                    ToolbarButtonStyle = ToolbarButtonStyle.ImageAndText,
+                    Update = Model.IsTable
+                };
+        grid.Column("*").Filter().View().Style("{white-space:nowrap}");
     @grid.Render()
+    }
 
 
 }
@@ -71,13 +90,17 @@
 <script type="text/javascript">
     var db = "@Model.Db"
     var table = "@Model.Table"
+    var databaseType = "@Model.DatabaseType"
     var view = "@Model.View"
     var views = "@Model.Views.Count"
 
     $(document).ready(init);
 
     function init() {
-        $('#connection-select').val(db).change(function (event) { reloadPage(true) });
+        $('#connection-select').val(db).change(function (event) { setDatabaseType(); reloadPage(true); });
+        setDatabaseType(databaseType);
+        $('#databasetype-select').change(function (event) { reloadPage(true) });
+
         $('#table-select').val(table).change(function () {
             $('#view-select').prop("selectedIndex", 0);
             reloadPage(false);
@@ -88,12 +111,20 @@
         });
     }
 
+    function setDatabaseType(databaseType) {
+        if (!databaseType) {
+            databaseType = $('#connection-select').find(":selected").data('databasetype');
+        }
+        $('#databasetype-select').val(databaseType);
+    }
 
     function reloadPage(dbChange) {
         var db = $('#connection-select').val();
+        var databaseType = $('#databasetype-select').val();
+
         var table = dbChange ? '' : $('#table-select').val();
         var view = dbChange || views == 0 ? '' : $('#view-select').val();
 
-        window.location.href = window.location.href.replace(/[\?#].*|$/, "?db=" + db + "&table=" + table + "&view=" + view);
+        window.location.href = window.location.href.replace(/[\?#].*|$/, "?db=" + db + "&table=" + table + "&view=" + view + "&databasetype=" + databaseType);
     }
 </script>

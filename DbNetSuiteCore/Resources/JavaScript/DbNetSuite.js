@@ -1,7 +1,6 @@
 "use strict";
 class DbNetSuite {
     constructor(id) {
-        this.datePickerOptions = {};
         this.element = undefined;
         this.eventHandlers = {};
         this.internalEventHandlers = {};
@@ -14,6 +13,10 @@ class DbNetSuite {
         this.initialised = false;
         this.parentControl = null;
         this.dataProvider = null;
+        this.quickSearch = false;
+        this.quickSearchDelay = 1000;
+        this.quickSearchMinChars = 3;
+        this.quickSearchToken = "";
         if (id == null) {
             return;
         }
@@ -21,6 +24,7 @@ class DbNetSuite {
         this.element = $(`#${this.id}`);
         this.element.addClass("dbnetsuite").addClass("cleanslate").addClass("empty");
         this.checkStyleSheetLoaded();
+        this.jQueryCheck();
         if (this.element.length == 0) {
             this.error(`${this.constructor.name} container element '${this.id}' not found`);
             return;
@@ -56,7 +60,12 @@ class DbNetSuite {
         }
         if (!found) {
             alert("DbNetSuite stylesheet not found. Add @DbNetSuiteCore.StyleSheet() to your Razor page. See console for details.");
-            console.error("DbNetSuite stylesheet not found. See https://dbnetsuitecore.z35.web.core.windows.net/index.htm?context=20#DbNetSuiteCoreStyleSheet");
+            console.error("DbNetSuite stylesheet not found. See https://docs.dbnetsuitecore.com/index.htm?context=20#DbNetSuiteCoreStyleSheet");
+        }
+    }
+    jQueryCheck() {
+        if ($("div").draggable == undefined) {
+            alert("Error: please ensure you have not loaded another instance of JQuery after running @DbNetSuiteCore.ClientScript()");
         }
     }
     addLinkedControl(control) {
@@ -215,14 +224,15 @@ class DbNetSuite {
         const options = datePickerOptions;
         const formats = { D: "DD, MM dd, yy", DDDD: "DD", DDD: "D", MMMM: "MM", MMM: "M", M: "m", MM: "mm", yyyy: "yy" };
         let format = $input.attr("format");
-        let pattern;
-        for (pattern in formats) {
-            const re = new RegExp(`\\b${pattern}\\b`);
-            format = format.replace(re, formats[pattern]);
-        }
-        if (format != undefined)
+        if (format != undefined) {
+            let pattern;
+            for (pattern in formats) {
+                const re = new RegExp(`\\b${pattern}\\b`);
+                format = format.replace(re, formats[pattern]);
+            }
             if (format != $input.attr("format"))
                 options.dateFormat = format;
+        }
         options.onSelect = this.pickerSelected;
         $input.datepicker(options);
     }
@@ -243,6 +253,9 @@ class DbNetSuite {
         if (this instanceof DbNetEdit) {
             this.configureLinkedControl(control, pk);
         }
+        if (this instanceof DbNetFile) {
+            this.configureLinkedControl(control, id);
+        }
     }
     _getRequest() {
         const request = {
@@ -261,8 +274,15 @@ class DbNetSuite {
         window.setTimeout(() => { var _a; (_a = this.element) === null || _a === void 0 ? void 0 : _a.removeClass(className); }, 3000);
     }
     viewImage(event) {
+        const $img = $(event.currentTarget);
+        this.openImageViewer($img.attr("src"), $img.data("filename"));
+    }
+    viewUrl(url, fileName, type = "Image") {
+        this.openImageViewer(url, fileName, type);
+    }
+    openImageViewer(src, fileName, type = "Image") {
         if (this.imageViewer) {
-            this.imageViewer.show($(event.currentTarget));
+            this.imageViewer.show(src, fileName, type);
             return;
         }
         this.post("image-viewer", this._getRequest(), false, "dbnetsuite")
@@ -271,12 +291,60 @@ class DbNetSuite {
             if (!this.imageViewer) {
                 (_a = this.element) === null || _a === void 0 ? void 0 : _a.append(response.html);
                 this.imageViewer = new ImageViewer(`${this.id}_image_viewer`);
-                this.imageViewer.show($(event.currentTarget));
+                this.imageViewer.show(src, fileName, type);
             }
         });
     }
+    quickSearchKeyPress(event) {
+        const el = event.target;
+        window.clearTimeout(this.quickSearchTimerId);
+        if (el.value.length >= this.quickSearchMinChars || el.value.length == 0 || event.key == 'Enter')
+            this.quickSearchTimerId = window.setTimeout(() => { this.runQuickSearch(el.value); }, this.quickSearchDelay);
+    }
+    runQuickSearch(token) {
+        this.quickSearchToken = token;
+        if (this instanceof DbNetGrid) {
+            const grid = this;
+            grid.reload();
+        }
+        else if (this instanceof DbNetEdit) {
+            const edit = this;
+            edit.currentRow = 1;
+            edit.getRows();
+        }
+        else if (this instanceof DbNetFile) {
+            const file = this;
+            file.reload();
+        }
+    }
+    copyTableToClipboard(table) {
+        var _a, _b;
+        try {
+            const range = document.createRange();
+            range.selectNode(table);
+            (_a = window.getSelection()) === null || _a === void 0 ? void 0 : _a.addRange(range);
+            document.execCommand('copy');
+            (_b = window.getSelection()) === null || _b === void 0 ? void 0 : _b.removeRange(range);
+        }
+        catch (e) {
+            try {
+                const content = table.innerHTML;
+                const blobInput = new Blob([content], { type: 'text/html' });
+                const clipboardItemInput = new ClipboardItem({ 'text/html': blobInput });
+                navigator.clipboard.write([clipboardItemInput]);
+            }
+            catch (e) {
+                this.error("Copy failed");
+                return;
+            }
+        }
+    }
+    sleep(s) {
+        return new Promise(resolve => setTimeout(resolve, s * 1000));
+    }
 }
 DbNetSuite.DBNull = "DBNull";
+DbNetSuite.datePickerOptions = {};
 document.addEventListener("DOMContentLoaded", function () {
     if ($.fn.button && $.fn.button.noConflict !== undefined) {
         $.fn.bootstrapBtn = $.fn.button.noConflict();

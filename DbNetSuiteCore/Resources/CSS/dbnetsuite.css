@@ -83,6 +83,11 @@ section.dbnetsuite.empty {
   animation: spin 1s infinite linear;
 }
 
+td.nested-component-cell {
+  padding: 5px !important;
+  background-color: #ECEFF1;
+}
+
 .next-icon-left-svg {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' height='20' width='20' viewBox='0 -960 960 960' fill='SteelBlue'><path d='m376-221-74-74 186-186-186-186 74-74 260 260-260 260Z'/></svg>");
 }

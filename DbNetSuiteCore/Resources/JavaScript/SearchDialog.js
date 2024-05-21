@@ -11,15 +11,15 @@ class SearchDialog extends Dialog {
         (_d = this.$dialog) === null || _d === void 0 ? void 0 : _d.find("[button-type='lookup']").on("click", (event) => this.lookup(event));
         (_e = this.$dialog) === null || _e === void 0 ? void 0 : _e.find("input").get().forEach(e => {
             const $input = $(e);
-            $input.width(240);
+            $input.width(300);
             $input.on("keyup", (event) => this.criteriaEntered(event.target));
             if ($input.attr("numeric")) {
                 $input.on("keypress", (event) => this.filterNumericKeyPress(event));
             }
         });
-        (_f = this.$dialog) === null || _f === void 0 ? void 0 : _f.find("input[datatype='DateTime'").get().forEach(e => {
+        (_f = this.$dialog) === null || _f === void 0 ? void 0 : _f.find("input[datatype='DateTime']").get().forEach(e => {
             const $input = $(e);
-            this.addDatePicker($input, this.parent.datePickerOptions);
+            this.addDatePicker($input, DbNetSuite.datePickerOptions);
         });
         (_g = this.$dialog) === null || _g === void 0 ? void 0 : _g.find("[button-type='clear']").on("click", () => this.clear());
         (_h = this.$dialog) === null || _h === void 0 ? void 0 : _h.find("[button-type='apply']").on("click", () => this.apply());
@@ -49,7 +49,7 @@ class SearchDialog extends Dialog {
                 break;
             default:
                 $row.find(".between").hide();
-                $row.find("input").show().width(240);
+                $row.find("input").show().width(300);
                 break;
         }
     }

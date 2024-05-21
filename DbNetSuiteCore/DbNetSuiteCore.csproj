@@ -6,19 +6,21 @@
     <Authors>DbNetLink</Authors>
     <Company>DbNetLink</Company>
     <PackageIcon>nuget_logo.png</PackageIcon>
-    <Title>Interactive data-driven components for ASP.Net Core</Title>
-    <Description>Interactive database driven Razor web reporting component for ASP.NET Core.  Supports MSSQL, MySql, PostgreSQL and SQLite</Description>
+    <Title>Interactive data-driven Razor components for ASP.Net Core</Title>
+    <Description>Interactive database driven Razor web application development UI components for ASP.NET Core.  Supports JSON, List&lt;T&gt;, MSSQL, MySQL MariaDB, PostgreSQL and SQLite. </Description>
     <RepositoryUrl>https://github.com/dbnetlink/DbNetSuiteCore</RepositoryUrl>
-    <PackageTags>asp.net core, grid, spreadsheet</PackageTags>
-    <AssemblyVersion>0.9.474</AssemblyVersion>
-    <FileVersion>0.9.474</FileVersion>
-    <PackageReleaseNotes>Beta version. Currently still under active development.</PackageReleaseNotes>
-    <PackageProjectUrl>https://dbnetsuitecoreapp.azurewebsites.net</PackageProjectUrl>
-    <Version>0.9.474-beta</Version>
+    <PackageTags>asp.netcore;components;component;asp.net;core;razor;blazor;react;spreadsheet;excel;grid;form;drop-down; list;application;svelte;data-driven;CRUD;</PackageTags>
+    <AssemblyVersion>1.0.16</AssemblyVersion>
+    <FileVersion>1.0.16</FileVersion>
+    <PackageReleaseNotes>Includes DbNetGridCore (grid), DbNetEditCore (form), DbNetComboCore (drop-down list) and DbNetFile (file system)</PackageReleaseNotes>
+    <PackageProjectUrl>https://dbnetsuitecore.com</PackageProjectUrl>
+    <Version>1.0.16</Version>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageLicenseExpression> NPOSL-3.0</PackageLicenseExpression>
     <BaseOutputPath>C:\Users\robin\source\repos\DbNetSuiteCore-VS2022\DbNetSuiteCoreApp\bin</BaseOutputPath>
     <PackageOutputPath>C:\Users\robin\source\repos\DbNetSuiteCore-VS2022\DbNetSuiteCoreApp\bin</PackageOutputPath>
+    <Copyright>Copyright (c) DbNetLink Limited 2023</Copyright>
+    <PackAsTool>False</PackAsTool>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -31,8 +33,11 @@
 
   <ItemGroup>
     <Compile Remove="Resources\TypeScript\Typedefs\**" />
+    <Compile Remove="ViewModels\DbNetSuite\**" />
     <EmbeddedResource Remove="Resources\TypeScript\Typedefs\**" />
+    <EmbeddedResource Remove="ViewModels\DbNetSuite\**" />
     <None Remove="Resources\TypeScript\Typedefs\**" />
+    <None Remove="ViewModels\DbNetSuite\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,6 +52,8 @@
     <None Remove="Resources\CSS\dbnetcombo.min.css" />
     <None Remove="Resources\CSS\dbnetedit.css" />
     <None Remove="Resources\CSS\dbnetedit.min.css" />
+    <None Remove="Resources\CSS\dbnetfile.css" />
+    <None Remove="Resources\CSS\dbnetfile.min.css" />
     <None Remove="Resources\CSS\dbnetgrid.css" />
     <None Remove="Resources\CSS\dbnetgrid.min.css" />
     <None Remove="Resources\CSS\dbnetsuite.css" />
@@ -73,6 +80,8 @@
     <None Remove="Resources\JavaScript\DbNetCombo.min.js" />
     <None Remove="Resources\JavaScript\DbNetEdit.js" />
     <None Remove="Resources\JavaScript\DbNetEdit.min.js" />
+    <None Remove="Resources\JavaScript\DbNetFile.js" />
+    <None Remove="Resources\JavaScript\DbNetFile.min.js" />
     <None Remove="Resources\JavaScript\dbnetgrid.js" />
     <None Remove="Resources\JavaScript\DbNetGrid.min.js" />
     <None Remove="Resources\JavaScript\DbNetGridEdit.js" />
@@ -85,6 +94,8 @@
     <None Remove="Resources\JavaScript\EditColumn.min.js" />
     <None Remove="Resources\JavaScript\EditDialog.js" />
     <None Remove="Resources\JavaScript\EditDialog.min.js" />
+    <None Remove="Resources\JavaScript\FileSearchDialog.js" />
+    <None Remove="Resources\JavaScript\FileSearchDialog.min.js" />
     <None Remove="Resources\JavaScript\GridColumn.js" />
     <None Remove="Resources\JavaScript\GridColumn.min.js" />
     <None Remove="Resources\JavaScript\ImageViewer.js" />
@@ -98,18 +109,22 @@
     <None Remove="Resources\JavaScript\MessageBox.min.js" />
     <None Remove="Resources\JavaScript\SearchDialog.js" />
     <None Remove="Resources\JavaScript\SearchDialog.min.js" />
+    <None Remove="Resources\JavaScript\SearchResultsDialog.js" />
+    <None Remove="Resources\JavaScript\SearchResultsDialog.min.js" />
     <None Remove="Resources\JavaScript\UploadDialog.js" />
     <None Remove="Resources\JavaScript\UploadDialog.min.js" />
     <None Remove="Resources\JavaScript\ViewDialog.js" />
     <None Remove="Resources\JavaScript\ViewDialog.min.js" />
     <None Remove="Resources\SCSS\dbnetcombo.scss" />
     <None Remove="Resources\SCSS\dbnetedit.scss" />
+    <None Remove="Resources\SCSS\dbnetfile.scss" />
     <None Remove="Resources\SCSS\dbnetgrid.scss" />
     <None Remove="Resources\SCSS\_reboot.scss" />
     <None Remove="Resources\SCSS\_variables.scss" />
     <None Remove="Resources\tsconfig.json" />
     <None Remove="Resources\TypeScript\DbNetCombo.ts" />
     <None Remove="Resources\TypeScript\DbNetEdit.ts" />
+    <None Remove="Resources\TypeScript\DbNetFile.ts" />
     <None Remove="Resources\TypeScript\dbnetgrid.ts" />
     <None Remove="Resources\TypeScript\DbNetGridEdit.ts" />
     <None Remove="Resources\TypeScript\dbnetsuite.ts" />
@@ -120,6 +135,11 @@
     <None Remove="Views\DbNetEdit\Options.cshtml" />
     <None Remove="Views\DbNetEdit\Toolbar.cshtml" />
     <None Remove="Views\DbNetEdit\UploadDialog.cshtml" />
+    <None Remove="Views\DbNetFile\HtmlExport.cshtml" />
+    <None Remove="Views\DbNetFile\Page.cshtml" />
+    <None Remove="Views\DbNetFile\SearchDialog.cshtml" />
+    <None Remove="Views\DbNetFile\Toolbar.cshtml" />
+    <None Remove="Views\DbNetFile\TreeView.cshtml" />
     <None Remove="Views\DbNetGrid\DataTable.cshtml" />
     <None Remove="Views\DbNetGrid\Grid.cshtml" />
     <None Remove="Views\DbNetGrid\HtmlExport.cshtml" />
@@ -147,6 +167,8 @@
     <EmbeddedResource Include="Resources\CSS\dbnetcombo.min.css" />
     <EmbeddedResource Include="Resources\CSS\dbnetedit.css" />
     <EmbeddedResource Include="Resources\CSS\dbnetedit.min.css" />
+    <EmbeddedResource Include="Resources\CSS\dbnetfile.css" />
+    <EmbeddedResource Include="Resources\CSS\dbnetfile.min.css" />
     <EmbeddedResource Include="Resources\CSS\dbnetgrid.css" />
     <EmbeddedResource Include="Resources\CSS\dbnetgrid.min.css" />
     <EmbeddedResource Include="Resources\CSS\libraries\cleanslate.css" />
@@ -161,6 +183,8 @@
     <EmbeddedResource Include="Resources\JavaScript\DbNetCombo.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetEdit.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetEdit.min.js" />
+    <EmbeddedResource Include="Resources\JavaScript\DbNetFile.js" />
+    <EmbeddedResource Include="Resources\JavaScript\DbNetFile.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetGrid.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetGridEdit.js" />
     <EmbeddedResource Include="Resources\JavaScript\DbNetGridEdit.min.js" />
@@ -171,6 +195,8 @@
     <EmbeddedResource Include="Resources\JavaScript\EditColumn.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\EditDialog.js" />
     <EmbeddedResource Include="Resources\JavaScript\EditDialog.min.js" />
+    <EmbeddedResource Include="Resources\JavaScript\FileSearchDialog.js" />
+    <EmbeddedResource Include="Resources\JavaScript\FileSearchDialog.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\GridColumn.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\ImageViewer.js" />
     <EmbeddedResource Include="Resources\JavaScript\ImageViewer.min.js" />
@@ -180,11 +206,14 @@
     <EmbeddedResource Include="Resources\JavaScript\MessageBox.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\SearchDialog.js" />
     <EmbeddedResource Include="Resources\JavaScript\SearchDialog.min.js" />
+    <EmbeddedResource Include="Resources\JavaScript\SearchResultsDialog.js" />
+    <EmbeddedResource Include="Resources\JavaScript\SearchResultsDialog.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\UploadDialog.js" />
     <EmbeddedResource Include="Resources\JavaScript\UploadDialog.min.js" />
     <EmbeddedResource Include="Resources\JavaScript\ViewDialog.js" />
     <EmbeddedResource Include="Resources\JavaScript\ViewDialog.min.js" />
     <EmbeddedResource Include="Resources\SCSS\dbnetedit.scss" />
+    <EmbeddedResource Include="Resources\SCSS\dbnetfile.scss" />
     <EmbeddedResource Include="Resources\SCSS\dbnetgrid.scss" />
     <EmbeddedResource Include="Resources\SCSS\_variables.scss" />
     <EmbeddedResource Include="Resources\SCSS\dbnetsuite.scss" />
@@ -201,9 +230,22 @@
     <EmbeddedResource Include="Resources\JavaScript\libraries\jquery-ui.min.js" />
     <EmbeddedResource Include="Resources\SCSS\dbnetcombo.scss" />
     <EmbeddedResource Include="Resources\SCSS\_reboot.scss" />
+    <EmbeddedResource Include="Resources\TypeScript\DbNetFile.ts" />
     <EmbeddedResource Include="Resources\TypeScript\DbNetEdit.ts" />
     <EmbeddedResource Include="Resources\TypeScript\DbNetCombo.ts" />
     <EmbeddedResource Include="Resources\TypeScript\DbNetGridEdit.ts" />
+    <EmbeddedResource Include="Views\DbNetFile\HtmlExport.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\DbNetFile\TreeView.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\DbNetFile\Page.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\DbNetCombo\Options.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
@@ -229,6 +271,14 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\DbNetEdit\Toolbar.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\DbNetFile\SearchDialog.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\DbNetFile\Toolbar.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </EmbeddedResource>
@@ -291,15 +341,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ClosedXML" Version="0.100.3" />
-    <PackageReference Include="DocumentFormat.OpenXml" Version="2.18.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.3" />
+    <PackageReference Include="ClosedXML" Version="0.102.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.10" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.5" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.10" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="6.0.10" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -331,10 +378,6 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="ViewModels\DbNetSuite\" />
   </ItemGroup>
 
 

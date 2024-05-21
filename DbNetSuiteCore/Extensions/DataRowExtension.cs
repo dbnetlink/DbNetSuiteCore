@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DbNetSuiteCore.Enums.DbNetFile;
+using System;
 using System.Data;
 
 namespace DbNetSuiteCore.Extensions
@@ -78,6 +79,25 @@ namespace DbNetSuiteCore.Extensions
                 return dataRow[name];
             }
             return null;
+        }
+
+        public static bool IsDirectory(this DataRowView dataRow)
+        {
+            return Convert.ToBoolean(dataRow[FileInfoProperties.IsDirectory.ToString()]);
+        }
+        public static string Extension(this DataRowView dataRow)
+        {
+            return dataRow[FileInfoProperties.Extension.ToString()].ToString().Replace(".",string.Empty);
+        }
+
+        public static string FileName(this DataRowView dataRow)
+        {
+            return dataRow[FileInfoProperties.Name.ToString()].ToString();
+        }
+
+        public static string ParentFolder(this DataRowView dataRow)
+        {
+            return dataRow[FileInfoProperties.ParentFolder.ToString()].ToString();
         }
     }
 }

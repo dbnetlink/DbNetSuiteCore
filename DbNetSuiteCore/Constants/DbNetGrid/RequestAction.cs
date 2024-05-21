@@ -4,8 +4,7 @@
     {
         public const string Initialize = "initialize";
         public const string Page = "page";
-        public const string GenerateSpreadsheet = "generate-spreadsheet";
-        public const string HtmlExport = "html-export";
+        public const string Export = "export";
         public const string DownloadColumnData = "download-column-data";
         public const string ViewContent = "view-content";
         public const string SearchDialog = "search-dialog";

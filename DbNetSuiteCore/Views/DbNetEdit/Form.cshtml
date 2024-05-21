@@ -103,7 +103,7 @@
 {
     public HtmlString FormControl(EditColumn editColumn, DataColumn dataColumn, int tabIndex = -1)
     {
-        if (string.IsNullOrEmpty(editColumn.Lookup) == false)
+        if (editColumn.HasLookup)
         {
             switch (editColumn.EditControlType)
             {
@@ -134,7 +134,7 @@
         {
             button = AddButton("calendar", "SelectDate");
         }
-        else if (string.IsNullOrEmpty(editColumn.Lookup) == false)
+        else if (editColumn.HasLookup)
         {
             button = AddButton("lookup", "OpenTheLookupWindow");
         }
@@ -249,6 +249,11 @@
             attributes.Add($"pattern=\"{editColumn.Pattern}\"");
         }
 
+        if (string.IsNullOrEmpty(editColumn.DefaultValue) == false)
+        {
+            attributes.Add($"initialvalue=\"{editColumn.DefaultValue}\"");
+        }
+
         if (editColumn.DependentLookup != null)
         {
             attributes.Add($"dependentLookup=\"{editColumn.DependentLookup.ColumnName}\"");
@@ -272,6 +277,11 @@
         if (editColumn.IsNumeric)
         {
             attributes.Add($"numeric=\"true\"");
+        }
+
+        if (editColumn.TextTransform.HasValue)
+        {
+            attributes.Add($"textTransform=\"{editColumn.TextTransform.Value}\"");
         }
 
         if (editColumn.EditControlType != EditControlType.CheckBox)

@@ -23,6 +23,9 @@ using DbNetSuiteCore.Constants.DbNetSuite;
 using DbNetSuiteCore.Enums;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Data;
 
 namespace DbNetSuiteCore.Services
 {
@@ -37,6 +40,7 @@ namespace DbNetSuiteCore.Services
         protected readonly IMemoryCache Cache;
 
         private string _connectionString;
+        private string _culture;
 
         public string ComponentId { get; set; } = String.Empty;
         public string ConnectionString
@@ -44,7 +48,11 @@ namespace DbNetSuiteCore.Services
             get => EncodingHelper.Decode(_connectionString);
             set => _connectionString = value;
         }
-        public string Culture { get; set; } = String.Empty;
+        public string Culture
+        {
+            get => string.IsNullOrEmpty(_culture) ? Settings.Culture : _culture;
+            set => _culture = value;
+        }
         protected DbNetDataCore Database { get; set; }
         public DataProvider? DataProvider { get; set; }
         public string Id => ComponentId;
@@ -57,6 +65,7 @@ namespace DbNetSuiteCore.Services
             Env = services.webHostEnvironment;
             Configuration = services.configuration;
             Settings = services.configuration.GetSection("DbNetSuiteCore").Get<DbNetSuiteCoreSettings>() ?? new DbNetSuiteCoreSettings();
+            EncodingHelper.SuppressEncoding = Settings.SuppressNameEncoding;
             Cache = services.cache;
         }
 
@@ -105,7 +114,7 @@ namespace DbNetSuiteCore.Services
             response.Html = await HttpContext.RenderToStringAsync("Views/DbNetSuite/ImageViewer.cshtml", baseViewModel);
         }
 
-        protected void ThrowException(string Msg, string Info = null)
+        public static void ThrowException(string Msg, string Info = null)
         {
         }
 
@@ -140,17 +149,25 @@ namespace DbNetSuiteCore.Services
             }
         }
 
-        protected void Initialise()
+        protected void Initialise(DataTable dataTable = null)
         {
-            Database = new DbNetDataCore(ConnectionString, Env, Configuration, DataProvider);
-            ResourceManager = new ResourceManager("DbNetSuiteCore.Resources.Localization.default", typeof(DbNetSuite).Assembly);
-
-            if (string.IsNullOrEmpty(Culture) == false)
+            if (this is DbNetFile)
             {
-                CultureInfo ci = new CultureInfo(Culture);
-                Thread.CurrentThread.CurrentCulture = ci;
-                Thread.CurrentThread.CurrentUICulture = ci;
+                Database = new DbNetDataCore(Env);
             }
+            else
+            {
+                if (dataTable != null)
+                {
+                    Database = new DbNetDataCore(dataTable);
+                }
+                else
+                {
+                    Database = new DbNetDataCore(ConnectionString, Env, Configuration, DataProvider);
+                }
+            }
+            ResourceManager = new ResourceManager("DbNetSuiteCore.Resources.Localization.default", typeof(DbNetSuite).Assembly);
+            SetCulture();
         }
 
         protected async Task<T> DeserialiseRequest<T>()
@@ -191,6 +208,47 @@ namespace DbNetSuiteCore.Services
         public string Translate(string key)
         {
             return ResourceManager.GetString(key) ?? (Settings.Debug ? $"*{key}*" : key);
+        }
+
+        static public string GenerateLabel(string label)
+        {
+            label = Regex.Replace(label, @"((?<=\p{Ll})\p{Lu})|((?!\A)\p{Lu}(?>\p{Ll}))", " $0");
+            return Capitalise(label.Replace("_", " ").Replace(".", " "));
+        }
+        internal static string Capitalise(string text)
+        {
+            return Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(text);
+        }
+
+        private void SetCulture()
+        {
+            if (string.IsNullOrEmpty(Culture))
+            {
+                return;
+            }
+            if (Culture == "client")
+            {
+                if (string.IsNullOrEmpty(HttpContext.Request.Headers["Accept-Language"]) == false)
+                {
+                    Culture = HttpContext.Request.Headers["Accept-Language"].ToString().Split(",").First();
+                }
+            }
+            try
+            {
+                CultureInfo ci = new CultureInfo(Culture);
+                Thread.CurrentThread.CurrentCulture = ci;
+                Thread.CurrentThread.CurrentUICulture = ci;
+            }
+            catch
+            { }
+        }
+
+        protected void CloseDatabase()
+        {
+            if (Database != null)
+            {
+                Database.Close();
+            }
         }
     }
 }

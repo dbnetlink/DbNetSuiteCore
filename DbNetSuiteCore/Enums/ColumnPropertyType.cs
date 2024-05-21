@@ -16,6 +16,7 @@
         Image,
         Label,
         Lookup,
+        LookupDataTable,
         PrimaryKey,
         Search,
         Style,
@@ -31,6 +32,9 @@
         Browse,
         Annotation,
         Placeholder,
-        InputValidation
+        InputValidation,
+        TextTransform,
+        AutoIncrement,
+        DefaultValue
     }
 }

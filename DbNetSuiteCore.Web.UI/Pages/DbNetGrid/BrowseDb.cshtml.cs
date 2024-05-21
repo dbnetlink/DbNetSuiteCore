@@ -5,6 +5,8 @@ using System.Text.RegularExpressions;
 using DbNetSuiteCore.Utilities;
 using DbNetSuiteCore.Web.UI.Models;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using DbNetSuiteCore.Enums;
+using System.Configuration;
 
 namespace DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid
 {
@@ -16,9 +18,14 @@ namespace DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid
         public string? Db { get; set; }
         public string? Table { get; set; }
         public string? View { get; set; }
+        public string? ErrorMessage { get; set; }
+
+        public string? FromPart => QualifiedObjectName();
+        public bool? IsTable => string.IsNullOrEmpty(View);
+        public DatabaseType? DatabaseType { get; set; }
         public List<DbObject> Tables { get; set; } = new List<DbObject>();
         public List<DbObject> Views { get; set; } = new List<DbObject>();
-        public List<string> Connections { get; set; } = new List<string>();
+        public Dictionary<string, DatabaseType> Connections { get; set; } = new Dictionary<string, DatabaseType>();
 
         public BrowseDbModel(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
         {
@@ -26,14 +33,14 @@ namespace DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public void OnGet(string? db = null,string? table = null,string? view = null)   
+        public void OnGet(string? db = null, string? table = null, string? view = null, DatabaseType? databaseType = null)
         {
             Table = table;
             View = view;
-            BrowseDbPopulate(db);
+            BrowseDbPopulate(db, databaseType);
         }
 
-        public void BrowseDbPopulate(string? db = null)
+        public void BrowseDbPopulate(string? db = null, DatabaseType? databaseType = null)
         {
             var connectonStrings = _configuration.GetSection("ConnectionStrings").GetChildren();
             connectonStrings = connectonStrings.AsEnumerable().Where(c => FilterConnectionString(c)).ToList();
@@ -41,16 +48,24 @@ namespace DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid
             var connectionAlias = db ?? connectonStrings.AsEnumerable().First().Key;
             var connectionString = _configuration.GetConnectionString(connectionAlias);
 
-            Connections = connectonStrings.AsEnumerable().Select(c => c.Key).ToList();
-
-            using (var connection = new DbNetDataCore(connectionString, _webHostEnvironment))
-            {
-                connection.Open();
-                Tables = connection.InformationSchema(DbNetDataCore.MetaDataType.Tables);
-                Views = connection.InformationSchema(DbNetDataCore.MetaDataType.Views);
-            }
-
+            Connections = connectonStrings.AsEnumerable().Select(c => c.Key).ToDictionary(c => c, c => DbNetDataCore.DeriveDatabaseType(_configuration.GetConnectionString(c)));
             Db = connectionAlias;
+            DatabaseType = databaseType.HasValue ? databaseType : Connections[connectionAlias];
+
+            try
+            {
+                using (var connection = new DbNetDataCore(connectionAlias, _webHostEnvironment, _configuration, DatabaseType.Value))
+                {
+                    connection.Open();
+                    Tables = connection.InformationSchema(DbNetDataCore.MetaDataType.Tables);
+                    Views = connection.InformationSchema(DbNetDataCore.MetaDataType.Views);
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Unable to connect to database => {ex.Message}";
+                return;
+            }
 
             if (string.IsNullOrEmpty(Table) && string.IsNullOrEmpty(View))
             {
@@ -73,27 +88,18 @@ namespace DbNetSuiteCore.Web.UI.Pages.Samples.DbNetGrid
             return Regex.IsMatch(path, @"Data Source=(.*)\.db;", RegexOptions.IgnoreCase);
         }
 
-        private string MapDatabasePath(string ConnectionString)
-        {
-            if (!ConnectionString.EndsWith(";"))
-                ConnectionString += ";";
 
-            ConnectionString = Regex.Replace(ConnectionString, @"DataProvider=(.*?);", "", RegexOptions.IgnoreCase);
-            string CurrentPath = this._webHostEnvironment.WebRootPath;
-            string DataSourcePropertyName = "data source";
-            ConnectionString = Regex.Replace(ConnectionString, DataSourcePropertyName + "=~", DataSourcePropertyName + "=" + CurrentPath, RegexOptions.IgnoreCase).Replace("=//", "=/");
-            return ConnectionString;
-        }
-
-        private List<DbObject> InformationSchemaQuery(SqlConnection conn, string tableType)
+        private string QualifiedObjectName()
         {
-            var sql = $"SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='{tableType}' order by TABLE_SCHEMA, TABLE_NAME";
-            return conn.Query<InformationSchema>(sql).Select(s => new DbObject() { QualifiedTableName = s.FullQualifiedTableName, TableName = s.FullTableName }).ToList();
-        }
-
-        private string SqliteMasterQuery(string tableType)
-        {
-            return $"SELECT name as QualifiedTableName,name as TableName FROM sqlite_master WHERE type='{tableType}' and name not like 'sqlite_%' order by name";
+            string fromPart = string.IsNullOrEmpty(View) ? Table : View;
+            if (fromPart.Contains(" "))
+            {
+                if (fromPart.StartsWith("[") == false)
+                {
+                    fromPart = $"[{string.Join("].[", fromPart.Split("."))}]";
+                }
+            }
+            return fromPart;
         }
     }
 }

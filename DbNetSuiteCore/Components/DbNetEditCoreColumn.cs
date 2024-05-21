@@ -14,18 +14,26 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Assigns a foreign key based lookup against a column to provide a descriptive value
         /// </summary>
-        public new DbNetEditCoreColumn Lookup(Lookup lookup)
+        public DbNetEditCoreColumn Lookup(Lookup lookup)
         {
             base.Lookup(lookup);
             return this;
         }
         /// <summary>
-        /// Assigns an enum based lookup against a column to provide a descriptive value
+        /// Assigns an enum based lookup to a column to provide a descriptive value
         /// </summary>
         public new DbNetEditCoreColumn Lookup(Type lookup, bool useNameAsValue = false)
         {
             base.Lookup(lookup, useNameAsValue);
             return this;
+        }
+        /// <summary>
+        /// Assigns a dictionary based lookup to a column to provide a descriptive value
+        /// </summary>
+        public new DbNetEditCoreColumn Lookup<T>(Dictionary<T, string> lookup)
+        {
+            base.Lookup(lookup);
+            return this; 
         }
         /// <summary>
         /// Creates a lookup based on a list of existing distinct values for the column
@@ -181,6 +189,32 @@ namespace DbNetSuiteCore.Components
         {
             SetColumnProperty(ColumnPropertyType.InputValidation, inputValidation); 
             return this;
+        }
+
+        /// <summary>
+        /// Sets the case of the edit input to be uppercase, lowercase or capitalized
+        /// </summary>
+        public DbNetEditCoreColumn TextTransform(TextTransform textTransform)
+        {
+            SetColumnProperty(ColumnPropertyType.TextTransform, textTransform);
+            return this;
+        }
+        /// <summary>
+        /// Sets the column as the primary key 
+        /// </summary>
+        public new DbNetEditCoreColumn PrimaryKey(bool autoincrement = true)
+        {
+            base.PrimaryKey(autoincrement);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the initial default value in a form input when adding a new record
+        /// </summary>
+        public DbNetEditCoreColumn DefaultValue(string value)
+        {
+            SetColumnProperty(ColumnPropertyType.DefaultValue, value);
+            return this; 
         }
     }
 }

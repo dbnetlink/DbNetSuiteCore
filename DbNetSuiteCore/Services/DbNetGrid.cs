@@ -20,6 +20,7 @@ using GridColumn = DbNetSuiteCore.Models.DbNetGrid.GridColumn;
 using static DbNetSuiteCore.Utilities.DbNetDataCore;
 using DbNetSuiteCore.Constants.DbNetGrid;
 using DbNetSuiteCore.Models.DbNetGrid;
+using Microsoft.AspNetCore.Http;
 
 namespace DbNetSuiteCore.Services
 {
@@ -76,6 +77,7 @@ namespace DbNetSuiteCore.Services
         public bool Update { get; set; } = false;
         public bool View { get; set; } = false;
         public int ViewLayoutColumns { get; set; }
+        public string ExportExtension { get; set; } = string.Empty;
 
         public static Type GetNullableType(Type type)
         {
@@ -90,7 +92,7 @@ namespace DbNetSuiteCore.Services
             var request = await DeserialiseRequest<DbNetGridRequest>();
             Columns = request.Columns;
 
-            Initialise();
+            await GridEditInitialise();
 
             DbNetGridResponse response = new DbNetGridResponse();
 
@@ -109,10 +111,8 @@ namespace DbNetSuiteCore.Services
                 case RequestAction.Page:
                     await Grid(response);
                     break;
-                case RequestAction.GenerateSpreadsheet:
-                    return GenerateSpreadsheet();
-                case RequestAction.HtmlExport:
-                    return await GenerateHtmlExport(response);
+                case RequestAction.Export:
+                    return ExportGrid(response);
                 case RequestAction.DownloadColumnData:
                     return GetColumnData();
                 case RequestAction.ViewContent:
@@ -137,6 +137,13 @@ namespace DbNetSuiteCore.Services
                 case RequestAction.DeleteRecord:
                     DeleteRecord(response);
                     break;
+            }
+
+            CloseDatabase();
+
+            foreach (GridColumn gridColumn in response.Columns ?? new List<GridColumn>())
+            {
+                gridColumn.LookupDataTable = null;
             }
 
             var serializeOptions = new JsonSerializerOptions
@@ -229,7 +236,7 @@ namespace DbNetSuiteCore.Services
                     queryCommandConfig.Params = Database.DeriveParameters(queryCommandConfig.Sql);
                     parameterNames = queryCommandConfig.Params.Keys.Cast<string>().Select(k => k.ToLower()).ToList();
                 }
-                catch (Exception){}
+                catch (Exception) { }
             }
 
             foreach (string paramName in this.ProcedureParams.Keys)
@@ -273,7 +280,7 @@ namespace DbNetSuiteCore.Services
                 foreach (string columnName in ColumnFilters.Keys)
                 {
                     GridColumn col = Columns.First(c => c.IsMatch(columnName));
-                    if (string.IsNullOrEmpty(col.Lookup) || col.FilterMode == FilterColumnSelectMode.List || col.LookupColumns < 2)
+                    if (col.HasLookup == false || col.FilterMode == FilterColumnSelectMode.List || col.LookupColumns < 2)
                     {
                         var columnFilter = ParseFilterColumnValue(ColumnFilters[columnName], col);
                         if (columnFilter != null)
@@ -283,7 +290,17 @@ namespace DbNetSuiteCore.Services
                     }
                     else
                     {
-                        columnFilterPart.Add($"{col.ColumnName} in ({SearchLookupSql(col, ParamName(col, ParamNames.ColumnFilter))})");
+                        if (col.LookupIsDataTable)
+                        {
+                            var columnFilter = ParseFilterColumnValue(ColumnFilters[columnName], col);
+                            string filterValue = columnFilter.Value.Value.ToString().Replace("%", string.Empty).ToLower();
+                            List<object> values = _lookupTables[col.ColumnKey].AsEnumerable().Where(r => r.ItemArray[1].ToString().ToLower().Contains(filterValue)).Select(r => r[0]).ToList();
+                            columnFilterPart.Add($"{col.ColumnName} in ({string.Join(",",values)})");
+                        }
+                        else
+                        {
+                            columnFilterPart.Add($"{col.ColumnName} in ({SearchLookupSql(col, ParamName(col, ParamNames.ColumnFilter))})");
+                        }
                     }
                 }
                 fp.Add($"({string.Join(" and ", columnFilterPart.ToArray())})");
@@ -519,7 +536,14 @@ namespace DbNetSuiteCore.Services
             {
                 if (string.IsNullOrEmpty(InitialOrderBy))
                 {
-                    OrderBy = Columns.FirstOrDefault(c => c.Display).Index + 1;
+                    if (Columns.Any(c => c.Display.Value))
+                    {
+                        var orderByColumn = Columns.FirstOrDefault(c => c.Display.Value);
+                        if (orderByColumn.DbDataType != "ntext")
+                        {
+                            OrderBy = Columns.FirstOrDefault(c => c.Display.Value).Index + 1;
+                        }
+                    }
                 }
                 else
                 {
@@ -566,80 +590,10 @@ namespace DbNetSuiteCore.Services
                 GridHtml = response.Data.ToString(),
                 GridCss = css
             };
-            response.Data = await HttpContext.RenderToStringAsync("Views/DbNetGrid/HtmlExport.cshtml", viewModel);
-            HttpContext.Response.ContentType = GetMimeTypeForFileExtension($".html"); ;
-            return Encoding.UTF8.GetBytes(response.Data.ToString());
+            string html = await HttpContext.RenderToStringAsync("Views/DbNetGrid/HtmlExport.cshtml", viewModel);
+            HttpContext.Response.ContentType = GetMimeTypeForFileExtension($".html"); 
+            return Encoding.UTF8.GetBytes(html);
         }
-
-        /*
-        private string GoogleChartDatatable()
-        {
-            ConfigureColumns();
-
-            using (Database)
-            {
-                Database.Open();
-                QueryCommandConfig query = BuildSql(QueryBuildModes.Spreadsheet);
-                Database.ExecuteQuery(query);
-
-                Components.DataTable dataTable = new Models.GoogleCharts.DataTable();
-
-                foreach (GridColumn column in Columns)
-                {
-                    if (column.Binary)
-                    {
-                        continue;
-                    }
-
-                    var col = new Models.GoogleCharts.Col
-                    {
-                        Id = $"c{column.Index}",
-                        Label = column.Label,
-                        Type = JavaScriptTypeName(column)
-                    };
-
-                    dataTable.Cols.Add(col);
-                }
-
-                while (Database.Reader.Read())
-                {
-                    object[] values = new object[Database.Reader.FieldCount];
-                    Database.Reader.GetValues(values);
-                    var row = new Models.GoogleCharts.Row();
-                    foreach (GridColumn column in Columns)
-                    {
-                        if (column.Binary)
-                        {
-                            continue;
-                        }
-
-                        var cell = new Models.GoogleCharts.Cell();
-
-                        object value = values[column.Index];
-
-                        if (value == DBNull.Value)
-                        {
-                            cell.V = null;
-                        }
-                        else if (string.IsNullOrEmpty(column.Lookup) == false)
-                        {
-                            cell.V = GetLookupValue(column, value);
-                        }
-                        else
-                        {
-                            cell.V = value;
-                        }
-
-                        row.C.Add(cell);
-                    }
-
-                    dataTable.Rows.Add(row);
-                }
-
-                return Serialize(dataTable);
-            }
-        }
-        */
 
         private string DataArray()
         {
@@ -682,7 +636,7 @@ namespace DbNetSuiteCore.Services
                         {
                             value = null;
                         }
-                        else if (string.IsNullOrEmpty(column.Lookup) == false)
+                        else if (_lookupTables.Keys.Contains(column.ColumnKey))
                         {
                             value = GetLookupValue(column, value);
                         }
@@ -697,13 +651,57 @@ namespace DbNetSuiteCore.Services
             }
         }
 
-        private string Serialize(object data)
+        private string Serialize(object data, bool indent = false)
         {
             var serializeOptions = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
+
+            if (indent) {
+                serializeOptions.WriteIndented = true;
+            }
             return JsonSerializer.Serialize(data, serializeOptions);
+        }
+
+        private byte[] ExportGrid(DbNetGridResponse response)
+        {
+            switch (ExportExtension)
+            {
+                case "xlsx":
+                    return GenerateSpreadsheet();
+                case "json":
+                    return SerializeGrid();
+                default:
+                    return GenerateHtmlExport(response).Result;
+            }
+        }
+
+        public byte[] SerializeGrid()
+        {
+            var query = BuildSql();
+
+            Database.Open();
+            Database.ExecuteQuery(query);
+
+            var results = new List<Dictionary<string, object>>();
+            var cols = new List<string>();
+            for (var i = 0; i < Database.Reader.FieldCount; i++)
+                cols.Add(Database.Reader.GetName(i));
+
+            while (Database.Reader.Read())
+                results.Add(ConvertToDictionary(cols, Database.Reader));
+
+            string json = Serialize(results, true);
+            HttpContext.Response.ContentType = GetMimeTypeForFileExtension($".json");
+            return Encoding.UTF8.GetBytes(json);
+        }
+        private Dictionary<string, object> ConvertToDictionary(IEnumerable<string> cols, IDataReader reader)
+        {
+            var result = new Dictionary<string, object>();
+            foreach (var col in cols)
+                result.Add(col, reader[col]);
+            return result;
         }
 
         private byte[] GenerateSpreadsheet()
@@ -778,7 +776,7 @@ namespace DbNetSuiteCore.Services
                             }
                             else
                             {
-                                if (string.IsNullOrEmpty(column.Lookup) == false)
+                                if (_lookupTables.Keys.Contains(column.ColumnKey))
                                 {
                                     value = GetLookupValue(column, value);
                                 }
@@ -913,11 +911,10 @@ namespace DbNetSuiteCore.Services
                     Database.ExecuteQuery(query);
                     Database.Reader.Read();
                     TotalRows = Convert.ToInt64(Database.Reader.GetValue(0));
-                }
+				}
+				query = BuildSql();
 
-                query = BuildSql();
-
-                Database.Open();
+				Database.Open();
                 Database.ExecuteQuery(query);
 
                 int counter = 0;
@@ -955,8 +952,6 @@ namespace DbNetSuiteCore.Services
                 {
                     TotalPages = (int)Math.Ceiling((double)TotalRows / (double)Math.Abs(PageSize));
                 }
-
-                Database.Close();
             }
 
             DataTable totalsDataTable = GetTotalsDataTable();
@@ -1002,7 +997,6 @@ namespace DbNetSuiteCore.Services
                 dataTable.Rows.Add(values);
                 PageSize = 1;
                 TotalPages = 1;
-                Database.Close();
             }
             var viewModel = new GridViewModel
             {
@@ -1039,8 +1033,6 @@ namespace DbNetSuiteCore.Services
                         Database.Reader.GetValues(values);
                         totalsDataTable.Rows.Add(values);
                     }
-
-                    Database.Close();
                 }
             }
 
@@ -1159,8 +1151,6 @@ namespace DbNetSuiteCore.Services
                 object[] values = new object[Database.Reader.FieldCount];
                 Database.Reader.GetValues(values);
                 dataTable.Rows.Add(values);
-
-                Database.Close();
             }
 
             return dataTable;

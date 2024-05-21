@@ -4,6 +4,7 @@ using DbNetSuiteCore.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 
@@ -12,7 +13,7 @@ namespace DbNetSuiteCore.Components
     public class DbNetGridEditCoreColumn
     {
         readonly List<ColumnProperty> _columnProperties;
-        readonly string[] _columnNames;
+        protected readonly string[] _columnNames;
         readonly string _fromPart;
         readonly List<string> _columns;
 
@@ -23,26 +24,34 @@ namespace DbNetSuiteCore.Components
             _fromPart = fromPart;
             _columns = columns;
         }
-        protected void Lookup(Lookup lookup)
+
+        protected void Lookup(Lookup lookup, string columnName = null)
         {
-            SetColumnProperty(ColumnPropertyType.Lookup, lookup);
+            SetColumnProperty(ColumnPropertyType.Lookup, lookup, columnName);
 
             if (string.IsNullOrEmpty(lookup.Parameter) == false)
             {
-                SetColumnProperty(InternalColumnPropertyType.LookupParameter, lookup.Parameter);
+                SetColumnProperty(InternalColumnPropertyType.LookupParameter, lookup.Parameter, columnName);
             }
         }
         protected void Lookup(Type lookup, bool useNameAsValue = false)
         {
             if (lookup.IsEnum)
             {
-                DataTable dt = EnumHelper.EnumToDataTable(lookup, useNameAsValue);
-                SetColumnProperty(ColumnPropertyType.Lookup, JsonConvert.SerializeObject(dt));
+                SetColumnProperty(ColumnPropertyType.LookupDataTable, EnumHelper.EnumToDataTable(lookup, useNameAsValue));
             }
+        }
+
+        protected void Lookup<T>(Dictionary<T,string> lookup)
+        {
+            SetColumnProperty(ColumnPropertyType.LookupDataTable, DictionaryToDataTable(lookup));
         }
         protected void Lookup()
         {
-            Lookup(new Lookup(_fromPart, _columnNames.First(), null, true));
+            foreach (string columnName in _columnNames)
+            {
+                Lookup(new Lookup(_fromPart, columnName, null, true), columnName);
+            }
         }
         protected void Display(bool display = true)
         {
@@ -59,15 +68,24 @@ namespace DbNetSuiteCore.Components
         protected void Style(string style)
         {
             SetColumnProperty(ColumnPropertyType.Style, style);
-         }
+        }
         /// <summary>
         protected void DataType(Type type)
         {
+            type = Nullable.GetUnderlyingType(type) ?? type;
             SetColumnProperty(ColumnPropertyType.DataType, type.ToString().Split(".").Last());
         }
         protected void ForeignKey()
         {
             SetColumnProperty(ColumnPropertyType.ForeignKey, true);
+        }
+        protected void PrimaryKey(bool autoincrement = true)
+        {
+            SetColumnProperty(ColumnPropertyType.PrimaryKey, true);
+            if (autoincrement)
+            {
+                SetColumnProperty(ColumnPropertyType.AutoIncrement, true);
+            }
         }
         protected void Format(string format)
         {
@@ -107,6 +125,25 @@ namespace DbNetSuiteCore.Components
             return this;
         }
 
+        public static DataTable DictionaryToDataTable<T>(Dictionary<T,string> lookup)
+        {
+            DataTable dataTable = new DataTable();
+
+            dataTable.Columns.Add("value",typeof(string));
+            dataTable.Columns.Add("text", typeof(string));
+
+            foreach (T key in lookup.Keys)
+            {
+                dataTable.Rows.Add(key, lookup[key]);
+            }
+
+            return dataTable;
+        }
+
+        public bool ColumnPropertySet(Enum propertyType)
+        {
+            return _columnProperties.Any(c => c.ColumnName == _columnNames.First().ToLower() && c.PropertyType == propertyType);
+        }
         protected void SetColumnProperty(Enum propertyType, object propertyValue, string columnName = null)
         {
             if (string.IsNullOrEmpty(columnName))

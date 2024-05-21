@@ -17,11 +17,6 @@ declare class DbNetGridEdit extends DbNetSuite {
     primaryKey: string | undefined;
     initialOrderBy: string;
     optimizeForLargeDataset: boolean;
-    quickSearch: boolean;
-    quickSearchDelay: number;
-    quickSearchMinChars: number;
-    quickSearchTimerId: number | undefined;
-    quickSearchToken: string;
     search: boolean;
     searchDialog: SearchDialog | undefined;
     searchFilterJoin: string;
@@ -29,6 +24,9 @@ declare class DbNetGridEdit extends DbNetSuite {
     toolbarButtonStyle: ToolbarButtonStyle;
     toolbarPanel: JQuery<HTMLElement> | undefined;
     toolbarPosition: ToolbarPosition;
+    jsonKey: string;
+    json: object | null;
+    dataSourceType: DataSourceType;
     constructor(id: string);
     setColumnExpressions(...columnExpressions: string[]): void;
     setColumnKeys(...columnKeys: string[]): void;
@@ -36,11 +34,11 @@ declare class DbNetGridEdit extends DbNetSuite {
     setColumnProperty(columnName: string | Array<string>, property: string, propertyValue: object): void;
     setColumnProperties(columnName: string, properties: object): void;
     protected openSearchDialog(request: DbNetGridEditRequest): void;
-    protected quickSearchKeyPress(event: JQuery.TriggeredEvent): void;
-    private runQuickSearch;
     lookup($input: JQuery<HTMLInputElement>, request: DbNetGridEditRequest): void;
     private newColumn;
-    private matchingColumn;
+    protected matchingColumn(dbColumn: DbColumn, columnName: string): boolean;
     assignForeignKey(control: DbNetSuite, fk: string | object | null): void;
     protected baseRequest(): DbNetGridEditRequest;
+    protected invokeOnJsonUpdated(editMode: EditMode): void;
+    processJsonUpdateResponse(response: JsonUpdateResponse): void;
 }

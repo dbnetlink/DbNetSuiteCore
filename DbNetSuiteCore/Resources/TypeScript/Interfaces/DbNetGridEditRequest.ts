@@ -20,4 +20,6 @@
     toolbarButtonStyle: ToolbarButtonStyle;
     uploadMetaData: string;
     uploadMetaDataColumn: string;
+    jsonKey: string;
+    json: object | null;
 }

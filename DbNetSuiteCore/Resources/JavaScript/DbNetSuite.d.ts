@@ -2,7 +2,7 @@
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
 /// <reference types="bootstrap" />
-type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onConfigureBinaryData" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted" | "onRecordDeleted" | "onInsertInitalize" | "onRecordSelected" | "onFileSelected" | "onFormElementValidationFailed";
+type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onConfigureBinaryData" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted" | "onRecordDeleted" | "onInsertInitalize" | "onRecordSelected" | "onFileSelected" | "onFormElementValidationFailed" | "onJsonUpdated";
 type DataProvider = "SqlClient" | "SQLite" | "MySqlConnector" | "Npgsql" | "MySql" | null;
 interface CellDataDownloadArgs {
     row: HTMLTableRowElement;
@@ -27,7 +27,7 @@ type InternalEventHandler = {
 type EmptyCallback = (sender: DbNetSuite, args?: object) => void;
 declare class DbNetSuite {
     static DBNull: string;
-    datePickerOptions: JQueryUI.DatepickerOptions;
+    static datePickerOptions: JQueryUI.DatepickerOptions;
     protected element: JQuery<HTMLElement> | undefined;
     protected eventHandlers: Dictionary<Array<EventHandler>>;
     protected internalEventHandlers: Dictionary<Array<InternalEventHandler>>;
@@ -43,11 +43,17 @@ declare class DbNetSuite {
     protected imageViewer: ImageViewer | undefined;
     protected parentControl: DbNetSuite | null;
     protected dataProvider: DataProvider | null;
+    quickSearch: boolean;
+    quickSearchDelay: number;
+    quickSearchMinChars: number;
+    quickSearchTimerId: number | undefined;
+    quickSearchToken: string;
     constructor(id: string | null);
     bind(event: EventName, handler: EventHandler): void;
     internalBind(event: EventName, callback: EmptyCallback): void;
     unbind(event: EventName, handler: EventHandler): void;
     checkStyleSheetLoaded(): void;
+    jQueryCheck(): void;
     addLinkedControl(control: DbNetSuite): void;
     fireEvent(event: EventName, params?: object | undefined): void;
     protected addPanel(panelId: string, parent?: JQuery<HTMLElement> | undefined): JQuery<HTMLElement>;
@@ -73,4 +79,10 @@ declare class DbNetSuite {
     protected _getRequest(): DbNetSuiteRequest;
     protected highlight(): void;
     protected viewImage(event: JQuery.ClickEvent<HTMLElement>): void;
+    protected viewUrl(url: string, fileName: string, type?: string): void;
+    private openImageViewer;
+    protected quickSearchKeyPress(event: JQuery.TriggeredEvent): void;
+    private runQuickSearch;
+    protected copyTableToClipboard(table: HTMLTableElement): void;
+    protected sleep(s: number): Promise<unknown>;
 }

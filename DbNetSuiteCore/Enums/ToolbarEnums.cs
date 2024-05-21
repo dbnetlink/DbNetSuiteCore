@@ -11,6 +11,7 @@
     {
         Image,
         Text,
-        ImageAndText
+        ImageAndText,
+        TextAndImage
     }
 }

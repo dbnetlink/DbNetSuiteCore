@@ -8,7 +8,8 @@ type ToolbarPosition = "Top" | "Bottom" | "Hidden" | undefined;
 declare enum ToolbarButtonStyle {
     Image = 0,
     Text = 1,
-    ImageAndText = 2
+    ImageAndText = 2,
+    TextAndImage = 3
 }
 declare enum BooleanDisplayMode {
     TrueFalse = 0,
@@ -25,6 +26,12 @@ declare enum GridGenerationMode {
 }
 interface Dictionary<T> {
     [Key: string]: T;
+}
+declare enum DataSourceType {
+    TableOrView = 0,
+    StoredProcedure = 1,
+    JSON = 2,
+    List = 3
 }
 type DbNetGridResponseCallback = (response: DbNetGridResponse) => void;
 declare class DbNetGrid extends DbNetGridEdit {
@@ -47,6 +54,7 @@ declare class DbNetGrid extends DbNetGridEdit {
     gridGenerationMode: GridGenerationMode;
     gridPanel: JQuery<HTMLElement> | undefined;
     groupBy: boolean;
+    height: number;
     isBrowseDialog: boolean;
     multiRowSelect: boolean;
     multiRowSelectLocation: MultiRowSelectLocation;
@@ -99,9 +107,9 @@ declare class DbNetGrid extends DbNetGridEdit {
     getPage(callback?: DbNetGridResponseCallback): void;
     private activeElementId;
     private focusActiveElement;
-    private download;
-    private htmlExport;
-    private downloadSpreadsheet;
+    private exportData;
+    private openWindow;
+    private downloadFile;
     private getViewContent;
     private configureViewDialog;
     private assignPrimaryKey;

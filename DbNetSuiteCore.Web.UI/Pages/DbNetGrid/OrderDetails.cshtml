@@ -1,6 +1,23 @@
 ﻿@page
+@model SampleModel
 @using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums;
+@using DbNetSuiteCore.Web.UI.ViewModels;
+@using DbNetSuiteCore.Web.UI.Models;
 @{
-    DbNetGridCore orderDetailsGrid = new DbNetGridCore("northwind","[order details]");
+	DbNetGridCore orderDetailsGrid;
+
+	switch (Model.DataProvider)
+	{
+		case DataProvider.DataTable:
+			var orderDetails = await Model.GetList<OrderDetail>("[order details]");
+			orderDetailsGrid = new DbNetGridCore(DataSourceType.List);
+			orderDetailsGrid.AddList<OrderDetail>(orderDetails);
+			break;
+		default:
+			orderDetailsGrid = new DbNetGridCore(Model.DataProvider.ToString(), "[order details]");
+			break;
+	}
+    
     @orderDetailsGrid.Render()
 }

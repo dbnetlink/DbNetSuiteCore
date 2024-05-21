@@ -21,11 +21,19 @@ using System.Threading.Tasks;
 using DbNetSuiteCore.Constants;
 using DbNetSuiteCore.Enums.DbNetEdit;
 using System.Globalization;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Newtonsoft.Json.Linq;
+using DbNetSuiteCore.Utilities;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
+using System.IO;
+using Newtonsoft.Json.Converters;
+using System.Net.Http;
+using System.Runtime.CompilerServices;
 
 namespace DbNetSuiteCore.Services
 {
-    public class DbNetGridEdit : DbNetSuite
+    public class DbNetGridEdit : DbNetSuite, IDisposable
     {
         private string _fromPart;
         private string _primaryKey;
@@ -50,7 +58,6 @@ namespace DbNetSuiteCore.Services
             }
         }
         public string ColumnName { get; set; } = String.Empty;
-
         public bool Delete { get; set; } = false;
         public string Extension { get; set; } = string.Empty;
         public Dictionary<string, object> FixedFilterParams { get; set; } = new Dictionary<string, object>();
@@ -95,10 +102,47 @@ namespace DbNetSuiteCore.Services
         public string SearchFilterJoin { get; set; } = "and";
         public List<SearchParameter> SearchParams { get; set; } = new List<SearchParameter>();
         public ToolbarButtonStyle ToolbarButtonStyle { get; set; } = ToolbarButtonStyle.Image;
+        public string JsonKey { get; set; } = string.Empty;
+        public JArray Json { get; set; }
+
         public DbNetGridEdit(AspNetCoreServices services) : base(services)
         {
         }
 
+        protected async Task GridEditInitialise()
+        {
+            DataTableConverter converter = new DataTableConverter();
+            DataTable dataTable = null;
+            var columnDataTypes = DbColumns.Where(c => string.IsNullOrEmpty(c.DataType) == false).ToDictionary(c => c.ColumnExpression, c => GetColumnType(c.DataType));
+
+            if (ConnectionString.ToLower().EndsWith(".json"))
+            {
+                string json = await GetJsonContent(ConnectionString);
+
+                if (json == null)
+                {
+                    throw new Exception($"JSON file \"{ConnectionString}\" not found");
+                }
+                dataTable = new JsonToDataTable(json, columnDataTypes).DataTable;
+                string tableName = string.IsNullOrEmpty(FromPart) ? ConnectionString.Split("/").Last().ToLower().Replace(".json", string.Empty) : FromPart;
+                dataTable.TableName = tableName;
+            }
+            else if (ConnectionString == (JsonKey ?? string.Empty))
+            {
+                string json = Json == null ? HttpContext.Session.GetString(ConnectionString) : Json.ToString();
+                if (JsonKey.StartsWith("datatable"))
+                {
+                    dataTable = Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(json, new TypedDataTableConverter(columnDataTypes));
+                }
+                else
+                {
+                    dataTable = new JsonToDataTable(json, columnDataTypes).DataTable;
+                }
+                dataTable.TableName = FromPart;
+            }
+
+            Initialise(dataTable);
+        }
 
         protected List<T> ConfigureColumns<T>(List<T> columns, bool groupBy = false)
         {
@@ -146,7 +190,7 @@ namespace DbNetSuiteCore.Services
                     column.QuickSearch = true;
                 }
 
-                if (string.IsNullOrEmpty(column.Lookup) == false)
+                if (column.HasLookup)
                 {
                     column.DataType = nameof(String);
                 }
@@ -155,6 +199,19 @@ namespace DbNetSuiteCore.Services
                 {
                     column.PrimaryKey = row.IsKey() || row.IsAutoIncrement();
                     column.AutoIncrement = row.IsAutoIncrement();
+                }
+
+                if (column.Display.HasValue == false)
+                {
+                    if (column.AddedByUser == false && this is DbNetGrid)
+                    {
+                        column.Display = true;// column.IsKey == false;
+                        (column as GridColumn).View = column.Show;
+                    }
+                    else
+                    {
+                        column.Display = true;
+                    }
                 }
 
                 column.AllowsNull = row.AllowsNull();
@@ -215,7 +272,7 @@ namespace DbNetSuiteCore.Services
                         }
                     }
 
-                    if (string.IsNullOrEmpty(editColumn.Lookup) == false)
+                    if (column.HasLookup)
                     {
                         if (editColumn.EditControlType == EditControlType.Auto)
                         {
@@ -240,7 +297,7 @@ namespace DbNetSuiteCore.Services
                 {
                     DbColumn col = (DbColumn)o;
 
-                    if (col.LookupIsEnum)
+                    if (col.LookupIsDataTable)
                     {
                         continue;
                     }
@@ -690,17 +747,6 @@ namespace DbNetSuiteCore.Services
             return baseTableName;
         }
 
-        static public string GenerateLabel(string label)
-        {
-            label = Regex.Replace(label, @"((?<=\p{Ll})\p{Lu})|((?!\A)\p{Lu}(?>\p{Ll}))", " $0");
-            return Capitalise(label.Replace("_", " ").Replace(".", " "));
-        }
-
-        internal static string Capitalise(string text)
-        {
-            return Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(text);
-        }
-
         internal static string[] GetSelectColumns(string sql)
         {
             if (string.IsNullOrEmpty(sql))
@@ -767,9 +813,9 @@ namespace DbNetSuiteCore.Services
         {
             DbColumn dbColumn = DbColumns.FirstOrDefault(c => c.Index == columnIndex);
 
-            if (dbColumn.LookupIsEnum)
+            if (dbColumn.LookupIsDataTable)
             {
-                return Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(dbColumn.Lookup);
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(dbColumn.LookupDataTable.ToString());
             }
 
             DataTable dataTable = new DataTable();
@@ -788,12 +834,10 @@ namespace DbNetSuiteCore.Services
 
                 Database.ExecuteQuery(query);
                 dataTable.Load(Database.Reader);
-                Database.Close();
             }
 
             return dataTable;
         }
-
         protected bool ValidateRequest<T>(DbNetGridEditResponse response, List<T> columns)
         {
             response.Message = String.Empty;
@@ -864,7 +908,14 @@ namespace DbNetSuiteCore.Services
                 DataColumn dataColumn = new DataColumn(dbColumn.ColumnName);
                 try
                 {
-                    dataColumn.DataType = GetColumnType(dbColumn.OriginalDataType == "Byte[]" ? nameof(String) : dbColumn.OriginalDataType);
+                    if (dbColumn.DataType == "Byte[]" || dbColumn.DbDataType == "TEXT")
+                    {
+                        dataColumn.DataType = GetColumnType(nameof(String));
+                    }
+                    else
+                    {
+                        dataColumn.DataType = GetColumnType(dbColumn.DataType);
+                    }
                 }
                 catch
                 {
@@ -903,14 +954,14 @@ namespace DbNetSuiteCore.Services
                 foreach (object o in columns)
                 {
                     DbColumn column = (DbColumn)o;
-                    if (string.IsNullOrEmpty(column.Lookup))
+                    if (column.LookupIsDataTable)
                     {
+                        _lookupTables.Add(column.ColumnKey, Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(column.LookupDataTable.ToString()));
                         continue;
                     }
 
-                    if (column.LookupIsEnum)
+                    if (string.IsNullOrEmpty(column.Lookup))
                     {
-                        _lookupTables.Add(column.ColumnKey, Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(column.Lookup));
                         continue;
                     }
 
@@ -938,7 +989,6 @@ namespace DbNetSuiteCore.Services
                             ThrowException(ex.Message, sql);
                         }
                     }
-                    Database.Close();
                 }
             }
         }
@@ -1094,17 +1144,7 @@ namespace DbNetSuiteCore.Services
             if (value is JsonElement)
             {
                 JsonElement jsonElement = (JsonElement)value;
-                switch (jsonElement.ValueKind)
-                {
-                    case JsonValueKind.String:
-                        value = jsonElement.GetString();
-                        break;
-                    case JsonValueKind.Number:
-                        value = jsonElement.GetUInt64();
-                        break;
-                    default:
-                        throw new Exception($"jsonElement.ValueKind => {jsonElement.ValueKind} not supported");
-                }
+                value = jsonElement.Value();
                 dataType = value.GetType().Name;
             }
 
@@ -1154,36 +1194,36 @@ namespace DbNetSuiteCore.Services
                                 }
                             }
                         }
-                            break;
+                        break;
                     case nameof(Byte):
-                                paramValue = value;
-                                break;
-                            case nameof(Guid):
-                                paramValue = new Guid(value.ToString());
-                                break;
-                            case nameof(Int16):
-                            case nameof(Int32):
-                            case nameof(Int64):
-                            case nameof(Decimal):
-                            case nameof(Single):
-                            case nameof(Double):
-                                if (string.IsNullOrEmpty(column.Format) == false)
-                                {
-                                    var cultureInfo = Thread.CurrentThread.CurrentCulture;
-                                    value = value.ToString().Replace(cultureInfo.NumberFormat.CurrencySymbol, "");
-                                }
-                                paramValue = Convert.ChangeType(value, GetColumnType(dataType));
-                                break;
-                            case nameof(UInt16):
-                            case nameof(UInt32):
-                            case nameof(UInt64):
-                                paramValue = Convert.ChangeType(value, GetColumnType(dataType.Replace("U", string.Empty)));
-                                break;
-                            default:
-                                paramValue = Convert.ChangeType(value, GetColumnType(dataType));
-                                break;
-                            }
+                        paramValue = value;
+                        break;
+                    case nameof(Guid):
+                        paramValue = new Guid(value.ToString());
+                        break;
+                    case nameof(Int16):
+                    case nameof(Int32):
+                    case nameof(Int64):
+                    case nameof(Decimal):
+                    case nameof(Single):
+                    case nameof(Double):
+                        if (string.IsNullOrEmpty(column.Format) == false)
+                        {
+                            var cultureInfo = Thread.CurrentThread.CurrentCulture;
+                            value = value.ToString().Replace(cultureInfo.NumberFormat.CurrencySymbol, "");
                         }
+                        paramValue = Convert.ChangeType(value, GetColumnType(dataType));
+                        break;
+                    case nameof(UInt16):
+                    case nameof(UInt32):
+                    case nameof(UInt64):
+                        paramValue = Convert.ChangeType(value, GetColumnType(dataType.Replace("U", string.Empty)));
+                        break;
+                    default:
+                        paramValue = Convert.ChangeType(value, GetColumnType(dataType));
+                        break;
+                }
+            }
             catch (Exception e)
             {
                 ThrowException(e.Message, "ConvertToDbParam: Value: " + value.ToString() + " DataType:" + dataType);
@@ -1318,7 +1358,6 @@ namespace DbNetSuiteCore.Services
                         byteData = (byte[])value;
                     }
                 }
-                Database.Close();
             }
 
             if (string.IsNullOrEmpty(Extension) == false)
@@ -1350,7 +1389,7 @@ namespace DbNetSuiteCore.Services
             foreach (string key in primaryKeyValues.Keys)
             {
                 DbColumn dbColumn = DbColumns.FirstOrDefault(c => c.IsMatch(key));
-                primaryKeyFilterPart.Add($"{key} = {Database.ParameterName(key)}");
+                primaryKeyFilterPart.Add($"{Database.QualifiedDbObjectName(key)} = {Database.ParameterName(key)}");
                 parameters.Add(Database.ParameterName(key), ConvertToDbParam(primaryKeyValues[key], dbColumn));
             }
             return $"{string.Join($" and ", primaryKeyFilterPart)}";
@@ -1370,15 +1409,13 @@ namespace DbNetSuiteCore.Services
                     if (col.DbDataType != "31") // "Date"
                         columnExpression = $"CONVERT(DATE,{columnExpression})";
                     break;
-                    /*
-                case DatabaseType.Oracle:
-                    columnExpression = $"trunc({columnExpression})";
-                    break;
-                    */
                 case DatabaseType.PostgreSQL:
                     columnExpression = $"date_trunc('day',{columnExpression})";
                     break;
-            }
+				case DatabaseType.SQLite:
+					columnExpression = $"DATE({columnExpression})";
+					break;
+			}
 
             return columnExpression;
         }
@@ -1434,6 +1471,28 @@ namespace DbNetSuiteCore.Services
             }
 
             return Settings.ReadOnly;
+        }
+
+        public void Dispose()
+        {
+            if (Database != null)
+            {
+                Database.Close();
+            }
+        }
+        private async Task<string> GetJsonContent(string url)
+        {
+            if (url.ToLower().StartsWith("http"))
+            {
+                using (var client = new HttpClient())
+                using (var result = await client.GetAsync(url))
+                    return result.IsSuccessStatusCode ? System.Text.Encoding.Default.GetString(await result.Content.ReadAsByteArrayAsync()) : null;
+            }
+            else
+            {
+                IFileInfo fileInfo = Env.WebRootFileProvider.GetFileInfo(ConnectionString);
+                return fileInfo.Exists ? File.ReadAllText(fileInfo.PhysicalPath) : null;
+            }
         }
     }
 }

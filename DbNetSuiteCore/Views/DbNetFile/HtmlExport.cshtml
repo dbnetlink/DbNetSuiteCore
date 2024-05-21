@@ -1,0 +1,21 @@
+﻿@namespace DbNetSuiteCore.Views.DbNetFile
+@using DbNetSuiteCore.ViewModels.DbNetFile
+@model HtmlExportViewModel
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <style>
+        @Html.Raw(Model.Css)
+    </style>
+    <style>
+        th.nested-cell, td.nested-cell
+        {
+            display:none;
+        }
+    </style>
+</head>
+<body>
+    @Html.Raw(Model.Html)
+</body>
+</html>

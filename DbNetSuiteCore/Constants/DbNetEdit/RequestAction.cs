@@ -15,6 +15,6 @@
         public const string SaveFiles = "save-files";
         public const string ConvertDate = "convert-date";
         public const string GetOptions = "get-options";
+        public const string ValidateRecord = "validate-record";
     }
 }
-

@@ -18,7 +18,7 @@
     }
     if (Model.QuickSearch)
     {
-        ToolbarSections[ToolbarSection.Search].Add(QuickSearch());
+        ToolbarSections[ToolbarSection.Search].Add(Model.QuickSearchInput());
     }
     if (Model.Insert)
     {
@@ -33,13 +33,13 @@
         ToolbarSections[ToolbarSection.Navigation].Add(Button("First", ToolbarSection.Navigation));
         ToolbarSections[ToolbarSection.Navigation].Add(Button("Previous", ToolbarSection.Navigation));
     }
-    ToolbarSections[ToolbarSection.Navigation].Add(NoRecords());
+    ToolbarSections[ToolbarSection.Navigation].Add(Model.NoRecords());
     if (Model.Navigation)
     {
-        ToolbarSections[ToolbarSection.Navigation].Add(Text("Record"));
-        ToolbarSections[ToolbarSection.Navigation].Add(Input("RowNumber"));
-        ToolbarSections[ToolbarSection.Navigation].Add(Text("Of"));
-        ToolbarSections[ToolbarSection.Navigation].Add(Input("RowCount"));
+        ToolbarSections[ToolbarSection.Navigation].Add(Model.Text("Record"));
+        ToolbarSections[ToolbarSection.Navigation].Add(Model.Input("RowNumber"));
+        ToolbarSections[ToolbarSection.Navigation].Add(Model.Text("Of"));
+        ToolbarSections[ToolbarSection.Navigation].Add(Model.Input("RowCount"));
     }
     if (Model.Navigation)
     {
@@ -100,37 +100,6 @@
         {
             toolbarButtonStyle = Model.ToolbarButtonStyle;
         }
-        return new HtmlString($"<td class=\"{(toolbarSection == ToolbarSection.Navigation ? "navigation" : "")}\"><button type=\"button\" class=\"toolbar-button toolbar-button-{toolbarButtonStyle.ToString().ToLower()}\" title=\"{@Title(type, toolbarSection)}\" button-type=\"{type.ToLower()}\" id=\"{Model.ComponentId}_{type}Btn\">{(toolbarButtonStyle == Enums.ToolbarButtonStyle.Image ? string.Empty : ResourceString(type))}</button></td>");
-    }
-
-    public HtmlString Input(string name)
-    {
-        return new HtmlString($"<td class=\"navigation\"><input type=\"input\" class=\"toolbar-info\" readonly id=\"{Model.ComponentId}_{name}\" name=\"{name}\"/></td>");
-    }
-
-    public HtmlString Text(string text)
-    {
-        return new HtmlString($"<td class=\"navigation\"><span class=\"toolbar-text\">{ResourceString(text)}</span></td>");
-    }
-
-    public HtmlString NoRecords()
-    {
-        return new HtmlString($"<td id=\"{Model.ComponentId}_no-records-cell\" class=\"no-records\"><span class=\"toolbar-text\">{ResourceString("No_Records_Found")}</span></td>");
-    }
-
-    public string Title(string type, ToolbarSection? toolbarSection = null)
-    {
-        return ResourceString($"{type}{(toolbarSection.HasValue && toolbarSection.Value == ToolbarSection.Navigation ? "Row" : string.Empty)}_tooltip");
-    }
-
-    public string ResourceString(string key)
-    {
-        return Model.ResourceManager.GetString(key) ?? key;
-    }
-
-    public HtmlString QuickSearch()
-    {
-        string id = "QuickSearch";
-        return new HtmlString($"<td><input type=\"input\" class=\"toolbar-info\" id=\"{Model.ComponentId}_{id}\" name=\"{id}\" title=\"{@Title(id)}\"/></td>");
+        return Model.Button(type,toolbarSection);
     }
 }

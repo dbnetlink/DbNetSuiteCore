@@ -19,5 +19,6 @@ declare class GridColumn extends DbColumn {
     totalBreak?: boolean;
     clearDuplicateValue?: boolean;
     dataOnly?: boolean;
-    constructor(properties: GridColumnResponse, unmatched?: boolean);
+    constructor(properties?: GridColumnResponse | undefined, unmatched?: boolean);
+    assignProperties(properties: GridColumnResponse): void;
 }

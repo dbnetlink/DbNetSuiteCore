@@ -19,7 +19,8 @@ namespace DbNetSuiteCore.Utilities
     public class DbNetDataCore : IDisposable
     {
         private readonly Hashtable _reservedWords = new Hashtable();
-      
+        private readonly DataTable _dataTable;
+
         public enum MetaDataType
         {
             MetaDataCollections,
@@ -111,6 +112,7 @@ namespace DbNetSuiteCore.Utilities
         public int CommandTimeout = -1;
         public string ParameterTemplate = "@{0}";
         public bool ConvertEmptyToNull = true;
+        public SqlDataTable SqlDataTable;
         public Hashtable ReservedWords => GetReservedWords();
         public string DatabaseName => Connection?.Database;
 
@@ -120,13 +122,28 @@ namespace DbNetSuiteCore.Utilities
 
         }
 
+        public DbNetDataCore(string connectionString, IWebHostEnvironment env, IConfiguration configuration, DatabaseType databaseType)
+    : this(configuration.GetConnectionString(connectionString), DeriveProvider(databaseType), env)
+        {
+
+        }
+        public DbNetDataCore(DataTable dataTable): this(string.Empty, DataProvider.DataTable, null)
+        {
+            _dataTable = dataTable;
+        }
+
         public DbNetDataCore(string connectionString, IWebHostEnvironment env)
             : this(connectionString, DeriveProvider(connectionString), env)
         {
 
         }
 
-        public DbNetDataCore(string connectionString, DataProvider dataProvider, IWebHostEnvironment env, DatabaseType? database = null)
+        public DbNetDataCore(IWebHostEnvironment env)
+            : this("Data Source=InMemory;Mode=Memory;Cache=Private;", DataProvider.SQLite, env)
+        {
+        }
+
+        public DbNetDataCore(string connectionString, DataProvider dataProvider, IWebHostEnvironment env)
         {
             Env = env;
             Provider = dataProvider;
@@ -160,6 +177,9 @@ namespace DbNetSuiteCore.Utilities
                         customDataProvider = new CustomDataProvider("MySqlConnector", "MySqlConnection");
                         Database = DatabaseType.MySQL;
                         break;
+                    case DataProvider.DataTable:
+                        Database = DatabaseType.SQLite;
+                        break;
                 }
             }
             catch (Exception Ex)
@@ -184,7 +204,14 @@ namespace DbNetSuiteCore.Utilities
 
             if (customDataProvider != null)
             {
-                ProviderAssembly = Assembly.Load(customDataProvider.AssemblyName);
+                try
+                {
+                    ProviderAssembly = Assembly.Load(customDataProvider.AssemblyName);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Unable to load data provider ({customDataProvider.AssemblyName}). Run Install-Package {customDataProvider.PackageName}. {ex.Message}");
+                }
                 Type connectionType = ProviderAssembly.GetType(customDataProvider.ConnectionTypeName, true);
                 Type adapterType = ProviderAssembly.GetType(customDataProvider.AdapterTypeName, true);
 
@@ -205,9 +232,23 @@ namespace DbNetSuiteCore.Utilities
                 }
             }
         }
+     
 
         public void Open()
         {
+            switch (this.Provider)
+            {
+                case DataProvider.DataTable:
+                    if (SqlDataTable == null)
+                    {
+                        SqlDataTable = new SqlDataTable();
+                        SqlDataTable.AddRows(_dataTable).Wait();
+                        Connection = SqlDataTable.Connection;
+                        Command = Connection.CreateCommand();
+                    }
+                    return;
+            }
+
             if (Connection.State != ConnectionState.Open)
             {
                 try
@@ -711,10 +752,13 @@ namespace DbNetSuiteCore.Utilities
 
             Regex re = new Regex(NameDelimiterTemplate.Replace("[", @"\[").Replace("]", @"\]").Replace("{0}", ".*"));
 
-            for (int I = 0; I < nameParts.Length; I++)
-                if (Regex.IsMatch(nameParts[I], @"\W") || IsReservedWord(nameParts[I]) || StartsWithNumeric(nameParts[I]))
-                    if (!re.IsMatch(nameParts[I]))
-                        nameParts[I] = NameDelimiterTemplate.Replace("{0}", nameParts[I].Trim());
+            if (Provider != DataProvider.DataTable)
+            {
+                for (int I = 0; I < nameParts.Length; I++)
+                    if (Regex.IsMatch(nameParts[I], @"\W") || IsReservedWord(nameParts[I]) || StartsWithNumeric(nameParts[I]))
+                        if (!re.IsMatch(nameParts[I]))
+                            nameParts[I] = NameDelimiterTemplate.Replace("{0}", nameParts[I].Trim());
+            }
 
             return string.Join(".", nameParts);
         }
@@ -740,6 +784,9 @@ namespace DbNetSuiteCore.Utilities
 
         private string MapDatabasePath(string connectionString)
         {
+            if (string.IsNullOrEmpty(connectionString) || connectionString.EndsWith(".json"))
+                return connectionString;
+
             if (!connectionString.EndsWith(";"))
                 connectionString += ";";
 
@@ -763,12 +810,46 @@ namespace DbNetSuiteCore.Utilities
             connectionString = Regex.Replace(connectionString, dataSourcePropertyName + "=~", dataSourcePropertyName + "=" + currentPath, RegexOptions.IgnoreCase).Replace("=//", "=/");
             return connectionString;
         }
+
+        private static DataProvider DeriveProvider(DatabaseType databaseType)
+        {
+            switch(databaseType)
+            {
+                case DatabaseType.MySQL:
+                case DatabaseType.MariaDB:
+                    return DataProvider.MySqlConnector;
+                case DatabaseType.PostgreSQL:
+                    return DataProvider.Npgsql;
+                case DatabaseType.SQLite:
+                    return DataProvider.SQLite;
+                default:
+                    return DataProvider.SqlClient;
+            }
+        }
+
+        public static DatabaseType DeriveDatabaseType(string connectionString)
+        {
+            DataProvider dataProvider = DeriveProvider(connectionString);
+
+            switch (dataProvider)
+            {
+                case DataProvider.MySql:
+                     return DatabaseType.MySQL;
+                case DataProvider.Npgsql:
+                    return DatabaseType.PostgreSQL;
+                case DataProvider.SQLite:
+                    return DatabaseType.SQLite;
+                default:
+                    return DatabaseType.MSSqlServer;
+            }
+        }
         private static DataProvider DeriveProvider(string connectionString, DataProvider? dataProvider = null)
         {
             if (dataProvider.HasValue)
             {
                 return dataProvider.Value;
             }
+
             if (!connectionString.EndsWith(";"))
                 connectionString += ";";
 
@@ -1125,9 +1206,12 @@ namespace DbNetSuiteCore.Utilities
         {
             CloseReader();
 
-            if (Connection.State == ConnectionState.Open)
+            if (Connection is IDbConnection)
             {
-                Connection.Close();
+                if (Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
             }
         }
 
@@ -1138,7 +1222,7 @@ namespace DbNetSuiteCore.Utilities
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && this.Provider != DataProvider.DataTable)
             {
                 Close();
             }

@@ -1,24 +1,32 @@
 ﻿using DbNetSuiteCore.Enums;
+using DbNetSuiteCore.Helpers;
 using DbNetSuiteCore.Models;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
+using System.Web;
 
 namespace DbNetSuiteCore.Components
 {
     public class DbNetSuiteCore
     {
         protected readonly string _id;
-        protected readonly string _connection;
+        protected string _connection;
         protected DbNetSuiteCoreSettings _DbNetSuiteCoreSettings;
         protected readonly IConfigurationRoot _configuration;
         protected readonly bool _idSupplied = false;
         internal bool _isChildControl = false;
+        internal DataSourceType _dataSourceType = DataSourceType.TableOrView;
+        internal string Json { get; set; }
+
+        internal List<ColumnProperty> _columnProperties { get; set; } = new List<ColumnProperty>();
 
         protected List<DbNetSuiteCore> _linkedControls { get; set; } = new List<DbNetSuiteCore>();
 
@@ -44,6 +52,13 @@ namespace DbNetSuiteCore.Components
             _connection = connection;
             _configuration = LoadConfiguration();
             DatabaseType = databaseType;
+            EncodingHelper.SuppressEncoding = GetCurrentSettings().SuppressNameEncoding;
+        }
+
+        public DbNetSuiteCore(string id = null)
+        {
+            _id = id ?? $"{ComponentTypeName.ToLower()}{Guid.NewGuid().ToString().Split("-").First()}";
+            _configuration = LoadConfiguration();
         }
         public static HtmlString StyleSheet(string fontSize = null, string fontFamily = null)
         {
@@ -56,13 +71,20 @@ namespace DbNetSuiteCore.Components
             {
                 url.Add($"font-family={fontFamily}");
             }
+            url.Add($"version={ComponentVersion()}");
 
             return new HtmlString($"<link href=\"{string.Join("&", url)}\" type=\"text/css\" rel=\"stylesheet\" />");
         }
 
+        public static string ComponentVersion()
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            return assembly.GetName().Version.ToString();
+        }
+
         public static HtmlString ClientScript()
         {
-            return new HtmlString($"<script src=\"~/resource.dbnetsuite?action=script\"></script>");
+            return new HtmlString($"<script src=\"~/resource.dbnetsuite?action=script&version={ComponentVersion()}\"></script>");
         }
 
         /// <summary>
@@ -125,16 +147,74 @@ namespace DbNetSuiteCore.Components
 
             return _DbNetSuiteCoreSettings;
         }
+        protected string ColumnProperties()
+        {
+            var script = _columnProperties.Select(x => $"setColumnProperty(\"{EncodeColumnName(x.ColumnName)}\",\"{LowerCaseFirstLetter(x.PropertyType.ToString())}\",{PropertyValue(x.PropertyValue, x.PropertyType)});").ToList();
+            return string.Join(Environment.NewLine, script);
+
+            string PropertyValue(object value, Enum propertyType)
+            {
+                if (value is bool)
+                {
+                    return value.ToString()!.ToLower();
+                }
+
+                switch (propertyType)
+                {
+                    case ColumnPropertyType.Lookup:
+                        value = EncodingHelper.Encode(value.ToString());
+                        break;
+                    case ColumnPropertyType.LookupDataTable:
+                        return Newtonsoft.Json.JsonConvert.SerializeObject(value);
+                    case ColumnPropertyType.Annotation:
+                        value = HttpUtility.HtmlEncode(value.ToString());
+                        break;
+                    case ColumnPropertyType.InputValidation:
+                        return Serialize(value);
+                }
+
+                return $"\"{value}\"";
+            }
+        }
+
+        private string EncodeColumnName(string columnName)
+        {
+            return this is DbNetFileCore ? columnName : EncodingHelper.Encode(columnName);
+        }
 
         protected string ValidateProperties()
         {
             string message = string.Empty;
 
-            string connectionString = _configuration.GetConnectionString(_connection);
-
-            if (connectionString == null)
+            if ((this is DbNetFileCore) == false)
             {
-                message = $"Connection string [{_connection}] not found. Please check the connection strings in your appsettings.json file";
+                 switch (_dataSourceType)
+                {
+                    case DataSourceType.TableOrView:
+                    case DataSourceType.StoredProcedure:
+                        string connectionString = _configuration.GetConnectionString(_connection);
+
+                        if (string.IsNullOrEmpty(connectionString))
+                        {
+                            message = $"Connection string [{_connection}] not found. Please check the connection strings in your appsettings.json file";
+                        }
+                        break;
+                    case DataSourceType.List:
+                        if (string.IsNullOrEmpty(Json))
+                        {
+                            message = $"Data source as not been supplied. Use the <b>AddList</b> method to supply your list of objects";
+                        }
+                        break;
+                    case DataSourceType.JSON:
+                        if (string.IsNullOrEmpty(Json))
+                        {
+                            if (string.IsNullOrEmpty(_connection))
+                            {
+                                message = $"Data source as not been supplied. Use the <b>AddJson</b> method to supply your JSON data";
+                            }
+                        }
+                        break;
+                }
             }
 
             if (_isChildControl)
@@ -185,11 +265,12 @@ namespace DbNetSuiteCore.Components
             }
         }
 
-        protected void AddProperty(string property, string name, List<string> properties)
+        protected void AddProperty(string property, string name, List<string> properties, bool quoted = true)
         {
             if (string.IsNullOrEmpty(property) == false)
             {
-                properties.Add($"{LowerCaseFirstLetter(name)} = \"{property}\";");
+                string quote = quoted ? "\"" : string.Empty;
+                properties.Add($"{LowerCaseFirstLetter(name)} = {quote}{property}{quote};");
             };
         }
 
@@ -199,7 +280,7 @@ namespace DbNetSuiteCore.Components
 document.addEventListener('DOMContentLoaded', function() {{init_{_id}()}});
 function init_{_id}()
 {{
-    if (typeof({ComponentTypeName}) == 'undefined') {{alert('DbNetSuite client-side code has not loaded. Add @DbNetSuiteCore.ClientScript() to your razor page. See console for details');console.error(""DbNetSuite stylesheet not found. See https://dbnetsuitecore.z35.web.core.windows.net/index.htm?context=20#DbNetSuiteCoreClientScript"");return;}};";
+    if (typeof({ComponentTypeName}) == 'undefined') {{alert('DbNetSuite client-side code has not loaded. Add @DbNetSuiteCore.ClientScript() to your razor page. See console for details');console.error(""DbNetSuite stylesheet not found. See https://docs.dbnetsuitecore.com/index.htm?context=20#DbNetSuiteCoreClientScript"");return;}};";
         }
 
         protected string LinkedControls()
@@ -227,16 +308,15 @@ function init_{_id}()
                 {
                     script += (linkedControl as DbNetEditCore).LinkedRender();
                 }
+
+                if (linkedControl is DbNetFileCore)
+                {
+                    script += (linkedControl as DbNetFileCore).LinkedRender();
+                }
             }
 
             return script;
         }
-        protected string DatePickerOptions()
-        {
-            DatePickerOptions datePickerOptions = new DatePickerOptions(this.Culture);
-            return Serialize(datePickerOptions);
-        }
-
         internal string Markup()
         {
             string markup = _idSupplied ? string.Empty : $"<section id=\"{_id}\"></section>";
@@ -249,6 +329,11 @@ function init_{_id}()
             if (HasEditDialog(this))
             {
                 markup += EditDialogMarkup((DbNetGridCore)this);
+            }
+
+            if (HasSearchResultsDialog(this))
+            {
+                markup += SearchResultsDialogMarkup((DbNetFileCore)this);
             }
 
             foreach (var linkedControl in _linkedControls)
@@ -271,6 +356,11 @@ function init_{_id}()
         private string EditDialogMarkup(DbNetGridCore dbNetGridCore)
         {
             return $"<div id=\"{dbNetGridCore._editDialogId}\" class=\"edit-dialog\" title=\"Edit\" style=\"display:none\"><section id=\"{dbNetGridCore.EditControl.Id}\"></section></div>"; ;
+        }
+
+        private string SearchResultsDialogMarkup(DbNetFileCore dbNetFileCore)
+        {
+            return $"<div id=\"{dbNetFileCore._searchResultsDialogId}\" class=\"search-results-dialog\" title=\"Search Results\" style=\"display:none\"><section id=\"{dbNetFileCore.SearchResultsControl.Id}\"></section></div>";
         }
 
         private bool IsEditDialog(DbNetSuiteCore control)
@@ -309,6 +399,16 @@ function init_{_id}()
             {
                 DbNetEditCore dbNetEditCore = (DbNetEditCore)control;
                 return dbNetEditCore._browse;
+            }
+            return false;
+        }
+
+        private bool HasSearchResultsDialog(DbNetSuiteCore control)
+        {
+            if (control is DbNetFileCore)
+            {
+                DbNetFileCore dbNetFileCore = (DbNetFileCore)control;
+                return dbNetFileCore._searchResultsDialogId != null;
             }
             return false;
         }

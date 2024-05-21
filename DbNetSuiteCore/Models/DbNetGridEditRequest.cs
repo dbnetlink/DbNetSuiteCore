@@ -1,4 +1,6 @@
 ﻿using DbNetSuiteCore.Enums;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 
 namespace DbNetSuiteCore.Models.DbNetEdit
@@ -18,12 +20,13 @@ namespace DbNetSuiteCore.Models.DbNetEdit
         public bool OptimizeForLargeDataset { get; set; }
         public ParentChildRelationship? ParentChildRelationship { get; set; }
         public string PrimaryKey { get; set; }
-
         public bool QuickSearch { get; set; } = false;
-        public string QuickSearchToken { get; set; }
         public bool Search { get; set; } = true;
         public string SearchFilterJoin { get; set; }
         public List<SearchParameter> SearchParams { get; set; } = new List<SearchParameter>();
         public ToolbarButtonStyle ToolbarButtonStyle { get; set; }
+        public string JsonKey { get; set; } = string.Empty;
+        public JArray Json { get; set; }
+        public Type JsonType { get; set; }
     }
 }

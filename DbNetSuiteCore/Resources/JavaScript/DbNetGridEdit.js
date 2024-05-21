@@ -13,14 +13,13 @@ class DbNetGridEdit extends DbNetSuite {
         this.primaryKey = undefined;
         this.initialOrderBy = "";
         this.optimizeForLargeDataset = false;
-        this.quickSearch = false;
-        this.quickSearchDelay = 1000;
-        this.quickSearchMinChars = 3;
-        this.quickSearchToken = "";
         this.search = true;
         this.searchFilterJoin = "";
         this.searchParams = [];
         this.toolbarButtonStyle = ToolbarButtonStyle.Image;
+        this.jsonKey = "";
+        this.json = null;
+        this.dataSourceType = DataSourceType.TableOrView;
         this.columns = [];
     }
     setColumnExpressions(...columnExpressions) {
@@ -71,25 +70,6 @@ class DbNetGridEdit extends DbNetSuite {
             this.searchDialog = new SearchDialog(`${this.id}_search_dialog`, this);
             this.searchDialog.open();
         });
-    }
-    quickSearchKeyPress(event) {
-        const el = event.target;
-        window.clearTimeout(this.quickSearchTimerId);
-        if (el.value.length >= this.quickSearchMinChars || el.value.length == 0 || event.key == 'Enter')
-            this.quickSearchTimerId = window.setTimeout(() => { this.runQuickSearch(el.value); }, this.quickSearchDelay);
-    }
-    runQuickSearch(token) {
-        this.quickSearchToken = token;
-        if (this instanceof DbNetGrid) {
-            const grid = this;
-            grid.currentPage = 1;
-            grid.getPage();
-        }
-        else if (this instanceof DbNetEdit) {
-            const edit = this;
-            edit.currentRow = 1;
-            edit.getRows();
-        }
     }
     lookup($input, request) {
         var _a;
@@ -175,6 +155,65 @@ class DbNetGridEdit extends DbNetSuite {
         request.initialOrderBy = this.initialOrderBy;
         request.parentChildRelationship = this.parentChildRelationship;
         request.maxImageHeight = this.maxImageHeight;
+        request.jsonKey = this.jsonKey;
+        request.json = this.json;
         return request;
+    }
+    invokeOnJsonUpdated(editMode) {
+        let updateArgs = {};
+        if (this instanceof DbNetEdit) {
+            const editControl = this;
+            updateArgs = {
+                primaryKey: this.primaryKey,
+                editMode: editMode,
+                changes: (editMode == EditMode.Delete) ? undefined : editControl.changes,
+                formData: (editMode == EditMode.Delete) ? undefined : editControl.formData,
+                columns: (editMode == EditMode.Delete) ? undefined : editControl.columns
+            };
+        }
+        else {
+            updateArgs = {
+                primaryKey: this.primaryKey,
+                editMode: editMode
+            };
+        }
+        const eventName = "onJsonUpdated";
+        if (this.eventHandlers[eventName]) {
+            this.fireEvent(eventName, updateArgs);
+        }
+        else {
+            this.error(`The <b>${eventName}</b> event handler has not been implemented.`);
+        }
+    }
+    processJsonUpdateResponse(response) {
+        var _a;
+        if (response.success == false) {
+            this.error((_a = response.message) !== null && _a !== void 0 ? _a : "An error has occurred");
+            return;
+        }
+        if (this instanceof DbNetEdit) {
+            const editControl = this;
+            editControl.message(response.message);
+            if (response.dataSet) {
+                editControl.json = response.dataSet;
+                if (editControl.browseControl) {
+                    editControl.browseControl.json = response.dataSet;
+                }
+                editControl.sleep(1);
+                if (this.isEditDialog) {
+                    const grid = this.parentControl;
+                    grid.json = response.dataSet;
+                    grid.getPage();
+                }
+                else {
+                    editControl.getRows();
+                }
+            }
+        }
+        else if (this instanceof DbNetGrid) {
+            const gridControl = this;
+            gridControl.json = response.dataSet;
+            gridControl.getPage();
+        }
     }
 }

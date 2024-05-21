@@ -1,12 +1,10 @@
-﻿using DbNetSuiteCore.Models.DbNetCombo;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace DbNetSuiteCore.Models.DbNetGrid
 {
     public class DbNetGridResponse : DbNetGridEditResponse
     {
         private List<GridColumn> columns;
-        public string Toolbar { get; set; }
         public object Data { get; set; }
         public int TotalPages { get; set; }
         public long TotalRows { get; set; }

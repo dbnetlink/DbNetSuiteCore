@@ -14,11 +14,6 @@ class DbNetGridEdit extends DbNetSuite {
     primaryKey: string | undefined = undefined;
     initialOrderBy = "";
     optimizeForLargeDataset = false;
-    quickSearch = false;
-    quickSearchDelay = 1000;
-    quickSearchMinChars = 3;
-    quickSearchTimerId: number | undefined;
-    quickSearchToken = "";
     search = true;
     searchDialog: SearchDialog | undefined;
     searchFilterJoin = "";
@@ -26,6 +21,10 @@ class DbNetGridEdit extends DbNetSuite {
     toolbarButtonStyle: ToolbarButtonStyle = ToolbarButtonStyle.Image;
     toolbarPanel: JQuery<HTMLElement> | undefined;
     toolbarPosition: ToolbarPosition;
+    jsonKey = "";
+    json: object | null = null;
+    dataSourceType: DataSourceType = DataSourceType.TableOrView;
+
     constructor(id: string) {
         super(id);
         this.columns = [];
@@ -34,7 +33,7 @@ class DbNetGridEdit extends DbNetSuite {
     setColumnExpressions(...columnExpressions: string[]): void {
         columnExpressions.forEach(columnExpression => {
             this.columns.push(this.newColumn(columnExpression, false))
-         });
+        });
     }
 
     setColumnKeys(...columnKeys: string[]): void {
@@ -74,7 +73,7 @@ class DbNetGridEdit extends DbNetSuite {
         });
     }
 
-    protected openSearchDialog(request:DbNetGridEditRequest) {
+    protected openSearchDialog(request: DbNetGridEditRequest) {
         if (this.searchDialog) {
             this.searchDialog.open();
             return;
@@ -86,28 +85,6 @@ class DbNetGridEdit extends DbNetSuite {
                 this.searchDialog = new SearchDialog(`${this.id}_search_dialog`, this);
                 this.searchDialog.open();
             });
-    }
-
-    protected quickSearchKeyPress(event: JQuery.TriggeredEvent): void {
-        const el = event.target as HTMLInputElement;
-        window.clearTimeout(this.quickSearchTimerId);
-
-        if (el.value.length >= this.quickSearchMinChars || el.value.length == 0 || event.key == 'Enter')
-            this.quickSearchTimerId = window.setTimeout(() => { this.runQuickSearch(el.value) }, this.quickSearchDelay);
-    }
-
-    private runQuickSearch(token: string) {
-        this.quickSearchToken = token;
-        if (this instanceof DbNetGrid) {
-            const grid = this as DbNetGrid;
-            grid.currentPage = 1;
-            grid.getPage();
-        }
-        else if (this instanceof DbNetEdit) {
-            const edit = this as DbNetEdit;
-            edit.currentRow = 1;
-            edit.getRows();
-        }
     }
 
     public lookup($input: JQuery<HTMLInputElement>, request: DbNetGridEditRequest) {
@@ -129,7 +106,7 @@ class DbNetGridEdit extends DbNetSuite {
             })
     }
 
-    private newColumn(columnExpr: string, unmatched:boolean) {
+    private newColumn(columnExpr: string, unmatched: boolean) {
         if (this.constructor.name == "DbNetGrid") {
             return new GridColumn({ columnExpression: columnExpr } as GridColumnResponse, unmatched)
         }
@@ -138,7 +115,7 @@ class DbNetGridEdit extends DbNetSuite {
         }
     }
 
-    private matchingColumn(dbColumn: DbColumn, columnName: string) {
+    protected matchingColumn(dbColumn: DbColumn, columnName: string) {
         let match = false;
         if (dbColumn.columnKey?.includes(".")) {
             match = dbColumn.columnKey?.split('.').pop()?.toLowerCase() == columnName.toLowerCase();
@@ -200,7 +177,68 @@ class DbNetGridEdit extends DbNetSuite {
         request.initialOrderBy = this.initialOrderBy;
         request.parentChildRelationship = this.parentChildRelationship;
         request.maxImageHeight = this.maxImageHeight;
+        request.jsonKey = this.jsonKey;
+        request.json = this.json;
 
         return request;
+    }
+
+    protected invokeOnJsonUpdated(editMode: EditMode) {
+        let updateArgs = {} as JsonUpdateRequest;
+        if (this instanceof DbNetEdit) {
+            const editControl = this as DbNetEdit;
+            updateArgs = {
+                primaryKey: this.primaryKey as string,
+                editMode: editMode,
+                changes: (editMode == EditMode.Delete) ? undefined : editControl.changes,
+                formData: (editMode == EditMode.Delete) ? undefined : editControl.formData,
+                columns: (editMode == EditMode.Delete) ? undefined : editControl.columns
+            };
+        }
+        else {
+            updateArgs = {
+                primaryKey: this.primaryKey as string,
+                editMode: editMode
+            };
+        }
+
+        const eventName = "onJsonUpdated";
+        if (this.eventHandlers[eventName]) {
+            this.fireEvent(eventName, updateArgs);
+        }
+        else {
+            this.error(`The <b>${eventName}</b> event handler has not been implemented.`)
+        }
+    }
+
+    public processJsonUpdateResponse(response: JsonUpdateResponse) {
+        if (response.success == false) {
+            this.error(response.message ?? "An error has occurred");
+            return;
+        }
+        if (this instanceof DbNetEdit) {
+            const editControl = this as DbNetEdit;
+            editControl.message(response.message);
+            if (response.dataSet) {
+                editControl.json = response.dataSet;
+                if (editControl.browseControl) {
+                    editControl.browseControl.json = response.dataSet;
+                }
+                editControl.sleep(1);
+                if (this.isEditDialog) {
+                    const grid = (this.parentControl as DbNetGrid);
+                    grid.json = response.dataSet;
+                    grid.getPage();
+                }
+                else {
+                    editControl.getRows();
+                }
+            }
+        }
+        else if (this instanceof DbNetGrid) {
+            const gridControl = this as DbNetGrid;
+            gridControl.json = response.dataSet;
+            gridControl.getPage();
+        }
     }
 }

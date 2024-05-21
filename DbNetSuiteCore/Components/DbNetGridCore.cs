@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Html;
 using DbNetSuiteCore.Enums.DbNetGrid;
 using System.Linq;
+using System.Data;
+using DbNetSuiteCore.Extensions;
 
 namespace DbNetSuiteCore.Components
 {
@@ -14,6 +16,8 @@ namespace DbNetSuiteCore.Components
         internal bool? IsBrowseDialog { get; set; } = null;
         internal bool _hasEditDialog => this._linkedControls.Where(c => c is DbNetEditCore).Any(c => (c as DbNetEditCore).IsEditDialog ?? false == true);
         internal bool _addEditDialog => Edit && this._linkedControls.Where(c => c is DbNetEditCore).Any() == false;
+        private int? _height = null;
+        private bool? _update = null;
 
         /// <summary>
         /// Automatically selects the first row of the grid (default is true)
@@ -53,6 +57,18 @@ namespace DbNetSuiteCore.Components
         /// </summary>
         public bool? GroupBy { get; set; } = null;
         /// <summary>
+        /// Fixes the height of the grid and makes the headers 'sticky'
+        /// </summary>
+        public int? Height
+        {
+            get => _height;
+            set
+            {
+                _height = value;
+                FrozenHeader = _height.HasValue;
+            }
+        }
+        /// <summary>
         /// Enables selection of multiple rows
         /// </summary>
         public bool? MultiRowSelect { get; set; } = null;
@@ -83,7 +99,11 @@ namespace DbNetSuiteCore.Components
         /// <summary>
         /// Allow update of records
         /// </summary>
-        public bool? Update { get; set; } = null;
+        public bool? Update
+        {
+            get => _update;
+            set => _update = value;
+        }
         /// <summary>
         /// Adds/removes a view dialog option to the toolbar
         /// </summary>
@@ -92,6 +112,7 @@ namespace DbNetSuiteCore.Components
         /// Specifies the number of columns in the View dialog layout 
         /// </summary>
         public int? ViewLayoutColumns { get; set; } = null;
+ 
         /// <summary>
         /// Creates a new instance of the grid control
         /// </summary>
@@ -106,9 +127,19 @@ namespace DbNetSuiteCore.Components
             {
                 ProcedureName = fromPart;
             }
-            
-            EditControl = new DbNetEditCore(connection, fromPart, databaseType);
-            EditControl.IsEditDialog = true;
+
+            _dataSourceType = dataSourceType;
+
+            switch (dataSourceType)
+            {
+                case DataSourceType.JSON:
+                case DataSourceType.List:
+                    EditControl = new DbNetEditCore(connection, fromPart, true, dataSourceType, JsonType);
+                    break;
+                default:
+                    EditControl = new DbNetEditCore(connection, fromPart, true, databaseType);
+                    break;
+            }
 
             this._editDialogId = $"{this.Id}_edit_dialog";
         }
@@ -126,11 +157,32 @@ namespace DbNetSuiteCore.Components
         {
         }
 
+        /// <summary>
+        /// Creates a new instance of the grid control
+        /// </summary>
+        ///         
+        /// <param name="dataSourceType">Should be JSON or List</param>
+        /// <param name="url">the relative URL of the JSON file</param>
+        /// <param name="jsonType">the type of a C# object that relates to the file</param>
+        /// <param name="id">the Id of the HTML element that is the container for the grid</param>
+        public DbNetGridCore(DataSourceType dataSourceType = DataSourceType.JSON, string url = null, Type jsonType = null, string id = null)
+            : this(url ?? string.Empty, url?.Split('/').Last().ToLower().Replace(".json", string.Empty) ?? string.Empty, id, dataSourceType)
+        {
+            JsonType = jsonType;
+        }
+
         internal DbNetGridCore(string connection, string fromPart, bool browseControl, DatabaseType? databaseType = null) : base(connection, fromPart, null, databaseType)
         {
             IsBrowseDialog = browseControl;
         }
-       
+
+        internal DbNetGridCore(string connection, string fromPart, bool browseControl, DataSourceType dataSourceType, Type jsonType) : base(connection, fromPart, null, null)
+        {
+            IsBrowseDialog = browseControl;
+            _dataSourceType = dataSourceType;
+            JsonType = jsonType;
+        }
+
         /// <summary>
         /// Binds an event to a named client-side JavaScript function
         /// </summary>
@@ -145,9 +197,9 @@ namespace DbNetSuiteCore.Components
 
         public DbNetGridCoreColumn Column(string[] columnNames)
         {
-            return new DbNetGridCoreColumn(columnNames, _columnProperties, _fromPart, Columns);
+            return new DbNetGridCoreColumn(columnNames, _columnProperties, _fromPart, Columns, this);
         }
-             
+
         public HtmlString Render()
         {
             string message = ValidateProperties();
@@ -155,6 +207,18 @@ namespace DbNetSuiteCore.Components
             if (string.IsNullOrEmpty(message) == false)
             {
                 return new HtmlString($"<div class=\"dbnetsuite-error\">{message}</div>");
+            }
+
+            if (JsonType != null)
+            {
+                var propertyTypes = JsonType.PropertyTypes();
+                foreach (string name in propertyTypes.Keys)
+                {
+                    if (Column(name).ColumnPropertySet(ColumnPropertyType.DataType) == false)
+                    {
+                        Column(name).DataType(propertyTypes[name]);
+                    }
+                }
             }
 
             AddEditDialogControl();
@@ -272,6 +336,7 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
         private string Properties()
         {
             List<string> properties = new List<string>();
+            AddProperty(Height, nameof(Height), properties);
             AddProperty(FrozenHeader, nameof(FrozenHeader), properties);
             AddProperty(PageSize, nameof(PageSize), properties);
             AddProperty(MultiRowSelect, nameof(MultiRowSelect), properties);
@@ -289,15 +354,12 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             AddProperty(_editDialogId, "EditDialogId", properties);
             AddProperty(ViewLayoutColumns, nameof(ViewLayoutColumns), properties);
             AddProperty(IsBrowseDialog, nameof(IsBrowseDialog), properties);
-
             AddProperties(properties);
 
             if (ProcedureParams?.Count > 0)
             {
                 properties.Add($"procedureParams = {Serialize(ProcedureParams)};");
             }
-
-            properties.Add($"datePickerOptions = {DatePickerOptions()};");
 
             if (GoogleChartOptions != null)
             {

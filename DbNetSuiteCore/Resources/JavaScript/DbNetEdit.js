@@ -1,4 +1,10 @@
 "use strict";
+var EditMode;
+(function (EditMode) {
+    EditMode[EditMode["Insert"] = 0] = "Insert";
+    EditMode[EditMode["Update"] = 1] = "Update";
+    EditMode[EditMode["Delete"] = 2] = "Delete";
+})(EditMode || (EditMode = {}));
 class DbNetEdit extends DbNetGridEdit {
     constructor(id) {
         super(id);
@@ -6,7 +12,7 @@ class DbNetEdit extends DbNetGridEdit {
         this.changes = {};
         this.currentRow = 1;
         this.delete = false;
-        this.editMode = "update";
+        this.editMode = EditMode.Update;
         this.insert = false;
         this.layoutColumns = 1;
         this.search = true;
@@ -114,7 +120,7 @@ class DbNetEdit extends DbNetGridEdit {
         this.updateForm(response);
     }
     configureForm() {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
         const $inputs = (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(`:input[name]`);
         for (let i = 0; i < $inputs.length; i++) {
             const $input = $($inputs[i]);
@@ -127,9 +133,10 @@ class DbNetEdit extends DbNetGridEdit {
         (_f = this.formPanel) === null || _f === void 0 ? void 0 : _f.find("img.dbnetedit").on("load", (event) => this.imageLoaded(event));
         (_g = this.formPanel) === null || _g === void 0 ? void 0 : _g.find("img.dbnetedit").on("click", (event) => this.viewImage(event));
         (_h = this.formPanel) === null || _h === void 0 ? void 0 : _h.find("select[dependentLookup]").on("change", (event) => this.updateOptions(event));
-        (_j = this.formPanel) === null || _j === void 0 ? void 0 : _j.find("input[datatype='DateTime'").get().forEach(e => {
+        (_j = this.formPanel) === null || _j === void 0 ? void 0 : _j.find("input[texttransform]").on("input", (event) => this.textTransform(event));
+        (_k = this.formPanel) === null || _k === void 0 ? void 0 : _k.find("input[datatype='DateTime'").get().forEach(e => {
             const $input = $(e);
-            this.addDatePicker($input, this.datePickerOptions);
+            this.addDatePicker($input, DbNetSuite.datePickerOptions);
         });
     }
     imageLoaded(event) {
@@ -185,7 +192,7 @@ class DbNetEdit extends DbNetGridEdit {
         }
         const $firstElement = this.formElements().filter(':not(:disabled):first');
         $firstElement.trigger("focus");
-        this.editMode = "update";
+        this.editMode = EditMode.Update;
         this.primaryKey = response.primaryKey;
         this.formData = new FormData();
         // eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -212,6 +219,25 @@ class DbNetEdit extends DbNetGridEdit {
         const $dependentLookup = (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find(`:input[name='${columnName.toLowerCase()}']`);
         $dependentLookup.data("value", "");
         this.refreshOptions(columnName, $select.val());
+    }
+    textTransform(event) {
+        const input = event.target;
+        const p = input.selectionStart;
+        switch ($(input).attr("texttransform")) {
+            case "Uppercase":
+                input.value = input.value.toUpperCase();
+                break;
+            case "Lowercase":
+                input.value = input.value.toLowerCase();
+                break;
+            case "Capitalize":
+                input.value = this.toTitleCase(input.value);
+                break;
+        }
+        input.setSelectionRange(p, p);
+    }
+    toTitleCase(phrase) {
+        return phrase.toLowerCase().split(' ').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     }
     refreshOptions(columnName, parameterValue) {
         var _a;
@@ -311,6 +337,7 @@ class DbNetEdit extends DbNetGridEdit {
                 foreignKey: col.foreignKey,
                 foreignKeyValue: col.foreignKeyValue,
                 lookup: col.lookup,
+                lookupDataTable: col.lookupDataTable,
                 style: col.style,
                 display: col.display,
                 dataType: col.dataType,
@@ -323,7 +350,8 @@ class DbNetEdit extends DbNetGridEdit {
                 autoIncrement: col.autoIncrement,
                 annotation: col.annotation,
                 placeholder: col.placeholder,
-                inputValidation: col.inputValidation
+                inputValidation: col.inputValidation,
+                textTransform: col.textTransform
             };
             this.columns.push(new EditColumn(properties));
         });
@@ -427,7 +455,7 @@ class DbNetEdit extends DbNetGridEdit {
         (_a = this.formPanel) === null || _a === void 0 ? void 0 : _a.find("button").prop("disabled", false);
         const $firstElement = this.formElements().filter(':not(:disabled):first');
         $firstElement.trigger("focus");
-        this.editMode = "insert";
+        this.editMode = EditMode.Insert;
         this.configureToolbarButtons(true);
         this.configureLinkedControls(null, DbNetSuite.DBNull);
         this.fireEvent("onInsertInitalize", { formElements: this.formElements() });
@@ -474,15 +502,20 @@ class DbNetEdit extends DbNetGridEdit {
         if (buttonPressed != MessageBoxButtonType.Confirm) {
             return;
         }
-        this.post("delete-record", this.getRequest())
-            .then((response) => {
-            if (response.error == false) {
-                this.recordDeleted();
-            }
-            else {
-                this.error(response.message);
-            }
-        });
+        if (this.dataSourceType.toString() == DataSourceType[DataSourceType.TableOrView]) {
+            this.post("delete-record", this.getRequest())
+                .then((response) => {
+                if (response.error == false) {
+                    this.recordDeleted();
+                }
+                else {
+                    this.error(response.message);
+                }
+            });
+        }
+        else {
+            this.invokeOnJsonUpdated(EditMode.Delete);
+        }
     }
     recordDeleted() {
         this.message("Record deleted");
@@ -490,7 +523,7 @@ class DbNetEdit extends DbNetGridEdit {
         this.fireEvent("onRecordDeleted");
     }
     applyChanges() {
-        if (this.editMode == "update" && !this.primaryKeyCheck()) {
+        if (this.editMode == EditMode.Update && !this.primaryKeyCheck()) {
             return;
         }
         const changes = {};
@@ -533,6 +566,9 @@ class DbNetEdit extends DbNetGridEdit {
         $formElements.each(function () {
             const $input = $(this);
             const name = $input.attr("name");
+            if ($input.attr("autoincrement") == "true") {
+                return;
+            }
             if ($input.attr("type") == "checkbox") {
                 if ($input.prop("checked") != $input.data("value")) {
                     changes[name] = $input.prop("checked");
@@ -548,14 +584,22 @@ class DbNetEdit extends DbNetGridEdit {
             return;
         }
         this.changes = changes;
-        if (this.hasFormData()) {
-            this.post('save-files', this.formData)
-                .then((response) => {
-                this.submitChanges(response);
-            });
+        if (this.dataSourceType.toString() == DataSourceType[DataSourceType.TableOrView]) {
+            if (this.hasFormData()) {
+                this.post('save-files', this.formData)
+                    .then((response) => {
+                    this.submitChanges(response);
+                });
+            }
+            else {
+                this.submitChanges(null);
+            }
         }
         else {
-            this.submitChanges(null);
+            this.post('validate-record', this.getRequest())
+                .then((response) => {
+                this.validateChangesCallback(response);
+            });
         }
     }
     submitChanges(response) {
@@ -563,18 +607,26 @@ class DbNetEdit extends DbNetGridEdit {
         if (response) {
             request.formCacheKey = response.formCacheKey;
         }
-        this.post(`${this.editMode}-record`, request)
+        this.post(`${EditMode[this.editMode].toLowerCase()}-record`, request)
             .then((response) => {
             this.applyChangesCallback(response);
         });
     }
     cancelChanges() {
-        if (this.editMode == "insert") {
+        if (this.editMode == EditMode.Insert) {
             this.getRows();
         }
         else {
             this.getRecord();
         }
+    }
+    validateChangesCallback(response) {
+        if (response.validationMessage) {
+            this.message(response.validationMessage.value);
+            this.highlightField(response.validationMessage.key.toLowerCase());
+            return;
+        }
+        this.invokeOnJsonUpdated(this.editMode);
     }
     applyChangesCallback(response) {
         if (response.validationMessage) {
@@ -587,7 +639,7 @@ class DbNetEdit extends DbNetGridEdit {
             return;
         }
         this.message(response.message);
-        if (this.editMode == "update") {
+        if (this.editMode == EditMode.Update) {
             this.updateForm(response);
             this.fireEvent("onRecordUpdated");
         }

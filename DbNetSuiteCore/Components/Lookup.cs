@@ -31,7 +31,7 @@ namespace DbNetSuiteCore.Components
         {
             if (string.IsNullOrEmpty(_sql))
             {
-                return $"select {(_distinct ? "distinct " : string.Empty)}{_foreignKeyColumn} {(string.IsNullOrEmpty(_descriptiveColumn) ? null : $",{_descriptiveColumn}")} from {_fromPart}";
+                return $"select {(_distinct ? "distinct " : string.Empty)}{_foreignKeyColumn} {(string.IsNullOrEmpty(_descriptiveColumn) ? null : $",{_descriptiveColumn}")} from {_fromPart} where {_foreignKeyColumn} is not null";
             }
             else
             {

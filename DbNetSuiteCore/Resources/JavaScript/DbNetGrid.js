@@ -4,6 +4,7 @@ var ToolbarButtonStyle;
     ToolbarButtonStyle[ToolbarButtonStyle["Image"] = 0] = "Image";
     ToolbarButtonStyle[ToolbarButtonStyle["Text"] = 1] = "Text";
     ToolbarButtonStyle[ToolbarButtonStyle["ImageAndText"] = 2] = "ImageAndText";
+    ToolbarButtonStyle[ToolbarButtonStyle["TextAndImage"] = 3] = "TextAndImage";
 })(ToolbarButtonStyle || (ToolbarButtonStyle = {}));
 var BooleanDisplayMode;
 (function (BooleanDisplayMode) {
@@ -21,6 +22,13 @@ var GridGenerationMode;
     GridGenerationMode[GridGenerationMode["Display"] = 0] = "Display";
     GridGenerationMode[GridGenerationMode["DataTable"] = 1] = "DataTable";
 })(GridGenerationMode || (GridGenerationMode = {}));
+var DataSourceType;
+(function (DataSourceType) {
+    DataSourceType[DataSourceType["TableOrView"] = 0] = "TableOrView";
+    DataSourceType[DataSourceType["StoredProcedure"] = 1] = "StoredProcedure";
+    DataSourceType[DataSourceType["JSON"] = 2] = "JSON";
+    DataSourceType[DataSourceType["List"] = 3] = "List";
+})(DataSourceType || (DataSourceType = {}));
 class DbNetGrid extends DbNetGridEdit {
     constructor(id) {
         super(id);
@@ -39,6 +47,7 @@ class DbNetGrid extends DbNetGridEdit {
         this.googleChartOptions = undefined;
         this.gridGenerationMode = GridGenerationMode.Display;
         this.groupBy = false;
+        this.height = 0;
         this.isBrowseDialog = false;
         this.multiRowSelect = false;
         this.multiRowSelectLocation = MultiRowSelectLocation.Left;
@@ -67,6 +76,9 @@ class DbNetGrid extends DbNetGridEdit {
             this.toolbarPanel = this.addPanel("toolbar");
         }
         this.gridPanel = this.addPanel("grid");
+        if (this.height) {
+            this.gridPanel.css("max-height", this.height).css("overflow", "auto");
+        }
         if (this.toolbarPosition == "Bottom") {
             this.toolbarPanel = this.addPanel("toolbar");
         }
@@ -295,6 +307,7 @@ class DbNetGrid extends DbNetGridEdit {
     }
     updateColumns(response) {
         var _a;
+        const columns = JSON.parse(JSON.stringify(this.columns));
         this.columns = new Array();
         (_a = response.columns) === null || _a === void 0 ? void 0 : _a.forEach((col) => {
             const properties = {
@@ -324,7 +337,12 @@ class DbNetGrid extends DbNetGridEdit {
                 uploadMetaData: col.uploadMetaData,
                 uploadMetaDataColumn: col.uploadMetaDataColumn
             };
-            this.columns.push(new GridColumn(properties));
+            const gridColumn = new GridColumn(properties);
+            const existingColumn = columns.find((col) => { return this.matchingColumn(col, gridColumn.columnExpression); });
+            if (existingColumn) {
+                gridColumn.lookupDataTable = existingColumn.lookupDataTable;
+            }
+            this.columns.push(gridColumn);
         });
     }
     columnDragStarted(event, ui) {
@@ -488,7 +506,7 @@ class DbNetGrid extends DbNetGridEdit {
         event.preventDefault();
         switch (id) {
             case this.controlElementId("ExportBtn"):
-                this.download();
+                this.exportData();
                 break;
             case this.controlElementId("CopyBtn"):
                 this.copyGrid();
@@ -580,32 +598,32 @@ class DbNetGrid extends DbNetGridEdit {
             $input[0].setSelectionRange(txt.length, txt.length);
         }
     }
-    download() {
-        switch (this.controlElement("ExportSelect").val()) {
-            case "html":
-                this.htmlExport();
-                break;
-            case "excel":
-                this.downloadSpreadsheet();
-                break;
-        }
-    }
-    htmlExport() {
-        this.post("html-export", this.getRequest(), true)
+    exportData() {
+        const request = this.getRequest();
+        const extension = this.controlElement("ExportSelect").val();
+        request.exportExtension = extension;
+        this.post("export", request, true)
             .then((response) => {
-            const url = window.URL.createObjectURL(response);
-            const tab = window.open();
-            tab.location.href = url;
+            switch (extension) {
+                case "html":
+                    this.openWindow(response);
+                    break;
+                default:
+                    this.downloadFile(response, extension);
+                    break;
+            }
         });
     }
-    downloadSpreadsheet() {
-        this.post("generate-spreadsheet", this.getRequest(), true)
-            .then((response) => {
-            const link = document.createElement("a");
-            link.href = window.URL.createObjectURL(response);
-            link.download = `report_${new Date().getTime()}.xlsx`;
-            link.click();
-        });
+    openWindow(response) {
+        const url = window.URL.createObjectURL(response);
+        const tab = window.open();
+        tab.location.href = url;
+    }
+    downloadFile(response, extension) {
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(response);
+        link.download = `report_${new Date().getTime()}.${extension}`;
+        link.click();
     }
     getViewContent() {
         const $row = this.assignPrimaryKey();
@@ -690,15 +708,20 @@ class DbNetGrid extends DbNetGridEdit {
             return;
         }
         this.assignPrimaryKey();
-        this.post("delete-record", this.getRequest())
-            .then((response) => {
-            if (response.error == false) {
-                this.recordDeleted();
-            }
-            else {
-                this.error(response.message);
-            }
-        });
+        if (this.dataSourceType.toString() == DataSourceType[DataSourceType.TableOrView]) {
+            this.post("delete-record", this.getRequest())
+                .then((response) => {
+                if (response.error == false) {
+                    this.recordDeleted();
+                }
+                else {
+                    this.error(response.message);
+                }
+            });
+        }
+        else {
+            this.invokeOnJsonUpdated(EditMode.Delete);
+        }
     }
     recordDeleted() {
         this.reload();
@@ -709,29 +732,11 @@ class DbNetGrid extends DbNetGridEdit {
         return (_a = this.gridPanel) === null || _a === void 0 ? void 0 : _a[0].querySelector('table.dbnetgrid-table');
     }
     copyGrid() {
-        var _a, _b, _c, _d;
+        var _a, _b;
         const table = this.table();
         (_a = this.gridPanel) === null || _a === void 0 ? void 0 : _a.find("tr.data-row.selected").addClass("unselected").removeClass("selected");
-        try {
-            const range = document.createRange();
-            range.selectNode(table);
-            (_b = window.getSelection()) === null || _b === void 0 ? void 0 : _b.addRange(range);
-            document.execCommand('copy');
-            (_c = window.getSelection()) === null || _c === void 0 ? void 0 : _c.removeRange(range);
-        }
-        catch (e) {
-            try {
-                const content = table.innerHTML;
-                const blobInput = new Blob([content], { type: 'text/html' });
-                const clipboardItemInput = new ClipboardItem({ 'text/html': blobInput });
-                navigator.clipboard.write([clipboardItemInput]);
-            }
-            catch (e) {
-                this.error("Copy failed");
-                return;
-            }
-        }
-        (_d = this.gridPanel) === null || _d === void 0 ? void 0 : _d.find("tr.data-row.unselected").addClass("selected").removeClass("unselected");
+        this.copyTableToClipboard(table);
+        (_b = this.gridPanel) === null || _b === void 0 ? void 0 : _b.find("tr.data-row.unselected").addClass("selected").removeClass("unselected");
         this.info("Grid copied to clipboard", this.gridPanel);
     }
     getRequest() {
@@ -779,15 +784,15 @@ class DbNetGrid extends DbNetGridEdit {
         }
         const table = $button.closest("table");
         $button.addClass("open");
-        if (row.next().hasClass("nested-grid-row")) {
+        if (row.next().hasClass("nested-component-row")) {
             row.next().show();
             return;
         }
         const newRow = table[0].insertRow(row[0].rowIndex + 1);
-        newRow.className = "nested-grid-row";
+        newRow.className = "nested-component-row";
         newRow.insertCell(-1);
         const gridCell = newRow.insertCell(-1);
-        gridCell.className = "nested-grid-cell";
+        gridCell.className = "nested-component-cell";
         gridCell.colSpan = row[0].cells.length - 1;
         const handlers = this.eventHandlers["onNestedClick"];
         for (let i = 0; i < handlers.length; i++) {

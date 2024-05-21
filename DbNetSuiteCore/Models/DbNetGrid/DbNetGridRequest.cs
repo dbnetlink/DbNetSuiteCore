@@ -28,5 +28,7 @@ namespace DbNetSuiteCore.Models.DbNetGrid
         public bool Update { get; set; } = false;
         public bool View { get; set; } = false;
         public int ViewLayoutColumns { get; set; }
+        public string ExportExtension { get; set; } = string.Empty;
+
     }
 }

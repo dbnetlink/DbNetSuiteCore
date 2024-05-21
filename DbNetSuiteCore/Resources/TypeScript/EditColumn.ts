@@ -1,4 +1,5 @@
-﻿class EditColumn extends DbColumn{
+﻿type TextTransform = "uppercase" | "lowercase" | "capitalize"
+class EditColumn extends DbColumn{
     annotation?: string;
     autoIncrement?: boolean;
     editControlType?: string;
@@ -7,6 +8,8 @@
     required?: boolean;
     readOnly?: boolean;
     inputValidation?: object;
+    textTransform?: TextTransform;
+    defaultValue?: string;
 
     constructor(properties: EditColumnResponse, unmatched = false) {
         super();

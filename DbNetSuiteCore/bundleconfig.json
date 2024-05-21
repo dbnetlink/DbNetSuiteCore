@@ -1,5 +1,11 @@
 [
   {
+    "outputFileName": "Resources/JavaScript/DbNetFile.min.js",
+    "inputFiles": [
+      "Resources/JavaScript/DbNetFile.js"
+    ]
+  },
+  {
     "outputFileName": "Resources/JavaScript/DbNetCombo.min.js",
     "inputFiles": [
       "Resources/JavaScript/DbNetCombo.js"
@@ -99,6 +105,18 @@
     "outputFileName": "Resources/JavaScript/ImageViewer.min.js",
     "inputFiles": [
       "Resources/JavaScript/ImageViewer.js"
+    ]
+  },
+  {
+    "outputFileName": "Resources/JavaScript/FileSearchDialog.min.js",
+    "inputFiles": [
+      "Resources/JavaScript/FileSearchDialog.js"
+    ]
+  },
+  {
+    "outputFileName": "Resources/JavaScript/SearchResultsDialog.min.js",
+    "inputFiles": [
+      "Resources/JavaScript/SearchResultsDialog.js"
     ]
   }
 ]

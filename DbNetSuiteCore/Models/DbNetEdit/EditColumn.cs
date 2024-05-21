@@ -1,10 +1,7 @@
 ﻿using DbNetSuiteCore.Components;
 using DbNetSuiteCore.Enums.DbNetEdit;
 using DbNetSuiteCore.Helpers;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Text.Json;
 
 namespace DbNetSuiteCore.Models.DbNetEdit
 {
@@ -30,6 +27,9 @@ namespace DbNetSuiteCore.Models.DbNetEdit
         public bool ReadOnly { get; set; } = false;
 
         public string Annotation { get; set; }
+        public TextTransform? TextTransform { get; set; }
+        public string DefaultValue { get; set; }
+
 
         public EditColumn()
         {

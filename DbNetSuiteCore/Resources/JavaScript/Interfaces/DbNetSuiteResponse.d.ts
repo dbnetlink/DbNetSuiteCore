@@ -3,4 +3,5 @@ interface DbNetSuiteResponse {
     error: boolean;
     html: string;
     dialog: string;
+    toolbar: string;
 }

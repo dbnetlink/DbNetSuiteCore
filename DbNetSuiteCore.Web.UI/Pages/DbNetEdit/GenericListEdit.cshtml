@@ -1,0 +1,38 @@
+﻿@page
+@model GenericListEditModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@using DbNetSuiteCore.Components;
+@using DbNetSuiteCore.Enums;
+@using DbNetSuiteCore.Enums.DbNetEdit;
+@using DbNetSuiteCore.Web.UI.Models;
+@using DbNetSuiteCore.Web.UI.Pages.Samples.DbNetEdit;
+@{
+    @Model.ProductsEdit?.Render()
+}
+
+<script>
+    function applyJsonChanges(control, args) {
+        fetch('/dbnetedit/genericlistedit',
+            {
+                method: "POST",
+                body: JSON.stringify(args),
+
+                headers: {
+                    RequestVerificationToken: '@GetAntiXsrfRequestToken()',
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                }
+            })
+            .then(r => r.json())
+            .then(r => {
+                control.processJsonUpdateResponse(r);
+            }).catch(error => console.error('Error', error))
+    }
+</script>
+
+@functions {
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Model.HttpContext).RequestToken ?? string.Empty;
+    }
+}

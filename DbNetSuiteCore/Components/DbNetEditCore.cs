@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using DbNetSuiteCore.Enums;
 using DbNetSuiteCore.Models;
+using DbNetSuiteCore.Extensions;
 
 namespace DbNetSuiteCore.Components
 {
@@ -24,27 +25,67 @@ namespace DbNetSuiteCore.Components
         /// Creates a new instance of the form control
         /// </summary>
         /// <param name="connection">the name of the connection alias defined in appsettings.json</param>
-        /// <param name="fromPart">the table to be updated</param>
+        /// <param name="tableName">the table to be updated</param>
         /// <param name="id">the Id of the HTML element that is the container for the grid (optional)</param>
         /// <param name="databaseType">the type database to be connected to (optional)</param>
-        public DbNetEditCore(string connection, string fromPart, string id = null, DatabaseType? databaseType = null) : base(connection, fromPart, id, databaseType)
+        public DbNetEditCore(string connection, string tableName, string id = null, DatabaseType? databaseType = null) : this(connection, tableName, id, databaseType, DataSourceType.TableOrView)
         {
-            BrowseControl = new DbNetGridCore(connection, fromPart, true, databaseType);
-            this._browseDialogId = $"{this.Id}_browse_dialog";
         }
         /// <summary>
         /// Creates a new instance of the form control
         /// </summary>
         /// <param name="connection">the name of the connection alias defined in appsettings.json</param>
         /// <param name="databaseType">the type database to be connected to</param>
-        /// <param name="fromPart">the table to be updated</param>
+        /// <param name="tableName">the table to be updated</param>
         /// <param name="id">the Id of the HTML element that is the container for the grid (optional)</param>
-        public DbNetEditCore(string connection, DatabaseType databaseType, string fromPart, string id = null) : this(connection, fromPart, id, databaseType)
+        public DbNetEditCore(string connection, DatabaseType databaseType, string tableName, string id = null) : this(connection, tableName, id, databaseType)
         {
         }
 
-        internal DbNetEditCore(string connection, string fromPart, DatabaseType? databaseType) : base(connection, fromPart, null, databaseType)
+        /// <summary>
+        /// Creates a new instance of the grid control
+        /// </summary>
+        ///         
+        /// <param name="dataSourceType">Should be JSON or List</param>
+        /// <param name="url">the relative URL of the JSON file</param>
+        /// <param name="jsonType">the type of a C# object that relates to the file</param>
+        /// <param name="id">the Id of the HTML element that is the container for the grid</param>
+        public DbNetEditCore(DataSourceType dataSourceType = DataSourceType.JSON, string url = null, Type jsonType = null, string id = null)
+            : this(url ?? string.Empty, url?.Split('/').Last().ToLower().Replace(".json", string.Empty) ?? string.Empty, id, null, dataSourceType)
         {
+            JsonType = jsonType;
+        }
+
+        internal DbNetEditCore(string connection, string tableName, string id = null, DatabaseType? databaseType = null, DataSourceType dataSourceType = DataSourceType.TableOrView) : base(connection, tableName, id, databaseType)
+        {
+            _dataSourceType = dataSourceType;
+
+            switch (dataSourceType)
+            {
+                case DataSourceType.JSON:
+                case DataSourceType.List:
+                    BrowseControl = new DbNetGridCore(connection, tableName, true, dataSourceType, JsonType);
+                    break;
+                default:
+                    BrowseControl = new DbNetGridCore(connection, tableName, true, databaseType);
+                    break;
+            }
+            BrowseControl.Height = 600;
+            this._browseDialogId = $"{this.Id}_browse_dialog";
+        }
+
+
+        internal DbNetEditCore(string connection, string tableName, bool editDialog, DatabaseType? databaseType = null, DataSourceType dataSourceType = DataSourceType.TableOrView) : base(connection, tableName, null, databaseType)
+        {
+            _dataSourceType = dataSourceType;
+            IsEditDialog = editDialog;
+        }
+
+        internal DbNetEditCore(string connection, string tableName, bool editDialog, DataSourceType dataSourceType, Type jsonType) : base(connection, tableName, null, null)
+        {
+            _dataSourceType = dataSourceType;
+            JsonType = jsonType;
+            IsEditDialog = editDialog;
         }
         /// <summary>
         /// Binds an event to a named client-side JavaScript function
@@ -57,17 +98,21 @@ namespace DbNetSuiteCore.Components
         /// Browse control
         /// </summary>
         public DbNetGridCore BrowseControl { get; set; }
-  
+        /// <summary>
+        /// Returns a reference to an instance of a named column for assigment of properties
+        /// </summary>
         public DbNetEditCoreColumn Column(string columnName)
         {
             return Column(new string[] { columnName });
         }
-
+        /// <summary>
+        /// Returns a reference to an array of named columns for assigment of properties
+        /// </summary>
         public DbNetEditCoreColumn Column(string[] columnNames)
         {
             return new DbNetEditCoreColumn(columnNames, _columnProperties, _fromPart, Columns);
         }
-     
+
         public HtmlString Render()
         {
             string message = ValidateProperties();
@@ -75,6 +120,15 @@ namespace DbNetSuiteCore.Components
             if (string.IsNullOrEmpty(message) == false)
             {
                 return new HtmlString($"<div class=\"dbnetsuite-error\">{message}</div>");
+            }
+
+            if (JsonType != null)
+            {
+                var propertyTypes = JsonType.PropertyTypes();
+                foreach (string name in propertyTypes.Keys)
+                {
+                    Column(name).DataType(propertyTypes[name]);
+                }
             }
 
             AddBrowseControl();
@@ -146,8 +200,6 @@ fromPart = '{EncodingHelper.Encode(_fromPart)}';
             AddProperty(ValidationMessageType, nameof(ValidationMessageType), properties);
 
             AddProperties(properties);
-
-            properties.Add($"datePickerOptions = {DatePickerOptions()};");
 
             return string.Join(Environment.NewLine, properties);
         }

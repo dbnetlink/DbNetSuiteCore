@@ -14,16 +14,16 @@
 
         this.$dialog?.find("input").get().forEach(e => {
             const $input = $(e as HTMLInputElement);
-            $input.width(240);
+            $input.width(300);
             $input.on("keyup", (event) => this.criteriaEntered(event.target))
 
             if ($input.attr("numeric")) {
                 $input.on("keypress", (event) => this.filterNumericKeyPress(event))
             }
         });
-        this.$dialog?.find("input[datatype='DateTime'").get().forEach(e => {
+        this.$dialog?.find("input[datatype='DateTime']").get().forEach(e => {
             const $input = $(e as HTMLInputElement);
-            this.addDatePicker($input, this.parent.datePickerOptions);
+            this.addDatePicker($input, DbNetSuite.datePickerOptions);
         });
 
         this.$dialog?.find("[button-type='clear']").on("click", () => this.clear());
@@ -56,7 +56,7 @@
                 break;
             default:
                 $row.find(".between").hide();
-                $row.find("input").show().width(240);
+                $row.find("input").show().width(300);
                 break;
         }
     }

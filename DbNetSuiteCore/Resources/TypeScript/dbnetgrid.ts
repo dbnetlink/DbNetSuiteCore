@@ -5,7 +5,8 @@ type ToolbarPosition = "Top" | "Bottom" | "Hidden" | undefined
 enum ToolbarButtonStyle {
     Image,
     Text,
-    ImageAndText
+    ImageAndText,
+    TextAndImage
 }
 
 enum BooleanDisplayMode {
@@ -25,6 +26,13 @@ enum GridGenerationMode {
 
 interface Dictionary<T> {
     [Key: string]: T;
+}
+
+enum DataSourceType {
+    TableOrView,
+    StoredProcedure,
+    JSON,
+    List
 }
 
 type DbNetGridResponseCallback = (response: DbNetGridResponse) => void;
@@ -49,6 +57,7 @@ class DbNetGrid extends DbNetGridEdit {
     gridGenerationMode: GridGenerationMode = GridGenerationMode.Display;
     gridPanel: JQuery<HTMLElement> | undefined;
     groupBy = false;
+    height = 0;
     isBrowseDialog = false;
     multiRowSelect = false;
     multiRowSelectLocation: MultiRowSelectLocation = MultiRowSelectLocation.Left;
@@ -65,6 +74,7 @@ class DbNetGrid extends DbNetGridEdit {
     view = false;
     viewDialog: ViewDialog | undefined;
     viewLayoutColumns = 1;
+
     constructor(id: string) {
         super(id);
         if (this.toolbarPosition === undefined) {
@@ -83,6 +93,10 @@ class DbNetGrid extends DbNetGridEdit {
             this.toolbarPanel = this.addPanel("toolbar");
         }
         this.gridPanel = this.addPanel("grid");
+
+        if (this.height) {
+            this.gridPanel.css("max-height", this.height).css("overflow", "auto");
+        }
         if (this.toolbarPosition == "Bottom") {
             this.toolbarPanel = this.addPanel("toolbar");
         }
@@ -255,8 +269,7 @@ class DbNetGrid extends DbNetGridEdit {
         this.gridPanel?.find("tr.data-row").get().forEach((tr) => {
             this.addRowEventHandlers($(tr));
             this.fireEvent("onRowTransform", { row: tr });
-        }
-        );
+        });
 
         if (this.dragAndDrop && this.procedureName == "" && this.isBrowseDialog == false) {
             this.gridPanel?.find("tr.header-row th")
@@ -363,6 +376,7 @@ class DbNetGrid extends DbNetGridEdit {
         chart.draw(dt, options);
     }
     private updateColumns(response: DbNetGridResponse) {
+        const columns = JSON.parse(JSON.stringify(this.columns)) as Array<GridColumn>;
         this.columns = new Array<GridColumn>();
         response.columns?.forEach((col) => {
             const properties = {
@@ -392,7 +406,14 @@ class DbNetGrid extends DbNetGridEdit {
                 uploadMetaData: col.uploadMetaData,
                 uploadMetaDataColumn: col.uploadMetaDataColumn
             } as GridColumnResponse;
-            this.columns.push(new GridColumn(properties));
+            const gridColumn = new GridColumn(properties);
+
+            const existingColumn = columns.find((col) => { return this.matchingColumn(col, gridColumn.columnExpression as string) });
+
+            if (existingColumn) {
+                gridColumn.lookupDataTable = existingColumn.lookupDataTable;
+            }
+            this.columns.push(gridColumn);
         });
     }
 
@@ -457,14 +478,14 @@ class DbNetGrid extends DbNetGridEdit {
         const cols: GridColumn[] = [];
         const sourceIdx = parseInt(ui.draggable.data("columnordinal")) - 1;
         const targetIdx = parseInt($(event.currentTarget).data("columnordinal")) - 1;
-        const column: GridColumn = this.columns[sourceIdx];
+        const column: GridColumn = this.columns[sourceIdx] as GridColumn;
         const dropSide = ui.helper.attr("dropside");
         for (let i = 0; i < this.columns.length; i++) {
             if (i == targetIdx && dropSide == "left") {
                 cols.push(column);
             }
             if (i != sourceIdx) {
-                cols.push(this.columns[i]);
+                cols.push(this.columns[i] as GridColumn);
             }
             if (i == targetIdx && dropSide == "right") {
                 cols.push(column);
@@ -586,7 +607,7 @@ class DbNetGrid extends DbNetGridEdit {
 
         switch (id) {
             case this.controlElementId("ExportBtn"):
-                this.download();
+                this.exportData();
                 break;
             case this.controlElementId("CopyBtn"):
                 this.copyGrid();
@@ -690,34 +711,34 @@ class DbNetGrid extends DbNetGridEdit {
         }
     }
 
-    private download() {
-        switch (this.controlElement("ExportSelect").val()) {
-            case "html":
-                this.htmlExport();
-                break;
-            case "excel":
-                this.downloadSpreadsheet();
-                break;
-        }
-    }
-
-    private htmlExport() {
-        this.post<Blob>("html-export", this.getRequest(), true)
+    private exportData() {
+        const request = this.getRequest();
+        const extension = this.controlElement("ExportSelect").val() as string;
+        request.exportExtension = extension;
+        this.post<Blob>("export", request, true)
             .then((response) => {
-                const url = window.URL.createObjectURL(response);
-                const tab = window.open() as Window;
-                tab.location.href = url;
+                switch (extension) {
+                    case "html":
+                        this.openWindow(response)
+                        break;
+                    default:
+                        this.downloadFile(response, extension)
+                        break;
+                }
             });
     }
 
-    private downloadSpreadsheet() {
-        this.post<Blob>("generate-spreadsheet", this.getRequest(), true)
-            .then((response) => {
-                const link = document.createElement("a");
-                link.href = window.URL.createObjectURL(response);
-                link.download = `report_${new Date().getTime()}.xlsx`;
-                link.click();
-            });
+    private openWindow(response: Blob) {
+        const url = window.URL.createObjectURL(response);
+        const tab = window.open() as Window;
+        tab.location.href = url;
+    }
+
+    private downloadFile(response: Blob, extension: string) {
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(response);
+        link.download = `report_${new Date().getTime()}.${extension}`;
+        link.click();
     }
 
     private getViewContent() {
@@ -813,15 +834,20 @@ class DbNetGrid extends DbNetGridEdit {
 
         this.assignPrimaryKey();
 
-        this.post<DbNetSuiteResponse>("delete-record", this.getRequest())
-            .then((response) => {
-                if (response.error == false) {
-                    this.recordDeleted();
-                }
-                else {
-                    this.error(response.message);
-                }
-            })
+        if (this.dataSourceType.toString() == DataSourceType[DataSourceType.TableOrView]) {
+            this.post<DbNetSuiteResponse>("delete-record", this.getRequest())
+                .then((response) => {
+                    if (response.error == false) {
+                        this.recordDeleted();
+                    }
+                    else {
+                        this.error(response.message);
+                    }
+                })
+        }
+        else {
+            this.invokeOnJsonUpdated(EditMode.Delete);
+        }
     }
 
     private recordDeleted(): void {
@@ -835,27 +861,8 @@ class DbNetGrid extends DbNetGridEdit {
 
     private copyGrid() {
         const table = this.table();
-
         this.gridPanel?.find("tr.data-row.selected").addClass("unselected").removeClass("selected")
-
-        try {
-            const range = document.createRange();
-            range.selectNode(table as Node);
-            window.getSelection()?.addRange(range);
-            document.execCommand('copy');
-            window.getSelection()?.removeRange(range);
-        } catch (e) {
-            try {
-                const content = (table as Element).innerHTML;
-                const blobInput = new Blob([content], { type: 'text/html' });
-                const clipboardItemInput = new ClipboardItem({ 'text/html': blobInput });
-                navigator.clipboard.write([clipboardItemInput]);
-            }
-            catch (e) {
-                this.error("Copy failed")
-                return
-            }
-        }
+        this.copyTableToClipboard(table);
         this.gridPanel?.find("tr.data-row.unselected").addClass("selected").removeClass("unselected")
         this.info("Grid copied to clipboard", this.gridPanel as JQuery<HTMLElement>)
     }
@@ -914,16 +921,16 @@ class DbNetGrid extends DbNetGridEdit {
 
         $button.addClass("open");
 
-        if (row.next().hasClass("nested-grid-row")) {
+        if (row.next().hasClass("nested-component-row")) {
             row.next().show();
             return;
         }
 
         const newRow = table[0].insertRow(row[0].rowIndex + 1);
-        newRow.className = "nested-grid-row";
+        newRow.className = "nested-component-row";
         newRow.insertCell(-1);
         const gridCell = newRow.insertCell(-1);
-        gridCell.className = "nested-grid-cell";
+        gridCell.className = "nested-component-cell";
         gridCell.colSpan = row[0].cells.length - 1;
 
         const handlers = this.eventHandlers["onNestedClick"]

@@ -6,6 +6,7 @@
         public string ConnectionTypeSuffix { get; set; }
         public string ConnectionTypeName => $"{AssemblyName}.{ConnectionTypeSuffix}";
         public string AdapterTypeName => $"{AssemblyName}.{ConnectionTypeSuffix.Replace("Connection", "DataAdapter")}";
+        public string PackageName => AssemblyName;
 
         public CustomDataProvider(string assemblyName, string connectionTypeSuffix) 
         {

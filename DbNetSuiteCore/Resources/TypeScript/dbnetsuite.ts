@@ -1,4 +1,4 @@
-type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onConfigureBinaryData" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted" | "onRecordDeleted" | "onInsertInitalize" | "onRecordSelected" | "onFileSelected" | "onFormElementValidationFailed"
+type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onConfigureBinaryData" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted" | "onRecordDeleted" | "onInsertInitalize" | "onRecordSelected" | "onFileSelected" | "onFormElementValidationFailed" | "onJsonUpdated"
 
 type DataProvider = "SqlClient" | "SQLite" | "MySqlConnector" | "Npgsql" | "MySql" | null
 interface CellDataDownloadArgs {
@@ -28,7 +28,7 @@ type InternalEventHandler = {
 type EmptyCallback = (sender: DbNetSuite, args?: object) => void;
 class DbNetSuite {
     public static DBNull = "DBNull";
-    public datePickerOptions: JQueryUI.DatepickerOptions = {};
+    public static datePickerOptions: JQueryUI.DatepickerOptions = {};
     protected element: JQuery<HTMLElement> | undefined = undefined;
     protected eventHandlers: Dictionary<Array<EventHandler>> = {};
     protected internalEventHandlers: Dictionary<Array<InternalEventHandler>> = {};
@@ -44,6 +44,11 @@ class DbNetSuite {
     protected imageViewer: ImageViewer | undefined;
     protected parentControl: DbNetSuite | null = null;
     protected dataProvider: DataProvider | null = null;
+    quickSearch = false;
+    quickSearchDelay = 1000;
+    quickSearchMinChars = 3;
+    quickSearchTimerId: number | undefined;
+    quickSearchToken = "";
     constructor(id: string | null) {
         if (id == null) {
             return;
@@ -53,6 +58,7 @@ class DbNetSuite {
         this.element.addClass("dbnetsuite").addClass("cleanslate").addClass("empty");
 
         this.checkStyleSheetLoaded();
+        this.jQueryCheck();
 
         if (this.element.length == 0) {
             this.error(`${this.constructor.name} container element '${this.id}' not found`);
@@ -94,7 +100,13 @@ class DbNetSuite {
 
         if (!found) {
             alert("DbNetSuite stylesheet not found. Add @DbNetSuiteCore.StyleSheet() to your Razor page. See console for details.");
-            console.error("DbNetSuite stylesheet not found. See https://dbnetsuitecore.z35.web.core.windows.net/index.htm?context=20#DbNetSuiteCoreStyleSheet");
+            console.error("DbNetSuite stylesheet not found. See https://docs.dbnetsuitecore.com/index.htm?context=20#DbNetSuiteCoreStyleSheet");
+        }
+    }
+
+    jQueryCheck() {
+        if ($("div").draggable == undefined) {
+            alert("Error: please ensure you have not loaded another instance of JQuery after running @DbNetSuiteCore.ClientScript()")
         }
     }
 
@@ -278,14 +290,15 @@ class DbNetSuite {
 
         let format: string = $input.attr("format") as string;
 
-        let pattern: keyof typeof formats;
-        for (pattern in formats) {
-            const re = new RegExp(`\\b${pattern}\\b`);
-            format = format.replace(re, formats[pattern]);
-        }
-        if (format != undefined)
+        if (format != undefined) {
+            let pattern: keyof typeof formats;
+            for (pattern in formats) {
+                const re = new RegExp(`\\b${pattern}\\b`);
+                format = format.replace(re, formats[pattern]);
+            }
             if (format != $input.attr("format"))
                 options.dateFormat = format;
+        }
 
         options.onSelect = this.pickerSelected;
 
@@ -310,6 +323,9 @@ class DbNetSuite {
         if (this instanceof DbNetEdit) {
             (this as DbNetEdit).configureLinkedControl(control, pk);
         }
+        if (this instanceof DbNetFile) {
+            (this as DbNetFile).configureLinkedControl(control as DbNetFile, id as object);
+        }
     }
 
     protected _getRequest(): DbNetSuiteRequest {
@@ -318,7 +334,7 @@ class DbNetSuite {
             connectionString: this.connectionString,
             culture: this.culture,
             parentControlType: this.parentControlType,
-            dataProvider: this.dataProvider
+            dataProvider: this.dataProvider as string
         };
 
         return request;
@@ -330,10 +346,18 @@ class DbNetSuite {
         window.setTimeout(() => { this.element?.removeClass(className) }, 3000);
     }
 
-
     protected viewImage(event: JQuery.ClickEvent<HTMLElement>) {
+        const $img = $(event.currentTarget);
+        this.openImageViewer($img.attr("src") as string, $img.data("filename"));
+    }
+
+    protected viewUrl(url: string, fileName:string, type = "Image") {
+        this.openImageViewer(url, fileName, type);
+    }
+
+    private openImageViewer(src: string, fileName: string, type = "Image") {
         if (this.imageViewer) {
-            this.imageViewer.show($(event.currentTarget));
+            this.imageViewer.show(src, fileName, type);
             return;
         }
         this.post<DbNetSuiteResponse>("image-viewer", this._getRequest(), false, "dbnetsuite")
@@ -341,9 +365,59 @@ class DbNetSuite {
                 if (!this.imageViewer) {
                     this.element?.append(response.html);
                     this.imageViewer = new ImageViewer(`${this.id}_image_viewer`);
-                    this.imageViewer.show($(event.currentTarget));
+                    this.imageViewer.show(src, fileName, type);
                 }
             })
+    }
+
+    protected quickSearchKeyPress(event: JQuery.TriggeredEvent): void {
+        const el = event.target as HTMLInputElement;
+        window.clearTimeout(this.quickSearchTimerId);
+
+        if (el.value.length >= this.quickSearchMinChars || el.value.length == 0 || event.key == 'Enter')
+            this.quickSearchTimerId = window.setTimeout(() => { this.runQuickSearch(el.value) }, this.quickSearchDelay);
+    }
+
+    private runQuickSearch(token: string) {
+        this.quickSearchToken = token;
+        if (this instanceof DbNetGrid) {
+            const grid = this as DbNetGrid;
+            grid.reload();
+        }
+        else if (this instanceof DbNetEdit) {
+            const edit = this as DbNetEdit;
+            edit.currentRow = 1;
+            edit.getRows();
+        }
+        else if (this instanceof DbNetFile) {
+            const file = this as DbNetFile;
+            file.reload();
+        }
+    }
+
+    protected copyTableToClipboard(table:HTMLTableElement) {
+        try {
+            const range = document.createRange();
+            range.selectNode(table as Node);
+            window.getSelection()?.addRange(range);
+            document.execCommand('copy');
+            window.getSelection()?.removeRange(range);
+        } catch (e) {
+            try {
+                const content = (table as Element).innerHTML;
+                const blobInput = new Blob([content], { type: 'text/html' });
+                const clipboardItemInput = new ClipboardItem({ 'text/html': blobInput });
+                navigator.clipboard.write([clipboardItemInput]);
+            }
+            catch (e) {
+                this.error("Copy failed")
+                return
+            }
+        }
+    }
+
+    protected sleep(s:number) {
+        return new Promise(resolve => setTimeout(resolve, s * 1000));
     }
 }
 

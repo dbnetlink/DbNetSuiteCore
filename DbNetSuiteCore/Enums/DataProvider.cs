@@ -6,6 +6,7 @@
         MySql,
         Npgsql,
         SQLite,
-        MySqlConnector
+        MySqlConnector,
+        DataTable
     };
 }

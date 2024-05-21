@@ -7,13 +7,23 @@ namespace DbNetSuiteCore.Components
 {
     public class DbNetGridCoreColumn : DbNetGridEditCoreColumn
     {
-        internal DbNetGridCoreColumn(string[] columnNames, List<ColumnProperty> columnProperties, string fromPart, List<string> columns) : base(columnNames, columnProperties, fromPart, columns)
+        private readonly DbNetGridCore _gridControl;
+        internal DbNetGridCoreColumn(string[] columnNames, List<ColumnProperty> columnProperties, string fromPart, List<string> columns, DbNetGridCore gridControl) : base(columnNames, columnProperties, fromPart, columns)
         {
+            _gridControl = gridControl;
         }
         /// <summary>
         /// Assigns a foreign key based lookup against a column to provide a descriptive value
         /// </summary>
-        public new DbNetGridCoreColumn Lookup(Lookup lookup)
+        public DbNetGridCoreColumn Lookup(Lookup lookup)
+        {
+            base.Lookup(lookup);
+            return this;
+        }
+        /// <summary>
+        /// Assigns a dictionary based lookup against a column to provide a descriptive value
+        /// </summary>
+        public new DbNetGridCoreColumn Lookup<T>(Dictionary<T, string> lookup)
         {
             base.Lookup(lookup);
             return this;
@@ -183,6 +193,25 @@ namespace DbNetSuiteCore.Components
         public DbNetGridCoreColumn GroupHeader()
         {
             SetColumnProperty(ColumnPropertyType.GroupHeader, true);
+            return this;
+        }
+        /// <summary>
+        /// Sets the column as the primary key 
+        /// </summary>
+        public new DbNetGridCoreColumn PrimaryKey(bool autoIncrement = true)
+        {
+            base.PrimaryKey(autoIncrement);
+
+            switch (_gridControl._dataSourceType)
+            {
+                case DataSourceType.List:
+                case DataSourceType.JSON:
+                    if (_gridControl.EditControl != null)
+                    {
+                        _gridControl.EditControl.Column(_columnNames[0]).PrimaryKey(autoIncrement).ForeignKey();
+                    }
+                    break;
+            }
             return this;
         }
     }
