@@ -245,7 +245,7 @@ class DbNetSuite {
     }
     _configureLinkedControl(control, id, pk, fk) {
         if (this instanceof DbNetGrid) {
-            this.configureLinkedControl(control, id, pk, fk);
+            this.configureLinkedControl(control, id, pk);
         }
         if (this instanceof DbNetCombo) {
             this.configureLinkedControl(control, id, pk);
@@ -345,8 +345,11 @@ class DbNetSuite {
 }
 DbNetSuite.DBNull = "DBNull";
 DbNetSuite.datePickerOptions = {};
+
+/*
 document.addEventListener("DOMContentLoaded", function () {
     if ($.fn.button && $.fn.button.noConflict !== undefined) {
         $.fn.bootstrapBtn = $.fn.button.noConflict();
     }
 });
+*/

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 type DbConnectionType = "Sqlite" | "SqlServer"
 type ColumnPropertyType = "format" | "lookup" | "style" | "foreignKey" | "filter" | "filterMode" | "download" | "image"
 type ToolbarPosition = "Top" | "Bottom" | "Hidden" | undefined
@@ -114,7 +116,7 @@ class DbNetGrid extends DbNetGridEdit {
             });
     }
 
-    addNestedGrid(handler: EventHandler) {
+    addNestedGrid(handler: Function) {
         this.bind("onNestedClick", handler);
         this.nestedGrid = true;
     }
@@ -349,7 +351,7 @@ class DbNetGrid extends DbNetGridEdit {
         this.element?.removeClass("dbnetsuite");
         this.toolbarPanel?.addClass("dbnetsuite");
         this.gridPanel?.html(_html);
-        this.gridPanel?.find("table").DataTable();
+        (this.gridPanel?.find("table") as any).DataTable();
     }
 
     private renderChart() {
@@ -868,7 +870,7 @@ class DbNetGrid extends DbNetGridEdit {
     }
 
     public getRequest(): DbNetGridRequest {
-        this.defaultColumn = this.columns.find((col) => { return col.columnExpression == "*" });
+        this.defaultColumn = this.columns.find((col) => { return col.columnExpression == "*" }) as GridColumn;
         if (this.defaultColumn) {
             this.columns = this.columns.filter(item => item !== this.defaultColumn)
         }
@@ -941,7 +943,7 @@ class DbNetGrid extends DbNetGridEdit {
         }
     }
 
-    private configureNestedGrid(handler: EventHandler, cell: HTMLTableCellElement, pk: object) {
+    private configureNestedGrid(handler: Function, cell: HTMLTableCellElement, pk: object) {
         const gridId = `dbnetgrid${new Date().valueOf()}`;
         jQuery(document.createElement("div")).attr("id", gridId).appendTo($(cell));
         const grid = new DbNetGrid(gridId);
@@ -953,7 +955,7 @@ class DbNetGrid extends DbNetGridEdit {
         grid.initialize();
     }
 
-    public configureLinkedControl(control: DbNetSuite, id: object | null, pk: string | null, fk: object | null) {
+    public configureLinkedControl(control: DbNetSuite, id: object | null, pk: string | null) {
         if (control instanceof DbNetGrid) {
             const grid = control as DbNetGrid;
             this.assignForeignKey(grid, id);

@@ -42,8 +42,8 @@ class DbNetGridEdit extends DbNetSuite {
         });
     }
     setColumnProperty(columnName, property, propertyValue) {
-        if (columnName instanceof (Array)) {
-            columnName.forEach(c => this.setColumnProperty(c, property, propertyValue));
+        if (Array.isArray(columnName)) {
+            columnName.forEach(c => this.setColumnProperty(c.toString(), property, propertyValue));
             return;
         }
         let matchingColumn = this.columns.find((col) => { return this.matchingColumn(col, columnName); });

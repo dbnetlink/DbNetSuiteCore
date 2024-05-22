@@ -1,4 +1,5 @@
-﻿type TextTransform = "uppercase" | "lowercase" | "capitalize"
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
+type TextTransform = "uppercase" | "lowercase" | "capitalize"
 class EditColumn extends DbColumn{
     annotation?: string;
     autoIncrement?: boolean;
@@ -15,7 +16,7 @@ class EditColumn extends DbColumn{
         super();
         Object.keys(properties).forEach((key) => {
             if (properties[key as keyof EditColumnResponse] !== undefined)
-                this[key as keyof EditColumnResponse] = properties[key as keyof EditColumnResponse] as any;
+                (this as any)[key as keyof EditColumnResponse] = properties[key as keyof EditColumnResponse] as any;
         });
 
         this.unmatched = unmatched;

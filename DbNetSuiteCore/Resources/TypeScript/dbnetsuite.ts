@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-types */
 type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onConfigureBinaryData" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted" | "onRecordDeleted" | "onInsertInitalize" | "onRecordSelected" | "onFileSelected" | "onFormElementValidationFailed" | "onJsonUpdated"
 
 type DataProvider = "SqlClient" | "SQLite" | "MySqlConnector" | "Npgsql" | "MySql" | null
@@ -15,14 +17,9 @@ interface ViewRecordSelectedArgs {
     row: HTMLTableRowElement
 }
 
-type EventHandler = {
-    sender: DbNetSuite;
-    params: object | undefined;
-};
-
 type InternalEventHandler = {
     context: DbNetSuite;
-    method: EventHandler;
+    method: Function;
 };
 
 type EmptyCallback = (sender: DbNetSuite, args?: object) => void;
@@ -30,7 +27,7 @@ class DbNetSuite {
     public static DBNull = "DBNull";
     public static datePickerOptions: JQueryUI.DatepickerOptions = {};
     protected element: JQuery<HTMLElement> | undefined = undefined;
-    protected eventHandlers: Dictionary<Array<EventHandler>> = {};
+    protected eventHandlers: Dictionary<Array<Function>> = {};
     protected internalEventHandlers: Dictionary<Array<InternalEventHandler>> = {};
     protected id = "";
     protected loadingPanel: JQuery<HTMLElement> | undefined;
@@ -66,7 +63,7 @@ class DbNetSuite {
         }
     }
 
-    bind(event: EventName, handler: EventHandler ) {
+    bind(event: EventName, handler: Function ) {
         if (!this.eventHandlers[event])
             this.eventHandlers[event] = [];
         this.eventHandlers[event].push(handler);
@@ -78,7 +75,7 @@ class DbNetSuite {
         this.internalEventHandlers[event].push({ sender: this, method: callback } as unknown as InternalEventHandler);
     }
 
-    unbind(event: EventName, handler: EventHandler) {
+    unbind(event: EventName, handler: Function) {
         if (this.eventHandlers[event] == null)
             return;
 
@@ -119,7 +116,7 @@ class DbNetSuite {
         if (this.eventHandlers[event]) {
             const events = this.eventHandlers[event];
 
-            events.forEach((handler: EventHandler) => {
+            events.forEach((handler: Function) => {
                 let args: object[] = [this];
 
                 if (params) {
@@ -313,9 +310,9 @@ class DbNetSuite {
         }
     }
 
-    private _configureLinkedControl(control: DbNetSuite, id: object | null, pk: string | null, fk: object | null) {
+    private _configureLinkedControl(control: DbNetSuite, id: object | null, pk: string | null, fk: object | string |  null) {
         if (this instanceof DbNetGrid) {
-            (this as DbNetGrid).configureLinkedControl(control, id, pk, fk as object);
+            (this as DbNetGrid).configureLinkedControl(control, id, pk);
         }
         if (this instanceof DbNetCombo) {
             (this as DbNetCombo).configureLinkedControl(control, id as string[], pk);
@@ -422,7 +419,7 @@ class DbNetSuite {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    if ($.fn.button && $.fn.button.noConflict !== undefined) {
-        $.fn.bootstrapBtn = $.fn.button.noConflict();
+    if ($.fn.button && ($.fn.button as any).noConflict !== undefined) {
+        ($.fn as any).bootstrapBtn = ($.fn.button as any).noConflict();
     }
 });

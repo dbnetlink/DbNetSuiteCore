@@ -283,7 +283,7 @@ class DbNetGrid extends DbNetGridEdit {
         (_a = this.element) === null || _a === void 0 ? void 0 : _a.removeClass("dbnetsuite");
         (_b = this.toolbarPanel) === null || _b === void 0 ? void 0 : _b.addClass("dbnetsuite");
         (_c = this.gridPanel) === null || _c === void 0 ? void 0 : _c.html(_html);
-        (_d = this.gridPanel) === null || _d === void 0 ? void 0 : _d.find("table").DataTable();
+        ((_d = this.gridPanel) === null || _d === void 0 ? void 0 : _d.find("table")).DataTable();
     }
     renderChart() {
         if (!this.googleChartOptions) {
@@ -811,7 +811,7 @@ class DbNetGrid extends DbNetGridEdit {
         this.assignForeignKey(grid, pk);
         grid.initialize();
     }
-    configureLinkedControl(control, id, pk, fk) {
+    configureLinkedControl(control, id, pk) {
         if (control instanceof DbNetGrid) {
             const grid = control;
             this.assignForeignKey(grid, id);

@@ -16,20 +16,16 @@ interface ViewRecordSelectedArgs {
     record: Dictionary<object> | undefined;
     row: HTMLTableRowElement;
 }
-type EventHandler = {
-    sender: DbNetSuite;
-    params: object | undefined;
-};
 type InternalEventHandler = {
     context: DbNetSuite;
-    method: EventHandler;
+    method: Function;
 };
 type EmptyCallback = (sender: DbNetSuite, args?: object) => void;
 declare class DbNetSuite {
     static DBNull: string;
     static datePickerOptions: JQueryUI.DatepickerOptions;
     protected element: JQuery<HTMLElement> | undefined;
-    protected eventHandlers: Dictionary<Array<EventHandler>>;
+    protected eventHandlers: Dictionary<Array<Function>>;
     protected internalEventHandlers: Dictionary<Array<InternalEventHandler>>;
     protected id: string;
     protected loadingPanel: JQuery<HTMLElement> | undefined;
@@ -49,9 +45,9 @@ declare class DbNetSuite {
     quickSearchTimerId: number | undefined;
     quickSearchToken: string;
     constructor(id: string | null);
-    bind(event: EventName, handler: EventHandler): void;
+    bind(event: EventName, handler: Function): void;
     internalBind(event: EventName, callback: EmptyCallback): void;
-    unbind(event: EventName, handler: EventHandler): void;
+    unbind(event: EventName, handler: Function): void;
     checkStyleSheetLoaded(): void;
     jQueryCheck(): void;
     addLinkedControl(control: DbNetSuite): void;

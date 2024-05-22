@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 type ParentChildRelationship = "OneToOne" | "OneToMany" | null
 
 class DbNetGridEdit extends DbNetSuite {
@@ -53,8 +54,8 @@ class DbNetGridEdit extends DbNetSuite {
     }
 
     setColumnProperty(columnName: string | Array<string>, property: string, propertyValue: object): void {
-        if (columnName instanceof Array<string>) {
-            columnName.forEach(c => this.setColumnProperty(c, property, propertyValue));
+        if (Array.isArray(columnName)) {
+            columnName.forEach(c => this.setColumnProperty(c.toString(), property, propertyValue));
             return;
         }
         let matchingColumn = this.columns.find((col) => { return this.matchingColumn(col, columnName) });
@@ -69,7 +70,7 @@ class DbNetGridEdit extends DbNetSuite {
 
     setColumnProperties(columnName: string, properties: object) {
         Object.keys(properties).forEach((key: string) => {
-            this.setColumnProperty(columnName, key, properties[key]);
+            this.setColumnProperty(columnName, key, (properties as any)[key]);
         });
     }
 

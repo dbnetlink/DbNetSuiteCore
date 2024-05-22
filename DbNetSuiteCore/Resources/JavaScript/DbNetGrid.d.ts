@@ -73,7 +73,7 @@ declare class DbNetGrid extends DbNetGridEdit {
     viewLayoutColumns: number;
     constructor(id: string);
     initialize(): void;
-    addNestedGrid(handler: EventHandler): void;
+    addNestedGrid(handler: Function): void;
     addLinkedGrid(grid: DbNetGrid): void;
     columnIndex(columnName: string): number;
     columnCell(columnName: string, row: HTMLTableRowElement | undefined): HTMLTableCellElement | null;
@@ -127,7 +127,7 @@ declare class DbNetGrid extends DbNetGridEdit {
     private addEventListener;
     private openNestedGrid;
     private configureNestedGrid;
-    configureLinkedControl(control: DbNetSuite, id: object | null, pk: string | null, fk: object | null): void;
+    configureLinkedControl(control: DbNetSuite, id: object | null, pk: string | null): void;
     private initialiseEdit;
     downloadBinaryData(element: HTMLElement, image: boolean): void;
     configureEditButtons(edit: DbNetEdit): void;

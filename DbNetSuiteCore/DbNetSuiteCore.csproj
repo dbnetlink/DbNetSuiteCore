@@ -17,8 +17,8 @@
     <Version>1.0.17</Version>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <BaseOutputPath>C:\Users\RobinCoode\source\repos\DbNetSuiteCore\DbNetSuiteCore.Web.UI\bin\Debug\net7.0</BaseOutputPath>
-    <PackageOutputPath>C:\Users\RobinCoode\source\dbnetsuitecore\bin\Debug\net7.0</PackageOutputPath>
+    <BaseOutputPath></BaseOutputPath>
+    <PackageOutputPath></PackageOutputPath>
     <Copyright>Copyright (c) DbNetLink Limited 2024</Copyright>
     <PackAsTool>False</PackAsTool>
   </PropertyGroup>
@@ -342,7 +342,7 @@
 
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.102.2" />
-    <PackageReference Include="DocumentFormat.OpenXml" Version="3.0.2" />
+    <PackageReference Include="DocumentFormat.OpenXml" Version="2.20.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="7.0.19" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.5" />
