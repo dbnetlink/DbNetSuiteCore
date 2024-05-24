@@ -60,7 +60,7 @@ class DbNetSuite {
         }
         if (!found) {
             alert("DbNetSuite stylesheet not found. Add @DbNetSuiteCore.StyleSheet() to your Razor page. See console for details.");
-            console.error("DbNetSuite stylesheet not found. See https://docs.dbnetsuitecore.com/index.htm?context=20#DbNetSuiteCoreStyleSheet");
+            console.error("DbNetSuite stylesheet not found. See https://dbnetsuitecore.z35.web.core.windows.net/index.htm?context=20#DbNetSuiteCoreStyleSheet");
         }
     }
     jQueryCheck() {
@@ -345,11 +345,8 @@ class DbNetSuite {
 }
 DbNetSuite.DBNull = "DBNull";
 DbNetSuite.datePickerOptions = {};
-
-/*
 document.addEventListener("DOMContentLoaded", function () {
     if ($.fn.button && $.fn.button.noConflict !== undefined) {
         $.fn.bootstrapBtn = $.fn.button.noConflict();
     }
 });
-*/

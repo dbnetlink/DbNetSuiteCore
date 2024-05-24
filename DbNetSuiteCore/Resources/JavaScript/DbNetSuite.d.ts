@@ -1,7 +1,6 @@
 /// <reference types="jquery" />
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
-/// <reference types="bootstrap" />
 type EventName = "onRowTransform" | "onNestedClick" | "onCellTransform" | "onPageLoaded" | "onRowSelected" | "onConfigureBinaryData" | "onViewRecordSelected" | "onInitialized" | "onOptionSelected" | "onOptionsLoaded" | "onFormElementCreated" | "onRecordUpdated" | "onRecordInserted" | "onRecordDeleted" | "onInsertInitalize" | "onRecordSelected" | "onFileSelected" | "onFormElementValidationFailed" | "onJsonUpdated";
 type DataProvider = "SqlClient" | "SQLite" | "MySqlConnector" | "Npgsql" | "MySql" | null;
 interface CellDataDownloadArgs {

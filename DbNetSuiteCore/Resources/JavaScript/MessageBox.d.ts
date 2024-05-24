@@ -1,7 +1,6 @@
 /// <reference types="jquery" />
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
-/// <reference types="bootstrap" />
 declare enum MessageBoxType {
     Error = 0,
     Confirm = 1,

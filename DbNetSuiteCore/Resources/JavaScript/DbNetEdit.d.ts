@@ -1,7 +1,6 @@
 /// <reference types="jquery" />
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
-/// <reference types="bootstrap" />
 type DbNetEditResponseCallback = (response: DbNetEditResponse) => void;
 declare enum EditMode {
     Insert = 0,

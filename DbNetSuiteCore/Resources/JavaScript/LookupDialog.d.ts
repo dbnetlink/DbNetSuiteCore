@@ -1,7 +1,6 @@
 /// <reference types="jquery" />
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
-/// <reference types="bootstrap" />
 declare class LookupDialog extends Dialog {
     parent: DbNetGridEdit;
     $input: JQuery<HTMLInputElement> | undefined;

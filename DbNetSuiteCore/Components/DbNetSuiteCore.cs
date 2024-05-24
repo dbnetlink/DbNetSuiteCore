@@ -280,7 +280,7 @@ namespace DbNetSuiteCore.Components
 document.addEventListener('DOMContentLoaded', function() {{init_{_id}()}});
 function init_{_id}()
 {{
-    if (typeof({ComponentTypeName}) == 'undefined') {{alert('DbNetSuite client-side code has not loaded. Add @DbNetSuiteCore.ClientScript() to your razor page. See console for details');console.error(""DbNetSuite stylesheet not found. See https://docs.dbnetsuitecore.com/index.htm?context=20#DbNetSuiteCoreClientScript"");return;}};";
+    if (typeof({ComponentTypeName}) == 'undefined') {{alert('DbNetSuite client-side code has not loaded. Add @DbNetSuiteCore.ClientScript() to your razor page. See console for details');console.error(""DbNetSuite stylesheet not found. See https://dbnetsuitecore.z35.web.core.windows.net/index.htm?context=20#DbNetSuiteCoreClientScript"");return;}};";
         }
 
         protected string LinkedControls()

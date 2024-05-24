@@ -1,7 +1,6 @@
 /// <reference types="jquery" />
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
-/// <reference types="bootstrap" />
 declare class ImageViewer extends Dialog {
     $image: JQuery<HTMLImageElement>;
     $video: JQuery<HTMLVideoElement>;

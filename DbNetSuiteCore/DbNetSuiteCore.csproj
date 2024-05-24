@@ -9,12 +9,12 @@
     <Title>Interactive data-driven Razor components for ASP.Net Core</Title>
     <Description>Interactive database driven Razor web application development UI components for ASP.NET Core.  Supports JSON, List&lt;T&gt;, MSSQL, MySQL MariaDB, PostgreSQL and SQLite. </Description>
     <RepositoryUrl>https://github.com/dbnetlink/DbNetSuiteCore</RepositoryUrl>
-    <PackageTags>asp.netcore;components;component;asp.net;core;razor;blazor;react;spreadsheet;excel;grid;form;drop-down; list;application;svelte;data-driven;CRUD;</PackageTags>
-    <AssemblyVersion>1.0.17</AssemblyVersion>
-    <FileVersion>1.0.17</FileVersion>
+    <PackageTags>asp.netcore;components;component;asp.net;core;razor;blazor;htmx;spreadsheet;excel;grid;form;drop-down; list;application;svelte;data-driven;CRUD;</PackageTags>
+    <AssemblyVersion>1.0.19</AssemblyVersion>
+    <FileVersion>1.0.19</FileVersion>
     <PackageReleaseNotes>Includes DbNetGridCore (grid), DbNetEditCore (form), DbNetComboCore (drop-down list) and DbNetFile (file system)</PackageReleaseNotes>
     <PackageProjectUrl>https://dbnetsuitecore.com</PackageProjectUrl>
-    <Version>1.0.17</Version>
+    <Version>1.0.19</Version>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <BaseOutputPath></BaseOutputPath>

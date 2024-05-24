@@ -1,7 +1,6 @@
 /// <reference types="jquery" />
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
-/// <reference types="bootstrap" />
 declare class DbNetCombo extends DbNetSuite {
     addEmptyOption: boolean;
     addFilter: boolean;

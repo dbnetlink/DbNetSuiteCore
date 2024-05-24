@@ -1,7 +1,6 @@
 /// <reference types="jquery" />
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
-/// <reference types="bootstrap" />
 declare class UploadDialog extends Dialog {
     parent: DbNetEdit;
     inputFile: HTMLInputElement;

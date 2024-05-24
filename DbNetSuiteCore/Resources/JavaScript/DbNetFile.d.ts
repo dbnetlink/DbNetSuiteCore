@@ -1,7 +1,6 @@
 /// <reference types="jquery" />
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
-/// <reference types="bootstrap" />
 type DbNetFileResponseCallback = (response: DbNetFileResponse) => void;
 declare class DbNetFile extends DbNetSuite {
     rootFolder: string;

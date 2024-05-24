@@ -16,7 +16,12 @@
             width: "auto",
             autoResize: true,
             maxWidth: this.windowWidth - 100,
-            maxHeight: this.windowHeight - 100
+            maxHeight: this.windowHeight - 100,
+            open: function () {
+                $(this).closest(".ui-dialog")
+                    .find(".ui-dialog-titlebar-close")
+                    .html("<span class='ui-button-icon-primary ui-icon ui-icon-closethick'></span>");
+            }
 
         } as JQueryUI.DialogOptions;
 

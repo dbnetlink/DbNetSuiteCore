@@ -1,7 +1,6 @@
 /// <reference types="jquery" />
 /// <reference types="jquery" />
 /// <reference types="jqueryui" />
-/// <reference types="bootstrap" />
 type ParentChildRelationship = "OneToOne" | "OneToMany" | null;
 declare class DbNetGridEdit extends DbNetSuite {
     columnName: string | undefined;
