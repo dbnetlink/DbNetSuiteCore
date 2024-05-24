@@ -97,7 +97,8 @@ namespace DbNetSuiteCore.Services
 
         private string DatePickerOptions()
         {
-            DatePickerOptions datePickerOptions = new DatePickerOptions(this.Culture);
+            SetCulture();
+            DatePickerOptions datePickerOptions = new DatePickerOptions();
             return Serialize(datePickerOptions);
         }
 

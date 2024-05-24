@@ -7,13 +7,9 @@ namespace DbNetSuiteCore.Models
     public class DatePickerOptions
     {
         private readonly CultureInfo _culture;
-        public DatePickerOptions(string culture = null)
+        public DatePickerOptions()
         {
             _culture = Thread.CurrentThread.CurrentCulture;
-            if (string.IsNullOrEmpty(culture) == false)
-            {
-                _culture = new CultureInfo(culture);
-            }
         }
         public bool ChangeMonth { get; set; } = true;
         public bool ChangeYear { get; set; } = true;

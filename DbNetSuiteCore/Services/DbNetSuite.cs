@@ -220,7 +220,7 @@ namespace DbNetSuiteCore.Services
             return Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(text);
         }
 
-        private void SetCulture()
+        protected void SetCulture()
         {
             if (string.IsNullOrEmpty(Culture))
             {
